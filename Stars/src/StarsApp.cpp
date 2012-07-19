@@ -348,7 +348,7 @@ void StarsApp::enablePointSprites()
 	
 	if(mShader) {
 		mShader.bind();
-		mShader.uniform("size", 40.0f);
+		mShader.uniform("size", 24.0f);
 	}
 	else {
 		// use fixed-function pipeline
@@ -356,8 +356,8 @@ void StarsApp::enablePointSprites()
 		glPointParameterfvARB( GL_POINT_DISTANCE_ATTENUATION_ARB, quadratic );
 		glPointParameterfARB( GL_POINT_FADE_THRESHOLD_SIZE_ARB, 1.0f );
 		glPointParameterfARB( GL_POINT_SIZE_MIN_ARB, 0.1f );
-		glPointParameterfARB( GL_POINT_SIZE_MAX_ARB, 40.0f );
-		glPointSize( 40.0f );
+		glPointParameterfARB( GL_POINT_SIZE_MAX_ARB, 24.0f );
+		glPointSize( 24.0f );
 
 		glTexEnvf( GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE );
 	}
