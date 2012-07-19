@@ -16,3 +16,6 @@
 /Stars/vc10/ipch
 /SimpleShader/vc10/Release
 /SimpleShader/vc10/Debug
+/geometryshader/vc10/Release
+/geometryshader/vc10/Debug
+/geometryshader/vc10/ipch
