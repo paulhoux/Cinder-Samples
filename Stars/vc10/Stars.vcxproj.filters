@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{52acb88b-6e39-4c4f-b9fe-8818f3f5c7e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\StarsApp.cpp">
@@ -23,10 +26,18 @@
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>  
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\assets\stars_frag.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\stars_vert.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
