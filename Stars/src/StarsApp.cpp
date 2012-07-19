@@ -85,6 +85,7 @@ void StarsApp::setup()
 
 	//
 	mEnablePointSprites = true;
+	mEnableAutoPointSprites = true;
 	mEnableAnimation = true;
 }
 
@@ -258,8 +259,6 @@ void StarsApp::loadStars()
 
 	// load the star database
 	std::string	stars = loadString( loadAsset("hyg.csv") );
-
-	double max_brightness = 0.0;
 
 	// use boost tokenizer to parse the file
 	std::vector<std::string> tokens;
