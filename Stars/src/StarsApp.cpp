@@ -14,6 +14,8 @@
 #include <boost/format.hpp>
 #include <boost/tokenizer.hpp>
 
+#include "Background.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -49,11 +51,13 @@ protected:
 	CameraPersp		mCam;
 	MayaCamUI		mMayaCam;
 
-	gl::GlslProg	mShader;
-	gl::Texture		mTexture;
-	gl::VboMesh		mStarsMesh;
+	gl::GlslProg	mStarShader;
+	gl::Texture		mStarTexture;
+	gl::VboMesh		mStarMesh;
 
 	gl::VboMesh		mGridMesh;
+	
+	Background		mBackground;
 
 	Font			mFont;
 	std::string		mTextFormat;
@@ -64,6 +68,9 @@ protected:
 	bool			mEnableGrid;
 
 	bool			mIsCursorVisible;
+
+	double			mStartTime;
+
 };
 
 void StarsApp::prepareSettings(Settings *settings)
@@ -85,7 +92,7 @@ void StarsApp::setup()
 	mTextFormat = std::string("%.0f lightyears from the Sun");
 
 	// initialize camera
-	mCameraEyePoint = Vec3f(-1, 0, 0);
+	mCameraEyePoint = Vec3f(0, 0, 0);
 
 	mCam.setFov(60.0f);
 	mCam.setNearClip( 0.01f );
@@ -94,23 +101,28 @@ void StarsApp::setup()
 	mCam.setCenterOfInterestPoint( Vec3f(0, 0, 0) );
 	
 	mMayaCam.setCurrentCam( mCam );
+
+	// 
+	mBackground.setup();
 	
 	// load shader and point sprite texture
-	try { mShader = gl::GlslProg( loadAsset("stars_vert.glsl"), loadAsset("stars_frag.glsl") ); }
+	try { mStarShader = gl::GlslProg( loadAsset("stars_vert.glsl"), loadAsset("stars_frag.glsl") ); }
 	catch( const std::exception &e ) { console() << e.what() << std::endl; quit(); }	
 
-	try { mTexture = gl::Texture( loadImage( loadAsset("particle.png") ) ); }
+	try { mStarTexture = gl::Texture( loadImage( loadAsset("particle.png") ) ); }
 	catch( const std::exception &e ) { console() << e.what() << std::endl; quit(); }
 
 	//
 	mEnableAnimation = true;
-	mEnableGrid = true;
+	mEnableGrid = false;
 
 	//
 	forceHideCursor();
 
 	//
 	mTimer.start();
+
+	mStartTime = getElapsedSeconds();
 }
 
 void StarsApp::update()
@@ -143,29 +155,41 @@ void StarsApp::update()
 	mCam.setEyePoint( mCameraEyePoint );
 	mCam.setCenterOfInterestPoint( Vec3f::zero() );
 	mMayaCam.setCurrentCam( mCam );
+
+	//
+	mBackground.setCameraDistance( mCameraEyePoint.length() );
 }
 
 void StarsApp::draw()
 {		
 	glLineWidth( 2.0f );
 
-	gl::clear( Color(0.05f, 0.05f, 0.05f) ); 
+	gl::clear( Color::black() ); 
 	
 	gl::pushMatrices();
 	gl::setMatrices( mMayaCam.getCamera() );
 	{
+		gl::enableDepthRead();
+		gl::enableDepthWrite();
+
 		// draw grid
 		if(mEnableGrid && mGridMesh) {
 			gl::color( Color::black() );
 			gl::draw( mGridMesh );
 		}
 
+		// draw background
+		mBackground.draw();
+
+		gl::disableDepthWrite();
+		gl::disableDepthRead();
+
 		// draw stars
 		gl::enableAdditiveBlending();		
 		enablePointSprites();
 
 		gl::color( Color::white() );
-		if(mStarsMesh) gl::draw( mStarsMesh );
+		if(mStarMesh) gl::draw( mStarMesh );
 
 		disablePointSprites();
 		gl::disableAlphaBlending();
@@ -183,6 +207,15 @@ void StarsApp::draw()
 		(boost::format(mTextFormat) % (mCameraEyePoint.length() * 3.261631f)).str(), 
 		position, Color::white(), mFont );
 
+	// fade in at start of application
+	double t = math<double>::clamp( (getElapsedSeconds() - mStartTime) / 5.0, 0.0, 1.0 );
+	float a = ci::lerp<float>(1.0f, 0.0f, (float) t);
+
+	if( a > 0.0f ) {
+		gl::color( ColorA(0,0,0,a) );
+		gl::drawSolidRect( getWindowBounds() );
+	}
+
 	gl::disableAlphaBlending();
 }
 
@@ -190,6 +223,7 @@ void StarsApp::mouseDown( MouseEvent event )
 {
 	// allow user to control camera
 	mEnableAnimation = false;
+	mEnableGrid = true;
 
 	mMayaCam.mouseDown( event.getPos() );
 	mCameraEyePoint = mMayaCam.getCamera().getEyePoint();
@@ -217,6 +251,7 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_SPACE:
 		// enable animation
 		mEnableAnimation = true;
+		mEnableGrid = false;
 		break;
 	case KeyEvent::KEY_g:
 		// toggle grid
@@ -386,10 +421,10 @@ void StarsApp::loadStars()
 	layout.setStaticTexCoords2d();
 	layout.setStaticColorsRGB();
 
-	mStarsMesh = gl::VboMesh(vertices.size(), 0, layout, GL_POINTS);
-	mStarsMesh.bufferPositions( &(vertices.front()), vertices.size() );
-	mStarsMesh.bufferTexCoords2d( 0, texcoords );
-	mStarsMesh.bufferColorsRGB( colors );
+	mStarMesh = gl::VboMesh(vertices.size(), 0, layout, GL_POINTS);
+	mStarMesh.bufferPositions( &(vertices.front()), vertices.size() );
+	mStarMesh.bufferTexCoords2d( 0, texcoords );
+	mStarMesh.bufferColorsRGB( colors );
 }
 
 void StarsApp::createGrid()
@@ -475,18 +510,19 @@ void StarsApp::enablePointSprites()
 	gl::enable( GL_VERTEX_PROGRAM_POINT_SIZE );
 
 	// bind sprite texture
-	mTexture.enableAndBind();
+	mStarTexture.enableAndBind();
 
 	// bind shader
-	mShader.bind();
-	mShader.uniform("tex0", 0);
+	mStarShader.bind();
+	mStarShader.uniform("tex0", 0);
+	mStarShader.uniform("time", (float) getElapsedSeconds() );
 }
 
 void StarsApp::disablePointSprites()
 {
 	// unbind shader and texture
-	mShader.unbind();
-	mTexture.unbind();
+	mStarShader.unbind();
+	mStarTexture.unbind();
 	
 	// restore OpenGL state
 	glPopAttrib();

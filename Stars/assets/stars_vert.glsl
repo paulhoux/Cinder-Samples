@@ -1,10 +1,16 @@
 #version 110
 
+varying float angle;
+
 void main() { 
 	// calculate distance of star (in parsecs) to camera
 	// see: http://www.opengl.org/discussion_boards/showthread.php/166796-GLSL-PointSprites-different-sizes?p=1178125&viewfull=1#post1178125
 	vec3	vertex = vec3(gl_ModelViewMatrix * gl_Vertex);
 	float	distance = length(vertex);
+
+	// determine an angle for the star streaks
+	//vertex = normalize(vertex);
+	//angle = vertex.x * -3.0 + vertex.y * 2.0;
 
 	// retrieve absolute magnitude from texture coordinates
 	float magnitude = gl_MultiTexCoord0.x;
@@ -15,7 +21,7 @@ void main() {
 
 	// calculate point size based on apparent magnitude
 	const float size_modifier = 1.3; // the lower the value, the more stars are visible
-    gl_PointSize = 60.0 * pow(size_modifier, 1.0 - apparent); 
+    gl_PointSize = 100.0 * pow(size_modifier, 1.0 - apparent); 
 
 	// determine color
 	const float lower = 20.0;
