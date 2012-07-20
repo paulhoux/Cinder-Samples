@@ -106,11 +106,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Background.cpp" />
+    <ClCompile Include="..\src\Conversions.cpp" />
+    <ClCompile Include="..\src\Grid.cpp" />
+    <ClCompile Include="..\src\Stars.cpp" />
     <ClCompile Include="..\src\StarsApp.cpp" />
+    <ClCompile Include="..\src\UserInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\Background.h" />
+    <ClInclude Include="..\src\Conversions.h" />
+    <ClInclude Include="..\src\Grid.h" />
+    <ClInclude Include="..\src\Stars.h" />
+    <ClInclude Include="..\src\UserInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc" />

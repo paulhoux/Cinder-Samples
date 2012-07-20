@@ -8,6 +8,7 @@ using namespace ci::app;
 using namespace std;
 
 Background::Background(void)
+	: mAttenuation(1.0f)
 {
 	// rough estimation of the earth's rotation with respect to the background map
 	mRotation = Vec3f(-23.4393f, -61.5f, 83.0f);
