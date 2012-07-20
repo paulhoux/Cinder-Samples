@@ -1,7 +1,9 @@
+#include "cinder/Font.h"
 #include "cinder/ImageIo.h"
 #include "cinder/MayaCamUI.h"
 #include "cinder/Surface.h"
 #include "cinder/Utilities.h"
+#include "cinder/Timer.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
@@ -29,6 +31,10 @@ public:
 	void resize( ResizeEvent event );
 protected:
 	void	loadStars();
+	void	createGrid();
+
+	void	forceHideCursor();
+	void	forceShowCursor();
 
 	void	enablePointSprites();
 	void	disablePointSprites();
@@ -45,11 +51,19 @@ protected:
 
 	gl::GlslProg	mShader;
 	gl::Texture		mTexture;
-	gl::VboMesh		mVboMesh;
+	gl::VboMesh		mStarsMesh;
+
+	gl::VboMesh		mGridMesh;
+
+	Font			mFont;
+	std::string		mTextFormat;
+
+	Timer			mTimer;
 
 	bool			mEnableAnimation;
-	bool			mEnablePointSprites;
-	bool			mEnableAutoPointSprites;
+	bool			mEnableGrid;
+
+	bool			mIsCursorVisible;
 };
 
 void StarsApp::prepareSettings(Settings *settings)
@@ -60,84 +74,115 @@ void StarsApp::prepareSettings(Settings *settings)
 
 void StarsApp::setup()
 {
+	// create the spherical grid mesh
+	createGrid();
+
 	// load the star database and create the VBO mesh
 	loadStars();
 
+	// create font
+	mFont = Font( loadAsset("fonts/sdf.ttf"), 20.0f );
+	mTextFormat = std::string("%.0f lightyears from the Sun");
+
 	// initialize camera
-	mCameraEyePoint = Vec3f(1, 0, 0);
+	mCameraEyePoint = Vec3f(-1, 0, 0);
 
 	mCam.setFov(60.0f);
-	mCam.setNearClip( 0.1f );
-	mCam.setFarClip( 10000.0f );
+	mCam.setNearClip( 0.01f );
+	mCam.setFarClip( 5000.0f );
 	mCam.setEyePoint( mCameraEyePoint );
 	mCam.setCenterOfInterestPoint( Vec3f(0, 0, 0) );
 	
 	mMayaCam.setCurrentCam( mCam );
 	
 	// load shader and point sprite texture
-
-	/*// DISABLED: not necessary - fixed function pipeline is sufficient
 	try { mShader = gl::GlslProg( loadAsset("stars_vert.glsl"), loadAsset("stars_frag.glsl") ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }	//*/
+	catch( const std::exception &e ) { console() << e.what() << std::endl; quit(); }	
 
 	try { mTexture = gl::Texture( loadImage( loadAsset("particle.png") ) ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+	catch( const std::exception &e ) { console() << e.what() << std::endl; quit(); }
 
 	//
-	mEnablePointSprites = true;
-	mEnableAutoPointSprites = true;
 	mEnableAnimation = true;
+	mEnableGrid = true;
+
+	//
+	forceHideCursor();
+
+	//
+	mTimer.start();
 }
 
 void StarsApp::update()
 {	
+	// a few constants
+	static const float sqrt2pi = math<float>::sqrt(2.0f * (float) M_PI);
+
 	// animate camera
 	if(mEnableAnimation) {
-		float f = math<float>::clamp(cosf( (float) getElapsedSeconds() * 0.02f ) * 1.2f + 0.2f, -1.0f, 1.0f);
-		float d = 500.0f - 499.9999f * f;
-		float t = (float) getElapsedSeconds() * 0.03f;
-		float x = d * cosf(t) * (0.5f + 0.45f * cosf(t));
-		float y = d * (0.5f + 0.45f * sinf(t));
-		float z = d * sinf(t) * (0.5f + 0.45f * cosf(t));
+		// calculate time 
+		float t = (float) mTimer.getSeconds();
 
-		mCameraEyePoint = Vec3f(x, y, z);
+		// determine distance to the sun (in parsecs)
+		float time = t * 0.005f;
+		float t_frac = (time) - math<float>::floor(time);
+		float n = sqrt2pi * t_frac;
+		float f = cosf( n * n );
+		float distance = 500.0f - 499.95f * f;
+
+		// determine where to look
+		float a = t * 0.029f;
+		float b = t * 0.026f;
+		float x = -cosf(a) * (0.5f + 0.499f * cosf(b));
+		float y = 0.5f + 0.499f * sinf(b);
+		float z = sinf(a) * (0.5f + 0.499f * cosf(b));
+
+		mCameraEyePoint = distance * Vec3f(x, y, z).normalized();
 	}
 
 	mCam.setEyePoint( mCameraEyePoint );
-	mCam.setCenterOfInterestPoint( Vec3f(0, 0, 0) );
-
+	mCam.setCenterOfInterestPoint( Vec3f::zero() );
 	mMayaCam.setCurrentCam( mCam );
-
-	// by experimentation, I found that a distance of 760 lightyears (210 parsecs) 
-	// gave no visible change when going from point sprites to points (at point size of 40).
-	// To reduce overdraw, and increase the frame rate, automatically switch between them.
-	if(mEnableAutoPointSprites)
-		mEnablePointSprites = ( mCameraEyePoint.length() < 210.0f );
 }
 
 void StarsApp::draw()
-{
-	gl::clear(); 
+{		
+	glLineWidth( 2.0f );
 
+	gl::clear( Color(0.05f, 0.05f, 0.05f) ); 
+	
 	gl::pushMatrices();
 	gl::setMatrices( mMayaCam.getCamera() );
 	{
-		gl::enableAdditiveBlending();	
-		{
-			if(mEnablePointSprites) enablePointSprites();
-			{
-				gl::color( Color::white() );
-				if(mVboMesh) gl::draw( mVboMesh );
-			}
-			if(mEnablePointSprites) disablePointSprites();
+		// draw grid
+		if(mEnableGrid && mGridMesh) {
+			gl::color( Color::black() );
+			gl::draw( mGridMesh );
 		}
+
+		// draw stars
+		gl::enableAdditiveBlending();		
+		enablePointSprites();
+
+		gl::color( Color::white() );
+		if(mStarsMesh) gl::draw( mStarsMesh );
+
+		disablePointSprites();
 		gl::disableAlphaBlending();
 	}
 	gl::popMatrices();
 
+	// draw text
 	gl::enableAlphaBlending();
-	std::string fmt("%5.0f lightyears from Earth");
-	gl::drawString( (boost::format(fmt) % (mCameraEyePoint.length() * 3.261631f)).str(), Vec2f::zero());
+	gl::color( Color::white() );
+
+	Vec2f position = Vec2f(0.5f, 0.95f) * Vec2f(getWindowSize());
+	gl::drawLine( position + Vec2f(-400, -10), position + Vec2f(400, -10) );
+	gl::drawStringCentered( 
+		// convert parsecs to lightyears and create string
+		(boost::format(mTextFormat) % (mCameraEyePoint.length() * 3.261631f)).str(), 
+		position, Color::white(), mFont );
+
 	gl::disableAlphaBlending();
 }
 
@@ -173,10 +218,16 @@ void StarsApp::keyDown( KeyEvent event )
 		// enable animation
 		mEnableAnimation = true;
 		break;
-	case KeyEvent::KEY_p:
-		// toggle point sprites
-		mEnablePointSprites = !mEnablePointSprites;
-		mEnableAutoPointSprites = mEnablePointSprites;
+	case KeyEvent::KEY_g:
+		// toggle grid
+		mEnableGrid = !mEnableGrid;
+		break;
+	case KeyEvent::KEY_c:
+		// toggle cursor
+		if(mIsCursorVisible) 
+			forceHideCursor();
+		else 
+			forceShowCursor();
 		break;
 	}
 }
@@ -196,10 +247,6 @@ void StarsApp::loadStars()
 	static const double	brightness_threshold = 1.0 / 255.0;	
 
 	console() << "Loading star database, please wait..." << std::endl;
-
-	std::vector< Vec3f > vertices;
-	std::vector< Vec2f > texcoords;
-	std::vector< Color > colors;
 
 	// create color look up table
 	//  see: http://www.vendian.org/mncharity/dir3/starcolor/details.html
@@ -257,8 +304,13 @@ void StarsApp::loadStars()
 	lookup[47] = toColorA(0xffff7b00);
 	lookup[48] = toColorA(0xffff5200);
 
+	// create empty buffers for the data
+	std::vector< Vec3f > vertices;
+	std::vector< Vec2f > texcoords;
+	std::vector< Color > colors;
+
 	// load the star database
-	std::string	stars = loadString( loadAsset("hyg.csv") );
+	std::string	stars = loadString( loadAsset("hygxyz.csv") );
 
 	// use boost tokenizer to parse the file
 	std::vector<std::string> tokens;
@@ -272,18 +324,21 @@ void StarsApp::loadStars()
 		boost::algorithm::split( tokens, line, boost::is_any_of(";"), boost::token_compress_off );
 
 		// skip if data was incomplete
-		if(tokens.size() < 6)  continue;
+		if(tokens.size() < 23)  continue;
 
 		// 
 		try {
-			// brightness (magnitude) of the star
-			double mag = toDouble(tokens[5]);
-			double brightness = pow(pogson, -mag) * brightness_amplifier;
-			brightness = pow(brightness, 1.0 / gamma); // gamma correction
-			if(brightness < brightness_threshold) continue;
+			// absolute magnitude of the star
+			double abs_mag = toDouble(tokens[14]);
+			// apparent magnitude of the star
+			double mag = toDouble(tokens[13]);
+
+			//double brightness = pow(pogson, -mag) * brightness_amplifier;
+			//brightness = pow(brightness, 1.0 / gamma); // gamma correction
+			//if(brightness < brightness_threshold) continue;
 
 			// color (spectrum) of the star
-			double colorindex = (tokens.size() > 6) ? toDouble(tokens[6]) : 0.0;
+			double colorindex = (tokens.size() > 6) ? toDouble(tokens[16]) : 0.0;
 			uint32_t index = (int) ((colorindex + 0.40) / 0.05);
 			uint32_t next_index = index + 1;
 			float t = (float) ((colorindex + 0.40) / 0.05) - index;
@@ -300,18 +355,19 @@ void StarsApp::loadStars()
 			ColorA color = (1.0f - t)  * lookup[index] + t * lookup[next_index];
 
 			// position
-			double ra = toDouble(tokens[2]);
-			double dec = toDouble(tokens[3]);
-			double distance = toDouble(tokens[4]);
+			double ra = toDouble(tokens[7]);
+			double dec = toDouble(tokens[8]);
+			double distance = toDouble(tokens[9]);
 
 			double alpha = toRadians( ra * 15.0 );
 			double delta = toRadians( dec );
 
-			float size = math<float>::pow( (float) (brightness / brightness_amplifier), 0.1f );
-
+			// convert to world (universe) coordinates
 			vertices.push_back( distance * Vec3f((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta))) );
-			texcoords.push_back( Vec2f( size, (float) distance) );
-			colors.push_back( color * (float) brightness );
+			// put extra data (absolute magnitude and distance to Earth) in texture coordinates
+			texcoords.push_back( Vec2f( (float) abs_mag, (float) distance) );
+			// put color in color attribute
+			colors.push_back( color );
 		}
 		catch(...) {
 			// some of the data was invalid, ignore 
@@ -330,45 +386,135 @@ void StarsApp::loadStars()
 	layout.setStaticTexCoords2d();
 	layout.setStaticColorsRGB();
 
-	mVboMesh = gl::VboMesh(vertices.size(), 0, layout, GL_POINTS);
-	mVboMesh.bufferPositions( &(vertices.front()), vertices.size() );
-	mVboMesh.bufferTexCoords2d( 0, texcoords );
-	mVboMesh.bufferColorsRGB( colors );
+	mStarsMesh = gl::VboMesh(vertices.size(), 0, layout, GL_POINTS);
+	mStarsMesh.bufferPositions( &(vertices.front()), vertices.size() );
+	mStarsMesh.bufferTexCoords2d( 0, texcoords );
+	mStarsMesh.bufferColorsRGB( colors );
+}
+
+void StarsApp::createGrid()
+{
+	const int segments = 60;
+	const int rings = 15;
+	const int subdiv = 10;
+
+	const float radius = 2000.0f;
+
+	const float theta_step = toRadians(90.0f) / (rings * subdiv);
+	const float phi_step = toRadians(360.0f) / (segments * subdiv);
+	
+	std::vector< Vec3f > vertices;
+
+	// start with the rings, connected at phi=0
+	float x, y, z;
+	for(int theta=1-rings;theta<rings;++theta) {
+		float tr = theta * theta_step * subdiv;
+
+		y = sinf(tr);
+
+		for(int phi=0;phi<=segments;++phi) {
+			for(int div=0;div<subdiv;++div) {
+				float pr = (phi * subdiv + div) * phi_step;
+
+				x = cosf(tr) * cosf(pr);
+				z = cosf(tr) * sinf(pr);
+				vertices.push_back( radius * Vec3f(x, y, z) );
+
+				pr += phi_step;
+
+				x = cosf(tr) * cosf(pr);
+				z = cosf(tr) * sinf(pr);
+				vertices.push_back( radius * Vec3f(x, y, z) );
+			}
+		}
+	}
+
+	// the draw the segments
+	for(int phi=0;phi<segments;++phi) {
+		float pr = phi * phi_step * subdiv;
+
+		for(int theta=1-rings;theta<rings-1;++theta) {
+			for(int div=0;div<subdiv;++div) {
+				float tr = (theta * subdiv + div) * theta_step;
+
+				x = cosf(tr) * cosf(pr);
+				y = sinf(tr);
+				z = cosf(tr) * sinf(pr);
+				vertices.push_back( radius * Vec3f(x, y, z) );
+
+				tr += theta_step;
+
+				x = cosf(tr) * cosf(pr);
+				y = sinf(tr);
+				z = cosf(tr) * sinf(pr);
+				vertices.push_back( radius * Vec3f(x, y, z) );
+			}
+		}
+	}
+	
+	//
+	gl::VboMesh::Layout layout;
+	layout.setStaticPositions();
+
+	mGridMesh = gl::VboMesh(vertices.size(), 0, layout, GL_LINES);
+	mGridMesh.bufferPositions( &(vertices.front()), vertices.size() );	
 }
 
 void StarsApp::enablePointSprites()
 {
+	// store current OpenGL state
 	glPushAttrib( GL_POINT_BIT | GL_ENABLE_BIT );
+
+	// enable point sprites and initialize it
 	gl::enable( GL_POINT_SPRITE_ARB );
+	glPointParameterfARB( GL_POINT_FADE_THRESHOLD_SIZE_ARB, 1.0f );
+	glPointParameterfARB( GL_POINT_SIZE_MIN_ARB, 0.1f );
+	glPointParameterfARB( GL_POINT_SIZE_MAX_ARB, 200.0f );
+
+	// allow vertex shader to change point size
 	gl::enable( GL_VERTEX_PROGRAM_POINT_SIZE );
-	gl::enableAdditiveBlending();
 
+	// bind sprite texture
 	mTexture.enableAndBind();
-	
-	if(mShader) {
-		mShader.bind();
-		mShader.uniform("size", 24.0f);
-	}
-	else {
-		// use fixed-function pipeline
-		float quadratic[] =  { 0.95f, 0.02f, 0.0f };
-		glPointParameterfvARB( GL_POINT_DISTANCE_ATTENUATION_ARB, quadratic );
-		glPointParameterfARB( GL_POINT_FADE_THRESHOLD_SIZE_ARB, 1.0f );
-		glPointParameterfARB( GL_POINT_SIZE_MIN_ARB, 0.1f );
-		glPointParameterfARB( GL_POINT_SIZE_MAX_ARB, 24.0f );
-		glPointSize( 24.0f );
 
-		glTexEnvf( GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE );
-	}
+	// bind shader
+	mShader.bind();
+	mShader.uniform("tex0", 0);
 }
 
 void StarsApp::disablePointSprites()
 {
+	// unbind shader and texture
 	mShader.unbind();
 	mTexture.unbind();
 	
+	// restore OpenGL state
 	glPopAttrib();
 }
+
+void StarsApp::forceHideCursor()
+{
+	// forces the cursor to hide
+#ifdef WIN32
+	while( ::ShowCursor(false) >= 0 );
+#else
+	hideCursor();
+#endif
+	mIsCursorVisible = false;
+}
+
+void StarsApp::forceShowCursor()
+{
+	// forces the cursor to show
+#ifdef WIN32
+	while( ::ShowCursor(true) < 0 );
+#else
+	showCursor();
+#endif
+	mIsCursorVisible = true;
+}
+
+///// UTILITY FUNCTIONS /////
 
 Color StarsApp::toColor(uint32_t hex)
 {
