@@ -341,9 +341,12 @@ void BouncingBallsApp::update()
 	if( (stepsTotal - mStepsPerformed) > mStepsPerSecond )
 		mStepsPerformed = stepsTotal - mStepsPerSecond;
 
+	// kill-switch
+	double t = mTimer.getSeconds() + 1.0;
+
 	// perform the remaining steps
 	std::vector<BallRef>::iterator itr;
-	while( mStepsPerformed < stepsTotal ) {
+	while( mStepsPerformed < stepsTotal && mTimer.getSeconds() < t ) {
 		// move the balls
 		for(itr=mBalls.begin();itr!=mBalls.end();++itr)
 			(*itr)->update();
@@ -354,6 +357,9 @@ void BouncingBallsApp::update()
 		// done
 		mStepsPerformed++;
 	}
+
+	// in case the kill-switch was activated
+	mStepsPerformed = stepsTotal;
 }
 
 void BouncingBallsApp::draw()
