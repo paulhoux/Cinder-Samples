@@ -21,7 +21,7 @@ void main() {
 
 	// calculate point size based on apparent magnitude
 	const float size_modifier = 1.3; // the lower the value, the more stars are visible
-    gl_PointSize = 100.0 * pow(size_modifier, 1.0 - apparent); 
+    gl_PointSize = 60.0 * pow(size_modifier, 1.0 - apparent); 
 
 	// determine color
 	const float lower = 20.0;
