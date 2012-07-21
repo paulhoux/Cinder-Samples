@@ -81,11 +81,13 @@ void Grid::setup()
 
 void Grid::draw()
 {
+	if(!mVboMesh) return;
+
 	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT );
 	
 	glLineWidth( 2.0f );
 	gl::color( Color::black() );
-	if(mVboMesh) gl::draw( mVboMesh );
+	gl::draw( mVboMesh );
 
 	glPopAttrib();
 }

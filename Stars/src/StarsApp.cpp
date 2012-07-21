@@ -5,6 +5,7 @@
 #include "cinder/gl/gl.h"
 
 #include "Background.h"
+#include "Cam.h"
 #include "Grid.h"
 #include "Stars.h"
 #include "UserInterface.h"
@@ -15,23 +16,24 @@ using namespace std;
 
 class StarsApp : public AppBasic {
 public:
-	void prepareSettings(Settings *settings);
-	void setup();
-	void update();
-	void draw();
+	void	prepareSettings(Settings *settings);
+	void	setup();
+	void	update();
+	void	draw();
 
-	void mouseDown( MouseEvent event );	
-	void mouseDrag( MouseEvent event );
-	void keyDown( KeyEvent event );
-	void resize( ResizeEvent event );
+	void	mouseDown( MouseEvent event );	
+	void	mouseDrag( MouseEvent event );	
+	void	mouseUp( MouseEvent event );
+	void	keyDown( KeyEvent event );
+	void	resize( ResizeEvent event );
 protected:
 	void	forceHideCursor();
 	void	forceShowCursor();
 protected:
+	double			mTime;
+
 	// camera
-	CameraPersp		mCam;
-	MayaCamUI		mMayaCam;
-	Vec3f			mCameraEyePoint;
+	Cam				mCamera;
 	
 	// graphical elements
 	Stars			mStars;
@@ -43,8 +45,7 @@ protected:
 	Timer			mTimer;
 
 	// 
-	bool			mEnableAnimation;
-	bool			mEnableGrid;
+	bool			mIsGridVisible;
 	bool			mIsCursorVisible;
 };
 
@@ -57,6 +58,8 @@ void StarsApp::prepareSettings(Settings *settings)
 
 void StarsApp::setup()
 {
+	mTime = getElapsedSeconds();
+
 	// create the spherical grid mesh
 	mGrid.setup();
 
@@ -74,19 +77,10 @@ void StarsApp::setup()
 	mBackground.setup();
 
 	// initialize camera
-	mCameraEyePoint = Vec3f(0, 0, 0);
-
-	mCam.setFov(60.0f);
-	mCam.setNearClip( 0.01f );
-	mCam.setFarClip( 5000.0f );
-	mCam.setEyePoint( mCameraEyePoint );
-	mCam.setCenterOfInterestPoint( Vec3f(0, 0, 0) );
-	
-	mMayaCam.setCurrentCam( mCam );
+	mCamera.setup();
 
 	//
-	mEnableAnimation = true;
-	mEnableGrid = false;
+	mIsGridVisible = false;
 
 	//
 	forceHideCursor();
@@ -97,38 +91,15 @@ void StarsApp::setup()
 
 void StarsApp::update()
 {	
-	//
-	static const float sqrt2pi = math<float>::sqrt(2.0f * (float) M_PI);
+	double elapsed = getElapsedSeconds() - mTime;
+	mTime += elapsed;
 
 	// animate camera
-	if(mEnableAnimation) {
-		// calculate time 
-		float t = (float) mTimer.getSeconds();
-
-		// determine distance to the sun (in parsecs)
-		float time = t * 0.005f;
-		float t_frac = (time) - math<float>::floor(time);
-		float n = sqrt2pi * t_frac;
-		float f = cosf( n * n );
-		float distance = 500.0f - 499.95f * f;
-
-		// determine where to look
-		float a = t * 0.029f;
-		float b = t * 0.026f;
-		float x = -cosf(a) * (0.5f + 0.499f * cosf(b));
-		float y = 0.5f + 0.499f * sinf(b);
-		float z = sinf(a) * (0.5f + 0.499f * cosf(b));
-
-		mCameraEyePoint = distance * Vec3f(x, y, z).normalized();
-	}
-
-	mCam.setEyePoint( mCameraEyePoint );
-	mCam.setCenterOfInterestPoint( Vec3f::zero() );
-	mMayaCam.setCurrentCam( mCam );
+	mCamera.update(elapsed);
 
 	// update background and user interface
-	mBackground.setCameraDistance( mCameraEyePoint.length() );
-	mUserInterface.setCameraDistance( mCameraEyePoint.length() );
+	mBackground.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
+	mUserInterface.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
 }
 
 void StarsApp::draw()
@@ -136,13 +107,13 @@ void StarsApp::draw()
 	gl::clear( Color::black() ); 
 	
 	gl::pushMatrices();
-	gl::setMatrices( mMayaCam.getCamera() );
+	gl::setMatrices( mCamera.getCamera() );
 	{
 		gl::enableDepthRead();
 		gl::enableDepthWrite();
 
 		// draw grid
-		if(mEnableGrid) 
+		if(mIsGridVisible) 
 			mGrid.draw();
 
 		// draw background
@@ -174,18 +145,19 @@ void StarsApp::draw()
 void StarsApp::mouseDown( MouseEvent event )
 {
 	// allow user to control camera
-	mEnableAnimation = false;
-	mEnableGrid = true;
-
-	mMayaCam.mouseDown( event.getPos() );
-	mCameraEyePoint = mMayaCam.getCamera().getEyePoint();
+	mCamera.mouseDown( event.getPos() );
 }
 
 void StarsApp::mouseDrag( MouseEvent event )
 {
 	// allow user to control camera
-	mMayaCam.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
-	mCameraEyePoint = mMayaCam.getCamera().getEyePoint();
+	mCamera.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+}
+
+void StarsApp::mouseUp( MouseEvent event )
+{
+	// allow user to control camera
+	mCamera.mouseUp( event.getPos() );
 }
 
 void StarsApp::keyDown( KeyEvent event )
@@ -202,12 +174,11 @@ void StarsApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_SPACE:
 		// enable animation
-		mEnableAnimation = true;
-		mEnableGrid = false;
+		mCamera.setup();
 		break;
 	case KeyEvent::KEY_g:
 		// toggle grid
-		mEnableGrid = !mEnableGrid;
+		mIsGridVisible = !mIsGridVisible;
 		break;
 	case KeyEvent::KEY_c:
 		// toggle cursor
@@ -216,21 +187,12 @@ void StarsApp::keyDown( KeyEvent event )
 		else 
 			forceShowCursor();
 		break;
-	case KeyEvent::KEY_KP0:
-		// restart animation
-		mTimer.stop();
-		mTimer.start();
-		mEnableAnimation = true;
-		mEnableGrid = false;
-		break;
 	}
 }
 
 void StarsApp::resize( ResizeEvent event )
 {
-	// update camera to the new aspect ratio
-	mCam.setAspectRatio( event.getAspectRatio() );
-	mMayaCam.setCurrentCam( mCam );
+	mCamera.resize( event );
 }
 
 void StarsApp::forceHideCursor()

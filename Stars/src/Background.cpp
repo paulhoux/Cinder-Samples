@@ -22,13 +22,15 @@ Background::~Background(void)
 void Background::setup()
 {
 	try { mTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
 
 	create();
 }
 
 void Background::draw()
 {
+	if(!( mTexture && mVboMesh )) return;
+
 	glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT );
 
 	mTexture.enableAndBind();

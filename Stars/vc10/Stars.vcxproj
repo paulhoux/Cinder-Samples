@@ -106,6 +106,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Background.cpp" />
+    <ClCompile Include="..\src\Cam.cpp" />
     <ClCompile Include="..\src\Conversions.cpp" />
     <ClCompile Include="..\src\Grid.cpp" />
     <ClCompile Include="..\src\Stars.cpp" />
@@ -115,6 +116,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\Background.h" />
+    <ClInclude Include="..\src\Cam.h" />
     <ClInclude Include="..\src\Conversions.h" />
     <ClInclude Include="..\src\Grid.h" />
     <ClInclude Include="..\src\Stars.h" />

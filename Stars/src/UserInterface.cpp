@@ -19,12 +19,16 @@ UserInterface::~UserInterface(void)
 
 void UserInterface::setup()
 {
-	mFont = Font( loadAsset("fonts/sdf.ttf"), 20.0f );
+	try { mFont = Font( loadAsset("fonts/sdf.ttf"), 20.0f ); }
+	catch( const std::exception &e ) { console() << "Could not load font: " << e.what() << std::endl; }
+
 	mText = std::string("%.0f lightyears from the Sun");
 }
 
 void UserInterface::draw()
 {
+	if(!mFont) return;
+
 	glPushAttrib( GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
 
 	gl::enableAlphaBlending();

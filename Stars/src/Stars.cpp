@@ -23,19 +23,21 @@ void Stars::setup()
 {	
 	// load shader and point sprite texture
 	try { mShader = gl::GlslProg( loadAsset("stars_vert.glsl"), loadAsset("stars_frag.glsl") ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }	
+	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; }	
 
 	try { mTexture = gl::Texture( loadImage( loadAsset("particle.png") ) ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
 }
 
 void Stars::draw()
 {
+	if(!(mShader && mTexture && mVboMesh)) return;
+
 	gl::enableAdditiveBlending();		
 	enablePointSprites();
 
 	gl::color( Color::white() );
-	if(mVboMesh) gl::draw( mVboMesh );
+	gl::draw( mVboMesh );
 
 	disablePointSprites();
 	gl::disableAlphaBlending();
