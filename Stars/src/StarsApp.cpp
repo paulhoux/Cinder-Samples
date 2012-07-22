@@ -52,8 +52,14 @@ protected:
 void StarsApp::prepareSettings(Settings *settings)
 {
 	settings->setFrameRate(100.0f);
-	settings->setFullScreen(true);
 	settings->setWindowSize(1280,720);
+
+#if (defined WIN32 && defined NDEBUG)
+	settings->setFullScreen(true);
+#else
+	// never start in full screen on MacOS or in debug mode
+	settings->setFullScreen(false);
+#endif
 }
 
 void StarsApp::setup()

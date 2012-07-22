@@ -1,4 +1,4 @@
-#version 110
+#version 120
 
 // define a few constants here, for faster rendering
 const float LOG_BASE10 = 1.0 / log2(10.0);

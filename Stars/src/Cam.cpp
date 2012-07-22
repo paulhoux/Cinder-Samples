@@ -53,16 +53,17 @@ void Cam::update(double elapsed)
 		double distance = 500.0 - 499.95 * f;
 
 		// determine where to look
-		double longitude = wrap( toDegrees(t * 0.034), -180.0, 180.0 );
+		double longitude = toDegrees(t * 0.034);
 		double latitude = LATITUDE_LIMIT * sin(t * 0.029);
 
-		//
+		// determine interpolation factor
 		t = math<double>::clamp( (getElapsedSeconds() - mTimeMouse - mTimeOut) / 100.0, 0.0, 1.0);
 
-		// 
+		// interpolate over time to where we should be, so that the camera doesn't snap from user mode to screensaver mode
 		mDistance = lerp<double>( mDistance.value(), distance, t);
-		mLongitude = lerp<double>( mLongitude.value(), longitude, t ); 
 		mLatitude = lerp<double>( mLatitude.value(), latitude, t ); 
+		// to prevent rotating from 180 to -180 degrees, always rotate over the shortest distance
+		mLongitude = mLongitude.value() + lerp<double>( 0.0, wrap(longitude - mLongitude.value(), -180.0, 180.0), t );
 	}
 	else	// user mode
 	{		
