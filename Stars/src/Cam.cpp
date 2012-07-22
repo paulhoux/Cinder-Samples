@@ -26,14 +26,14 @@ Cam::Cam(void)
 
 	mLatitude = 0.0;
 	mLongitude = 0.0;
-	mDistance = 150.0f;
-	mFov = 60.0f;
+	mDistance = 0.015;
+	mFov = 60.0;
 }
 
 void Cam::setup()
 {
 	mTimeOut = 20.0;
-	mTimeMouse = getElapsedSeconds() - mTimeOut;
+	mTimeMouse = getElapsedSeconds() - mTimeOut + 5.0;
 }
 
 void Cam::update(double elapsed)
