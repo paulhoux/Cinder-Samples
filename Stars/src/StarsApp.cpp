@@ -51,7 +51,7 @@ protected:
 void StarsApp::prepareSettings(Settings *settings)
 {
 	settings->setFrameRate(100.0f);
-	settings->setFullScreen(true);
+	//settings->setFullScreen(true);
 	settings->setWindowSize(1280,720);
 }
 

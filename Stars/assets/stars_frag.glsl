@@ -1,3 +1,6 @@
+
+#version 120
+
 uniform sampler2D tex0;
 
 varying float angle;
