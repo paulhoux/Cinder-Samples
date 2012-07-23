@@ -29,8 +29,13 @@ public:
 protected:
 	void	forceHideCursor();
 	void	forceShowCursor();
+	void	constrainCursor( const Vec2i &pos );
 protected:
 	double			mTime;
+
+	// cursor position
+	Vec2i			mCursorPos;
+	Vec2i			mCursorPrevious;
 
 	// camera
 	Cam				mCamera;
@@ -145,19 +150,26 @@ void StarsApp::draw()
 void StarsApp::mouseDown( MouseEvent event )
 {
 	// allow user to control camera
-	mCamera.mouseDown( event.getPos() );
+	mCursorPos = mCursorPrevious = event.getPos();
+	mCamera.mouseDown( mCursorPos );
 }
 
 void StarsApp::mouseDrag( MouseEvent event )
 {
+	mCursorPos += event.getPos() - mCursorPrevious;
+	mCursorPrevious = event.getPos();
+
+	constrainCursor( event.getPos() );
+
 	// allow user to control camera
-	mCamera.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	mCamera.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void StarsApp::mouseUp( MouseEvent event )
 {
 	// allow user to control camera
-	mCamera.mouseUp( event.getPos() );
+	mCursorPos = mCursorPrevious = event.getPos();
+	mCamera.mouseUp( mCursorPos );
 }
 
 void StarsApp::keyDown( KeyEvent event )
@@ -239,5 +251,27 @@ void StarsApp::forceShowCursor()
 #endif
 	mIsCursorVisible = true;
 }
+
+void StarsApp::constrainCursor( const Vec2i &pos )
+{
+	// keeps the cursor well within the window bounds,
+	// so that we can continuously drag the mouse without
+	// ever hitting the sides of the screen
+
+	if( pos.x < 50 || pos.x > getWindowWidth() - 50 || pos.y < 50 || pos.y > getWindowHeight() - 50 )
+	{
+#ifdef WIN32
+		POINT pt;
+		mCursorPrevious.x = pt.x = getWindowWidth() / 2;
+		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
+
+		HWND hWnd = getRenderer()->getHwnd();
+		::ClientToScreen(hWnd, &pt);
+		::SetCursorPos(pt.x,pt.y);
+#else
+		// if you want to implement this on MacOS, see: CGWarpMouseCursorPosition
+#endif
+	}
+}	
 
 CINDER_APP_BASIC( StarsApp, RendererGl )
