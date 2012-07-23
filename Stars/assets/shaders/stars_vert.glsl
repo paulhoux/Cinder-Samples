@@ -31,7 +31,7 @@ void main() {
 
 	// determine color
 	float brightness = clamp((MAG_LOWER_BOUND + (1.0 - apparent)) / MAG_RANGE, 0.0, 1.0);
-	gl_FrontColor = gl_Color * pow(brightness, 2.0);
+	gl_FrontColor = gl_Color * pow(brightness, 1.5);
 	
 	// set position
     gl_Position = ftransform(); 
