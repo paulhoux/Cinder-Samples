@@ -23,10 +23,12 @@ public:
 
 	const ci::CameraPersp& getCamera();
 	void		setCurrentCam( const ci::CameraPersp &aCurrentCam );
-private:
+
+	void		setDistanceTime(double time) { mTimeDistanceTarget = time; }
+
 	//! returns the position of the camera in world space
 	ci::Vec3f	getPosition();
-
+private:
 	//!
 	double		average(const std::deque<double> &v){
 		double avg = 0.0;
@@ -66,6 +68,9 @@ private:
 
 	double					mTimeMouse;
 	double					mTimeOut;
+
+	double					mTimeDistanceTarget;
+	double					mTimeDistance;
 
 	ci::Anim<double>		mLatitude;
 	ci::Anim<double>		mLongitude;

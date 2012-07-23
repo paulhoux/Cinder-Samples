@@ -10,14 +10,21 @@
 #include "Stars.h"
 #include "UserInterface.h"
 
+#include <irrKlang.h>
+
+#pragma comment(lib, "irrKlang.lib")
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+
+using namespace irrklang;
 
 class StarsApp : public AppBasic {
 public:
 	void	prepareSettings(Settings *settings);
 	void	setup();
+	void	shutdown();
 	void	update();
 	void	draw();
 
@@ -30,6 +37,9 @@ protected:
 	void	forceHideCursor();
 	void	forceShowCursor();
 	void	constrainCursor( const Vec2i &pos );
+
+	fs::path	getFirstFile( const fs::path &path, const fs::path &extension );	
+	fs::path	getNextFile( const fs::path &current, const fs::path &extension );
 protected:
 	double			mTime;
 
@@ -52,6 +62,11 @@ protected:
 	// 
 	bool			mIsGridVisible;
 	bool			mIsCursorVisible;
+
+	//
+	ISoundEngine*	mSoundEngine;
+	ISound*			mSound;
+	ISound*			mMusic;
 };
 
 void StarsApp::prepareSettings(Settings *settings)
@@ -101,8 +116,41 @@ void StarsApp::setup()
 	//
 	forceHideCursor();
 
+	// initialize the IrrKlang Sound Engine
+	mSoundEngine = createIrrKlangDevice();
+	mSound = NULL;
+	mMusic = NULL;
+
+	if(mSoundEngine) {
+		// play 3D Sun rumble
+		std::string file = (getAssetPath("") / "sound/low_rumble_loop.mp3").string();
+		mSound = mSoundEngine->play3D( file.c_str(), vec3df(0,0,0), true, true );
+		if(mSound) {
+			mSound->setMinDistance(2.5f);
+			mSound->setMaxDistance(12.5f);
+			mSound->setIsPaused(false);
+		}
+
+		// play background music (the first .mp3 file found in ./assets/music)
+		fs::path path = getFirstFile( getAssetPath("") / "music", ".mp3" );
+		if( !path.empty() ) mMusic = mSoundEngine->play2D( path.string().c_str(), false, true );
+		if(mMusic) mMusic->setIsPaused(false);
+	}
+
 	//
 	mTimer.start();
+}
+
+void StarsApp::shutdown()
+{
+	if(mSoundEngine) {
+		mSoundEngine->stopAllSounds();
+
+		if(mMusic) mMusic->drop();
+		if(mSound) mSound->drop();
+
+		mSoundEngine->drop();
+	}
 }
 
 void StarsApp::update()
@@ -111,11 +159,24 @@ void StarsApp::update()
 	mTime += elapsed;
 
 	// animate camera
+	double time = getElapsedSeconds() / 200.0;
+	if(mMusic) time = mMusic->getPlayPosition() / (double) mMusic->getPlayLength();
+	mCamera.setDistanceTime(time);
 	mCamera.update(elapsed);
 
 	// update background and user interface
 	mBackground.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
 	mUserInterface.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
+
+	//
+	if(mSoundEngine) {
+		Vec3f pos = mCamera.getPosition();
+		mSoundEngine->setListenerPosition( 
+			vec3df(pos.x, pos.y, pos.z), 
+			vec3df(-pos.x, -pos.y, -pos.z), 
+			vec3df(0,0,0), 
+			vec3df(0,1,0) );
+	}
 }
 
 void StarsApp::draw()
@@ -293,5 +354,30 @@ void StarsApp::constrainCursor( const Vec2i &pos )
 #endif
 	}
 }	
+
+fs::path	StarsApp::getFirstFile( const fs::path &path, const fs::path &extension )
+{
+	fs::directory_iterator end_itr;
+	for( fs::directory_iterator i( path ); i != end_itr; ++i )
+	{
+		// skip if not a file
+		if( !fs::is_regular_file( i->status() ) ) continue;
+
+		// skip if extension does not match
+		if( i->path().extension() != extension ) continue;
+
+		// file matches, return it
+		return i->path();
+	}
+
+	// failed, return empty path
+	return fs::path();
+}
+
+fs::path	StarsApp::getNextFile( const fs::path &current, const fs::path &extension )
+{
+	// TODO
+	return fs::path();
+}
 
 CINDER_APP_BASIC( StarsApp, RendererGl )

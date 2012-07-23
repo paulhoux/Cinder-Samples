@@ -29,6 +29,9 @@ Cam::Cam(void)
 	mLongitude = 0.0;
 	mDistance = 0.015;
 	mFov = 60.0;
+
+	mTimeDistance = 0.0;
+	mTimeDistanceTarget = 0.0;
 }
 
 void Cam::setup()
@@ -41,21 +44,23 @@ void Cam::update(double elapsed)
 {
 	static const double sqrt2pi = math<double>::sqrt(2.0 * M_PI);
 
+	//
+	mTimeDistance +=  0.1 * Conversions::wrap( mTimeDistanceTarget - mTimeDistance, -0.5, 0.5 );
+
 	if((getElapsedSeconds() - mTimeMouse) > mTimeOut)	// screensaver mode
 	{		
 		// calculate time 
 		double t = getElapsedSeconds();
 
 		// determine distance to the sun (in parsecs)
-		double time = t * 0.005;
-		double t_frac = (time) - math<double>::floor(time);
-		double n = sqrt2pi * t_frac;
-		double f = cos( n * n );
-		double distance = 200.0 - 199.95 * f;
+		double fraction = (mTimeDistance) - math<double>::floor(mTimeDistance);
+		double period = 2.0 * M_PI * math<double>::clamp( fraction * 1.20 - 0.10, 0.0, 1.0 );
+		double f = cos( period );
+		double distance = 500.0 - 499.95 * f;
 
 		// determine where to look
-		double longitude = toDegrees(t * 0.034);
-		double latitude = LATITUDE_LIMIT * sin(t * 0.029);
+		double longitude = t * 360.0 / 300.0;							// go around once every 300 seconds
+		double latitude = LATITUDE_LIMIT * -sin(t * 2.0 * M_PI / 220.0);// go up and down once every 220 seconds
 
 		// determine interpolation factor
 		t = math<double>::clamp( (getElapsedSeconds() - mTimeMouse - mTimeOut) / 100.0, 0.0, 1.0);

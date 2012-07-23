@@ -13,7 +13,7 @@ Grid::~Grid(void)
 
 void Grid::setup()
 {
-	const int segments = 60;
+	const int segments = 30;
 	const int rings = 15;
 	const int subdiv = 10;
 
