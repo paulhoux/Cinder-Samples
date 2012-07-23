@@ -43,3 +43,5 @@ double Conversions::toDouble(const std::string &str)
 
 	return x;
 }
+
+

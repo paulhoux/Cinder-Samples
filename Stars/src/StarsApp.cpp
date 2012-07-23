@@ -34,7 +34,7 @@ protected:
 
 	// camera
 	Cam				mCamera;
-	
+
 	// graphical elements
 	Stars			mStars;
 	Background		mBackground;
@@ -51,7 +51,7 @@ protected:
 
 void StarsApp::prepareSettings(Settings *settings)
 {
-	settings->setFrameRate(100.0f);
+	settings->setFrameRate(200.0f);
 	settings->setWindowSize(1280,720);
 
 #if (defined WIN32 && defined NDEBUG)
@@ -111,22 +111,16 @@ void StarsApp::update()
 void StarsApp::draw()
 {		
 	gl::clear( Color::black() ); 
-	
+
 	gl::pushMatrices();
 	gl::setMatrices( mCamera.getCamera() );
 	{
-		gl::enableDepthRead();
-		gl::enableDepthWrite();
+		// draw background
+		mBackground.draw();
 
 		// draw grid
 		if(mIsGridVisible) 
 			mGrid.draw();
-
-		// draw background
-		mBackground.draw();
-
-		gl::disableDepthWrite();
-		gl::disableDepthRead();
 
 		// draw stars
 		mStars.draw();
@@ -174,6 +168,9 @@ void StarsApp::keyDown( KeyEvent event )
 		// toggle full screen
 		setFullScreen( !isFullScreen() );
 		break;
+	case KeyEvent::KEY_v:
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
 	case KeyEvent::KEY_ESCAPE:
 		// quit the application
 		quit();
@@ -193,6 +190,26 @@ void StarsApp::keyDown( KeyEvent event )
 		else 
 			forceShowCursor();
 		break;
+		/*// 
+		case KeyEvent::KEY_KP7:
+		mBackground.rotateX(-0.05f);
+		break;
+		case KeyEvent::KEY_KP9:
+		mBackground.rotateX(+0.05f);
+		break;
+		case KeyEvent::KEY_KP4:
+		mBackground.rotateY(-0.05f);
+		break;
+		case KeyEvent::KEY_KP6:
+		mBackground.rotateY(+0.05f);
+		break;
+		case KeyEvent::KEY_KP1:
+		mBackground.rotateZ(-0.05f);
+		break;
+		case KeyEvent::KEY_KP3:
+		mBackground.rotateZ(+0.05f);
+		break;
+		//*/
 	}
 }
 

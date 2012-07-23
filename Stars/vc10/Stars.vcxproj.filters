@@ -69,10 +69,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\stars_frag.glsl">
+    <None Include="..\assets\shaders\stars_frag.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\stars_vert.glsl">
+    <None Include="..\assets\shaders\stars_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

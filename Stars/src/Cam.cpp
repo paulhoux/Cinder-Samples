@@ -1,4 +1,5 @@
 #include "Cam.h"
+#include "Conversions.h"
 
 #include "cinder/CinderMath.h"
 #include "cinder/Utilities.h"
@@ -32,8 +33,8 @@ Cam::Cam(void)
 
 void Cam::setup()
 {
-	mTimeOut = 20.0;
-	mTimeMouse = getElapsedSeconds() - mTimeOut + 5.0;
+	mTimeOut = 300.0;
+	mTimeMouse = getElapsedSeconds() - mTimeOut;
 }
 
 void Cam::update(double elapsed)
@@ -63,7 +64,7 @@ void Cam::update(double elapsed)
 		mDistance = lerp<double>( mDistance.value(), distance, t);
 		mLatitude = lerp<double>( mLatitude.value(), latitude, t ); 
 		// to prevent rotating from 180 to -180 degrees, always rotate over the shortest distance
-		mLongitude = mLongitude.value() + lerp<double>( 0.0, wrap(longitude - mLongitude.value(), -180.0, 180.0), t );
+		mLongitude = mLongitude.value() + lerp<double>( 0.0, Conversions::wrap(longitude - mLongitude.value(), -180.0, 180.0), t );
 	}
 	else	// user mode
 	{		
@@ -77,7 +78,7 @@ void Cam::update(double elapsed)
 		if(!mIsMouseDown) {
 			// update longitude speed and value
 			mDeltaX *= 0.975;
-			mLongitude = wrap( mLongitude.value() - mDeltaX, -180.0, 180.0 ); 
+			mLongitude = Conversions::wrap( mLongitude.value() - mDeltaX, -180.0, 180.0 ); 
 
 			// update latitude speed and value
 			mDeltaY *= 0.975;
@@ -138,7 +139,7 @@ void Cam::mouseDrag( const Vec2i &mousePos, bool leftDown, bool middleDown, bool
 	if(leftDown) {
 		// adjust longitude (east-west)
 		mDeltaX = (mousePos.x - mInitialMousePos.x) * sensitivity;
-		mLongitude = wrap( mLongitude.value() - mDeltaX, -180.0, 180.0 ); 
+		mLongitude = Conversions::wrap( mLongitude.value() - mDeltaX, -180.0, 180.0 ); 
 		// adjust latitude (north-south)
 		mDeltaY = (mousePos.y - mInitialMousePos.y) * sensitivity;
 		mLatitude = math<double>::clamp( mLatitude.value() + mDeltaY, -LATITUDE_LIMIT, LATITUDE_LIMIT );

@@ -126,8 +126,8 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\stars_frag.glsl" />
-    <None Include="..\assets\stars_vert.glsl" />
+    <None Include="..\assets\shaders\stars_frag.glsl" />
+    <None Include="..\assets\shaders\stars_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

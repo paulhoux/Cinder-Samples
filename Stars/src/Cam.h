@@ -23,15 +23,6 @@ public:
 
 	const ci::CameraPersp& getCamera();
 	void		setCurrentCam( const ci::CameraPersp &aCurrentCam );
-
-	template<typename T> 
-	T			wrap(T value, T min, T max) {
-		T range = (max - min);
-		T frac = ((value - min) / range);
-		frac -= ci::math<T>::floor(frac);
-
-		return min + (frac * range);
-	};
 private:
 	//! returns the position of the camera in world space
 	ci::Vec3f	getPosition();

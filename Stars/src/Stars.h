@@ -69,7 +69,8 @@ public:
 	void	write( ci::DataTargetRef target );
 private:
 	ci::gl::GlslProg	mShader;
-	ci::gl::Texture		mTexture;
+	ci::gl::Texture		mTextureStar;
+	ci::gl::Texture		mTextureCorona;
 	ci::gl::VboMesh		mVboMesh;
 };
 

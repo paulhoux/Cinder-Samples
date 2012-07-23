@@ -1,4 +1,5 @@
 #include "Background.h"
+#include "Conversions.h"
 
 #include "cinder/ImageIo.h"
 #include "cinder/app/AppBasic.h"
@@ -7,13 +8,18 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+// define constants used in the coordinate conversion methods
+const Vec3d	Background::GALACTIC_CENTER_EQUATORIAL = Vec3d(toRadians(266.40510), toRadians(-28.936175), 8.33);
+const Vec2d	Background::GALACTIC_NORTHPOLE_EQUATORIAL = Vec2d(toRadians(192.859508), toRadians(27.128336));
+
 Background::Background(void)
 	: mAttenuation(1.0f)
 {
-	// rough estimation of the earth's rotation with respect to the background map
-	mRotation = Vec3f(-23.4393f, -61.5f, 83.0f);
+	// roughly convert galactic coordinates of map to equatorial coordinates of stars
+	// by rotating the sphere on which the map is projected. The rotation angles were
+	// found using a celestial reference map.
+	mRotation = Vec3f(-60.3f, 81.9f, 22.0f);
 }
-
 
 Background::~Background(void)
 {
@@ -21,7 +27,7 @@ Background::~Background(void)
 
 void Background::setup()
 {
-	try { mTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) ); }
+	try { mTexture = gl::Texture( loadImage( loadAsset("textures/background.jpg") ) ); }
 	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
 
 	create();
@@ -35,17 +41,15 @@ void Background::draw()
 
 	mTexture.enableAndBind();
 
-	gl::color( mAttenuation * Color::white() );
-
 	gl::pushModelView();
+	{
+		gl::rotate( mRotation * Vec3f::zAxis() ); // rotate z-axis
+		gl::rotate( mRotation * Vec3f::xAxis() ); // rotate x-axis
+		gl::rotate( mRotation * Vec3f::yAxis() ); // rotate y-axis
 
-	gl::rotate( Vec3f(0.0f, -90.0f, 0.0f) );
-	gl::rotate( Vec3f(0.0f, 0.0f, mRotation.z) );
-	gl::rotate( Vec3f(0.0f, mRotation.y, 0.0f) );
-	gl::rotate( Vec3f(mRotation.x, 0.0f, 0.0f) );
-
-	gl::draw( mVboMesh );
-
+		gl::color( mAttenuation * Color::white() );
+		gl::draw( mVboMesh );
+	}
 	gl::popModelView();
 
 	glPopAttrib();
@@ -59,7 +63,7 @@ void Background::create()
 
 	const int		SLICES = 30;
 	const int		SEGMENTS = 60;
-	const int		RADIUS = 3000;
+	const int		RADIUS = 2000;
 
 	// create data buffers
 	vector<Vec3f>		normals;
@@ -73,18 +77,19 @@ void Background::create()
 		double theta = static_cast<double>(x) / SEGMENTS * TWO_PI;
 
 		for(y=0;y<=SLICES;++y) {
-			double phi = static_cast<double>(y) / SLICES * M_PI;
+			double phi = (0.5 - static_cast<double>(y) / SLICES) * M_PI;
 
 			normals.push_back( Vec3f(
-				static_cast<float>( sin(phi) * cos(theta) ),
-				static_cast<float>( cos(phi) ),
-				static_cast<float>( sin(phi) * sin(theta) ) ) );
+				static_cast<float>( cos(phi) * sin(theta) ),
+				static_cast<float>( sin(phi) ),
+				static_cast<float>( cos(phi) * cos(theta) ) ) );
 
-			positions.push_back( normals.back() * RADIUS );
+			positions.push_back( normals.back() * RADIUS );	
 
-			texCoords.push_back( Vec2f(
-				1.0f - static_cast<float>(x) / SEGMENTS,
-				static_cast<float>(y) / SLICES ) );
+			float tx = 1.0f - static_cast<float>(x) / SEGMENTS;
+			float ty = static_cast<float>(y) / SLICES;
+
+			texCoords.push_back( Vec2f(tx, ty) );
 		}
 	}
 
@@ -134,7 +139,7 @@ void Background::create()
 void Background::setCameraDistance( float distance )
 {
 	static const float minimum = 0.03f;
-	static const float maximum = 0.2f;
+	static const float maximum = 0.3f;
 
 	if( distance > 1500.0f ) {
 		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - 1500.0f) / 250.0f );
@@ -143,5 +148,38 @@ void Background::setCameraDistance( float distance )
 	else {
 		mAttenuation = math<float>::clamp( 1.0f - math<float>::log10( distance ) / math<float>::log10(100.0f), minimum, maximum );
 	}
+}
 
+Vec2d Background::toEquatorial( const Vec2d &radians )
+{	
+	double longitude = radians.x;	// galactic longitude
+	double latitude = radians.y;	// galactic latitude
+	
+	double alpha = GALACTIC_NORTHPOLE_EQUATORIAL.x;
+	double delta = GALACTIC_NORTHPOLE_EQUATORIAL.y;
+	double la = toRadians(33.0);
+
+	double dec = asin(sin(latitude) * sin(delta) + cos(latitude) * cos(delta) * sin(longitude - la));
+	double ra = atan2(cos(latitude) * cos(longitude - la), sin(latitude) * cos(delta) - cos(latitude) * sin(delta) * sin(longitude - la)) + alpha;
+	
+	ra = Conversions::wrap(ra, 0.0, 2.0 * M_PI);
+
+	return Vec2d(ra, dec);
+}
+
+Vec2d Background::toGalactic( const Vec2d &radians )
+{
+	double ra = radians.x;
+	double dec = radians.y;
+
+	double alpha = GALACTIC_NORTHPOLE_EQUATORIAL.x;
+	double delta = GALACTIC_NORTHPOLE_EQUATORIAL.y;
+	double la = toRadians(33.0);
+    
+    double latitude = asin(sin(dec) * sin(delta) + cos(dec) * cos(delta) * cos(ra - alpha));
+    double longitude = atan2(sin(dec) * cos(delta) - cos(dec) * sin(delta) * cos(ra - alpha), cos(dec) * sin(ra - alpha)) + la;
+
+	longitude = Conversions::wrap(longitude, 0.0, 2.0 * M_PI);
+
+	return Vec2d(longitude, latitude);
 }

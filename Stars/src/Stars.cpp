@@ -22,22 +22,33 @@ Stars::~Stars(void)
 void Stars::setup()
 {	
 	// load shader and point sprite texture
-	try { mShader = gl::GlslProg( loadAsset("stars_vert.glsl"), loadAsset("stars_frag.glsl") ); }
+	try { mShader = gl::GlslProg( loadAsset("shaders/stars_vert.glsl"), loadAsset("shaders/stars_frag.glsl") ); }
 	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; }	
 
-	try { mTexture = gl::Texture( loadImage( loadAsset("particle.png") ) ); }
+	try { 
+		mTextureStar = gl::Texture( loadImage( loadAsset("textures/particle.png") ) ); 
+		mTextureCorona = gl::Texture( loadImage( loadAsset("textures/nova.png") ) ); 
+	}
 	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
 }
 
 void Stars::draw()
 {
-	if(!(mShader && mTexture && mVboMesh)) return;
+	if(!(mShader && mTextureStar && mTextureCorona && mVboMesh)) return;
 
 	gl::enableAdditiveBlending();		
-	enablePointSprites();
+	enablePointSprites();	
+
+	// bind textures
+	mTextureStar.bind(0);
+	mTextureCorona.bind(1);
 
 	gl::color( Color::white() );
 	gl::draw( mVboMesh );
+
+	// unbind textures
+	mTextureCorona.unbind();
+	mTextureStar.unbind();
 
 	disablePointSprites();
 	gl::disableAlphaBlending();
@@ -57,20 +68,17 @@ void Stars::enablePointSprites()
 	// allow vertex shader to change point size
 	gl::enable( GL_VERTEX_PROGRAM_POINT_SIZE );
 
-	// bind sprite texture
-	mTexture.enableAndBind();
-
 	// bind shader
 	mShader.bind();
 	mShader.uniform("tex0", 0);
+	mShader.uniform("tex1", 1);
 	mShader.uniform("time", (float) getElapsedSeconds() );
 }
 
 void Stars::disablePointSprites()
 {
-	// unbind shader and texture
+	// unbind shader 
 	mShader.unbind();
-	mTexture.unbind();
 	
 	// restore OpenGL state
 	glPopAttrib();

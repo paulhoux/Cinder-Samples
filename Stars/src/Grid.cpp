@@ -31,18 +31,18 @@ void Grid::setup()
 
 		y = sinf(tr);
 
-		for(int phi=0;phi<=segments;++phi) {
+		for(int phi=0;phi<segments;++phi) {
 			for(int div=0;div<subdiv;++div) {
 				float pr = (phi * subdiv + div) * phi_step;
 
-				x = cosf(tr) * cosf(pr);
-				z = cosf(tr) * sinf(pr);
+				x = cosf(tr) * sinf(pr);
+				z = cosf(tr) * cosf(pr);
 				vertices.push_back( radius * Vec3f(x, y, z) );
 
 				pr += phi_step;
 
-				x = cosf(tr) * cosf(pr);
-				z = cosf(tr) * sinf(pr);
+				x = cosf(tr) * sinf(pr);
+				z = cosf(tr) * cosf(pr);
 				vertices.push_back( radius * Vec3f(x, y, z) );
 			}
 		}
@@ -56,16 +56,16 @@ void Grid::setup()
 			for(int div=0;div<subdiv;++div) {
 				float tr = (theta * subdiv + div) * theta_step;
 
-				x = cosf(tr) * cosf(pr);
+				x = cosf(tr) * sinf(pr);
 				y = sinf(tr);
-				z = cosf(tr) * sinf(pr);
+				z = cosf(tr) * cosf(pr);
 				vertices.push_back( radius * Vec3f(x, y, z) );
 
 				tr += theta_step;
 
-				x = cosf(tr) * cosf(pr);
+				x = cosf(tr) * sinf(pr);
 				y = sinf(tr);
-				z = cosf(tr) * sinf(pr);
+				z = cosf(tr) * cosf(pr);
 				vertices.push_back( radius * Vec3f(x, y, z) );
 			}
 		}
@@ -83,11 +83,14 @@ void Grid::draw()
 {
 	if(!mVboMesh) return;
 
-	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT );
+	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT );
 	
 	glLineWidth( 2.0f );
-	gl::color( Color::black() );
+	gl::color( Color(0.1f, 0.1f, 0.1f) );
+
+	gl::enableAdditiveBlending();
 	gl::draw( mVboMesh );
+	gl::disableAlphaBlending();
 
 	glPopAttrib();
 }
