@@ -4,7 +4,6 @@
 
 uniform sampler2D tex0;
 
-// 'in' is part of OpenGL 3, not available on Macs
 varying vec2 gsTexCoord;
 
 void main(void)

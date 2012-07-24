@@ -269,20 +269,22 @@ void StarsApp::constrainCursor( const Vec2i &pos )
 		::ClientToScreen(hWnd, &pt);
 		::SetCursorPos(pt.x,pt.y);
 #else
-		// if you want to implement this on MacOS, see: CGWarpMouseCursorPosition
-        
-        // implemented, but works very choppy.
-        // seems other people online have an issue with this function as well.
-        // uncomment to experience.
-        
-        /*
-        Vec2f pt;
+		// on MacOS, the results seem to be a little choppy,
+		// which might have something to do with the OS
+		// suppressing events for a short while after warping
+		// the cursor. 
+		// A call to "CGSetLocalEventsSuppressionInterval(0.0)"
+		// might remedy that.
+		// Uncomment the code below to try things out.
+		/*//
+        Vec2i pt;
         mCursorPrevious.x = pt.x = getWindowWidth() / 2;
 		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
-        CGPoint target = CGPointMake(pt.x, pt.y);
-        CGWarpMouseCursorPosition(target);
-         */
-        
+		
+        CGPoint target = CGPointMake((float) pt.x, (float) pt.y);
+		// note: target should first be converted to screen position here
+        CGWarpMouseCursorPosition(target);  
+		//*/
 #endif
 	}
 }	

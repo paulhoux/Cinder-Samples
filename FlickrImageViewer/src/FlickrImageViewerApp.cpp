@@ -232,20 +232,7 @@ void FlickrImageViewerApp::keyDown( KeyEvent event )
 		setFullScreen( !isFullScreen() );
 		break;
 	case KeyEvent::KEY_v:
-            // This doesn't fly on a Mac.
-            /*
-		// check if the swap control extension is available
-		if( WGL_EXT_swap_control ) {
-			// toggle vertical sync
-			bool enabled = (::wglGetSwapIntervalEXT() > 0);
-			::wglSwapIntervalEXT(!enabled);
-			enabled = (::wglGetSwapIntervalEXT() > 0);
-			if(enabled) 
-				console() << "Vertical sync ENABLED." << std::endl;
-			else console() << "Vertical sync DISABLED." << std::endl;
-		} 
-             */
-            gl::enableVerticalSync(gl::isVerticalSyncEnabled());
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
 		break;
 	}
 }
