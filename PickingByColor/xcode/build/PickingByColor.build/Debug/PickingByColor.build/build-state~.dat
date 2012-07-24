@@ -1,197 +1,0 @@
-TPickingByColor
-v5
-r1
-cCheck dependencies
-cProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Info.plist Info.plist
-cCpResource CinderApp.icns ./build/Debug/PickingByColor.app/Contents/Resources/CinderApp.icns
-cProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.pth PickingByColor_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/MacOS/PickingByColor normal i386
-cTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
-c000000004F6920A400000000000000EE
-t1332289700
-s238
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Accelerate.framework/Accelerate
-c000000004F8346FE0000000000006500
-t1334003454
-s25856
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox
-c000000004F8346FF0000000000025E48
-t1334003455
-s155208
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioUnit.framework/AudioUnit
-c000000004F8346FF0000000000005FA8
-t1334003455
-s24488
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
-c000000004F8346FF00000000000001E5
-t1334003455
-s485
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreAudio.framework/CoreAudio
-c000000004F8346FF0000000000014894
-t1334003455
-s84116
-
-N/System/Library/Frameworks/Carbon.framework/Carbon
-c000000004F443D700000000000006530
-t1329872240
-s25904
-
-N/System/Library/Frameworks/Cocoa.framework/Cocoa
-c000000004F443D700000000000006560
-t1329872240
-s25952
-
-N/System/Library/Frameworks/CoreVideo.framework/CoreVideo
-c000000004FB015D0000000000007CED0
-t1336939984
-s511696
-
-N/System/Library/Frameworks/OpenGL.framework/OpenGL
-c000000004FB015E3000000000002E350
-t1336940003
-s189264
-
-N/System/Library/Frameworks/QTKit.framework/QTKit
-c000000004FB015EA00000000004B7F60
-t1336940010
-s4947808
-
-N/System/Library/Frameworks/QuickTime.framework/QuickTime
-c000000004FB015EA000000000032B7E0
-t1336940010
-s3323872
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp
-c00000000500DDDE20000000000003913
-t1343086050
-s14611
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Info.plist
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/MacOS/PickingByColor
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/PkgInfo
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Resources/CinderApp.icns
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColor.LinkFileList
-c00000000500DE9E400000000000000B6
-t1343089124
-s182
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/CinderApp.icns
-c00000000500DE9BB000000000001BEB5
-t1343089083
-s114357
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/PickingByColor_Prefix.pch
-c00000000500DE9BB0000000000000093
-t1343089083
-s147
-i<Cocoa/Cocoa.h>
-
-N/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.pth
-t2
-s0
-
-NInfo.plist
-c00000000500DE9BB0000000000000354
-t1343089083
-s852
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp
-r0
-
-CCheck dependencies
-r0
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies1f853f6421beb541^f777526421beb541^---0#1#0#--18"Check dependencies36"D16FC79D-F737-46CD-BAEA-A56FF75EC41B-
-
-CCompileC ./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364781924.399438
-e364781926.424968
-r1
-xCompileC
-x./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection122"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp685a666421beb541^70ce6c6621beb541^---0#0#0#-19%DVTDocumentLocation2@130"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp0000000000000000^3390"CompileC ./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.o ../src/PickingByColorApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/../src/PickingByColorApp.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColorApp.o36"276562AE-24D6-419B-84CB-7E6F97F2BCF6-
-
-CCpResource CinderApp.icns ./build/Debug/PickingByColor.app/Contents/Resources/CinderApp.icns
-s364781924.337116
-e364781924.339475
-r1
-xCpResource
-xCinderApp.icns
-x./build/Debug/PickingByColor.app/Contents/Resources/CinderApp.icns
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection71"Copy ./build/Debug/PickingByColor.app/Contents/Resources/CinderApp.icnsb85b566421beb541^7b9f5e6421beb541^---0#0#0#-19%DVTDocumentLocation2@168"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Resources/CinderApp.icns000000000080d041^642"CpResource CinderApp.icns ./build/Debug/PickingByColor.app/Contents/Resources/CinderApp.icns    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/CinderApp.icns /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Resources36"F9F93671-08CB-4C9E-AD2D-DAB38867E256-
-
-CLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/MacOS/PickingByColor normal i386
-s364781926.433226
-e364781926.781830
-r1
-xLd
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/MacOS/PickingByColor
-xnormal
-xi386
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection153"Link /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/MacOS/PickingByColore50e6f6621beb541^7826c86621beb541^---0#0#0#--1244"Ld ./build/Debug/PickingByColor.app/Contents/MacOS/PickingByColor normal i386    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode    setenv MACOSX_DEPLOYMENT_TARGET 10.5    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -arch i386 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -L/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/build/Debug -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/build/Debug -filelist /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/Objects-normal/i386/PickingByColor.LinkFileList -mmacosx-version-min=10.5 ../../..//lib/libcinder_d.a -lcurl -framework Cocoa -framework OpenGL -framework Carbon -framework CoreVideo -framework QTKit -framework QuickTime -framework Accelerate -framework AudioToolbox -framework AudioUnit -framework CoreAudio -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/MacOS/PickingByColor36"48E00027-7E3B-4F60-B005-52CE817B77E0-
-
-CProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Info.plist Info.plist
-s364781924.325544
-e364781924.328977
-r1
-xProcessInfoPlistFile
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Info.plist
-xInfo.plist
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Process Info.plistb762536421beb541^ef39546421beb541^---0#0#0#-19%DVTDocumentLocation2@112"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/Info.plist0000000000000000^546"ProcessInfoPlistFile ./build/Debug/PickingByColor.app/Contents/Info.plist Info.plist    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode    builtin-infoPlistUtility Info.plist -genpkginfo /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/PkgInfo -expandbuildsettings -platform macosx -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app/Contents/Info.plist36"662C7C58-F36E-4413-ADFF-3F1BAF95833D-
-
-CProcessPCH++ /Users/astellato/Library/Developer/Xcode/DerivedData/PickingByColor-cntttsskjtkflebsttunqumnupfh/Index/PrecompiledHeaders/PickingByColor_Prefix-btpdkexkjozvdrarsxdolihsawms_ast/PickingByColor_Prefix.pch.pth PickingByColor_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.astbuilder
-r0
-
-CProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.pth PickingByColor_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364781924.371668
-e364781924.391728
-r1
-xProcessPCH++
-x/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.pth
-xPickingByColor_Prefix.pch
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection36"Precompile PickingByColor_Prefix.pchc93b5f6421beb541^d447646421beb541^---0#0#0#-19%DVTDocumentLocation2@127"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/PickingByColor_Prefix.pch0000000000000000^3269"ProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.pth PickingByColor_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++-header -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/PickingByColor-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/PickingByColor.build/Debug/PickingByColor.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/build/Debug --serialize-diagnostics /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/PickingByColor_Prefix.pch -o /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.pth -MMD -MT dependencies -MF /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PickingByColor_Prefix-dfgqqcuhsskbgwdwgpflntuenbsz/PickingByColor_Prefix.pch.d36"DD3A86BA-FA6C-4A8C-B143-32617244FBD0-
-
-CTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app
-s364781926.790952
-e364781926.795589
-r1
-xTouch
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection124"Touch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.appc287ca6621beb541^3faccb6621beb541^---0#0#0#--273"Touch ./build/Debug/PickingByColor.app    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode    /usr/bin/touch -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PickingByColor/xcode/./build/Debug/PickingByColor.app36"8C12A03C-6B61-492B-93F5-B61080D8B2C4-
-

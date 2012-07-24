@@ -1,357 +1,0 @@
-TStars
-v5
-r1
-cCheck dependencies
-cProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Info.plist Info.plist
-cCpResource CinderApp.icns ./build/Debug/Stars.app/Contents/Resources/CinderApp.icns
-cProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.pth Stars_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/MacOS/Stars normal i386
-cTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
-c000000004F6920A400000000000000EE
-t1332289700
-s238
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Accelerate.framework/Accelerate
-c000000004F8346FE0000000000006500
-t1334003454
-s25856
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox
-c000000004F8346FF0000000000025E48
-t1334003455
-s155208
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioUnit.framework/AudioUnit
-c000000004F8346FF0000000000005FA8
-t1334003455
-s24488
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
-c000000004F8346FF00000000000001E5
-t1334003455
-s485
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreAudio.framework/CoreAudio
-c000000004F8346FF0000000000014894
-t1334003455
-s84116
-
-N/System/Library/Frameworks/Carbon.framework/Carbon
-c000000004F443D700000000000006530
-t1329872240
-s25904
-
-N/System/Library/Frameworks/Cocoa.framework/Cocoa
-c000000004F443D700000000000006560
-t1329872240
-s25952
-
-N/System/Library/Frameworks/CoreVideo.framework/CoreVideo
-c000000004FB015D0000000000007CED0
-t1336939984
-s511696
-
-N/System/Library/Frameworks/OpenGL.framework/OpenGL
-c000000004FB015E3000000000002E350
-t1336940003
-s189264
-
-N/System/Library/Frameworks/QTKit.framework/QTKit
-c000000004FB015EA00000000004B7F60
-t1336940010
-s4947808
-
-N/System/Library/Frameworks/QuickTime.framework/QuickTime
-c000000004FB015EA000000000032B7E0
-t1336940010
-s3323872
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp
-c00000000500DDDE20000000000001565
-t1343086050
-s5477
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp
-c00000000500DDDE20000000000001702
-t1343086050
-s5890
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cpp
-c00000000500DDDE20000000000000381
-t1343086050
-s897
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp
-c00000000500DDDE200000000000007E0
-t1343086050
-s2016
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cpp
-c00000000500DDDE20000000000001DB1
-t1343086050
-s7601
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cpp
-c00000000500DDDE20000000000001610
-t1343086050
-s5648
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cpp
-c00000000500DDDE200000000000003CC
-t1343086050
-s972
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Info.plist
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/MacOS/Stars
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/PkgInfo
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Resources/CinderApp.icns
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.LinkFileList
-c00000000500DEB8300000000000003FC
-t1343089539
-s1020
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/CinderApp.icns
-c00000000500DEB4D000000000001BEB5
-t1343089485
-s114357
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/Stars_Prefix.pch
-c00000000500DEB4D0000000000000093
-t1343089485
-s147
-i<Cocoa/Cocoa.h>
-
-N/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.pth
-t2
-s0
-
-NInfo.plist
-c00000000500DEB4D000000000000034B
-t1343089485
-s843
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp
-r0
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp
-r0
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cpp
-r0
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp
-r0
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cpp
-r0
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cpp
-r0
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cpp
-r0
-
-CCheck dependencies
-r0
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies8e73ef0323beb541^9414fc0323beb541^---0#1#0#--18"Check dependencies36"46F2FA50-34CE-4AD0-A362-A241F589022C-
-
-CCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.055105
-e364782343.971072
-r1
-xCompileC
-x./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-o/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp:62:15: warning: unused variable 'HALF_PI' [-Wunused-variable]
-o        const double    HALF_PI = 0.5 * M_PI;
-o                        ^
-o1 warning generated.
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection106"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp2c2e0e0423beb541^e598f80723beb541^-254"/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp:62:15: warning: unused variable 'HALF_PI' [-Wunused-variable]        const double    HALF_PI = 0.5 * M_PI;                        ^1 warning generated.1(36%IDEClangDiagnosticActivityLogMessage2@25"Unused variable 'HALF_PI'-364782343#18446744073709551615#0#-1#27"com.apple.dt.IDE.diagnostic23%DVTTextDocumentLocation3@105"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/src/Background.cpp0000000000000000^61#14#61#14#1658#0#19"Unused Entity Issue--0#0#0#-19%DVTDocumentLocation4@114"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp0000000000000000^2997"CompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.o ../src/Background.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Background.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Background.o36"999A49EE-6D98-41E9-AFEE-0965AC2AA7CD-
-
-CCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.055139
-e364782343.943472
-r1
-xCompileC
-x./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection99"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp4b3e0e0423beb541^df89f10723beb541^---0#0#0#-19%DVTDocumentLocation2@107"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp0000000000000000^2955"CompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.o ../src/Cam.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Cam.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Cam.o36"9C60D22E-9E79-4548-84E2-BC6A7D9859EB-
-
-CCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.056082
-e364782340.757388
-r1
-xCompileC
-x./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection107"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cppef8c0e0423beb541^c9e9c30423beb541^---0#0#0#-19%DVTDocumentLocation2@115"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cpp0000000000000000^3003"CompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.o ../src/Conversions.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Conversions.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Conversions.o36"15B5BAB0-16F6-4B25-AF0E-93BE136EF55E-
-
-CCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.056244
-e364782342.253038
-r1
-xCompileC
-x./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection100"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp889c0e0423beb541^2ac7400623beb541^---0#0#0#-19%DVTDocumentLocation2@108"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp0000000000000000^2961"CompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.o ../src/Grid.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Grid.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Grid.o36"D7176F27-DCB5-4A7A-BDA4-2FD0C2D77F3E-
-
-CCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.056269
-e364782344.502268
-r1
-xCompileC
-x./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection101"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cppf59e0e0423beb541^2995800823beb541^---0#0#0#-19%DVTDocumentLocation2@109"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cpp0000000000000000^2967"CompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.o ../src/Stars.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/Stars.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.o36"99AD06C9-CA1D-4B70-97D5-15E3F7A6F70A-
-
-CCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.054570
-e364782343.999751
-r1
-xCompileC
-x./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection104"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cppb20f0e0423beb541^41f1ff0723beb541^---0#0#0#-19%DVTDocumentLocation2@112"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cpp0000000000000000^2985"CompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.o ../src/StarsApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/StarsApp.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/StarsApp.o36"F95DE88D-D26B-4493-8FDD-115CB888E58D-
-
-CCompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.056602
-e364782344.156667
-r1
-xCompileC
-x./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection109"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cppd09b0e0423beb541^999e300823beb541^---0#0#0#-19%DVTDocumentLocation2@117"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cpp0000000000000000^3015"CompileC ./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.o ../src/UserInterface.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/../src/UserInterface.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/UserInterface.o36"760E5130-D7EE-468F-8716-607029E15872-
-
-CCpResource CinderApp.icns ./build/Debug/Stars.app/Contents/Resources/CinderApp.icns
-s364782340.005370
-e364782340.012773
-r1
-xCpResource
-xCinderApp.icns
-x./build/Debug/Stars.app/Contents/Resources/CinderApp.icns
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection62"Copy ./build/Debug/Stars.app/Contents/Resources/CinderApp.icns7976010423beb541^3849030423beb541^---0#0#0#-19%DVTDocumentLocation2@150"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Resources/CinderApp.icns000000000080d041^597"CpResource CinderApp.icns ./build/Debug/Stars.app/Contents/Resources/CinderApp.icns    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/CinderApp.icns /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Resources36"70AD4C29-EA00-47A7-8E44-694147EB72EA-
-
-CLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/MacOS/Stars normal i386
-s364782344.510258
-e364782347.191839
-r1
-xLd
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/MacOS/Stars
-xnormal
-xi386
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection126"Link /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/MacOS/Stars36ca820823beb541^ac1d310b23beb541^---0#0#0#--1136"Ld ./build/Debug/Stars.app/Contents/MacOS/Stars normal i386    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv MACOSX_DEPLOYMENT_TARGET 10.5    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -arch i386 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -L/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug -filelist /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Objects-normal/i386/Stars.LinkFileList -mmacosx-version-min=10.5 ../../..//lib/libcinder_d.a -lcurl -framework Cocoa -framework OpenGL -framework Carbon -framework CoreVideo -framework QTKit -framework QuickTime -framework Accelerate -framework AudioToolbox -framework AudioUnit -framework CoreAudio -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/MacOS/Stars36"158970AD-18D4-43E9-B942-4A75ADCD653F-
-
-CProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Info.plist Info.plist
-s364782339.992761
-e364782339.997304
-r1
-xProcessInfoPlistFile
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Info.plist
-xInfo.plist
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Process Info.plist863cfe0323beb541^7f50ff0323beb541^---0#0#0#-19%DVTDocumentLocation2@103"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/Info.plist0000000000000000^492"ProcessInfoPlistFile ./build/Debug/Stars.app/Contents/Info.plist Info.plist    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    builtin-infoPlistUtility Info.plist -genpkginfo /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/PkgInfo -expandbuildsettings -platform macosx -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app/Contents/Info.plist36"4F47746B-824B-4A60-8A46-2D597ED00656-
-
-CProcessPCH++ /Users/astellato/Library/Developer/Xcode/DerivedData/Stars-gbrttxoozeuvfifltefhhnghglez/Index/PrecompiledHeaders/Stars_Prefix-dhltaaspxfkusbeyynibeeobcrmf_ast/Stars_Prefix.pch.pth Stars_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.astbuilder
-r0
-
-CProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.pth Stars_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364782340.025475
-e364782340.047708
-r1
-xProcessPCH++
-x/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.pth
-xStars_Prefix.pch
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection27"Precompile Stars_Prefix.pch07b2060423beb541^65360c0423beb541^---0#0#0#-19%DVTDocumentLocation2@109"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/Stars_Prefix.pch0000000000000000^2945"ProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.pth Stars_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++-header -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/Stars-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Stars.build/Debug/Stars.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/build/Debug --serialize-diagnostics /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/Stars_Prefix.pch -o /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.pth -MMD -MT dependencies -MF /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/Stars_Prefix-gubdbrpnrbtjzhcbinbxiopwgmap/Stars_Prefix.pch.d36"F777B123-E309-4984-B165-2854132EC19B-
-
-CTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app
-s364782347.201027
-e364782347.241372
-r1
-xTouch
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection106"Touch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.appd789330b23beb541^ffcb3d0b23beb541^---0#0#0#--237"Touch ./build/Debug/Stars.app    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode    /usr/bin/touch -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/Stars/xcode/./build/Debug/Stars.app36"5FF6B930-0C03-443F-8714-A0E496C9497F-
-

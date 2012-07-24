@@ -1,197 +1,0 @@
-TBloomingNeon
-v5
-r1
-cCheck dependencies
-cProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Info.plist Info.plist
-cCpResource CinderApp.icns ./build/Debug/BloomingNeon.app/Contents/Resources/CinderApp.icns
-cProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.pth BloomingNeon_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC ./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/MacOS/BloomingNeon normal i386
-cTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
-c000000004F6920A400000000000000EE
-t1332289700
-s238
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Accelerate.framework/Accelerate
-c000000004F8346FE0000000000006500
-t1334003454
-s25856
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox
-c000000004F8346FF0000000000025E48
-t1334003455
-s155208
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioUnit.framework/AudioUnit
-c000000004F8346FF0000000000005FA8
-t1334003455
-s24488
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
-c000000004F8346FF00000000000001E5
-t1334003455
-s485
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreAudio.framework/CoreAudio
-c000000004F8346FF0000000000014894
-t1334003455
-s84116
-
-N/System/Library/Frameworks/Carbon.framework/Carbon
-c000000004F443D700000000000006530
-t1329872240
-s25904
-
-N/System/Library/Frameworks/Cocoa.framework/Cocoa
-c000000004F443D700000000000006560
-t1329872240
-s25952
-
-N/System/Library/Frameworks/CoreVideo.framework/CoreVideo
-c000000004FB015D0000000000007CED0
-t1336939984
-s511696
-
-N/System/Library/Frameworks/OpenGL.framework/OpenGL
-c000000004FB015E3000000000002E350
-t1336940003
-s189264
-
-N/System/Library/Frameworks/QTKit.framework/QTKit
-c000000004FB015EA00000000004B7F60
-t1336940010
-s4947808
-
-N/System/Library/Frameworks/QuickTime.framework/QuickTime
-c000000004FB015EA000000000032B7E0
-t1336940010
-s3323872
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cpp
-c00000000500DDDE20000000000001ADB
-t1343086050
-s6875
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeon.LinkFileList
-c00000000500DDEFF00000000000000AE
-t1343086335
-s174
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.o
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Info.plist
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/MacOS/BloomingNeon
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/PkgInfo
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Resources/CinderApp.icns
-t2
-s0
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/BloomingNeon_Prefix.pch
-c00000000500DDEAC0000000000000093
-t1343086252
-s147
-i<Cocoa/Cocoa.h>
-
-N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/CinderApp.icns
-c00000000500DDEAC000000000001BEB5
-t1343086252
-s114357
-
-N/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.pth
-t2
-s0
-
-NInfo.plist
-c00000000500DDEAC0000000000000352
-t1343086252
-s850
-
-CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cpp
-r0
-
-CCheck dependencies
-r0
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies350ae17f16beb541^0516f47f16beb541^---0#1#0#--18"Check dependencies36"B5B33F3B-5F3B-4540-B427-CBC2F011D4A5-
-
-CCompileC ./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364779136.009467
-e364779137.939393
-r1
-xCompileC
-x./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.o
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cpp
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection118"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cppcb85028016beb541^317cf08116beb541^---0#0#0#-19%DVTDocumentLocation2@126"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cpp0000000000000000^3300"CompileC ./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.o ../src/BloomingNeonApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/../src/BloomingNeonApp.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeonApp.o36"453F4C4D-4D11-4B1A-A0E0-29E9715504D9-
-
-CCpResource CinderApp.icns ./build/Debug/BloomingNeon.app/Contents/Resources/CinderApp.icns
-s364779135.972239
-e364779135.975115
-r1
-xCpResource
-xCinderApp.icns
-x./build/Debug/BloomingNeon.app/Contents/Resources/CinderApp.icns
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection69"Copy ./build/Debug/BloomingNeon.app/Contents/Resources/CinderApp.icns34f3f87f16beb541^fda1f97f16beb541^---0#0#0#-19%DVTDocumentLocation2@164"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Resources/CinderApp.icns000000000080d041^632"CpResource CinderApp.icns ./build/Debug/BloomingNeon.app/Contents/Resources/CinderApp.icns    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/CinderApp.icns /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Resources36"27F549E1-590F-474C-A3C9-EDE911FC43E2-
-
-CLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/MacOS/BloomingNeon normal i386
-s364779137.947315
-e364779139.326477
-r1
-xLd
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/MacOS/BloomingNeon
-xnormal
-xi386
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection147"Link /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/MacOS/BloomingNeon04aff28116beb541^5394538316beb541^---0#0#0#--1220"Ld ./build/Debug/BloomingNeon.app/Contents/MacOS/BloomingNeon normal i386    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode    setenv MACOSX_DEPLOYMENT_TARGET 10.5    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -arch i386 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -L/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/build/Debug -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/build/Debug -filelist /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/Objects-normal/i386/BloomingNeon.LinkFileList -mmacosx-version-min=10.5 ../../..//lib/libcinder_d.a -lcurl -framework Cocoa -framework OpenGL -framework Carbon -framework CoreVideo -framework QTKit -framework QuickTime -framework Accelerate -framework AudioToolbox -framework AudioUnit -framework CoreAudio -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/MacOS/BloomingNeon36"2212A4A9-54EB-4839-A1E1-B0A2585EEF03-
-
-CProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Info.plist Info.plist
-s364779135.959174
-e364779135.964218
-r1
-xProcessInfoPlistFile
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Info.plist
-xInfo.plist
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Process Info.plistbea0f57f16beb541^12daf67f16beb541^---0#0#0#-19%DVTDocumentLocation2@110"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/Info.plist0000000000000000^534"ProcessInfoPlistFile ./build/Debug/BloomingNeon.app/Contents/Info.plist Info.plist    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode    builtin-infoPlistUtility Info.plist -genpkginfo /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/PkgInfo -expandbuildsettings -platform macosx -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app/Contents/Info.plist36"EDCB08D9-BC09-41CA-B37F-A1F8CEBFAC4A-
-
-CProcessPCH++ /Users/astellato/Library/Developer/Xcode/DerivedData/BloomingNeon-duowryljdewhbfflchcquweadthz/Index/PrecompiledHeaders/BloomingNeon_Prefix-gjdfywhcbsdesmfjjxbuyvvrwnkv_ast/BloomingNeon_Prefix.pch.pth BloomingNeon_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.astbuilder
-r0
-
-CProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.pth BloomingNeon_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s364779135.982783
-e364779136.001655
-r1
-xProcessPCH++
-x/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.pth
-xBloomingNeon_Prefix.pch
-xnormal
-xi386
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection34"Precompile BloomingNeon_Prefix.pch25aefb7f16beb541^766c008016beb541^---0#0#0#-19%DVTDocumentLocation2@123"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/BloomingNeon_Prefix.pch0000000000000000^3197"ProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.pth BloomingNeon_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++-header -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/BloomingNeon-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/BloomingNeon.build/Debug/BloomingNeon.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/build/Debug --serialize-diagnostics /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/BloomingNeon_Prefix.pch -o /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.pth -MMD -MT dependencies -MF /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/BloomingNeon_Prefix-euejymfcfjbaizggbbwqrizvpoyf/BloomingNeon_Prefix.pch.d36"0AD9CA10-B97C-44B0-8DFD-C31C92ABB2EA-
-
-CTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app
-s364779139.335648
-e364779139.495659
-r1
-xTouch
-x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app
-lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection120"Touch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.appdff9558316beb541^71e77e8316beb541^---0#0#0#--265"Touch ./build/Debug/BloomingNeon.app    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode    /usr/bin/touch -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/BloomingNeon/xcode/./build/Debug/BloomingNeon.app36"34E2250F-1315-44E8-825D-78C11621742E-
-
