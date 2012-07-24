@@ -48,7 +48,7 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mMutex);
 
-		std::map<Key, Data>::iterator itr = mQueue.find(key);
+		typename std::map<Key, Data>::iterator itr = mQueue.find(key);
 		return (itr != mQueue.end());
 	}
 
@@ -79,7 +79,7 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mMutex);
 
-		std::map<Key, Data>::iterator itr = mQueue.find(key);
+		typename std::map<Key, Data>::iterator itr = mQueue.find(key);
 		if (itr == mQueue.end())
 			return false;
         
@@ -92,7 +92,7 @@ public:
     {
         boost::mutex::scoped_lock lock(mMutex);
 
-		std::map<Key, Data>::iterator itr = mQueue.find(key);
+		typename std::map<Key, Data>::iterator itr = mQueue.find(key);
 		if (itr == mQueue.end())
 			return false;
         
@@ -105,7 +105,7 @@ public:
     void wait_and_pop(Key const& key, Data& popped_value)
     {
         boost::mutex::scoped_lock lock(mMutex);
-		std::map<Key, Data>::iterator itr;
+		typename std::map<Key, Data>::iterator itr;
         while(mQueue.find(key) == mQueue.end())
         {
             mCondition.wait(lock);

@@ -270,6 +270,19 @@ void StarsApp::constrainCursor( const Vec2i &pos )
 		::SetCursorPos(pt.x,pt.y);
 #else
 		// if you want to implement this on MacOS, see: CGWarpMouseCursorPosition
+        
+        // implemented, but works very choppy.
+        // seems other people online have an issue with this function as well.
+        // uncomment to experience.
+        
+        /*
+        Vec2f pt;
+        mCursorPrevious.x = pt.x = getWindowWidth() / 2;
+		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
+        CGPoint target = CGPointMake(pt.x, pt.y);
+        CGWarpMouseCursorPosition(target);
+         */
+        
 #endif
 	}
 }	
