@@ -33,7 +33,10 @@ public:
 	void	mouseUp( MouseEvent event );
 	void	keyDown( KeyEvent event );
 	void	resize( ResizeEvent event );
+	void	fileDrop( FileDropEvent event );
 protected:
+	void	playMusic( const fs::path &path );
+
 	void	forceHideCursor();
 	void	forceShowCursor();
 	void	constrainCursor( const Vec2i &pos );
@@ -133,8 +136,7 @@ void StarsApp::setup()
 
 		// play background music (the first .mp3 file found in ./assets/music)
 		fs::path path = getFirstFile( getAssetPath("") / "music", ".mp3" );
-		if( !path.empty() ) mMusic = mSoundEngine->play2D( path.string().c_str(), false, true );
-		if(mMusic) mMusic->setIsPaused(false);
+		playMusic(path);
 	}
 
 	//
@@ -296,6 +298,34 @@ void StarsApp::resize( ResizeEvent event )
 	mCamera.resize( event );
 }
 
+void StarsApp::fileDrop( FileDropEvent event )
+{
+	for(size_t i=0;i<event.getNumFiles();++i) {
+		fs::path file = event.getFile(i);
+
+		// skip if not a file
+		if( !fs::is_regular_file( file ) ) continue;
+
+		if( file.extension() == ".mp3" ) {
+			playMusic(file);
+			return;
+		}
+	}
+}
+
+void StarsApp::playMusic( const fs::path &path )
+{
+	if(mSoundEngine && !path.empty()) {
+		// stop current music
+		if(mMusic) 
+			mMusic->stop();
+
+		//
+		mMusic = mSoundEngine->play2D( path.string().c_str(), false, true );
+		if(mMusic) mMusic->setIsPaused(false);
+	}
+}
+
 void StarsApp::forceHideCursor()
 {
 	// forces the cursor to hide
@@ -377,7 +407,9 @@ fs::path	StarsApp::getFirstFile( const fs::path &path, const fs::path &extension
 fs::path	StarsApp::getNextFile( const fs::path &current, const fs::path &extension )
 {
 	// TODO
-	return fs::path();
+
+	// current file not found, play first file
+	return getFirstFile( current.parent_path(), extension );
 }
 
 CINDER_APP_BASIC( StarsApp, RendererGl )
