@@ -35,7 +35,10 @@ public:
 	void	resize( ResizeEvent event );
 	void	fileDrop( FileDropEvent event );
 protected:
-	void	playMusic( const fs::path &path );
+	void	playMusic( const fs::path &path, bool loop=false );
+	void	playSound( const fs::path &path, bool loop=false );
+
+	shared_ptr<ISound>	createSound( const fs::path &path );
 
 	void	forceHideCursor();
 	void	forceShowCursor();
@@ -67,9 +70,9 @@ protected:
 	bool			mIsCursorVisible;
 
 	//
-	ISoundEngine*	mSoundEngine;
-	ISound*			mSound;
-	ISound*			mMusic;
+	shared_ptr<ISoundEngine>	mSoundEngine;
+	shared_ptr<ISound>			mSound;
+	shared_ptr<ISound>			mMusic;
 };
 
 void StarsApp::prepareSettings(Settings *settings)
@@ -119,16 +122,14 @@ void StarsApp::setup()
 	//
 	forceHideCursor();
 
-	// initialize the IrrKlang Sound Engine
-	mSoundEngine = createIrrKlangDevice();
-	mSound = NULL;
-	mMusic = NULL;
+	// initialize the IrrKlang Sound Engine in a very safe way
+	mSoundEngine = shared_ptr<ISoundEngine>( createIrrKlangDevice(), std::mem_fun(&ISoundEngine::drop) );
 
 	if(mSoundEngine) {
 		// play 3D Sun rumble
-		std::string file = (getAssetPath("") / "sound/low_rumble_loop.mp3").string();
-		mSound = mSoundEngine->play3D( file.c_str(), vec3df(0,0,0), true, true );
+		mSound = createSound( getAssetPath("") / "sound/low_rumble_loop.mp3" );
 		if(mSound) {
+			mSound->setIsLooped(true);
 			mSound->setMinDistance(2.5f);
 			mSound->setMaxDistance(12.5f);
 			mSound->setIsPaused(false);
@@ -145,14 +146,7 @@ void StarsApp::setup()
 
 void StarsApp::shutdown()
 {
-	if(mSoundEngine) {
-		mSoundEngine->stopAllSounds();
-
-		if(mMusic) mMusic->drop();
-		if(mSound) mSound->drop();
-
-		mSoundEngine->drop();
-	}
+	if(mSoundEngine) mSoundEngine->stopAllSounds();
 }
 
 void StarsApp::update()
@@ -160,9 +154,10 @@ void StarsApp::update()
 	double elapsed = getElapsedSeconds() - mTime;
 	mTime += elapsed;
 
-	// animate camera
 	double time = getElapsedSeconds() / 200.0;
 	if(mMusic) time = mMusic->getPlayPosition() / (double) mMusic->getPlayLength();
+
+	// animate camera
 	mCamera.setDistanceTime(time);
 	mCamera.update(elapsed);
 
@@ -313,17 +308,36 @@ void StarsApp::fileDrop( FileDropEvent event )
 	}
 }
 
-void StarsApp::playMusic( const fs::path &path )
+void StarsApp::playMusic( const fs::path &path, bool loop )
 {
 	if(mSoundEngine && !path.empty()) {
 		// stop current music
 		if(mMusic) 
 			mMusic->stop();
 
-		//
-		mMusic = mSoundEngine->play2D( path.string().c_str(), false, true );
+		// play music in a very safe way
+		mMusic = shared_ptr<ISound>( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun(&ISound::drop) );
 		if(mMusic) mMusic->setIsPaused(false);
 	}
+}
+
+void StarsApp::playSound( const fs::path &path, bool loop )
+{
+	// play sound in a very safe way
+	shared_ptr<ISound> sound( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun(&ISound::drop) );
+	if(sound) sound->setIsPaused(false);
+}
+
+shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
+{
+	shared_ptr<ISound>	sound;
+
+	if(mSoundEngine && !path.empty()) {
+		// create sound in a very safe way
+		sound = shared_ptr<ISound>( mSoundEngine->play3D( path.string().c_str(), vec3df(0,0,0), false, true ), std::mem_fun(&ISound::drop) );
+	}
+
+	return sound;
 }
 
 void StarsApp::forceHideCursor()
