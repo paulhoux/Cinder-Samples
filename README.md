@@ -15,6 +15,16 @@ Sample applications for the Cinder framework. In order to use these samples, clo
 * ...
 
 
+These code samples are compatible with the Microsoft Visual C++ (Express) 10 compiler. XCode support for MacOS X is not included, because I do not own an Apple and would not be able to update the project files.
+
+The C++ and GLSL source code, however, should run on all platforms without modifications. If you find an inconsistency or platform related bug, please notify me or create a pull request, so that I can fix the issues. 
+
+Thanks to all contributors and to the people behind the Cinder framework for doing an excellent job!
+
+-Paul
+
+
+
 Copyright (c) 2012, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
