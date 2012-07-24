@@ -401,6 +401,10 @@ void BouncingBallsApp::keyDown( KeyEvent event )
 		}
 		else mTimer.stop();
 		break;
+    case KeyEvent::KEY_EQUALS: //For Macs without a keypad or a plus key
+        if(!event.isShiftDown()){
+            break;
+        }
 	case KeyEvent::KEY_PLUS:
 	case KeyEvent::KEY_KP_PLUS:
 		// create a new ball
@@ -434,6 +438,8 @@ void BouncingBallsApp::keyDown( KeyEvent event )
 		setFrameRate(100.0f);
 		break;
 	}
+    
+    //console()<<"key: "<<event.getCode()<<"\n";
 }
 
 void BouncingBallsApp::performCollisions()

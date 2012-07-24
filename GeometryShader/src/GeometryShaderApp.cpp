@@ -255,6 +255,10 @@ void GeometryShaderApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_RIGHTBRACKET:
 		if(mThickness < 100.0f) mThickness += 1.0f;
 		break;
+    case KeyEvent::KEY_EQUALS: //For Macs without a keypad or a plus key
+        if(!event.isShiftDown()){
+            break;
+        }
 	case KeyEvent::KEY_PLUS:
 	case KeyEvent::KEY_KP_PLUS:
 		if(mLimit < 1.0f) mLimit += 0.1f;

@@ -1,0 +1,197 @@
+TPostProcessing
+v5
+r1
+cCheck dependencies
+cProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Info.plist Info.plist
+cCpResource CinderApp.icns ./build/Debug/PostProcessing.app/Contents/Resources/CinderApp.icns
+cProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.pth PostProcessing_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cCompileC ./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/MacOS/PostProcessing normal i386
+cTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
+c000000004F6920A400000000000000EE
+t1332289700
+s238
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Accelerate.framework/Accelerate
+c000000004F8346FE0000000000006500
+t1334003454
+s25856
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox
+c000000004F8346FF0000000000025E48
+t1334003455
+s155208
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioUnit.framework/AudioUnit
+c000000004F8346FF0000000000005FA8
+t1334003455
+s24488
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
+c000000004F8346FF00000000000001E5
+t1334003455
+s485
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreAudio.framework/CoreAudio
+c000000004F8346FF0000000000014894
+t1334003455
+s84116
+
+N/System/Library/Frameworks/Carbon.framework/Carbon
+c000000004F443D700000000000006530
+t1329872240
+s25904
+
+N/System/Library/Frameworks/Cocoa.framework/Cocoa
+c000000004F443D700000000000006560
+t1329872240
+s25952
+
+N/System/Library/Frameworks/CoreVideo.framework/CoreVideo
+c000000004FB015D0000000000007CED0
+t1336939984
+s511696
+
+N/System/Library/Frameworks/OpenGL.framework/OpenGL
+c000000004FB015E3000000000002E350
+t1336940003
+s189264
+
+N/System/Library/Frameworks/QTKit.framework/QTKit
+c000000004FB015EA00000000004B7F60
+t1336940010
+s4947808
+
+N/System/Library/Frameworks/QuickTime.framework/QuickTime
+c000000004FB015EA000000000032B7E0
+t1336940010
+s3323872
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cpp
+c00000000500DDDE20000000000001313
+t1343086050
+s4883
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Info.plist
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/MacOS/PostProcessing
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/PkgInfo
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Resources/CinderApp.icns
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessing.LinkFileList
+c00000000500DEA9E00000000000000B6
+t1343089310
+s182
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.o
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/CinderApp.icns
+c00000000500DEA75000000000001BEB5
+t1343089269
+s114357
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/PostProcessing_Prefix.pch
+c00000000500DEA750000000000000093
+t1343089269
+s147
+i<Cocoa/Cocoa.h>
+
+N/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.pth
+t2
+s0
+
+NInfo.plist
+c00000000500DEA750000000000000354
+t1343089269
+s852
+
+CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cpp
+r0
+
+CCheck dependencies
+r0
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependenciesb0ab091e22beb541^2b6b1b1e22beb541^---0#1#0#--18"Check dependencies36"7A786943-5E9D-46C8-A25B-A7C6D89CA18D-
+
+CCompileC ./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s364782110.184032
+e364782112.761226
+r1
+xCompileC
+x./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.o
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cpp
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection122"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cppc6342f1e22beb541^1ae0c22022beb541^---0#0#0#-19%DVTDocumentLocation2@130"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cpp0000000000000000^3390"CompileC ./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.o ../src/PostProcessingApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/../src/PostProcessingApp.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessingApp.o36"72628DB2-93E2-41BF-AD45-BE74E54BB75B-
+
+CCpResource CinderApp.icns ./build/Debug/PostProcessing.app/Contents/Resources/CinderApp.icns
+s364782110.142721
+e364782110.148919
+r1
+xCpResource
+xCinderApp.icns
+x./build/Debug/PostProcessing.app/Contents/Resources/CinderApp.icns
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection71"Copy ./build/Debug/PostProcessing.app/Contents/Resources/CinderApp.icns2d98241e22beb541^7022261e22beb541^---0#0#0#-19%DVTDocumentLocation2@168"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Resources/CinderApp.icns000000000080d041^642"CpResource CinderApp.icns ./build/Debug/PostProcessing.app/Contents/Resources/CinderApp.icns    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/CinderApp.icns /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Resources36"919E776B-9D62-4DE5-B51D-C6F579A40CD4-
+
+CLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/MacOS/PostProcessing normal i386
+s364782112.769162
+e364782113.113736
+r1
+xLd
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/MacOS/PostProcessing
+xnormal
+xi386
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection153"Link /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/MacOS/PostProcessinga110c52022beb541^861e1d2122beb541^---0#0#0#--1244"Ld ./build/Debug/PostProcessing.app/Contents/MacOS/PostProcessing normal i386    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode    setenv MACOSX_DEPLOYMENT_TARGET 10.5    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -arch i386 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -L/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/build/Debug -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/build/Debug -filelist /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/Objects-normal/i386/PostProcessing.LinkFileList -mmacosx-version-min=10.5 ../../..//lib/libcinder_d.a -lcurl -framework Cocoa -framework OpenGL -framework Carbon -framework CoreVideo -framework QTKit -framework QuickTime -framework Accelerate -framework AudioToolbox -framework AudioUnit -framework CoreAudio -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/MacOS/PostProcessing36"9076B963-2EC6-4094-AE5D-2C3E810BA1F8-
+
+CProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Info.plist Info.plist
+s364782110.123008
+e364782110.134184
+r1
+xProcessInfoPlistFile
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Info.plist
+xInfo.plist
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Process Info.plist3d2b211e22beb541^4f5c221e22beb541^---0#0#0#-19%DVTDocumentLocation2@112"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/Info.plist0000000000000000^546"ProcessInfoPlistFile ./build/Debug/PostProcessing.app/Contents/Info.plist Info.plist    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode    builtin-infoPlistUtility Info.plist -genpkginfo /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/PkgInfo -expandbuildsettings -platform macosx -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app/Contents/Info.plist36"38BC9A19-827A-41A4-A84E-AFE1D9B8D5A0-
+
+CProcessPCH++ /Users/astellato/Library/Developer/Xcode/DerivedData/PostProcessing-aiiwgbptfiwjnifqmatkshsnmlei/Index/PrecompiledHeaders/PostProcessing_Prefix-behzbjmfbcpnsnhdbqcvzsaedpew_ast/PostProcessing_Prefix.pch.pth PostProcessing_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.astbuilder
+r0
+
+CProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.pth PostProcessing_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s364782110.156735
+e364782110.176274
+r1
+xProcessPCH++
+x/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.pth
+xPostProcessing_Prefix.pch
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection36"Precompile PostProcessing_Prefix.pch6c40281e22beb541^08202d1e22beb541^---0#0#0#-19%DVTDocumentLocation2@127"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/PostProcessing_Prefix.pch0000000000000000^3269"ProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.pth PostProcessing_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++-header -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/PostProcessing-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/PostProcessing.build/Debug/PostProcessing.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/build/Debug --serialize-diagnostics /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/PostProcessing_Prefix.pch -o /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.pth -MMD -MT dependencies -MF /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/PostProcessing_Prefix-ctniqslwtlyyekhjmooarpaajjcg/PostProcessing_Prefix.pch.d36"C426D8D9-3507-4E14-B1FB-8865C5E692EF-
+
+CTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app
+s364782113.122687
+e364782113.126700
+r1
+xTouch
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection124"Touch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.appef741f2122beb541^2e71202122beb541^---0#0#0#--273"Touch ./build/Debug/PostProcessing.app    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode    /usr/bin/touch -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/PostProcessing/xcode/./build/Debug/PostProcessing.app36"65809922-B254-470D-94E4-C1A11F6D9AC0-
+

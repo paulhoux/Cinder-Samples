@@ -1,0 +1,197 @@
+TSimpleShader
+v5
+r1
+cCheck dependencies
+cProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Info.plist Info.plist
+cCpResource CinderApp.icns ./build/Debug/SimpleShader.app/Contents/Resources/CinderApp.icns
+cProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.pth SimpleShader_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cCompileC ./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/MacOS/SimpleShader normal i386
+cTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
+c000000004F6920A400000000000000EE
+t1332289700
+s238
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Accelerate.framework/Accelerate
+c000000004F8346FE0000000000006500
+t1334003454
+s25856
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox
+c000000004F8346FF0000000000025E48
+t1334003455
+s155208
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioUnit.framework/AudioUnit
+c000000004F8346FF0000000000005FA8
+t1334003455
+s24488
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
+c000000004F8346FF00000000000001E5
+t1334003455
+s485
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreAudio.framework/CoreAudio
+c000000004F8346FF0000000000014894
+t1334003455
+s84116
+
+N/System/Library/Frameworks/Carbon.framework/Carbon
+c000000004F443D700000000000006530
+t1329872240
+s25904
+
+N/System/Library/Frameworks/Cocoa.framework/Cocoa
+c000000004F443D700000000000006560
+t1329872240
+s25952
+
+N/System/Library/Frameworks/CoreVideo.framework/CoreVideo
+c000000004FB015D0000000000007CED0
+t1336939984
+s511696
+
+N/System/Library/Frameworks/OpenGL.framework/OpenGL
+c000000004FB015E3000000000002E350
+t1336940003
+s189264
+
+N/System/Library/Frameworks/QTKit.framework/QTKit
+c000000004FB015EA00000000004B7F60
+t1336940010
+s4947808
+
+N/System/Library/Frameworks/QuickTime.framework/QuickTime
+c000000004FB015EA000000000032B7E0
+t1336940010
+s3323872
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp
+c00000000500DDDE2000000000000053D
+t1343086050
+s1341
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Info.plist
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/MacOS/SimpleShader
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/PkgInfo
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Resources/CinderApp.icns
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShader.LinkFileList
+c00000000500DEB0D00000000000000AE
+t1343089421
+s174
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.o
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/CinderApp.icns
+c00000000500DEAEE000000000001BEB5
+t1343089390
+s114357
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/SimpleShader_Prefix.pch
+c00000000500DEAEE0000000000000093
+t1343089390
+s147
+i<Cocoa/Cocoa.h>
+
+N/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.pth
+t2
+s0
+
+NInfo.plist
+c00000000500DEAEE0000000000000352
+t1343089390
+s850
+
+CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp
+r0
+
+CCheck dependencies
+r0
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependenciese1b5bf8d22beb541^062ed38d22beb541^---0#1#0#--18"Check dependencies36"A0451F4F-F36D-4570-AFA0-3F382612D0F9-
+
+CCompileC ./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s364782221.924841
+e364782223.709831
+r1
+xCompileC
+x./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.o
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection118"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp83fcec8d22beb541^edb8b58f22beb541^---0#0#0#-19%DVTDocumentLocation2@126"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp0000000000000000^3300"CompileC ./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.o ../src/SimpleShaderApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/../src/SimpleShaderApp.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShaderApp.o36"93D82543-E617-4747-8FFA-44B12312A78F-
+
+CCpResource CinderApp.icns ./build/Debug/SimpleShader.app/Contents/Resources/CinderApp.icns
+s364782221.875278
+e364782221.877703
+r1
+xCpResource
+xCinderApp.icns
+x./build/Debug/SimpleShader.app/Contents/Resources/CinderApp.icns
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection69"Copy ./build/Debug/SimpleShader.app/Contents/Resources/CinderApp.icnsd520e08d22beb541^89b1e08d22beb541^---0#0#0#-19%DVTDocumentLocation2@164"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Resources/CinderApp.icns000000000080d041^632"CpResource CinderApp.icns ./build/Debug/SimpleShader.app/Contents/Resources/CinderApp.icns    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/CinderApp.icns /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Resources36"71B77E60-BD85-4986-8052-98C897ED18D6-
+
+CLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/MacOS/SimpleShader normal i386
+s364782223.716436
+e364782224.062035
+r1
+xLd
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/MacOS/SimpleShader
+xnormal
+xi386
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection147"Link /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/MacOS/SimpleShader2190b78f22beb541^b5e20f9022beb541^---0#0#0#--1220"Ld ./build/Debug/SimpleShader.app/Contents/MacOS/SimpleShader normal i386    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode    setenv MACOSX_DEPLOYMENT_TARGET 10.5    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -arch i386 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -L/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/build/Debug -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/build/Debug -filelist /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/Objects-normal/i386/SimpleShader.LinkFileList -mmacosx-version-min=10.5 ../../..//lib/libcinder_d.a -lcurl -framework Cocoa -framework OpenGL -framework Carbon -framework CoreVideo -framework QTKit -framework QuickTime -framework Accelerate -framework AudioToolbox -framework AudioUnit -framework CoreAudio -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/MacOS/SimpleShader36"3FD19012-832E-4556-8D6C-AC83B645405D-
+
+CProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Info.plist Info.plist
+s364782221.834513
+e364782221.840404
+r1
+xProcessInfoPlistFile
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Info.plist
+xInfo.plist
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Process Info.plist0abed58d22beb541^ad13d78d22beb541^---0#0#0#-19%DVTDocumentLocation2@110"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/Info.plist0000000000000000^534"ProcessInfoPlistFile ./build/Debug/SimpleShader.app/Contents/Info.plist Info.plist    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode    builtin-infoPlistUtility Info.plist -genpkginfo /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/PkgInfo -expandbuildsettings -platform macosx -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app/Contents/Info.plist36"CCC11979-2D43-4B63-8BE3-C949FC9C64E6-
+
+CProcessPCH++ /Users/astellato/Library/Developer/Xcode/DerivedData/SimpleShader-afwscdybtmgohhbblolhtzwuvirv/Index/PrecompiledHeaders/SimpleShader_Prefix-cakyokvkeupkjygeamqmnefjwmco_ast/SimpleShader_Prefix.pch.pth SimpleShader_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.astbuilder
+r0
+
+CProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.pth SimpleShader_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s364782221.885822
+e364782221.916949
+r1
+xProcessPCH++
+x/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.pth
+xSimpleShader_Prefix.pch
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection34"Precompile SimpleShader_Prefix.pch3ae8e28d22beb541^a0c5ea8d22beb541^---0#0#0#-19%DVTDocumentLocation2@123"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/SimpleShader_Prefix.pch0000000000000000^3197"ProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.pth SimpleShader_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++-header -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/SimpleShader-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/SimpleShader.build/Debug/SimpleShader.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/build/Debug --serialize-diagnostics /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/SimpleShader_Prefix.pch -o /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.pth -MMD -MT dependencies -MF /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/SimpleShader_Prefix-bqytdnxxjlixrbhecsazfwpboaqb/SimpleShader_Prefix.pch.d36"D2E48A33-119E-4D05-93A2-F4C235ED12B1-
+
+CTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app
+s364782224.072155
+e364782224.076301
+r1
+xTouch
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection120"Touch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app2385129022beb541^bd8b139022beb541^---0#0#0#--265"Touch ./build/Debug/SimpleShader.app    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode    /usr/bin/touch -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/SimpleShader/xcode/./build/Debug/SimpleShader.app36"59C8F075-2DE0-4D6E-A7F4-BB9E8EC898C4-
+

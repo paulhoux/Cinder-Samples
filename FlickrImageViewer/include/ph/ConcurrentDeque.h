@@ -47,8 +47,8 @@ public:
 	bool contains(Data const& data)
 	{
 		boost::mutex::scoped_lock lock(mMutex);
-
-		std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
+        //On Mac, you must use typename in front a templated declaration
+		typename std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
 		return (itr != mDeque.end());
 	}
 
@@ -56,7 +56,7 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mMutex);
 
-		std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
+		typename std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
 		if(itr != mDeque.end()) {
 			mDeque.erase(itr);
 			return true;
@@ -69,7 +69,7 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mMutex);
 
-		std::deque<Data>::iterator itr;
+		typename std::deque<Data>::iterator itr;
 		do {
 			itr = std::find(mDeque.begin(), mDeque.end(), data);
 			if(itr != mDeque.end()) mDeque.erase(itr);
@@ -83,7 +83,7 @@ public:
         boost::mutex::scoped_lock lock(mMutex);
 
 		if(unique) {
-			std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
+			typename std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
 			if(itr == mDeque.end()) {
 				mDeque.push_back(data);
 				lock.unlock();

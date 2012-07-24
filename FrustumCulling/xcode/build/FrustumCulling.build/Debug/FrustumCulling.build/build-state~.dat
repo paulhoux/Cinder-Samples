@@ -1,0 +1,223 @@
+TFrustumCulling
+v5
+r1
+cCheck dependencies
+cProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Info.plist Info.plist
+cCpResource CinderApp.icns ./build/Debug/FrustumCulling.app/Contents/Resources/CinderApp.icns
+cProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.pth FrustumCulling_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cCompileC ./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cCompileC ./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/MacOS/FrustumCulling normal i386
+cTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
+c000000004F6920A400000000000000EE
+t1332289700
+s238
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Accelerate.framework/Accelerate
+c000000004F8346FE0000000000006500
+t1334003454
+s25856
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox
+c000000004F8346FF0000000000025E48
+t1334003455
+s155208
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AudioUnit.framework/AudioUnit
+c000000004F8346FF0000000000005FA8
+t1334003455
+s24488
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h
+c000000004F8346FF00000000000001E5
+t1334003455
+s485
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreAudio.framework/CoreAudio
+c000000004F8346FF0000000000014894
+t1334003455
+s84116
+
+N/System/Library/Frameworks/Carbon.framework/Carbon
+c000000004F443D700000000000006530
+t1329872240
+s25904
+
+N/System/Library/Frameworks/Cocoa.framework/Cocoa
+c000000004F443D700000000000006560
+t1329872240
+s25952
+
+N/System/Library/Frameworks/CoreVideo.framework/CoreVideo
+c000000004FB015D0000000000007CED0
+t1336939984
+s511696
+
+N/System/Library/Frameworks/OpenGL.framework/OpenGL
+c000000004FB015E3000000000002E350
+t1336940003
+s189264
+
+N/System/Library/Frameworks/QTKit.framework/QTKit
+c000000004FB015EA00000000004B7F60
+t1336940010
+s4947808
+
+N/System/Library/Frameworks/QuickTime.framework/QuickTime
+c000000004FB015EA000000000032B7E0
+t1336940010
+s3323872
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp
+c00000000500DDDE20000000000000BCC
+t1343086050
+s3020
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp
+c00000000500DF1A10000000000003138
+t1343091105
+s12600
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Info.plist
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/MacOS/FrustumCulling
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/PkgInfo
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Resources/CinderApp.icns
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.o
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCulling.LinkFileList
+c00000000500DF3EA0000000000000169
+t1343091690
+s361
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.o
+t2
+s0
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/CinderApp.icns
+c00000000500DF3AD000000000001BEB5
+t1343091629
+s114357
+
+N/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/FrustumCulling_Prefix.pch
+c00000000500DF3AD0000000000000093
+t1343091629
+s147
+i<Cocoa/Cocoa.h>
+
+N/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.pth
+t2
+s0
+
+NInfo.plist
+c00000000500DF3AD0000000000000354
+t1343091629
+s852
+
+CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp
+r0
+
+CBuild AST from /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp
+r0
+
+CCheck dependencies
+r0
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependenciese482536a2bbeb541^1c3f586a2bbeb541^---0#1#0#--18"Check dependencies36"10D42D93-AB78-48DB-A85F-95BB56A6A868-
+
+CCompileC ./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s364784490.433520
+e364784491.489754
+r1
+xCompileC
+x./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.o
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection119"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp382e6f6a2bbeb541^a6607d6b2bbeb541^---0#0#0#-19%DVTDocumentLocation2@127"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp0000000000000000^3372"CompileC ./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.o ../src/CullableObject.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/CullableObject.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/CullableObject.o36"57FA3279-635B-4BA2-97E6-D2FFA3B663EE-
+
+CCompileC ./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s364784490.433301
+e364784493.129675
+r1
+xCompileC
+x./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.o
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection122"Compile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp5b266f6a2bbeb541^5036216d2bbeb541^---0#0#0#-19%DVTDocumentLocation2@130"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp0000000000000000^3390"CompileC ./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.o ../src/FrustumCullingApp.cpp normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug -include /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch -MMD -MT dependencies -MF /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.d --serialize-diagnostics /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/../src/FrustumCullingApp.cpp -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCullingApp.o36"990F1BFD-B95B-4EFD-BBDD-B47318765478-
+
+CCpResource CinderApp.icns ./build/Debug/FrustumCulling.app/Contents/Resources/CinderApp.icns
+s364784490.394500
+e364784490.396985
+r1
+xCpResource
+xCinderApp.icns
+x./build/Debug/FrustumCulling.app/Contents/Resources/CinderApp.icns
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection71"Copy ./build/Debug/FrustumCulling.app/Contents/Resources/CinderApp.icnsb30c656a2bbeb541^77a1656a2bbeb541^---0#0#0#-19%DVTDocumentLocation2@168"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Resources/CinderApp.icns000000000080d041^642"CpResource CinderApp.icns ./build/Debug/FrustumCulling.app/Contents/Resources/CinderApp.icns    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/CinderApp.icns /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Resources36"56BA5335-5355-4D12-9E78-834A20DE49E4-
+
+CLd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/MacOS/FrustumCulling normal i386
+s364784493.137658
+e364784494.071311
+r1
+xLd
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/MacOS/FrustumCulling
+xnormal
+xi386
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection153"Link /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/MacOS/FrustumCulling6f67236d2bbeb541^3942126e2bbeb541^---0#0#0#--1244"Ld ./build/Debug/FrustumCulling.app/Contents/MacOS/FrustumCulling normal i386    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode    setenv MACOSX_DEPLOYMENT_TARGET 10.5    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -arch i386 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -L/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug -filelist /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/Objects-normal/i386/FrustumCulling.LinkFileList -mmacosx-version-min=10.5 ../../..//lib/libcinder_d.a -lcurl -framework Cocoa -framework OpenGL -framework Carbon -framework CoreVideo -framework QTKit -framework QuickTime -framework Accelerate -framework AudioToolbox -framework AudioUnit -framework CoreAudio -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/MacOS/FrustumCulling36"DBD3AC7A-9630-46BA-A6AE-E18FF4D6D88E-
+
+CProcessInfoPlistFile /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Info.plist Info.plist
+s364784490.351289
+e364784490.385404
+r1
+xProcessInfoPlistFile
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Info.plist
+xInfo.plist
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Process Info.plist23155a6a2bbeb541^e4dc626a2bbeb541^---0#0#0#-19%DVTDocumentLocation2@112"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/Info.plist0000000000000000^546"ProcessInfoPlistFile ./build/Debug/FrustumCulling.app/Contents/Info.plist Info.plist    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode    builtin-infoPlistUtility Info.plist -genpkginfo /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/PkgInfo -expandbuildsettings -platform macosx -o /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app/Contents/Info.plist36"84083709-5C67-46C5-A024-5B16191A53FF-
+
+CProcessPCH++ /Users/astellato/Library/Developer/Xcode/DerivedData/FrustumCulling-ebzhqfgmlalrvqbwjvackdyscgzx/Index/PrecompiledHeaders/FrustumCulling_Prefix-chafchzksteiyxfrlggzhjaasmyu_ast/FrustumCulling_Prefix.pch.pth FrustumCulling_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.astbuilder
+r0
+
+CProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.pth FrustumCulling_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s364784490.405513
+e364784490.425460
+r1
+xProcessPCH++
+x/var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.pth
+xFrustumCulling_Prefix.pch
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection36"Precompile FrustumCulling_Prefix.pchc7f1676a2bbeb541^3aea6c6a2bbeb541^---0#0#0#-19%DVTDocumentLocation2@127"file://localhost/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/FrustumCulling_Prefix.pch0000000000000000^3269"ProcessPCH++ /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.pth FrustumCulling_Prefix.pch normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++-header -arch i386 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-sign-compare -Wno-shorten-64-to-32 -Wno-newline-eof -Wc++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk -fasm-blocks -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.5 -g -Wno-conversion -Wno-sign-conversion -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-generated-files.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-own-target-headers.hmap -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-all-target-headers.hmap -iquote /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/FrustumCulling-project-headers.hmap -iquote../../../include -iquote../include -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug/include -I../../../boost -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/DerivedSources/i386 -I/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/FrustumCulling.build/Debug/FrustumCulling.build/DerivedSources -F/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/build/Debug --serialize-diagnostics /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.dia -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/FrustumCulling_Prefix.pch -o /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.pth -MMD -MT dependencies -MF /var/folders/y1/yzv6mv2x0f973y5qdhfc8dz80000gp/C/com.apple.Xcode.502/SharedPrecompiledHeaders/FrustumCulling_Prefix-euvxgmnyexvyviducecibdmrgsrv/FrustumCulling_Prefix.pch.d36"76A83B5F-97D2-4DEB-A3CA-3EB782ADA94B-
+
+CTouch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app
+s364784494.080339
+e364784494.084776
+r1
+xTouch
+x/Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app
+lSLF05#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection124"Touch /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app8c9d146e2bbeb541^ddb4156e2bbeb541^---0#0#0#--273"Touch ./build/Debug/FrustumCulling.app    cd /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode    /usr/bin/touch -c /Users/astellato/Development/Cinder/cinder_0.8.4_mac/houxsamples/FrustumCulling/xcode/./build/Debug/FrustumCulling.app36"A6FEBAA8-CF92-4189-90CF-AAC96247F0A8-
+

@@ -195,7 +195,9 @@ void TextureStore::garbageCollect()
 #ifdef _DEBUG 
 			console() << getElapsedSeconds() << ": removing texture '" << itr->first << "' because it is no longer in use." << endl;
 #endif
-			itr = mTextures.erase(itr);
+			//itr = mTextures.erase(itr); //no return type for std::map erase();
+            //this should work
+            mTextures.erase(itr++);
 		}
 		else
 			++itr;
