@@ -301,10 +301,14 @@ void StarsApp::fileDrop( FileDropEvent event )
 		// skip if not a file
 		if( !fs::is_regular_file( file ) ) continue;
 
-		if( file.extension() == ".mp3" ) {
+		if( file.extension() == ".mp3" ) 
 			playMusic(file);
-			return;
-		}
+		else if( file.extension() == ".flac" ) 
+			playMusic(file);
+		else if( file.extension() == ".ogg" ) 
+			playMusic(file);
+		else if( file.extension() == ".wav" ) 
+			playMusic(file);
 	}
 }
 
