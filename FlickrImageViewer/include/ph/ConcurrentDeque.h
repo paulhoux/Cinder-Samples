@@ -25,9 +25,8 @@ http://www.justsoftwaresolutions.co.uk/threading/implementing-a-thread-safe-queu
 
 #pragma once
 
+#include "cinder/Thread.h"
 #include <deque>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
 
 namespace ph {
 
@@ -40,21 +39,21 @@ public:
 
 	void clear()
 	{
-		boost::mutex::scoped_lock lock(mMutex);
+		std::mutex::scoped_lock lock(mMutex);
 		mDeque.clear();
 	}
 
 	bool contains(Data const& data)
 	{
-		boost::mutex::scoped_lock lock(mMutex);
-        //On Mac, you must use typename in front a templated declaration
+		std::mutex::scoped_lock lock(mMutex);
+
 		typename std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
 		return (itr != mDeque.end());
 	}
 
 	bool erase(Data const& data)
 	{
-		boost::mutex::scoped_lock lock(mMutex);
+		std::mutex::scoped_lock lock(mMutex);
 
 		typename std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
 		if(itr != mDeque.end()) {
@@ -67,7 +66,7 @@ public:
 
 	bool erase_all(Data const& data)
 	{
-		boost::mutex::scoped_lock lock(mMutex);
+		std::mutex::scoped_lock lock(mMutex);
 
 		typename std::deque<Data>::iterator itr;
 		do {
@@ -80,7 +79,7 @@ public:
 	
     bool push_back(Data const& data, bool unique=false)
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
 
 		if(unique) {
 			typename std::deque<Data>::iterator itr = std::find(mDeque.begin(), mDeque.end(), data);
@@ -105,13 +104,13 @@ public:
 
     bool empty() const
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
         return mDeque.empty();
     }
 
     bool pop_front(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
         if(mDeque.empty())
         {
             return false;
@@ -124,7 +123,7 @@ public:
 
     void wait_and_pop_front(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
         while(mDeque.empty())
         {
             mCondition.wait(lock);
@@ -135,9 +134,8 @@ public:
     }
 private:
     std::deque<Data>			mDeque;
-    mutable boost::mutex		mMutex;
-    boost::condition_variable	mCondition;
+    mutable std::mutex		mMutex;
+    std::condition_variable	mCondition;
 };
 
 } // namespace ph
-

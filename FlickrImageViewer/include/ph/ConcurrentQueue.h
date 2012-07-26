@@ -25,9 +25,8 @@ http://www.justsoftwaresolutions.co.uk/threading/implementing-a-thread-safe-queu
 
 #pragma once
 
+#include "cinder/Thread.h"
 #include <queue>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
 
 namespace ph {
 
@@ -40,7 +39,7 @@ public:
 	
     void push(Data const& data)
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
         mQueue.push(data);
         lock.unlock();
         mCondition.notify_one();
@@ -48,13 +47,13 @@ public:
 
     bool empty() const
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
         return mQueue.empty();
     }
 
     bool try_pop(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
         if(mQueue.empty())
         {
             return false;
@@ -67,7 +66,7 @@ public:
 
     void wait_and_pop(Data& popped_value)
     {
-        boost::mutex::scoped_lock lock(mMutex);
+        std::mutex::scoped_lock lock(mMutex);
         while(mQueue.empty())
         {
             mCondition.wait(lock);
@@ -78,8 +77,8 @@ public:
     }
 private:
     std::queue<Data>			mQueue;
-    mutable boost::mutex		mMutex;
-    boost::condition_variable	mCondition;
+    mutable std::mutex		mMutex;
+    std::condition_variable	mCondition;
 };
 
 } // namespace ph
