@@ -36,6 +36,7 @@ public:
 	void	fileDrop( FileDropEvent event );
 protected:
 	void	playMusic( const fs::path &path, bool loop=false );
+	void	stopMusic();
 	void	playSound( const fs::path &path, bool loop=false );
 
 	shared_ptr<ISound>	createSound( const fs::path &path );
@@ -46,6 +47,7 @@ protected:
 
 	fs::path	getFirstFile( const fs::path &path );	
 	fs::path	getNextFile( const fs::path &current );
+	fs::path	getPrevFile( const fs::path &current );
 protected:
 	double			mTime;
 
@@ -75,6 +77,7 @@ protected:
 	shared_ptr<ISound>			mMusic;
 
 	//
+	bool						mPlayMusic;
 	fs::path					mMusicPath;
 	std::vector<fs::path>		mMusicExtensions;
 };
@@ -86,9 +89,11 @@ void StarsApp::prepareSettings(Settings *settings)
 
 #if (defined WIN32 && defined NDEBUG)
 	settings->setFullScreen(true);
+	forceHideCursor();
 #else
 	// never start in full screen on MacOS or in debug mode
 	settings->setFullScreen(false);
+	forceShowCursor();
 #endif
 }
 
@@ -124,13 +129,12 @@ void StarsApp::setup()
 	mIsGridVisible = false;
 
 	//
-	forceHideCursor();
-
-	//
 	mMusicExtensions.push_back( ".flac" );
 	mMusicExtensions.push_back( ".ogg" );
 	mMusicExtensions.push_back( ".wav" );
 	mMusicExtensions.push_back( ".mp3" );
+
+	mPlayMusic = true;
 
 	// initialize the IrrKlang Sound Engine in a very safe way
 	mSoundEngine = shared_ptr<ISoundEngine>( createIrrKlangDevice(), std::mem_fun(&ISoundEngine::drop) );
@@ -165,7 +169,7 @@ void StarsApp::update()
 	mTime += elapsed;
 
 	double time = getElapsedSeconds() / 200.0;
-	if(mMusic) time = mMusic->getPlayPosition() / (double) mMusic->getPlayLength();
+	if(mSoundEngine && mMusic && mPlayMusic) time = mMusic->getPlayPosition() / (double) mMusic->getPlayLength();
 
 	// animate camera
 	mCamera.setDistanceTime(time);
@@ -186,7 +190,7 @@ void StarsApp::update()
 			vec3df(0,1,0) );
 
 		// if music has finished, play next track
-		if( mMusic && mMusic->isFinished() ) {
+		if( mPlayMusic && mMusic && mMusic->isFinished() ) {
 			playMusic( getNextFile(mMusicPath) );
 		}
 	}
@@ -253,15 +257,39 @@ void StarsApp::mouseUp( MouseEvent event )
 
 void StarsApp::keyDown( KeyEvent event )
 {
-	switch( event.getCode() )
+#ifdef WIN32
+	// allows the use of the media buttons on your Windows keyboard to control the music
+	switch( event.getNativeKeyCode() )
 	{
-	case KeyEvent::KEY_RIGHT:
+	case VK_MEDIA_NEXT_TRACK:
 		// play next music file
 		playMusic( getNextFile(mMusicPath) );
-		break;
+		return;
+	case VK_MEDIA_PREV_TRACK:
+		// play next music file
+		playMusic( getPrevFile(mMusicPath) );
+		return;
+	case VK_MEDIA_STOP:
+		stopMusic();
+		return;
+	case VK_MEDIA_PLAY_PAUSE:
+		if( mSoundEngine && mMusic ) {
+			if( mMusic->isFinished() )
+				playMusic( mMusicPath );
+			else
+				mMusic->setIsPaused( !mMusic->getIsPaused() );
+		}
+		return;
+	}
+#endif
+
+	switch( event.getCode() )
+	{
 	case KeyEvent::KEY_f:
 		// toggle full screen
 		setFullScreen( !isFullScreen() );
+		if( !isFullScreen() )
+			forceShowCursor();
 		break;
 	case KeyEvent::KEY_v:
 		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
@@ -336,9 +364,18 @@ void StarsApp::playMusic( const fs::path &path, bool loop )
 		// play music in a very safe way
 		mMusic = shared_ptr<ISound>( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun(&ISound::drop) );
 		if(mMusic) mMusic->setIsPaused(false);
-	}
 
-	mMusicPath = path;
+		mMusicPath = path;
+		mPlayMusic = true;
+	}
+}
+
+void StarsApp::stopMusic()
+{
+	if( mSoundEngine && mMusic && !mMusic->isFinished() ) {
+		mPlayMusic = false;
+		mMusic->stop();
+	}
 }
 
 void StarsApp::playSound( const fs::path &path, bool loop )
@@ -441,29 +478,64 @@ fs::path	StarsApp::getFirstFile( const fs::path &path )
 
 fs::path	StarsApp::getNextFile( const fs::path &current )
 {
-	bool useNext = current.empty();
+	if( !current.empty() ) {
+		bool useNext = false;
 
-	fs::directory_iterator end_itr;
-	for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i )
-	{
-		// skip if not a file
-		if( !fs::is_regular_file( i->status() ) ) continue;
+		fs::directory_iterator end_itr;
+		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i )
+		{
+			// skip if not a file
+			if( !fs::is_regular_file( i->status() ) ) continue;
 
-		if(useNext) {
-			// skip if extension does not match
-			if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), i->path().extension() ) == mMusicExtensions.end() )
-				continue;
+			if(useNext) {
+				// skip if extension does not match
+				if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), i->path().extension() ) == mMusicExtensions.end() )
+					continue;
 
-			// file matches, return it
-			return i->path();
-		}
-		else if( *i == current ) {
-			useNext = true;
+				// file matches, return it
+				return i->path();
+			}
+			else if( *i == current ) {
+				useNext = true;
+			}
 		}
 	}
 
-	// current file not found, play first file
-	return getFirstFile( current.parent_path() );
+	// failed, return empty path
+	return fs::path();
+}
+
+fs::path	StarsApp::getPrevFile( const fs::path &current )
+{
+	if( !current.empty() ) {
+		fs::path previous;
+
+		fs::directory_iterator end_itr;
+		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i )
+		{
+			// skip if not a file
+			if( !fs::is_regular_file( i->status() ) ) continue;
+
+			if( *i == current ) {
+				// do we know what file came before this one?
+				if( !previous.empty() )
+					return previous;
+				else
+					break;
+			}
+			else {
+				// skip if extension does not match
+				if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), i->path().extension() ) == mMusicExtensions.end() )
+					continue;
+
+				// keep track of this file
+				previous = *i;
+			}
+		}
+	}
+
+	// failed, return empty path
+	return fs::path();
 }
 
 CINDER_APP_BASIC( StarsApp, RendererGl )
