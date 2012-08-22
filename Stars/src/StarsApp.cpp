@@ -31,6 +31,7 @@ public:
 	void	mouseDown( MouseEvent event );	
 	void	mouseDrag( MouseEvent event );	
 	void	mouseUp( MouseEvent event );
+
 	void	keyDown( KeyEvent event );
 	void	resize( ResizeEvent event );
 	void	fileDrop( FileDropEvent event );
@@ -57,6 +58,7 @@ protected:
 
 	// camera
 	Cam				mCamera;
+	MayaCamUI		mMayaCam;
 
 	// graphical elements
 	Stars			mStars;
@@ -123,6 +125,12 @@ void StarsApp::setup()
 
 	// initialize camera
 	mCamera.setup();
+
+	CameraPersp cam( mCamera.getCamera() );
+	cam.setNearClip( 0.1f );
+	cam.setFarClip( 5000.0f );
+
+	mMayaCam.setCurrentCam( cam );
 
 	//
 	mIsGridVisible = true;
@@ -214,7 +222,7 @@ void StarsApp::draw()
 
 	if(mIsStereoscopic) {
 		// render left eye
-		mCamera.enableLeftEye();
+		mCamera.enableStereoLeft();
 
 		gl::setViewport( Area(0, 0, w, h) );
 		gl::setMatrices( mCamera.getCamera() );
@@ -231,7 +239,7 @@ void StarsApp::draw()
 		}
 
 		// render right eye
-		mCamera.enableRightEye();
+		mCamera.enableStereoRight();
 
 		gl::setViewport( Area(w, 0, w * 2.0f, h) );
 		gl::setMatrices( mCamera.getCamera() );
@@ -248,7 +256,7 @@ void StarsApp::draw()
 		}
 	}
 	else {
-		gl::setMatrices( mCamera.getCamera() );
+		gl::setMatrices( mMayaCam.getCamera() );
 		{
 			// draw background
 			mBackground.draw();
@@ -259,6 +267,15 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw stereoscopic camera
+			mCamera.enableStereoLeft();
+			gl::color( Color(1,1,0) );
+			gl::drawFrustum( mCamera.getCamera() );
+
+			mCamera.enableStereoRight();
+			gl::color( Color(0,1,1) );
+			gl::drawFrustum( mCamera.getCamera() );
 		}
 	}
 
@@ -284,7 +301,10 @@ void StarsApp::mouseDown( MouseEvent event )
 {
 	// allow user to control camera
 	mCursorPos = mCursorPrevious = event.getPos();
-	mCamera.mouseDown( mCursorPos );
+	if(mIsStereoscopic) 
+		mCamera.mouseDown( mCursorPos );
+	else 
+		mMayaCam.mouseDown( mCursorPos );
 }
 
 void StarsApp::mouseDrag( MouseEvent event )
@@ -295,14 +315,19 @@ void StarsApp::mouseDrag( MouseEvent event )
 	constrainCursor( event.getPos() );
 
 	// allow user to control camera
-	mCamera.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	if(mIsStereoscopic) 
+		mCamera.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	else 
+		mMayaCam.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void StarsApp::mouseUp( MouseEvent event )
 {
 	// allow user to control camera
 	mCursorPos = mCursorPrevious = event.getPos();
-	mCamera.mouseUp( mCursorPos );
+	
+	if(mIsStereoscopic) 
+		mCamera.mouseUp( mCursorPos );
 }
 
 void StarsApp::keyDown( KeyEvent event )
@@ -394,6 +419,10 @@ void StarsApp::keyDown( KeyEvent event )
 void StarsApp::resize( ResizeEvent event )
 {
 	mCamera.resize( event );
+
+	CameraPersp cam( mMayaCam.getCamera() );
+	cam.setAspectRatio( event.getAspectRatio() );
+	mMayaCam.setCurrentCam( cam );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )

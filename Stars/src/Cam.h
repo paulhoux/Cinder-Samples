@@ -27,11 +27,16 @@ public:
 
 	void		setDistanceTime(double time) { mTimeDistanceTarget = time; }
 
-	void		enableLeftEye() { mCurrentCam.enableLeftEye(); }
-	bool		isLeftEyeEnabled() const { return mCurrentCam.isLeftEyeEnabled(); }
+	void		setEyeSeparation( float distance ) { mCurrentCam.setEyeSeparation(distance); }
+	void		setFocalLength( float distance ) { mCurrentCam.setFocalLength(distance); }
 
-	void		enableRightEye() { mCurrentCam.enableRightEye(); }
-	bool		isRightEyeEnabled() const { return mCurrentCam.isRightEyeEnabled(); }
+	void		enableStereoLeft() { mCurrentCam.enableStereoLeft(); }
+	bool		isStereoLeftEnabled() const { return mCurrentCam.isStereoLeftEnabled(); }
+
+	void		enableStereoRight() { mCurrentCam.enableStereoRight(); }
+	bool		isStereoRightEnabled() const { return mCurrentCam.isStereoRightEnabled(); }
+
+	void		disableStereo() { mCurrentCam.disableStereo(); }
 
 	//! returns the position of the camera in world space
 	ci::Vec3f	getPosition();
