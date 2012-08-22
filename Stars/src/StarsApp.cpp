@@ -90,11 +90,9 @@ void StarsApp::prepareSettings(Settings *settings)
 
 #if (defined WIN32 && defined NDEBUG)
 	settings->setFullScreen(true);
-	forceHideCursor();
 #else
 	// never start in full screen on MacOS or in debug mode
 	settings->setFullScreen(false);
-	forceShowCursor();
 #endif
 }
 
@@ -127,9 +125,8 @@ void StarsApp::setup()
 	mCamera.setup();
 
 	//
-	mIsGridVisible = false;
-	mIsCursorVisible = true;
-	mIsStereoscopic = false;
+	mIsGridVisible = true;
+	mIsStereoscopic = true;
 
 	//
 	mMusicExtensions.push_back( ".flac" );
@@ -159,6 +156,12 @@ void StarsApp::setup()
 
 	//
 	mTimer.start();
+
+#if (defined WIN32 && defined NDEBUG)
+	forceHideCursor();
+#else
+	forceShowCursor();
+#endif
 }
 
 void StarsApp::shutdown()

@@ -20,6 +20,8 @@ Cam::Cam(void)
 	mInitialCam = mCurrentCam = CameraStereo(); 
 	mCurrentCam.setNearClip( 0.01f );
 	mCurrentCam.setFarClip( 5000.0f );
+	mCurrentCam.setEyeSeparation( 0.005f );
+	mCurrentCam.setFocalLength( 2.5f );
 
 	mDeltaX = mDeltaY = mDeltaD = 0.0; 
 	mDeltas.clear();
