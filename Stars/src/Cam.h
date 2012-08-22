@@ -10,7 +10,7 @@
 class Cam {
 public:
 	Cam();
-	Cam( const ci::CameraPersp &aInitialCam ) { mInitialCam = mCurrentCam = aInitialCam; }
+	Cam( const ci::CameraStereo &aInitialCam ) { mInitialCam = mCurrentCam = aInitialCam; }
 
 	void		setup();
 	void		update(double elapsed);
@@ -21,10 +21,17 @@ public:
 
 	void		resize( ci::app::ResizeEvent event );
 
-	const ci::CameraPersp& getCamera();
-	void		setCurrentCam( const ci::CameraPersp &aCurrentCam );
+	void		setCurrentCam( const ci::CameraStereo &aCurrentCam );
+
+	const ci::CameraStereo&	getCamera();
 
 	void		setDistanceTime(double time) { mTimeDistanceTarget = time; }
+
+	void		enableLeftEye() { mCurrentCam.enableLeftEye(); }
+	bool		isLeftEyeEnabled() const { return mCurrentCam.isLeftEyeEnabled(); }
+
+	void		enableRightEye() { mCurrentCam.enableRightEye(); }
+	bool		isRightEyeEnabled() const { return mCurrentCam.isRightEyeEnabled(); }
 
 	//! returns the position of the camera in world space
 	ci::Vec3f	getPosition();
@@ -54,10 +61,10 @@ private:
 	static const double		DISTANCE_MIN;
 	static const double		DISTANCE_MAX;
 
-	ci::CameraPersp			mCurrentCam;
+	ci::CameraStereo		mCurrentCam;
 
 	ci::Vec2i				mInitialMousePos;
-	ci::CameraPersp			mInitialCam;
+	ci::CameraStereo		mInitialCam;
 
 	double					mDeltaX;
 	double					mDeltaY;

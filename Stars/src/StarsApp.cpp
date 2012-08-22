@@ -211,6 +211,8 @@ void StarsApp::draw()
 
 	if(mIsStereoscopic) {
 		// render left eye
+		mCamera.enableLeftEye();
+
 		gl::setViewport( Area(0, 0, w, h) );
 		gl::setMatrices( mCamera.getCamera() );
 		{
@@ -226,6 +228,8 @@ void StarsApp::draw()
 		}
 
 		// render right eye
+		mCamera.enableRightEye();
+
 		gl::setViewport( Area(w, 0, w * 2.0f, h) );
 		gl::setMatrices( mCamera.getCamera() );
 		{

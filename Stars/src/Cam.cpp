@@ -17,7 +17,7 @@ const double Cam::DISTANCE_MAX = 1000.0;
 
 Cam::Cam(void)
 {
-	mInitialCam = mCurrentCam = CameraPersp(); 
+	mInitialCam = mCurrentCam = CameraStereo(); 
 	mCurrentCam.setNearClip( 0.01f );
 	mCurrentCam.setFarClip( 5000.0f );
 
@@ -180,7 +180,16 @@ void Cam::resize( ResizeEvent event )
 	mCurrentCam.setAspectRatio(event.getAspectRatio());
 }
 
-const CameraPersp& Cam::getCamera()  
+void Cam::setCurrentCam( const CameraStereo &aCurrentCam ) 
+{ 
+	mCurrentCam = aCurrentCam;
+
+	// update distance and fov
+	mDistance = mCurrentCam.getEyePoint().length();
+	mFov = mCurrentCam.getFov();
+}
+
+const CameraStereo& Cam::getCamera()  
 {
 	// update current camera
 	mCurrentCam.setFov( mFov.value() );
@@ -188,15 +197,6 @@ const CameraPersp& Cam::getCamera()
 	mCurrentCam.setCenterOfInterestPoint( Vec3f::zero() );
 
 	return mCurrentCam;
-}
-
-void Cam::setCurrentCam( const CameraPersp &aCurrentCam ) 
-{ 
-	mCurrentCam = aCurrentCam;
-
-	// update distance and fov
-	mDistance = mCurrentCam.getEyePoint().length();
-	mFov = mCurrentCam.getFov();
 }
 
 Vec3f Cam::getPosition()
