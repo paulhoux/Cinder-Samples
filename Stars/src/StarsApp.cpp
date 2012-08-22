@@ -70,6 +70,7 @@ protected:
 	// 
 	bool			mIsGridVisible;
 	bool			mIsCursorVisible;
+	bool			mIsStereoscopic;
 
 	//
 	shared_ptr<ISoundEngine>	mSoundEngine;
@@ -127,6 +128,8 @@ void StarsApp::setup()
 
 	//
 	mIsGridVisible = false;
+	mIsCursorVisible = true;
+	mIsStereoscopic = false;
 
 	//
 	mMusicExtensions.push_back( ".flac" );
@@ -198,25 +201,65 @@ void StarsApp::update()
 
 void StarsApp::draw()
 {		
+	float w = 0.5f * getWindowWidth();
+	float h = 1.0f * getWindowHeight();
+
 	gl::clear( Color::black() ); 
 
+	glPushAttrib( GL_VIEWPORT_BIT );
 	gl::pushMatrices();
-	gl::setMatrices( mCamera.getCamera() );
-	{
-		// draw background
-		mBackground.draw();
 
-		// draw grid
-		if(mIsGridVisible) 
-			mGrid.draw();
+	if(mIsStereoscopic) {
+		// render left eye
+		gl::setViewport( Area(0, 0, w, h) );
+		gl::setMatrices( mCamera.getCamera() );
+		{
+			// draw background
+			mBackground.draw();
 
-		// draw stars
-		mStars.draw();
+			// draw grid
+			if(mIsGridVisible) 
+				mGrid.draw();
+
+			// draw stars
+			mStars.draw();
+		}
+
+		// render right eye
+		gl::setViewport( Area(w, 0, w * 2.0f, h) );
+		gl::setMatrices( mCamera.getCamera() );
+		{
+			// draw background
+			mBackground.draw();
+
+			// draw grid
+			if(mIsGridVisible) 
+				mGrid.draw();
+
+			// draw stars
+			mStars.draw();
+		}
 	}
+	else {
+		gl::setMatrices( mCamera.getCamera() );
+		{
+			// draw background
+			mBackground.draw();
+
+			// draw grid
+			if(mIsGridVisible) 
+				mGrid.draw();
+
+			// draw stars
+			mStars.draw();
+		}
+	}
+
 	gl::popMatrices();
+	glPopAttrib();
 
 	// draw user interface
-	mUserInterface.draw();
+	//mUserInterface.draw();
 
 	// fade in at start of application
 	gl::enableAlphaBlending();
@@ -312,6 +355,11 @@ void StarsApp::keyDown( KeyEvent event )
 			forceHideCursor();
 		else 
 			forceShowCursor();
+		break;
+	case KeyEvent::KEY_s:
+		// toggle stereoscopic view
+		mIsStereoscopic = !mIsStereoscopic;
+		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		break;
 		/*// 
 		case KeyEvent::KEY_KP7:

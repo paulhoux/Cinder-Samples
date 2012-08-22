@@ -12,6 +12,7 @@ using namespace ci::app;
 using namespace std;
 
 Stars::Stars(void)
+	: mAspectRatio(1.0f)
 {
 }
 
@@ -80,6 +81,7 @@ void Stars::enablePointSprites()
 	mShader.uniform("tex0", 0);
 	mShader.uniform("tex1", 1);
 	mShader.uniform("time", (float) getElapsedSeconds() );
+	mShader.uniform("aspect", mAspectRatio);
 }
 
 void Stars::disablePointSprites()

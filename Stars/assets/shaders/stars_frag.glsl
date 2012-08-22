@@ -2,7 +2,9 @@
 
 uniform sampler2D tex0;
 uniform sampler2D tex1;
+
 uniform float time;
+uniform float aspect;
 
 const vec2 ORIGIN = vec2(0.5, 0.5);
 
@@ -10,6 +12,8 @@ void main()
 {
 	float c, s;
 	vec2 coord = gl_PointCoord.xy - ORIGIN;
+
+	coord /= vec2(aspect, 1.0);
 
 	// combine two rotated corona samples 
 	// by modifying the texture look-up and mixing the sampled colors

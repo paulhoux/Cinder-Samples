@@ -62,6 +62,10 @@ public:
 	void	enablePointSprites();
 	void	disablePointSprites();
 
+	//
+	float	getAspectRatio() const { return mAspectRatio; }
+	void	setAspectRatio( float aspect ) { mAspectRatio = aspect; }
+
 	//! load a comma separated file containing the HYG star database
 	void	load( ci::DataSourceRef source );
 
@@ -80,5 +84,6 @@ private:
 	std::vector< ci::Vec3f > mVertices;
 	std::vector< ci::Vec2f > mTexcoords;
 	std::vector< ci::Color > mColors;
-};
 
+	float				mAspectRatio;
+};
