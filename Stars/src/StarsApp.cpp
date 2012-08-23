@@ -114,9 +114,6 @@ void StarsApp::setup()
 		mStars.write( writeFile( getAssetPath("") / "hygxyz.cdb" ) );	
 	}
 
-	// load texture and shader
-	mStars.setup();
-
 	// create user interface
 	mUserInterface.setup();
 
@@ -127,7 +124,7 @@ void StarsApp::setup()
 	mCamera.setup();
 
 	CameraPersp cam( mCamera.getCamera() );
-	cam.setNearClip( 0.1f );
+	cam.setNearClip( 0.01f );
 	cam.setFarClip( 5000.0f );
 
 	mMayaCam.setCurrentCam( cam );
@@ -135,6 +132,10 @@ void StarsApp::setup()
 	//
 	mIsGridVisible = true;
 	mIsStereoscopic = true;
+
+	// create stars
+	mStars.setup();
+	mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 
 	//
 	mMusicExtensions.push_back( ".flac" );
