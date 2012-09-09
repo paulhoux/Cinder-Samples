@@ -119,12 +119,14 @@ void Ball::update()
 
 void Ball::draw( const gl::VboMesh &mesh, bool useMotionBlur )
 {
-	float trailsize = math<float>::clamp( math<float>::floor(mPrevPosition.distance(mPosition)), 3.0f, 30.0f );
-	float segments = trailsize - 1.0f;
-
+	// store the current modelview matrix
 	gl::pushModelView();
 
 	if(useMotionBlur) {
+		// determine the number of balls that make up the motion blur trail (minimum of 3, maximum of 30)
+		float trailsize = math<float>::clamp( math<float>::floor(mPrevPosition.distance(mPosition)), 3.0f, 30.0f );
+		float segments = trailsize - 1.0f;
+	
 		// draw ball with motion blur (using additive blending)
 		gl::color( mColor / trailsize );
 
@@ -144,6 +146,7 @@ void Ball::draw( const gl::VboMesh &mesh, bool useMotionBlur )
 		gl::draw( mesh );
 	}
 
+	// restore the modelview matrix
 	gl::popModelView();
 
 	//
