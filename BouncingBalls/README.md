@@ -14,14 +14,16 @@ This sample will show you how to:
 
 You can add or remove balls using the PLUS and MINUS keys. Note how the balls bounce off the walls and collide with each other.
 
+Press SPACE to put all the balls at the top of the window again.
+
 Freeze the simulation by pressing RETURN and note the motion blur effect.
 
 Toggle motion blur using the M key, then resume the simulation and note how the balls now seem to have an annoying stippled trail (stroboscope effect) that wasn't visible when motion blur was active.
 
 Reduce the frame rate using the 1, 2, 3 and 4 keys and note how the simulation is still running at the same speed, but the motion blur trails are now much longer (the 'shutter' of the camera is now open a lot longer).
 
-
-If you add a lot of balls, you will notice that they will not come to a full rest. This is mainly due to the fact that we are not properly calculating the forces on each ball, but immediately try to set the velocity based on gravity and collisions. 
+<b>Shortcomings</b>
+If you add a lot of balls, you will notice that they will not come to a full rest. This is mainly due to the fact that we are not properly calculating the forces on each ball, but immediately try to set the velocity based on gravity and collisions. Another flaw in the design is that fast travelling balls will not collide, because the moment of collision isn't captured during a simulation time step. To remedy this, we would either have to increase the number of simulation steps per second, or check for collisions between the previous and current position.
 
 
 -Paul
