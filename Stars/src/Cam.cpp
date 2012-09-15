@@ -119,7 +119,7 @@ void Cam::update(double elapsed)
 	}
 
 	// focus camera
-	mCurrentCam.setFocus( math<float>::min( 5.0f, 0.95f * mCurrentCam.getEyePoint().length() ) );
+	mCurrentCam.setFocus( math<float>::min( 2.0f, 0.95f * mCurrentCam.getEyePoint().length() ) );
 }
 
 void Cam::mouseDown( const Vec2i &mousePos )
