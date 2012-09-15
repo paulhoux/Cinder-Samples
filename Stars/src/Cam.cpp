@@ -148,7 +148,7 @@ void Cam::mouseDrag( const Vec2i &mousePos, bool leftDown, bool middleDown, bool
 		mDeltaD = ( mousePos.x - mInitialMousePos.x ) + ( mousePos.y - mInitialMousePos.y );
 		// adjust distance
 		sensitivity = math<double>::max(0.005, math<double>::log10(mDistance) / math<double>::log10(100.0) * 0.075);
-		mDistance = math<double>::clamp( mDistance.value() + mDeltaD * sensitivity, DISTANCE_MIN, DISTANCE_MAX );
+		mDistance = math<double>::clamp( mDistance.value() - mDeltaD * sensitivity, DISTANCE_MIN, DISTANCE_MAX );
 	}
 
 	mInitialMousePos = mousePos;

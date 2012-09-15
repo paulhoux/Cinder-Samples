@@ -6,8 +6,8 @@ const float LOG_BASE10 = 1.0 / log2(10.0);
 const float SIZE = 70.0;			// the higher the value, the bigger the stars will be
 const float SIZE_MODIFIER = 1.4;	// the lower the value, the more stars are visible
 
-const float MAG_LOWER_BOUND = 20.0;	// if a star's apparent magnitude is lower than this, it will be rendered at 0% brightness (black)
-const float MAG_UPPER_BOUND = 2.0;	// if a star's apparent magnitude is higher than this, it will be rendered at 100% brightness
+const float MAG_LOWER_BOUND = 16.0;	// if a star's apparent magnitude is higher than this, it will be rendered at 0% brightness (black) - a value of 11 is realistic
+const float MAG_UPPER_BOUND = 0.0;	// if a star's apparent magnitude is lower than this, it will be rendered at 100% brightness
 const float MAG_RANGE = MAG_LOWER_BOUND + MAG_UPPER_BOUND;
 
 float log10( float n ) {
