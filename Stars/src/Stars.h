@@ -57,20 +57,28 @@ public:
 	void	setup();
 	void	draw();
 
+	void	clear();
+
 	void	enablePointSprites();
 	void	disablePointSprites();
 
 	//! load a comma separated file containing the HYG star database
 	void	load( ci::DataSourceRef source );
 
-	//! (TODO) will read a binary star data file
+	//! reads a binary star data file
 	void	read( ci::DataSourceRef source );
-	//! (TODO) will write a binary star data file
+	//! writes a binary star data file
 	void	write( ci::DataTargetRef target );
+private:
+	void	createMesh();
 private:
 	ci::gl::GlslProg	mShader;
 	ci::gl::Texture		mTextureStar;
 	ci::gl::Texture		mTextureCorona;
 	ci::gl::VboMesh		mVboMesh;
+
+	std::vector< ci::Vec3f > mVertices;
+	std::vector< ci::Vec2f > mTexcoords;
+	std::vector< ci::Color > mColors;
 };
 

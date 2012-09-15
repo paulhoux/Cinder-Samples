@@ -138,11 +138,11 @@ void Background::create()
 
 void Background::setCameraDistance( float distance )
 {
-	static const float minimum = 0.03f;
-	static const float maximum = 0.3f;
+	static const float minimum = 0.0f;
+	static const float maximum = 0.5f;
 
-	if( distance > 1500.0f ) {
-		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - 1500.0f) / 250.0f );
+	if( distance > 500.0f ) {
+		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - 500.0f) / 500.0f );
 		mAttenuation = math<float>::clamp( mAttenuation, 0.0f, maximum );
 	}
 	else {

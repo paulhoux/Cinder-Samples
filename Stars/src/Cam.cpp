@@ -51,7 +51,7 @@ void Cam::update(double elapsed)
 		double t_frac = (time) - math<double>::floor(time);
 		double n = sqrt2pi * t_frac;
 		double f = cos( n * n );
-		double distance = 500.0 - 499.95 * f;
+		double distance = 200.0 - 199.95 * f;
 
 		// determine where to look
 		double longitude = toDegrees(t * 0.034);

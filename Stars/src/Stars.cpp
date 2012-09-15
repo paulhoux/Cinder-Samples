@@ -54,6 +54,13 @@ void Stars::draw()
 	gl::disableAlphaBlending();
 }
 
+void Stars::clear()
+{
+	mVertices.clear();
+	mTexcoords.clear();
+	mColors.clear();
+}
+
 void Stars::enablePointSprites()
 {
 	// store current OpenGL state
@@ -145,9 +152,7 @@ void Stars::load(DataSourceRef source)
 	lookup[48] = Conversions::toColorA(0xffff5200);
 
 	// create empty buffers for the data
-	std::vector< Vec3f > vertices;
-	std::vector< Vec2f > texcoords;
-	std::vector< Color > colors;
+	clear();
 
 	// load the star database
 	std::string	stars = loadString( source );
@@ -190,41 +195,91 @@ void Stars::load(DataSourceRef source)
 			double delta = toRadians( dec );
 
 			// convert to world (universe) coordinates
-			vertices.push_back( distance * Vec3f((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta))) );
+			mVertices.push_back( distance * Vec3f((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta))) );
 			// put extra data (absolute magnitude and distance to Earth) in texture coordinates
-			texcoords.push_back( Vec2f( (float) abs_mag, (float) distance) );
+			mTexcoords.push_back( Vec2f( (float) abs_mag, (float) distance) );
 			// put color in color attribute
-			colors.push_back( color );
+			mColors.push_back( color );
 		}
 		catch(...) {
 			// some of the data was invalid, ignore 
 			continue;
 		}
-		
-#ifdef _DEBUG
-		// only process the 4500 brightest stars (faster loading)
-		if(vertices.size() >= 4500) break;
-#endif
 	}
 
 	// create VboMesh
+	createMesh();
+}
+
+void Stars::read(DataSourceRef source)
+{
+	IStreamRef in = source->createStream();
+	
+	clear();
+
+	uint8_t versionNumber;
+	in->read( &versionNumber );
+	
+	uint32_t numVertices, numTexcoords, numColors;
+	in->readLittle( &numVertices );
+	in->readLittle( &numTexcoords );
+	in->readLittle( &numColors );
+	
+	for( size_t idx = 0; idx < numVertices; ++idx ) {
+		Vec3f v;
+		in->readLittle( &v.x ); in->readLittle( &v.y ); in->readLittle( &v.z );
+		mVertices.push_back( v );
+	}
+
+	for( size_t idx = 0; idx < numTexcoords; ++idx ) {
+		Vec2f v;
+		in->readLittle( &v.x ); in->readLittle( &v.y );
+		mTexcoords.push_back( v );
+	}
+
+	for( size_t idx = 0; idx < numColors; ++idx ) {
+		Color v;
+		in->readLittle( &v.r ); in->readLittle( &v.g ); in->readLittle( &v.b );
+		mColors.push_back( v );
+	}
+
+	// create VboMesh
+	createMesh();
+}
+
+void Stars::write(DataTargetRef target)
+{
+	OStreamRef out = target->getStream();
+	
+	const uint8_t versionNumber = 1;
+	out->write( versionNumber );
+	
+	out->writeLittle( static_cast<uint32_t>( mVertices.size() ) );
+	out->writeLittle( static_cast<uint32_t>( mTexcoords.size() ) );
+	out->writeLittle( static_cast<uint32_t>( mColors.size() ) );
+	
+	for( vector<Vec3f>::const_iterator it = mVertices.begin(); it != mVertices.end(); ++it ) {
+		out->writeLittle( it->x ); out->writeLittle( it->y ); out->writeLittle( it->z );
+	}
+
+	for( vector<Vec2f>::const_iterator it = mTexcoords.begin(); it != mTexcoords.end(); ++it ) {
+		out->writeLittle( it->x ); out->writeLittle( it->y );
+	}
+
+	for( vector<Color>::const_iterator it = mColors.begin(); it != mColors.end(); ++it ) {
+		out->writeLittle( it->r ); out->writeLittle( it->g ); out->writeLittle( it->b );
+	}
+}
+
+void Stars::createMesh()
+{
 	gl::VboMesh::Layout layout;
 	layout.setStaticPositions();
 	layout.setStaticTexCoords2d();
 	layout.setStaticColorsRGB();
 
-	mVboMesh = gl::VboMesh(vertices.size(), 0, layout, GL_POINTS);
-	mVboMesh.bufferPositions( &(vertices.front()), vertices.size() );
-	mVboMesh.bufferTexCoords2d( 0, texcoords );
-	mVboMesh.bufferColorsRGB( colors );
-}
-
-void Stars::read(DataSourceRef source)
-{
-	// TODO
-}
-
-void Stars::write(DataTargetRef target)
-{
-	// TODO
+	mVboMesh = gl::VboMesh(mVertices.size(), 0, layout, GL_POINTS);
+	mVboMesh.bufferPositions( &(mVertices.front()), mVertices.size() );
+	mVboMesh.bufferTexCoords2d( 0, mTexcoords );
+	mVboMesh.bufferColorsRGB( mColors );
 }

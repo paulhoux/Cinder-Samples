@@ -75,8 +75,13 @@ void StarsApp::setup()
 	mGrid.setup();
 
 	// load the star database and create the VBO mesh
-	mStars.load( loadAsset("hygxyz.csv") );
-	//mStars.write( writeFile( getAssetPath("") / "hygxyz.dat" ) );	// TODO
+	if( fs::exists( getAssetPath("") / "hygxyz.cdb" ) )
+		mStars.read( loadFile( getAssetPath("") / "hygxyz.cdb" ) );
+	else
+	{
+		mStars.load( loadAsset("hygxyz.csv") );
+		mStars.write( writeFile( getAssetPath("") / "hygxyz.cdb" ) );	
+	}
 
 	// load texture and shader
 	mStars.setup();
