@@ -218,14 +218,13 @@ void StarsApp::draw()
 
 	gl::clear( Color::black() ); 
 
-	glPushAttrib( GL_VIEWPORT_BIT );
-	gl::pushMatrices();
-
 	if(mIsStereoscopic) {
-		// render left eye
-		mCamera.enableStereoLeft();
+		glPushAttrib( GL_VIEWPORT_BIT );
 
+		// render left eye
 		gl::setViewport( Area(0, 0, w, h) );
+		mCamera.enableStereoLeft();
+		gl::pushMatrices();
 		gl::setMatrices( mCamera.getCamera() );
 		{
 			// draw background
@@ -238,11 +237,15 @@ void StarsApp::draw()
 			// draw stars
 			mStars.draw();
 		}
+		gl::popMatrices();
+	
+		// draw user interface
+		mUserInterface.draw();
 
 		// render right eye
-		mCamera.enableStereoRight();
-
 		gl::setViewport( Area(w, 0, w * 2.0f, h) );
+		mCamera.enableStereoRight();
+		gl::pushMatrices();
 		gl::setMatrices( mCamera.getCamera() );
 		{
 			// draw background
@@ -255,9 +258,17 @@ void StarsApp::draw()
 			// draw stars
 			mStars.draw();
 		}
+		gl::popMatrices();
+	
+		// draw user interface
+		mUserInterface.draw();
+		
+		glPopAttrib();
 	}
 	else {
-		gl::setMatrices( mMayaCam.getCamera() );
+		mCamera.disableStereo();
+		gl::pushMatrices();
+		gl::setMatrices( mCamera.getCamera() );
 		{
 			// draw background
 			mBackground.draw();
@@ -268,23 +279,12 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
-
-			// draw stereoscopic camera
-			mCamera.enableStereoLeft();
-			gl::color( Color(1,1,0) );
-			gl::drawFrustum( mCamera.getCamera() );
-
-			mCamera.enableStereoRight();
-			gl::color( Color(0,1,1) );
-			gl::drawFrustum( mCamera.getCamera() );
 		}
+		gl::popMatrices();
+	
+		// draw user interface
+		mUserInterface.draw();
 	}
-
-	gl::popMatrices();
-	glPopAttrib();
-
-	// draw user interface
-	//mUserInterface.draw();
 
 	// fade in at start of application
 	gl::enableAlphaBlending();

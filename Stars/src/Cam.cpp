@@ -116,10 +116,10 @@ void Cam::update(double elapsed)
 			mDeltaY = 0.0;
 			mDeltaD = 0.0;
 		}
-
-		// adjust field-of-view to 60 degrees
-		//mFov = (1.0f - t) * mFov.value() + t * 60.0f;
 	}
+
+	// focus camera
+	mCurrentCam.setFocus( math<float>::min( 5.0f, 0.95f * mCurrentCam.getEyePoint().length() ) );
 }
 
 void Cam::mouseDown( const Vec2i &mousePos )
