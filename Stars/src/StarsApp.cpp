@@ -1,4 +1,3 @@
-#include "cinder/MayaCamUI.h"
 #include "cinder/Utilities.h"
 #include "cinder/Timer.h"
 #include "cinder/app/AppBasic.h"
@@ -58,7 +57,6 @@ protected:
 
 	// camera
 	Cam				mCamera;
-	MayaCamUI		mMayaCam;
 
 	// graphical elements
 	Stars			mStars;
@@ -127,11 +125,9 @@ void StarsApp::setup()
 	cam.setNearClip( 0.01f );
 	cam.setFarClip( 5000.0f );
 
-	mMayaCam.setCurrentCam( cam );
-
 	//
-	mIsGridVisible = true;
-	mIsStereoscopic = true;
+	mIsGridVisible = false;
+	mIsStereoscopic = false;
 
 	// create stars
 	mStars.setup();
@@ -302,10 +298,7 @@ void StarsApp::mouseDown( MouseEvent event )
 {
 	// allow user to control camera
 	mCursorPos = mCursorPrevious = event.getPos();
-	if(mIsStereoscopic) 
-		mCamera.mouseDown( mCursorPos );
-	else 
-		mMayaCam.mouseDown( mCursorPos );
+	mCamera.mouseDown( mCursorPos );
 }
 
 void StarsApp::mouseDrag( MouseEvent event )
@@ -316,19 +309,14 @@ void StarsApp::mouseDrag( MouseEvent event )
 	constrainCursor( event.getPos() );
 
 	// allow user to control camera
-	if(mIsStereoscopic) 
-		mCamera.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
-	else 
-		mMayaCam.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	mCamera.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void StarsApp::mouseUp( MouseEvent event )
 {
 	// allow user to control camera
 	mCursorPos = mCursorPrevious = event.getPos();
-	
-	if(mIsStereoscopic) 
-		mCamera.mouseUp( mCursorPos );
+	mCamera.mouseUp( mCursorPos );
 }
 
 void StarsApp::keyDown( KeyEvent event )
@@ -420,10 +408,6 @@ void StarsApp::keyDown( KeyEvent event )
 void StarsApp::resize( ResizeEvent event )
 {
 	mCamera.resize( event );
-
-	CameraPersp cam( mMayaCam.getCamera() );
-	cam.setAspectRatio( event.getAspectRatio() );
-	mMayaCam.setCurrentCam( cam );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )
