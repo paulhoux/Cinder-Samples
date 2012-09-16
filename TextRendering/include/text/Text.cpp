@@ -34,10 +34,17 @@ void Text::draw()
 {
 	render();
 
-	if(mVboMesh && mFont) {
+	if( mVboMesh && mFont && bindShader() ) {
+		glPushAttrib( GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
+
 		mFont->enableAndBind();
+		gl::enableAlphaBlending();
 		gl::draw(mVboMesh);
 		mFont->unbind();
+
+		glPopAttrib();
+
+		unbindShader();
 	}
 }
 
@@ -246,6 +253,77 @@ Rectf Text::getBounds()
 	}
 
 	return mBounds;
+}
+
+std::string Text::getVertexShader() const
+{
+	// vertex shader
+	const char *vs = 
+		"#version 110\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	gl_FrontColor = gl_Color;\n"
+		"	gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+		"\n"
+		"	gl_Position = ftransform();\n"
+		"}\n";
+
+	return std::string(vs);
+}
+
+std::string Text::getFragmentShader() const
+{
+	// fragment shader
+	const char *fs = 
+		"#version 110\n"
+		"\n"
+		"uniform sampler2D	tex0;\n"
+		"\n"
+		"const float smoothness = 64.0;\n"
+		"const float gamma = 2.2;\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	// retrieve signed distance\n"
+		"	vec4 clr = texture2D( tex0, gl_TexCoord[0].xy );\n"
+		"	float sdf = clr.r;\n"
+		"\n"
+		"	// perform adaptive anti-aliasing of the edges\n"
+		"	float w = clamp( smoothness * (abs(dFdx(gl_TexCoord[0].x)) + abs(dFdy(gl_TexCoord[0].y))), 0.0, 0.5);\n"
+		"	float a = smoothstep(0.5-w, 0.5+w, sdf);\n"
+		"\n"
+		"	// gamma correction for linear attenuation\n"
+		"	a = pow(a, 1.0/gamma);\n"
+		"\n"
+		"	// final color\n"
+		"	gl_FragColor.rgb = gl_Color.rgb;\n"
+		"	gl_FragColor.a = gl_Color.a * a;\n"
+		"}\n";
+
+	return std::string(fs);
+}
+
+bool Text::bindShader()
+{
+	if( ! mShader ) 
+	{
+		try { mShader = gl::GlslProg( getVertexShader().c_str(), getFragmentShader().c_str() ); }
+		catch( const std::exception &e ) { mShader = gl::GlslProg(); return false; }
+	}
+
+	mShader.bind();
+	mShader.uniform( "tex0", 0 );
+
+	return true;
+}
+
+bool Text::unbindShader()
+{
+	if( mShader ) 
+		mShader.unbind();
+	
+	return true;
 }
 
 } } // namespace ph::text

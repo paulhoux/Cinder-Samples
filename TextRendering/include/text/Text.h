@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "cinder/Cinder.h"
 #include "cinder/Utilities.h"
+#include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Vbo.h"
 #include "text/Font.h"
 
@@ -68,7 +69,7 @@ public:
 	void		setText(const std::string &text) { setText( ci::toUtf16(text) ); }
 	void		setText(const std::wstring &text) { mText = text; mInvalid = true; }
 
-	ci::Rectf	getBounds();		
+	ci::Rectf	getBounds();
 protected:
 	//! get the maximum width of the text at the specified vertical position 
 	virtual float	getWidthAt(float y) { return 0.0f; }
@@ -80,24 +81,31 @@ protected:
 		cursor->y += std::floorf(getLeading() + 0.5f); 
 		
 		return ( getHeight() == 0.0f || cursor->y < getHeight() );
-	}
+	}		
+
+	//!
+	virtual std::string	getVertexShader() const;
+	virtual std::string getFragmentShader() const;
+	virtual bool		bindShader();
+	virtual bool		unbindShader();
 protected:
-	bool			mInvalid;
-	bool			mBoundsInvalid;
+	bool				mInvalid;
+	bool				mBoundsInvalid;
 
-	ci::Rectf		mBounds;
+	ci::Rectf			mBounds;
 
-	Alignment		mAlignment;
-	Boundary		mBoundary;
+	Alignment			mAlignment;
+	Boundary			mBoundary;
 
-	std::wstring	mText;
+	std::wstring		mText;
 
-	ci::gl::VboMesh	mVboMesh;
+	ci::gl::GlslProg	mShader;
+	ci::gl::VboMesh		mVboMesh;
 
-	FontRef			mFont;
-	float			mFontSize;
+	FontRef				mFont;
+	float				mFontSize;
 
-	float			mLineSpace;
+	float				mLineSpace;
 };
 
 } } // namespace ph::text
