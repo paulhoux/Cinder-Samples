@@ -11,6 +11,8 @@ public:
 	static ci::ColorA toColorA(uint32_t hex);
 	//! converts a string to an integer
 	static int toInt(const std::string &str);
+	//! converts a string to a float
+	static float toFloat(const std::string &str);
 	//! converts a string to a double
 	static double toDouble(const std::string &str);
 	//!

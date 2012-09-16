@@ -34,6 +34,16 @@ int Conversions::toInt(const std::string &str)
 	return x;
 }
 
+float Conversions::toFloat(const std::string &str)
+{
+	float x;
+	std::istringstream i(str);
+
+	if (!(i >> x)) throw std::exception();
+
+	return x;
+}
+
 double Conversions::toDouble(const std::string &str)
 {
 	double x;

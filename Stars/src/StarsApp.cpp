@@ -6,6 +6,7 @@
 #include "Background.h"
 #include "Cam.h"
 #include "Grid.h"
+#include "Labels.h"
 #include "Stars.h"
 #include "UserInterface.h"
 
@@ -60,6 +61,7 @@ protected:
 
 	// graphical elements
 	Stars			mStars;
+	Labels			mLabels;
 	Background		mBackground;
 	Grid			mGrid;
 	UserInterface	mUserInterface;
@@ -69,6 +71,7 @@ protected:
 
 	// 
 	bool			mIsGridVisible;
+	bool			mIsLabelsVisible;
 	bool			mIsCursorVisible;
 	bool			mIsStereoscopic;
 
@@ -104,12 +107,20 @@ void StarsApp::setup()
 	mGrid.setup();
 
 	// load the star database and create the VBO mesh
-	if( fs::exists( getAssetPath("") / "hygxyz.cdb" ) )
-		mStars.read( loadFile( getAssetPath("") / "hygxyz.cdb" ) );
+	if( fs::exists( getAssetPath("") / "stars.cdb" ) )
+		mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
 	else
 	{
 		mStars.load( loadAsset("hygxyz.csv") );
-		mStars.write( writeFile( getAssetPath("") / "hygxyz.cdb" ) );	
+		mStars.write( writeFile( getAssetPath("") / "stars.cdb" ) );	
+	}
+
+	if( fs::exists( getAssetPath("") / "labels.cdb" ) )
+		mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
+	else
+	{
+		mLabels.load( loadAsset("hygxyz.csv") );
+		mLabels.write( writeFile( getAssetPath("") / "labels.cdb" ) );	
 	}
 
 	// create user interface
@@ -127,11 +138,15 @@ void StarsApp::setup()
 
 	//
 	mIsGridVisible = false;
+	mIsLabelsVisible = false;
 	mIsStereoscopic = false;
 
 	// create stars
 	mStars.setup();
 	mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+
+	// create labels
+	mLabels.setup();
 
 	//
 	mMusicExtensions.push_back( ".flac" );
@@ -232,6 +247,10 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw labels
+			if(mIsLabelsVisible)
+				mLabels.draw();
 		}
 		gl::popMatrices();
 	
@@ -253,6 +272,10 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw labels
+			if(mIsLabelsVisible)
+				mLabels.draw();
 		}
 		gl::popMatrices();
 	
@@ -275,6 +298,10 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw labels
+			if(mIsLabelsVisible)
+				mLabels.draw();
 		}
 		gl::popMatrices();
 	
@@ -369,6 +396,10 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_g:
 		// toggle grid
 		mIsGridVisible = !mIsGridVisible;
+		break;
+	case KeyEvent::KEY_l:
+		// toggle labels
+		mIsLabelsVisible = !mIsLabelsVisible;
 		break;
 	case KeyEvent::KEY_c:
 		// toggle cursor
