@@ -75,7 +75,7 @@ public:
 	void	render();
 protected:
 	//! get the maximum width of the text at the specified vertical position
-	virtual float getWidthAt(float y) { return 1000.0f; }
+	virtual float getWidthAt(float y) const { return 1000.0f; }
 	
 	//! override vertex shader and bind method
 	virtual std::string	getVertexShader() const;

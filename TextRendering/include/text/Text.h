@@ -69,12 +69,12 @@ public:
 	void		setText(const std::string &text) { setText( ci::toUtf16(text) ); }
 	void		setText(const std::wstring &text) { mText = text; mInvalid = true; }
 
-	ci::Rectf	getBounds();
+	ci::Rectf	getBounds() const;
 protected:
 	//! get the maximum width of the text at the specified vertical position 
-	virtual float	getWidthAt(float y) { return 0.0f; }
+	virtual float	getWidthAt(float y) const { return 0.0f; }
 	//! get the maximum height of the text
-	virtual float	getHeight() { return 0.0f; }
+	virtual float	getHeight() const { return 0.0f; }
 	//! function to move the cursor to the next line
 	virtual	bool	newLine( ci::Vec2f *cursor ) { 
 		cursor->x = 0.0f; 
@@ -90,7 +90,7 @@ protected:
 	virtual bool		unbindShader();
 protected:
 	bool				mInvalid;
-	bool				mBoundsInvalid;
+	mutable bool		mBoundsInvalid;
 
 	ci::Rectf			mBounds;
 

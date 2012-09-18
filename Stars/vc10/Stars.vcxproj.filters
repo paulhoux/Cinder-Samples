@@ -117,11 +117,5 @@
     <None Include="..\assets\shaders\stars_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\shaders\labels_frag.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\assets\shaders\labels_vert.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

@@ -31,9 +31,9 @@ void UserInterface::setup()
 
 void UserInterface::draw()
 {
-	Vec2f position = Vec2f(0.5f, 0.95f) * Vec2f(getWindowSize());
+	Vec2f position = Vec2f(0.5f, 0.92f) * Vec2f(getWindowSize());
 
-	gl::drawLine( position + Vec2f(-400, -10), position + Vec2f(400, -10) );
+	gl::drawLine( position + Vec2f(-400, 0), position + Vec2f(400, 0) );
 
 	glPushAttrib( GL_CURRENT_BIT );
 	gl::pushModelView();

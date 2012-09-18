@@ -21,9 +21,9 @@ Labels::~Labels(void)
 void Labels::setup()
 {
 	// intialize labels
-	text::fonts().loadFont( loadAsset("fonts/Courgette-Regular.sdff") ); 
-	mLabels.setFont( text::fonts().getFont("Courgette-Regular") );
-	mLabels.setFontSize( 20.0f );
+	text::fonts().loadFont( loadAsset("fonts/Ubuntu-LightItalic.sdff") ); 
+	mLabels.setFont( text::fonts().getFont("Ubuntu-LightItalic") );
+	mLabels.setFontSize( 12.0f );
 	mLabels.setBoundary( text::Text::NONE );
 	mLabels.setOffset( 2.5f, 2.5f );
 }
@@ -31,7 +31,7 @@ void Labels::setup()
 void Labels::draw()
 {
 	glPushAttrib( GL_CURRENT_BIT );
-	gl::color( Color(0.7f, 0.7f, 0.7f) );
+	gl::color( Color::white() );
 
 	mLabels.draw();
 

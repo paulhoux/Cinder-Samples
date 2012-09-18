@@ -245,7 +245,7 @@ void Text::render()
 	mInvalid = false;
 }
 
-Rectf Text::getBounds()
+Rectf Text::getBounds() const
 {
 	if(mBoundsInvalid) {
 		//mBounds = mMesh.calcBoundingBox();
