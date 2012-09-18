@@ -21,6 +21,10 @@ SOFTWARE.
 */
 
 #include "cinder/Rand.h"
+#if defined( CINDER_MSW )
+#include "cinder/Unicode.h"
+#endif
+
 #include "text/Text.h"
 
 #include <boost/tokenizer.hpp>
@@ -29,6 +33,7 @@ SOFTWARE.
 namespace ph { namespace text {
 
 using namespace ci;
+using namespace std;
 
 void Text::draw()
 {
@@ -99,6 +104,9 @@ void Text::render()
 
 		return;
 	}
+
+	// TEMP
+	std::vector<std::string>	lines = calculateLineBreaks();
 
 	// use the boost tokenizer to split the text into lines without copying all of it
 	std::wstring::const_iterator itr;
@@ -324,6 +332,37 @@ bool Text::unbindShader()
 		mShader.unbind();
 	
 	return true;
+}
+
+std::vector<std::string> Text::calculateLineBreaks() const
+{
+	std::vector<std::string> result;
+	std::vector<std::string> strings;
+
+	struct LineProcessor {
+		LineProcessor( vector<string> *strings ) : mStrings( strings ) {}
+		void operator()( const char *line, size_t len ) const { mStrings->push_back( string( line, len ) ); }
+		mutable vector<string> *mStrings;
+	};
+
+	struct LineMeasure {
+		LineMeasure( const FontRef font, float fontsize ) : mFont(font), mFontSize(fontsize) {}
+		bool operator()( const char *line, size_t len ) const {
+			// return TRUE if line does not exceed maximum width
+			std::wstring ws = toUtf16( string( line, len ) );
+			Rectf size = mFont->measure( ws, mFontSize );
+
+			return (size.getWidth() <= 400.0f); // TODO: call getWidthAt(y)
+		}
+
+		float			mFontSize;
+		const FontRef	mFont;
+	};
+
+	std::function<void(const char *,size_t)> lineFn = LineProcessor( &result );		
+	lineBreakUtf8( toUtf8(mText).c_str(), LineMeasure( mFont, mFontSize ), lineFn );
+	
+	return result;
 }
 
 } } // namespace ph::text

@@ -88,6 +88,8 @@ protected:
 	virtual std::string getFragmentShader() const;
 	virtual bool		bindShader();
 	virtual bool		unbindShader();
+
+	std::vector< std::string >	calculateLineBreaks() const;
 protected:
 	bool				mInvalid;
 	mutable bool		mBoundsInvalid;
