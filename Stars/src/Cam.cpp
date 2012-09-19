@@ -18,7 +18,7 @@ const double Cam::DISTANCE_MAX = 1000.0;
 Cam::Cam(void)
 {
 	mInitialCam = mCurrentCam = CameraStereo(); 
-	mCurrentCam.setNearClip( 0.01f );
+	mCurrentCam.setNearClip( 0.02f );
 	mCurrentCam.setFarClip( 5000.0f );
 	mCurrentCam.setEyeSeparation( 0.005f );
 

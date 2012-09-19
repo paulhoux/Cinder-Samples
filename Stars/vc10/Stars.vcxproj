@@ -92,7 +92,7 @@
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw;..\libs\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -112,6 +112,7 @@
     <ClCompile Include="..\..\TextRendering\include\text\TextLabels.cpp" />
     <ClCompile Include="..\src\Background.cpp" />
     <ClCompile Include="..\src\Cam.cpp" />
+    <ClCompile Include="..\src\Constellations.cpp" />
     <ClCompile Include="..\src\Conversions.cpp" />
     <ClCompile Include="..\src\Grid.cpp" />
     <ClCompile Include="..\src\Labels.cpp" />
@@ -128,6 +129,7 @@
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\Background.h" />
     <ClInclude Include="..\src\Cam.h" />
+    <ClInclude Include="..\src\Constellations.h" />
     <ClInclude Include="..\src\Conversions.h" />
     <ClInclude Include="..\src\Grid.h" />
     <ClInclude Include="..\src\Labels.h" />

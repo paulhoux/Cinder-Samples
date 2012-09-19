@@ -5,6 +5,7 @@
 
 #include "Background.h"
 #include "Cam.h"
+#include "Constellations.h"
 #include "Grid.h"
 #include "Labels.h"
 #include "Stars.h"
@@ -62,6 +63,7 @@ protected:
 	// graphical elements
 	Stars			mStars;
 	Labels			mLabels;
+	Constellations	mConstellations;
 	Background		mBackground;
 	Grid			mGrid;
 	UserInterface	mUserInterface;
@@ -72,6 +74,7 @@ protected:
 	// 
 	bool			mIsGridVisible;
 	bool			mIsLabelsVisible;
+	bool			mIsConstellationsVisible;
 	bool			mIsCursorVisible;
 	bool			mIsStereoscopic;
 
@@ -123,6 +126,14 @@ void StarsApp::setup()
 		mLabels.write( writeFile( getAssetPath("") / "labels.cdb" ) );	
 	}
 
+	if( fs::exists( getAssetPath("") / "constellations.cdb" ) )
+		mConstellations.read( loadFile( getAssetPath("") / "constellations.cdb" ) );
+	else
+	{
+		mConstellations.load( loadAsset("constellations.cln") );
+		mConstellations.write( writeFile( getAssetPath("") / "constellations.cdb" ) );	
+	}
+
 	// create user interface
 	mUserInterface.setup();
 
@@ -139,6 +150,7 @@ void StarsApp::setup()
 	//
 	mIsGridVisible = false;
 	mIsLabelsVisible = false;
+	mIsConstellationsVisible = false;
 	mIsStereoscopic = false;
 
 	// create stars
@@ -248,6 +260,10 @@ void StarsApp::draw()
 			// draw stars
 			mStars.draw();
 
+			// draw constellations
+			if(mIsConstellationsVisible)
+				mConstellations.draw();
+
 			// draw labels
 			if(mIsLabelsVisible)
 				mLabels.draw();
@@ -272,6 +288,10 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw constellations
+			if(mIsConstellationsVisible)
+				mConstellations.draw();
 
 			// draw labels
 			if(mIsLabelsVisible)
@@ -298,6 +318,10 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw constellations
+			if(mIsConstellationsVisible)
+				mConstellations.draw();
 
 			// draw labels
 			if(mIsLabelsVisible)
@@ -402,7 +426,11 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsLabelsVisible = !mIsLabelsVisible;
 		break;
 	case KeyEvent::KEY_c:
-		// toggle cursor
+		// toggle constellations
+		mIsConstellationsVisible = !mIsConstellationsVisible;
+		break;
+	case KeyEvent::KEY_a:
+		// toggle cursor arrow
 		if(mIsCursorVisible) 
 			forceHideCursor();
 		else 
