@@ -23,7 +23,7 @@ void Constellations::draw()
 	if(!mMesh) return;
 
 	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
-	gl::color( Color(0.5f, 0.6f, 0.8f) );
+	gl::color( Color(0.5f, 0.6f, 0.8f) * mAttenuation );
 	gl::enableAdditiveBlending();
 
 	gl::draw( mMesh );
@@ -36,6 +36,20 @@ void Constellations::clear()
 	mMesh = gl::VboMesh();
 	mVertices.clear();
 	mIndices.clear();
+}
+
+void Constellations::setCameraDistance( float distance )
+{
+	static const float minimum = 0.25f;
+	static const float maximum = 1.0f;
+
+	if( distance > 300.0f ) {
+		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - 300.0f) / 200.0f );
+		mAttenuation = math<float>::clamp( mAttenuation, 0.0f, maximum );
+	}
+	else {
+		mAttenuation = math<float>::clamp( 1.0f - math<float>::log10( distance ) / math<float>::log10(100.0f), minimum, maximum );
+	}
 }
 
 void Constellations::load( DataSourceRef source )
@@ -108,10 +122,8 @@ void Constellations::load( DataSourceRef source )
 			double	distance2 = Conversions::toDouble( tokens[5] );
 
 			mIndices.push_back( mVertices.size() );
-			mIndices.push_back( mVertices.size()+1 );
-			mIndices.push_back( mVertices.size()+1 );
-			mIndices.push_back( mVertices.size()+2 );
 			mVertices.push_back( getStarCoordinate( ra1, dec1, distance1 ) );
+			mIndices.push_back( mVertices.size() );
 			mVertices.push_back( getStarCoordinate( ra2, dec2, distance2 ) );
 
 			adjusted.append( (boost::format("%.7d;%.7d;%.7d;") % ra1 % dec1 % distance1).str() );

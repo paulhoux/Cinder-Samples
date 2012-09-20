@@ -214,8 +214,10 @@ void StarsApp::update()
 	mCamera.update(elapsed);
 
 	// update background and user interface
-	mBackground.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
-	mUserInterface.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
+	float distance = mCamera.getCamera().getEyePoint().length();
+	mBackground.setCameraDistance( distance );
+	mConstellations.setCameraDistance( distance );
+	mUserInterface.setCameraDistance( distance );
 
 	//
 	if(mSoundEngine) {
