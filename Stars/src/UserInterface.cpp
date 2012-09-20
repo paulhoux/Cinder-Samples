@@ -35,7 +35,8 @@ void UserInterface::draw()
 
 	gl::drawLine( position + Vec2f(-400, 0), position + Vec2f(400, 0) );
 
-	glPushAttrib( GL_CURRENT_BIT );
+	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+	gl::enableAdditiveBlending();
 	gl::pushModelView();
 
 	gl::translate( position + Vec2f(-400, 0) );

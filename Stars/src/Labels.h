@@ -10,20 +10,20 @@ class Labels
 {
 public:
 	Labels(void);
-	~Labels(void);
+	virtual ~Labels(void);
 
-	void setup();
-	void update() {};
-	void draw();
+	virtual void setup();
+	virtual void update() {};
+	virtual void draw();
 
-	//! load a comma separated file containing the HYG star database
-	void	load( ci::DataSourceRef source );
+	//! load a comma separated file containing the database
+	virtual void load( ci::DataSourceRef source );
 
 	//! reads a binary label data file
 	void	read( ci::DataSourceRef source );
 	//! writes a binary label data file
 	void	write( ci::DataTargetRef target );
-private:
+protected:
 	ph::text::TextLabels	mLabels;
 };
 

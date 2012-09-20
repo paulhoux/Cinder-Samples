@@ -1,5 +1,8 @@
 #include "Conversions.h"
 
+#include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
+#include <map>
 #include <sstream>
 
 using namespace ci;
@@ -52,6 +55,62 @@ double Conversions::toDouble(const std::string &str)
 	if (!(i >> x)) throw std::exception();
 
 	return x;
+}
+
+//
+
+void Conversions::mergeNames( ci::DataSourceRef hyg, ci::DataSourceRef ciel )
+{
+	// read star names
+	std::string	stars = loadString( ciel );
+
+	std::vector< std::string > tokens;
+	std::map< uint32_t, std::string > names;
+
+	std::vector< std::string > lines;
+	boost::algorithm::split( lines, stars, boost::is_any_of("\r\n"), boost::token_compress_on );
+
+	std::vector< std::string >::iterator itr;
+	for(itr=lines.begin();itr!=lines.end();++itr) {
+		std::string line = boost::trim_copy( *itr );
+		if(line.empty()) continue;
+		if(line.substr(0,1) == ";") continue;
+
+		try {
+			uint32_t hr = Conversions::toInt( itr->substr(0,9) );
+			boost::algorithm::split( tokens, itr->substr(9), boost::is_any_of(";"), boost::token_compress_off );
+
+			names.insert( std::pair< uint32_t, std::string >( hr, tokens[0] ) );
+		}
+		catch(...) {}
+	}
+	
+	// merge star names with HYG
+	stars = loadString( hyg );
+	boost::algorithm::split( lines, stars, boost::is_any_of("\n\r"), boost::token_compress_on );
+	for(itr=lines.begin();itr!=lines.end();++itr) {
+		std::string line = boost::trim_copy( *itr );
+
+		boost::algorithm::split( tokens, line, boost::is_any_of(";"), boost::token_compress_off );
+
+		if( tokens.size() >= 4 && !tokens[4].empty() ) {
+			try {
+				uint32_t hr = Conversions::toInt( tokens[3] );
+				if( !names[hr].empty() ) {
+					tokens[6] = names[hr];
+				}
+			}
+			catch(...) {}
+		}
+
+		*itr = boost::algorithm::join( tokens, ";" );
+	}
+
+	stars = boost::algorithm::join( lines, "\r\n" );
+
+	DataTargetPathRef target = writeFile( hyg->getFilePath() );
+	OStreamRef stream = target->getStream();
+	stream->write( stars );
 }
 
 

@@ -6,6 +6,8 @@
 #include "Background.h"
 #include "Cam.h"
 #include "Constellations.h"
+#include "ConstellationLabels.h"
+#include "Conversions.h"
 #include "Grid.h"
 #include "Labels.h"
 #include "Stars.h"
@@ -61,12 +63,13 @@ protected:
 	Cam				mCamera;
 
 	// graphical elements
-	Stars			mStars;
-	Labels			mLabels;
-	Constellations	mConstellations;
-	Background		mBackground;
-	Grid			mGrid;
-	UserInterface	mUserInterface;
+	Stars				mStars;
+	Labels				mLabels;
+	Constellations		mConstellations;
+	ConstellationLabels	mConstellationLabels;
+	Background			mBackground;
+	Grid				mGrid;
+	UserInterface		mUserInterface;
 
 	// animation timer
 	Timer			mTimer;
@@ -104,7 +107,7 @@ void StarsApp::prepareSettings(Settings *settings)
 
 void StarsApp::setup()
 {
-	mTime = getElapsedSeconds();
+	//Conversions::mergeNames( loadAsset("hygxyz.csv"), loadAsset("StarsNames.txt") );
 
 	// create the spherical grid mesh
 	mGrid.setup();
@@ -114,24 +117,32 @@ void StarsApp::setup()
 		mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
 	else
 	{
-		mStars.load( loadAsset("hygxyz.csv") );
-		mStars.write( writeFile( getAssetPath("") / "stars.cdb" ) );	
+		//mStars.load( loadAsset("hygxyz.csv") );
+		//mStars.write( writeFile( getAssetPath("") / "stars.cdb" ) );	
 	}
 
 	if( fs::exists( getAssetPath("") / "labels.cdb" ) )
 		mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
 	else
 	{
-		mLabels.load( loadAsset("hygxyz.csv") );
-		mLabels.write( writeFile( getAssetPath("") / "labels.cdb" ) );	
+		//mLabels.load( loadAsset("hygxyz.csv") );
+		//mLabels.write( writeFile( getAssetPath("") / "labels.cdb" ) );	
 	}
 
 	if( fs::exists( getAssetPath("") / "constellations.cdb" ) )
 		mConstellations.read( loadFile( getAssetPath("") / "constellations.cdb" ) );
 	else
 	{
-		mConstellations.load( loadAsset("constellations.cln") );
-		mConstellations.write( writeFile( getAssetPath("") / "constellations.cdb" ) );	
+		//mConstellations.load( loadAsset("constellations.cln") );
+		//mConstellations.write( writeFile( getAssetPath("") / "constellations.cdb" ) );	
+	}
+
+	if( fs::exists( getAssetPath("") / "constellationlabels.cdb" ) )
+		mConstellationLabels.read( loadFile( getAssetPath("") / "constellationlabels.cdb" ) );
+	else
+	{
+		//mConstellationLabels.load( loadAsset("constlabel.cla") );
+		//mConstellationLabels.write( writeFile( getAssetPath("") / "constellationlabels.cdb" ) );	
 	}
 
 	// create user interface
@@ -159,6 +170,7 @@ void StarsApp::setup()
 
 	// create labels
 	mLabels.setup();
+	mConstellationLabels.setup();
 
 	//
 	mMusicExtensions.push_back( ".flac" );
@@ -194,6 +206,8 @@ void StarsApp::setup()
 #else
 	forceShowCursor();
 #endif
+
+	mTime = getElapsedSeconds();
 }
 
 void StarsApp::shutdown()
@@ -263,8 +277,10 @@ void StarsApp::draw()
 			mStars.draw();
 
 			// draw constellations
-			if(mIsConstellationsVisible)
+			if(mIsConstellationsVisible) {
 				mConstellations.draw();
+				mConstellationLabels.draw();
+			}
 
 			// draw labels
 			if(mIsLabelsVisible)
@@ -292,8 +308,10 @@ void StarsApp::draw()
 			mStars.draw();
 
 			// draw constellations
-			if(mIsConstellationsVisible)
+			if(mIsConstellationsVisible) {
 				mConstellations.draw();
+				mConstellationLabels.draw();
+			}
 
 			// draw labels
 			if(mIsLabelsVisible)
@@ -322,8 +340,10 @@ void StarsApp::draw()
 			mStars.draw();
 
 			// draw constellations
-			if(mIsConstellationsVisible)
+			if(mIsConstellationsVisible) {
 				mConstellations.draw();
+				mConstellationLabels.draw();
+			}
 
 			// draw labels
 			if(mIsLabelsVisible)

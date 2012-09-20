@@ -13,8 +13,8 @@ Grid::~Grid(void)
 
 void Grid::setup()
 {
-	const int segments = 30;
-	const int rings = 15;
+	const int segments = 36;
+	const int rings = 9;
 	const int subdiv = 10;
 
 	const float radius = 2000.0f;

@@ -30,7 +30,8 @@ void Labels::setup()
 
 void Labels::draw()
 {
-	glPushAttrib( GL_CURRENT_BIT );
+	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+	gl::enableAdditiveBlending();
 	gl::color( Color::white() );
 
 	mLabels.draw();

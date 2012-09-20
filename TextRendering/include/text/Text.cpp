@@ -40,10 +40,9 @@ void Text::draw()
 	render();
 
 	if( mVboMesh && mFont && bindShader() ) {
-		glPushAttrib( GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
+		glPushAttrib( GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
 
 		mFont->enableAndBind();
-		gl::enableAlphaBlending();
 		gl::draw(mVboMesh);
 		mFont->unbind();
 
