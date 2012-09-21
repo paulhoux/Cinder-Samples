@@ -25,7 +25,13 @@ void Labels::setup()
 	mLabels.setFont( text::fonts().getFont("Ubuntu-BoldItalic") );
 	mLabels.setFontSize( 16.0f );
 	mLabels.setBoundary( text::Text::NONE );
-	mLabels.setOffset( 2.5f, 2.5f );
+	//mLabels.setOffset( 2.5f, 2.5f );
+
+	double alpha = toRadians( 17.76112222 * 15.0 );
+	double delta = toRadians( -29.00780555 );
+	Vec3f position = 8330.0 * Vec3f((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta)));
+
+	mLabels.addLabel( position, "Center of the Galaxy" );
 }
 
 void Labels::draw()

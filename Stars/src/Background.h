@@ -38,7 +38,5 @@ private:
 
 	ci::gl::Texture		mTexture;
 	ci::gl::VboMesh		mVboMesh;
-
-	ci::Matrix44f		mTransform;
 };
 

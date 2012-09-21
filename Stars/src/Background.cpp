@@ -18,16 +18,7 @@ Background::Background(void)
 	// roughly convert galactic coordinates of map to equatorial coordinates of stars
 	// by rotating the sphere on which the map is projected. The rotation angles were
 	// found using a celestial reference map.
-	//mRotation = Vec3f(-60.3f, 81.9f, 22.0f);
-	mRotation = Vec3f(-60.25f, 83.45f, 23.25f);
-
-	mTransform.rotate( mRotation * Vec3f::zAxis() ); // rotate z-axis
-	mTransform.rotate( mRotation * Vec3f::xAxis() ); // rotate x-axis
-	mTransform.rotate( mRotation * Vec3f::yAxis() ); // rotate y-axis
-
-	//mTransform.setColumn(0, Vec4f( -0.054875539, -0.873437105, -0.483834992, 0.0 ));
-	//mTransform.setColumn(1, Vec4f( 0.494109454, -0.444829594, 0.746982249, 0.0 ));
-	//mTransform.setColumn(2, Vec4f( -0.867666136, -0.198076390, 0.455983795, 0.0 ));
+	mRotation = Vec3f(-60.2f, 83.7f, 23.5f);
 }
 
 Background::~Background(void)
@@ -52,11 +43,9 @@ void Background::draw()
 
 	gl::pushModelView();
 	{
-		Matrix44f m = gl::getModelView();
 		gl::rotate( mRotation * Vec3f::zAxis() ); // rotate z-axis
 		gl::rotate( mRotation * Vec3f::xAxis() ); // rotate x-axis
 		gl::rotate( mRotation * Vec3f::yAxis() ); // rotate y-axis
-		//gl::multModelView( mTransform );
 
 		gl::color( mAttenuation * Color::white() );
 		gl::draw( mVboMesh );

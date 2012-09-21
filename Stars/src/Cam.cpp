@@ -29,7 +29,7 @@ Cam::Cam(void)
 	mLatitude = 0.0;
 	mLongitude = 0.0;
 	mDistance = 0.015;
-	mFov = 60.0;
+	mFov = 50.0;
 
 	mTimeDistance = 0.0;
 	mTimeDistanceTarget = 0.0;

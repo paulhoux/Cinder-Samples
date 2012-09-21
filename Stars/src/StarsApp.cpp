@@ -463,7 +463,7 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		break;
-	// 
+	/*// 
 	case KeyEvent::KEY_KP7:
 		mBackground.rotateX(-0.05f);
 		break;
