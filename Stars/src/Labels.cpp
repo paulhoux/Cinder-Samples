@@ -21,9 +21,9 @@ Labels::~Labels(void)
 void Labels::setup()
 {
 	// intialize labels
-	text::fonts().loadFont( loadAsset("fonts/Ubuntu-LightItalic.sdff") ); 
-	mLabels.setFont( text::fonts().getFont("Ubuntu-LightItalic") );
-	mLabels.setFontSize( 12.0f );
+	text::fonts().loadFont( loadAsset("fonts/Ubuntu-BoldItalic.sdff") ); 
+	mLabels.setFont( text::fonts().getFont("Ubuntu-BoldItalic") );
+	mLabels.setFontSize( 16.0f );
 	mLabels.setBoundary( text::Text::NONE );
 	mLabels.setOffset( 2.5f, 2.5f );
 }

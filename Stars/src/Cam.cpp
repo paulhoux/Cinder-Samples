@@ -57,7 +57,7 @@ void Cam::update(double elapsed)
 		double fraction = (mTimeDistance) - math<double>::floor(mTimeDistance);
 		double period = 2.0 * M_PI * math<double>::clamp( fraction * 1.20 - 0.10, 0.0, 1.0 );
 		double f = cos( period );
-		double distance = 200.0 - 199.95 * f;
+		double distance = 100.0 - 99.95 * f;
 
 		// determine where to look
 		double longitude = t * 360.0 / 300.0;							// go around once every 300 seconds

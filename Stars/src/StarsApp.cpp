@@ -463,26 +463,26 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		break;
-		/*// 
-		case KeyEvent::KEY_KP7:
+	// 
+	case KeyEvent::KEY_KP7:
 		mBackground.rotateX(-0.05f);
 		break;
-		case KeyEvent::KEY_KP9:
+	case KeyEvent::KEY_KP9:
 		mBackground.rotateX(+0.05f);
 		break;
-		case KeyEvent::KEY_KP4:
+	case KeyEvent::KEY_KP4:
 		mBackground.rotateY(-0.05f);
 		break;
-		case KeyEvent::KEY_KP6:
+	case KeyEvent::KEY_KP6:
 		mBackground.rotateY(+0.05f);
 		break;
-		case KeyEvent::KEY_KP1:
+	case KeyEvent::KEY_KP1:
 		mBackground.rotateZ(-0.05f);
 		break;
-		case KeyEvent::KEY_KP3:
+	case KeyEvent::KEY_KP3:
 		mBackground.rotateZ(+0.05f);
 		break;
-		//*/
+	//*/
 	}
 }
 
