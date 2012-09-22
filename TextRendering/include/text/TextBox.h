@@ -56,7 +56,7 @@ protected:
 	//! get the maximum height of the text
 	virtual float	getHeight() { return mSize.y; }
 	//! function to move the cursor to the next line
-	virtual	bool	newLine( ci::Vec2f *cursor ) { 
+	virtual	bool	newLine( ci::Vec2f *cursor ) {
 		cursor->x = 0.0f; 
 		cursor->y += std::floorf(getLeading() + 0.5f); 
 

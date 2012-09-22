@@ -108,6 +108,7 @@
     <ClCompile Include="..\include\text\FontStore.cpp" />
     <ClCompile Include="..\include\text\Text.cpp" />
     <ClCompile Include="..\include\text\TextBox.cpp" />
+    <ClCompile Include="..\include\text\TextLabels.cpp" />
     <ClCompile Include="..\src\TextRenderingApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +123,7 @@
     <ClInclude Include="..\include\text\FontStore.h" />
     <ClInclude Include="..\include\text\Text.h" />
     <ClInclude Include="..\include\text\TextBox.h" />
+    <ClInclude Include="..\include\text\TextLabels.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
