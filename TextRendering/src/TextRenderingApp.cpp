@@ -1,6 +1,5 @@
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
-#include "cinder/gl/GlslProg.h"
 
 #include "text/FontStore.h"
 #include "text/TextBox.h"
@@ -35,8 +34,6 @@ protected:
 
 	//! 
 	TextBox			mTextBox;
-	//!
-	gl::GlslProg	mSdfShader;
 };
 
 void TextRenderingApp::prepareSettings(Settings *settings)
@@ -69,9 +66,6 @@ void TextRenderingApp::setup()
 
 		// load a long text and hand it to the text box
 		mTextBox.setText( loadString( loadAsset("fonts/readme.txt") ) );
-
-		// load and compile the Signed Distance Field shader
-		mSdfShader = gl::GlslProg( loadAsset("shaders/font_sdf_vert.glsl"), loadAsset("shaders/font_sdf_frag.glsl") );
 	}
 	catch( const std::exception & e ) { 
 		console() << e.what() << std::endl; 
@@ -105,16 +99,7 @@ void TextRenderingApp::draw()
 	gl::pushModelView();
 	gl::translate( fit.getUL() );
 
-	// bind shader
-	if(mSdfShader) {
-		mSdfShader.bind();
-		mSdfShader.uniform("tex0", 0);
-	}
-
 	mTextBox.draw();
-
-	// unbind shader
-	if(mSdfShader) mSdfShader.unbind();
 
 	if(mShowWireframe) mTextBox.drawWireframe();
 	
