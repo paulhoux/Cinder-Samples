@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "cinder/Cinder.h"
 #include "cinder/Utilities.h"
+#include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Vbo.h"
 #include "text/Font.h"
 
@@ -44,11 +45,8 @@ public:
 
 	virtual void draw();
 	virtual void drawWireframe();
-	virtual void render();
 
-	// TODO
-	// Rectf getBounds();
-	std::string getFontFamily() const { if(mFont) return mFont->getFamily(); else return std::string(); }
+	std::string	getFontFamily() const { if(mFont) return mFont->getFamily(); else return std::string(); }
 	void		setFont( FontRef font ) { mFont = font; mInvalid = true; }
 
 	float		getFontSize() const { return mFontSize; }
@@ -66,9 +64,9 @@ public:
 	void		setBoundary( Boundary boundary ) { mBoundary = boundary; mInvalid = true; }
 
 	void		setText(const std::string &text) { setText( ci::toUtf16(text) ); }
-	void		setText(const std::wstring &text) { mText = text; mInvalid = true; }
+	void		setText(const std::wstring &text) { mText = text; mMust.clear(); mAllow.clear(); mInvalid = true; }
 
-	ci::Rectf	getBounds();		
+	ci::Rectf	getBounds() const;		
 protected:
 	//! get the maximum width of the text at the specified vertical position 
 	virtual float	getWidthAt(float y) { return 0.0f; }
@@ -80,24 +78,45 @@ protected:
 		cursor->y += std::floorf(getLeading() + 0.5f); 
 		
 		return ( getHeight() == 0.0f || cursor->y < getHeight() );
-	}
+	}		
+
+	//!
+	virtual std::string	getVertexShader() const;
+	virtual std::string getFragmentShader() const;
+	virtual bool		bindShader();
+	virtual bool		unbindShader();
+	
+	//! clears the mesh and the buffers
+	virtual void		clearMesh();
+	//! renders the current contents of mText
+	virtual void		renderMesh();
+	//! helper to render a non-word-wrapped string
+	virtual void		renderString( const std::wstring &str, ci::Vec2f *cursor );
+	//! creates the VBO from the data in the buffers
+	virtual void		createMesh();
 protected:
-	bool			mInvalid;
-	bool			mBoundsInvalid;
+	bool					mInvalid;
+	mutable bool			mBoundsInvalid;
 
-	ci::Rectf		mBounds;
+	ci::Rectf				mBounds;
 
-	Alignment		mAlignment;
-	Boundary		mBoundary;
+	Alignment				mAlignment;
+	Boundary				mBoundary;
 
-	std::wstring	mText;
+	std::wstring			mText;
 
-	ci::gl::VboMesh	mVboMesh;
+	ci::gl::GlslProg		mShader;
+	ci::gl::VboMesh			mVboMesh;
 
-	FontRef			mFont;
-	float			mFontSize;
+	FontRef					mFont;
+	float					mFontSize;
 
-	float			mLineSpace;
+	float					mLineSpace;
+
+	std::vector<size_t>		mMust, mAllow;
+	std::vector<ci::Vec3f>	mVertices;
+	std::vector<uint32_t>	mIndices;
+	std::vector<ci::Vec2f>	mTexcoords;
 };
 
 } } // namespace ph::text

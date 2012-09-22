@@ -21,6 +21,10 @@ SOFTWARE.
 */
 
 #include "cinder/Rand.h"
+#if defined( CINDER_MSW )
+#include "cinder/Unicode.h"
+#endif
+
 #include "text/Text.h"
 
 #include <boost/tokenizer.hpp>
@@ -29,21 +33,36 @@ SOFTWARE.
 namespace ph { namespace text {
 
 using namespace ci;
+using namespace std;
 
 void Text::draw()
 {
-	render();
+	if( mInvalid ) {
+		clearMesh();
+		renderMesh();
+		createMesh();
+	}
 
-	if(mVboMesh && mFont) {
+	if( mVboMesh && mFont && bindShader() ) {
+		glPushAttrib( GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
+
 		mFont->enableAndBind();
 		gl::draw(mVboMesh);
 		mFont->unbind();
+
+		glPopAttrib();
+
+		unbindShader();
 	}
 }
 
 void Text::drawWireframe()
 {
-	render();
+	if( mInvalid ) {
+		clearMesh();
+		renderMesh();
+		createMesh();
+	}
  
 	if(!mVboMesh) return;
 
@@ -57,170 +76,125 @@ void Text::drawWireframe()
 	glPopAttrib();
 }
 
-// This is not a pretty piece of code, nor is it blazingly fast. But it works for now.
-void Text::render()
+void Text::clearMesh()
 {
+	mVboMesh.reset();
+	
+	mVertices.clear();
+	mIndices.clear();
+	mTexcoords.clear();
+
+	mInvalid = true;
+}
+
+void Text::renderMesh()
+{
+	// prevent errors
 	if(!mInvalid) return;
 	if(!mFont) return;
+	if( mText.empty() )	return;
 
-	//
-	float					space = mFont->getAdvance(32, mFontSize);
-	float					width;
-	float					height = getHeight();
-	Rectf					bounds;
-
-	uint32_t				index = 0;
-	uint16_t				id = 0;
-
-	std::vector<Vec3f>		vertices;
-	std::vector<uint32_t>	indices;
-	std::vector<Vec2f>		texcoords;
-	//std::vector<ColorA>		colors;
-
-	std::vector<Vec2f>		vecLine, vecWord, texLine, texWord;
-	std::vector<Vec2f>::const_iterator	iter;
-
-	Vec2f					cword;
+	// initialize variables
+	const float		space = mFont->getAdvance(32, mFontSize);
+	const float		height = getHeight();
+	float			width, linewidth;
+	size_t			index = 0;
+	std::wstring	trimmed;
 	
 	// initialize cursor position
 	Vec2f cursor(0.0f, std::floorf(mFont->getAscent(mFontSize) + 0.5f));
 
-	// prevent errors
-	if( mText.empty() ) {
-		mVboMesh.reset();
-		mInvalid = true;
+	// get word/line break information from Cinder's Unicode class if not available
+	if( mMust.empty() || mAllow.empty() )
+		findBreaksUtf16( mText, &mMust, &mAllow );
 
-		return;
-	}
+	// process text in chunks
+	std::vector<size_t>::iterator	mitr = mMust.begin();
+	std::vector<size_t>::iterator	aitr = std::find( mAllow.begin(), mAllow.end(), *mitr );
+	while( aitr != mAllow.end() && mitr != mMust.end() && (cursor.y < height || height == 0.0f) ) {
+		// calculate the maximum allowed width for this line
+		linewidth = getWidthAt( cursor.y );
 
-	// use the boost tokenizer to split the text into lines without copying all of it
-	std::wstring::const_iterator itr;
-	boost::split_iterator<std::wstring::iterator> lineItr, wordItr, endItr;
-	for (lineItr=boost::make_split_iterator(mText, boost::token_finder(boost::is_any_of(L"\n")));lineItr!=endItr;++lineItr) {
-		//
-		if(lineItr->empty()) {
-			newLine(&cursor);
-			continue;
-		}
+		// measure chunk to see if it fits
+		trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+		width = mFont->measure( trimmed, mFontSize ).getX2();
 
-		// clear the line vertices
-		vecLine.clear();
-		texLine.clear();
-
-		width = getWidthAt( cursor.y );
-
-		// use the boost tokenizer to split the line into words without copying all of it
-		for (wordItr=boost::make_split_iterator(*lineItr, boost::token_finder(boost::is_any_of(L" ")));wordItr!=endItr;++wordItr) {
-			//std::wstring word = boost::copy_range<std::wstring>(*wordItr);
-			//if(word.empty()) continue;
-			if(wordItr->empty()) continue;
-
-			// clear the word vertices
-			vecWord.clear();
-			texWord.clear();
-
-			if(cursor.x > 0.0f) cursor.x += space;
-			cword = Vec2f::zero();
-
-			// parse the word
-			for(itr=wordItr->begin();itr!=wordItr->end();++itr) {
-				// retrieve character code
-				id = (uint16_t) *itr;
-
-				if( mFont->contains(id) ) {
-					bounds = mFont->getBounds(id, mFontSize);
-					vecWord.push_back( cword + bounds.getUpperLeft() );
-					vecWord.push_back( cword + bounds.getUpperRight() );
-					vecWord.push_back( cword + bounds.getLowerRight() );
-					vecWord.push_back( cword + bounds.getLowerLeft() );
+		// if it doesn't, remove the last chunk and try again until it fits
+		while( width > (linewidth - cursor.x) && *aitr > index ) {
+			--aitr;
 			
-					bounds = mFont->getTexCoords(id);
-					texWord.push_back( bounds.getUpperLeft() );
-					texWord.push_back( bounds.getUpperRight() );
-					texWord.push_back( bounds.getLowerRight() );
-					texWord.push_back( bounds.getLowerLeft() );
-
-					indices.push_back(index+0); indices.push_back(index+3); indices.push_back(index+1);
-					indices.push_back(index+1); indices.push_back(index+3); indices.push_back(index+2);
-					index += 4;
-
-					cword.x += mFont->getAdvance(id, mFontSize);
-				}
-			}
-
-			// check if the word fits on this line
-			if((cursor.x + cword.x) > width) {
-				// it doesn't, finish this line and start a new one,
-				// but first move it to the right for proper alignment
-				if( mAlignment == CENTER ) {
-					float dx = 0.5f * (width - cursor.x);
-					std::vector<Vec2f>::iterator i;
-					for(i=vecLine.begin();i!=vecLine.end();++i)
-						i->x += dx;
-				}
-				else if( mAlignment == RIGHT ) {
-					float dx = (width - cursor.x);
-					std::vector<Vec2f>::iterator i;
-					for(i=vecLine.begin();i!=vecLine.end();++i)
-						i->x += dx;
-				}
-
-				vertices.insert(vertices.end(), vecLine.begin(), vecLine.end());
-				texcoords.insert(texcoords.end(), texLine.begin(), texLine.end());
-				//colors.insert(colors.end(), vecLine.size(), Color::white());
-
-				//
-				vecLine.clear();
-				texLine.clear();				
-
-				// next line
-				if(!newLine(&cursor)) break;
-
-				width = getWidthAt( cursor.y );
-			}
-
-			// add the word to the current line
-			for(iter=vecWord.begin();iter!=vecWord.end();++iter)
-				vecLine.push_back(cursor + *iter);
-			for(iter=texWord.begin();iter!=texWord.end();++iter)
-				texLine.push_back(*iter);
-
-			//
-			vecWord.clear();
-			texWord.clear();
-
-			// 
-			cursor.x += cword.x;
+			trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+			width = mFont->measure( trimmed, mFontSize ).getX2();
 		}
 
-		// stop if no more room
-		if( height > 0.0f && cursor.y >= height )
-			break;
-
-		// finish this line and start a new one
-		if(!vecLine.empty()) {
-			// but first move it to the right for proper alignment
-			if( mAlignment == CENTER ) {
-				float dx = 0.5f * (width - cursor.x);
-				std::vector<Vec2f>::iterator i;
-				for(i=vecLine.begin();i!=vecLine.end();++i)
-					i->x += dx;
-			}
-			else if( mAlignment == RIGHT ) {
-				float dx = (width - cursor.x);
-				std::vector<Vec2f>::iterator i;
-				for(i=vecLine.begin();i!=vecLine.end();++i)
-					i->x += dx;
+		// if any number of chunks fit on this line, render them
+		if( *aitr > index ) {
+			// adjust alignment
+			switch( mAlignment ) {
+			case CENTER: cursor.x = 0.5f * (linewidth - width); break;
+			case RIGHT: cursor.x = (linewidth - width); break;
 			}
 
-			vertices.insert(vertices.end(), vecLine.begin(), vecLine.end());
-			texcoords.insert(texcoords.end(), texLine.begin(), texLine.end());
-			//colors.insert(colors.end(), vecLine.size(), Color::white());
+			// add this fitting part of the text to the mesh 
+			renderString( trimmed, &cursor );
+
+			// advance cursor to new line
+			if( !newLine(&cursor) ) break;			
+
+			// advance iterators
+			index = *aitr; // start at end of this chunk
+
+			if( *aitr == *mitr ) 
+				++mitr; // if all chunks on this line are rendered, end at next "must break"
+
+			if( mitr != mMust.end() ) // try to render the remaining chunks of this line
+				aitr = std::find( aitr, mAllow.end(), *mitr );
 		}
+		else {
+			// advance to a new line with perhaps more space
+			newLine(&cursor);
 
-		// next line
-		if(!newLine(&cursor)) break;
+			// try to render the remaining parts of this line
+			aitr = std::find( aitr, mAllow.end(), *mitr );
+		}
 	}
+}
+
+void Text::renderString( const std::wstring &str, Vec2f *cursor )
+{
+	std::wstring::const_iterator itr;
+	for(itr=str.begin();itr!=str.end();++itr) {
+		// retrieve character code
+		uint16_t id = (uint16_t) *itr;
+
+		if( mFont->contains(id) ) {
+			size_t index = mVertices.size();
+
+			Rectf bounds = mFont->getBounds(id, mFontSize);
+			mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
+			mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
+			mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
+			mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
+			
+			bounds = mFont->getTexCoords(id);
+			mTexcoords.push_back( bounds.getUpperLeft() );
+			mTexcoords.push_back( bounds.getUpperRight() );
+			mTexcoords.push_back( bounds.getLowerRight() );
+			mTexcoords.push_back( bounds.getLowerLeft() );
+
+			mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
+			mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
+
+			cursor->x += mFont->getAdvance(id, mFontSize);
+		}
+	}
+}
+
+void Text::createMesh()
+{
+	//
+	if( mVertices.empty() || mIndices.empty() )
+		return;
 
 	//
 	gl::VboMesh::Layout layout;
@@ -229,16 +203,16 @@ void Text::render()
 	layout.setStaticTexCoords2d();
 	//layout.setStaticColorsRGBA();
 
-	mVboMesh = gl::VboMesh( vertices.size(), indices.size(), layout, GL_TRIANGLES );
-	mVboMesh.bufferPositions( &vertices.front(), vertices.size() );
-	mVboMesh.bufferIndices( indices );
-	mVboMesh.bufferTexCoords2d( 0, texcoords );
+	mVboMesh = gl::VboMesh( mVertices.size(), mIndices.size(), layout, GL_TRIANGLES );
+	mVboMesh.bufferPositions( &mVertices.front(), mVertices.size() );
+	mVboMesh.bufferIndices( mIndices );
+	mVboMesh.bufferTexCoords2d( 0, mTexcoords );
 	//mVboMesh.bufferColorsRGBA( colors );
 
 	mInvalid = false;
 }
 
-Rectf Text::getBounds()
+Rectf Text::getBounds() const
 {
 	if(mBoundsInvalid) {
 		//mBounds = mMesh.calcBoundingBox();
@@ -246,6 +220,77 @@ Rectf Text::getBounds()
 	}
 
 	return mBounds;
+}
+
+std::string Text::getVertexShader() const
+{
+	// vertex shader
+	const char *vs = 
+		"#version 110\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	gl_FrontColor = gl_Color;\n"
+		"	gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+		"\n"
+		"	gl_Position = ftransform();\n"
+		"}\n";
+
+	return std::string(vs);
+}
+
+std::string Text::getFragmentShader() const
+{
+	// fragment shader
+	const char *fs = 
+		"#version 110\n"
+		"\n"
+		"uniform sampler2D	tex0;\n"
+		"\n"
+		"const float smoothness = 64.0;\n"
+		"const float gamma = 2.2;\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	// retrieve signed distance\n"
+		"	vec4 clr = texture2D( tex0, gl_TexCoord[0].xy );\n"
+		"	float sdf = clr.r;\n"
+		"\n"
+		"	// perform adaptive anti-aliasing of the edges\n"
+		"	float w = clamp( smoothness * (abs(dFdx(gl_TexCoord[0].x)) + abs(dFdy(gl_TexCoord[0].y))), 0.0, 0.5);\n"
+		"	float a = smoothstep(0.5-w, 0.5+w, sdf);\n"
+		"\n"
+		"	// gamma correction for linear attenuation\n"
+		"	a = pow(a, 1.0/gamma);\n"
+		"\n"
+		"	// final color\n"
+		"	gl_FragColor.rgb = gl_Color.rgb;\n"
+		"	gl_FragColor.a = gl_Color.a * a;\n"
+		"}\n";
+
+	return std::string(fs);
+}
+
+bool Text::bindShader()
+{
+	if( ! mShader ) 
+	{
+		try { mShader = gl::GlslProg( getVertexShader().c_str(), getFragmentShader().c_str() ); }
+		catch( const std::exception &e ) { mShader = gl::GlslProg(); return false; }
+	}
+
+	mShader.bind();
+	mShader.uniform( "tex0", 0 );
+
+	return true;
+}
+
+bool Text::unbindShader()
+{
+	if( mShader ) 
+		mShader.unbind();
+	
+	return true;
 }
 
 } } // namespace ph::text

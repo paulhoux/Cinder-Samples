@@ -36,6 +36,9 @@
     <ClCompile Include="..\include\text\Text.cpp">
       <Filter>Text Engine Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\include\text\TextLabels.cpp">
+      <Filter>Text Engine Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">
@@ -61,6 +64,9 @@
       <Filter>Text Engine Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\text\Text.h">
+      <Filter>Text Engine Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\text\TextLabels.h">
       <Filter>Text Engine Files</Filter>
     </ClInclude>
   </ItemGroup>
