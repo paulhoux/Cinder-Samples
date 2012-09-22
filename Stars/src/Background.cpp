@@ -18,7 +18,7 @@ Background::Background(void)
 	// roughly convert galactic coordinates of map to equatorial coordinates of stars
 	// by rotating the sphere on which the map is projected. The rotation angles were
 	// found using a celestial reference map.
-	mRotation = Vec3f(-60.3f, 81.9f, 22.0f);
+	mRotation = Vec3f(-60.2f, 83.7f, 23.5f);
 }
 
 Background::~Background(void)
@@ -139,7 +139,7 @@ void Background::create()
 void Background::setCameraDistance( float distance )
 {
 	static const float minimum = 0.01f;
-	static const float maximum = 0.3f;
+	static const float maximum = 1.0f;
 
 	if( distance > 300.0f ) {
 		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - 300.0f) / 200.0f );

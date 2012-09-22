@@ -5,7 +5,11 @@
 
 #include "Background.h"
 #include "Cam.h"
+#include "Constellations.h"
+#include "ConstellationLabels.h"
+#include "Conversions.h"
 #include "Grid.h"
+#include "Labels.h"
 #include "Stars.h"
 #include "UserInterface.h"
 
@@ -59,16 +63,21 @@ protected:
 	Cam				mCamera;
 
 	// graphical elements
-	Stars			mStars;
-	Background		mBackground;
-	Grid			mGrid;
-	UserInterface	mUserInterface;
+	Stars				mStars;
+	Labels				mLabels;
+	Constellations		mConstellations;
+	ConstellationLabels	mConstellationLabels;
+	Background			mBackground;
+	Grid				mGrid;
+	UserInterface		mUserInterface;
 
 	// animation timer
 	Timer			mTimer;
 
 	// 
 	bool			mIsGridVisible;
+	bool			mIsLabelsVisible;
+	bool			mIsConstellationsVisible;
 	bool			mIsCursorVisible;
 	bool			mIsStereoscopic;
 
@@ -98,18 +107,42 @@ void StarsApp::prepareSettings(Settings *settings)
 
 void StarsApp::setup()
 {
-	mTime = getElapsedSeconds();
+	//Conversions::mergeNames( loadAsset("hygxyz.csv"), loadAsset("StarsNames.txt") );
 
 	// create the spherical grid mesh
 	mGrid.setup();
 
 	// load the star database and create the VBO mesh
-	if( fs::exists( getAssetPath("") / "hygxyz.cdb" ) )
-		mStars.read( loadFile( getAssetPath("") / "hygxyz.cdb" ) );
+	if( fs::exists( getAssetPath("") / "stars.cdb" ) )
+		mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
 	else
 	{
-		mStars.load( loadAsset("hygxyz.csv") );
-		mStars.write( writeFile( getAssetPath("") / "hygxyz.cdb" ) );	
+		//mStars.load( loadAsset("hygxyz.csv") );
+		//mStars.write( writeFile( getAssetPath("") / "stars.cdb" ) );	
+	}
+
+	if( fs::exists( getAssetPath("") / "labels.cdb" ) )
+		mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
+	else
+	{
+		//mLabels.load( loadAsset("hygxyz.csv") );
+		//mLabels.write( writeFile( getAssetPath("") / "labels.cdb" ) );	
+	}
+
+	if( fs::exists( getAssetPath("") / "constellations.cdb" ) )
+		mConstellations.read( loadFile( getAssetPath("") / "constellations.cdb" ) );
+	else
+	{
+		//mConstellations.load( loadAsset("constellations.cln") );
+		//mConstellations.write( writeFile( getAssetPath("") / "constellations.cdb" ) );	
+	}
+
+	if( fs::exists( getAssetPath("") / "constellationlabels.cdb" ) )
+		mConstellationLabels.read( loadFile( getAssetPath("") / "constellationlabels.cdb" ) );
+	else
+	{
+		//mConstellationLabels.load( loadAsset("constlabel.cla") );
+		//mConstellationLabels.write( writeFile( getAssetPath("") / "constellationlabels.cdb" ) );	
 	}
 
 	// create user interface
@@ -127,11 +160,17 @@ void StarsApp::setup()
 
 	//
 	mIsGridVisible = false;
+	mIsLabelsVisible = false;
+	mIsConstellationsVisible = false;
 	mIsStereoscopic = false;
 
 	// create stars
 	mStars.setup();
 	mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+
+	// create labels
+	mLabels.setup();
+	mConstellationLabels.setup();
 
 	//
 	mMusicExtensions.push_back( ".flac" );
@@ -167,6 +206,8 @@ void StarsApp::setup()
 #else
 	forceShowCursor();
 #endif
+
+	mTime = getElapsedSeconds();
 }
 
 void StarsApp::shutdown()
@@ -187,8 +228,10 @@ void StarsApp::update()
 	mCamera.update(elapsed);
 
 	// update background and user interface
-	mBackground.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
-	mUserInterface.setCameraDistance( mCamera.getCamera().getEyePoint().length() );
+	float distance = mCamera.getCamera().getEyePoint().length();
+	mBackground.setCameraDistance( distance );
+	mConstellations.setCameraDistance( distance );
+	mUserInterface.setCameraDistance( distance );
 
 	//
 	if(mSoundEngine) {
@@ -232,6 +275,16 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw constellations
+			if(mIsConstellationsVisible) {
+				mConstellations.draw();
+				mConstellationLabels.draw();
+			}
+
+			// draw labels
+			if(mIsLabelsVisible)
+				mLabels.draw();
 		}
 		gl::popMatrices();
 	
@@ -253,6 +306,16 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw constellations
+			if(mIsConstellationsVisible) {
+				mConstellations.draw();
+				mConstellationLabels.draw();
+			}
+
+			// draw labels
+			if(mIsLabelsVisible)
+				mLabels.draw();
 		}
 		gl::popMatrices();
 	
@@ -275,6 +338,16 @@ void StarsApp::draw()
 
 			// draw stars
 			mStars.draw();
+
+			// draw constellations
+			if(mIsConstellationsVisible) {
+				mConstellations.draw();
+				mConstellationLabels.draw();
+			}
+
+			// draw labels
+			if(mIsLabelsVisible)
+				mLabels.draw();
 		}
 		gl::popMatrices();
 	
@@ -370,8 +443,16 @@ void StarsApp::keyDown( KeyEvent event )
 		// toggle grid
 		mIsGridVisible = !mIsGridVisible;
 		break;
+	case KeyEvent::KEY_l:
+		// toggle labels
+		mIsLabelsVisible = !mIsLabelsVisible;
+		break;
 	case KeyEvent::KEY_c:
-		// toggle cursor
+		// toggle constellations
+		mIsConstellationsVisible = !mIsConstellationsVisible;
+		break;
+	case KeyEvent::KEY_a:
+		// toggle cursor arrow
 		if(mIsCursorVisible) 
 			forceHideCursor();
 		else 
@@ -382,26 +463,26 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		break;
-		/*// 
-		case KeyEvent::KEY_KP7:
+	/*// 
+	case KeyEvent::KEY_KP7:
 		mBackground.rotateX(-0.05f);
 		break;
-		case KeyEvent::KEY_KP9:
+	case KeyEvent::KEY_KP9:
 		mBackground.rotateX(+0.05f);
 		break;
-		case KeyEvent::KEY_KP4:
+	case KeyEvent::KEY_KP4:
 		mBackground.rotateY(-0.05f);
 		break;
-		case KeyEvent::KEY_KP6:
+	case KeyEvent::KEY_KP6:
 		mBackground.rotateY(+0.05f);
 		break;
-		case KeyEvent::KEY_KP1:
+	case KeyEvent::KEY_KP1:
 		mBackground.rotateZ(-0.05f);
 		break;
-		case KeyEvent::KEY_KP3:
+	case KeyEvent::KEY_KP3:
 		mBackground.rotateZ(+0.05f);
 		break;
-		//*/
+	//*/
 	}
 }
 

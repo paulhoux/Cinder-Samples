@@ -19,9 +19,11 @@ Note: for the sample to play music, add MP3, WAV, OGG and/or FLAC files to the <
 * press <b>SPACE</b> to enable automatic camera animation
 * press <b>S</b> to toggle stereoscopic (side-by-side) 3D
 * press <b>G</b> to toggle the celestial grid
+* press <b>L</b> to toggle name labels
+* press <b>C</b> to toggle constellations
 * press <b>V</b> to toggle vertical sync
 * press <b>F</b> to toggle full screen
-* press <b>C</b> to show/hide the cursor
+* press <b>A</b> to show/hide the cursor arrow
 * press <b>ESC</b> to quit
 * press <b>MEDIA_NEXT_TRACK</b> to play the next song
 * press <b>MEDIA_PREV_TRACK</b> to play the previous song

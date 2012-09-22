@@ -1,6 +1,9 @@
 #pragma once
 
 #include "cinder/Color.h"
+#include "cinder/DataSource.h"
+#include "cinder/DataTarget.h"
+#include "cinder/Utilities.h"
 
 class Conversions
 {
@@ -11,6 +14,8 @@ public:
 	static ci::ColorA toColorA(uint32_t hex);
 	//! converts a string to an integer
 	static int toInt(const std::string &str);
+	//! converts a string to a float
+	static float toFloat(const std::string &str);
 	//! converts a string to a double
 	static double toDouble(const std::string &str);
 	//!
@@ -22,5 +27,8 @@ public:
 
 		return min + (frac * range);
 	};
+
+	//! merges a "Cartes du Ciel" file (StarNames.txt) with the HYG database CSV
+	static void mergeNames( ci::DataSourceRef hyg, ci::DataSourceRef ciel );
 };
 

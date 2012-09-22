@@ -13,8 +13,8 @@ Grid::~Grid(void)
 
 void Grid::setup()
 {
-	const int segments = 30;
-	const int rings = 15;
+	const int segments = 36;
+	const int rings = 9;
 	const int subdiv = 10;
 
 	const float radius = 2000.0f;
@@ -86,7 +86,7 @@ void Grid::draw()
 	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT );
 	
 	glLineWidth( 2.0f );
-	gl::color( Color(0.1f, 0.1f, 0.1f) );
+	gl::color( Color(0.5f, 0.6f, 0.8f) * 0.1f );
 
 	gl::enableAdditiveBlending();
 	gl::draw( mVboMesh );

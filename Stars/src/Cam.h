@@ -28,7 +28,7 @@ public:
 	void		setDistanceTime(double time) { mTimeDistanceTarget = time; }
 
 	void		setEyeSeparation( float distance ) { mCurrentCam.setEyeSeparation(distance); }
-	void		setFocalLength( float distance ) { mCurrentCam.setFocalLength(distance); }
+	void		setConvergence( float distance ) { mCurrentCam.setConvergence(distance); }
 
 	void		enableStereoLeft() { mCurrentCam.enableStereoLeft(); }
 	bool		isStereoLeftEnabled() const { return mCurrentCam.isStereoLeftEnabled(); }
