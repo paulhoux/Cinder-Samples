@@ -96,7 +96,7 @@ void Text::renderMesh()
 
 	// initialize variables
 	const float		space = mFont->getAdvance(32, mFontSize);
-	const float		height = getHeight() - mFont->getDescent(mFontSize);
+	const float		height = getHeight() > 0.0f ? (getHeight() - mFont->getDescent(mFontSize)) : 0.0f;
 	float			width, linewidth;
 	size_t			index = 0;
 	std::wstring	trimmed;
@@ -111,7 +111,7 @@ void Text::renderMesh()
 	// process text in chunks
 	std::vector<size_t>::iterator	mitr = mMust.begin();
 	std::vector<size_t>::iterator	aitr = std::find( mAllow.begin(), mAllow.end(), *mitr );
-	while( aitr != mAllow.end() && mitr != mMust.end() && (cursor.y < height || height == 0.0f) ) {
+	while( aitr != mAllow.end() && mitr != mMust.end() && (height == 0.0f || cursor.y <= height) ) {
 		// calculate the maximum allowed width for this line
 		linewidth = getWidthAt( cursor.y );
 
@@ -120,7 +120,7 @@ void Text::renderMesh()
 		width = mFont->measure( trimmed, mFontSize ).getX2();
 
 		// if they don't, remove the last chunk and try again until they all fit
-		while( width > linewidth && *aitr > index ) {
+		while( linewidth > 0.0f && width > linewidth && *aitr > index ) {
 			--aitr;
 
 			// perform fast approximation of width by subtracting last chunk

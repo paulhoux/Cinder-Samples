@@ -18,7 +18,7 @@ const double Cam::DISTANCE_MAX = 1000.0;
 Cam::Cam(void)
 {
 	mInitialCam = mCurrentCam = CameraStereo(); 
-	mCurrentCam.setNearClip( 0.01f );
+	mCurrentCam.setNearClip( 0.02f );
 	mCurrentCam.setFarClip( 5000.0f );
 	mCurrentCam.setEyeSeparation( 0.005f );
 
@@ -57,7 +57,7 @@ void Cam::update(double elapsed)
 		double fraction = (mTimeDistance) - math<double>::floor(mTimeDistance);
 		double period = 2.0 * M_PI * math<double>::clamp( fraction * 1.20 - 0.10, 0.0, 1.0 );
 		double f = cos( period );
-		double distance = 200.0 - 199.95 * f;
+		double distance = 100.0 - 99.95 * f;
 
 		// determine where to look
 		double longitude = t * 360.0 / 300.0;							// go around once every 300 seconds
@@ -119,7 +119,7 @@ void Cam::update(double elapsed)
 	}
 
 	// focus camera
-	mCurrentCam.setFocus( math<float>::min( 2.0f, 0.95f * mCurrentCam.getEyePoint().length() ) );
+	mCurrentCam.setConvergence( math<float>::min( 1.0f, 0.95f * mCurrentCam.getEyePoint().length() ), true );
 }
 
 void Cam::mouseDown( const Vec2i &mousePos )
