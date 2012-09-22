@@ -96,7 +96,7 @@ void Text::renderMesh()
 
 	// initialize variables
 	const float		space = mFont->getAdvance(32, mFontSize);
-	const float		height = getHeight();
+	const float		height = getHeight() - mFont->getDescent(mFontSize);
 	float			width, linewidth;
 	size_t			index = 0;
 	std::wstring	trimmed;
@@ -115,16 +115,23 @@ void Text::renderMesh()
 		// calculate the maximum allowed width for this line
 		linewidth = getWidthAt( cursor.y );
 
-		// measure chunk to see if it fits
+		// measure chunks to see if it fits
 		trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
 		width = mFont->measure( trimmed, mFontSize ).getX2();
 
-		// if it doesn't, remove the last chunk and try again until it fits
-		while( width > (linewidth - cursor.x) && *aitr > index ) {
+		// if they don't, remove the last chunk and try again until they all fit
+		while( width > linewidth && *aitr > index ) {
 			--aitr;
+
+			// perform fast approximation of width by subtracting last chunk
+			std::wstring chunk = mText.substr(*aitr, *(aitr+1) - *aitr);
+			width -= mFont->measure( chunk, mFontSize ).getX2();
 			
-			trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
-			width = mFont->measure( trimmed, mFontSize ).getX2();
+			// perform precise measurement only if approximation was less than linewidth
+			if( width <= linewidth ) {
+				trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+				width = mFont->measure( trimmed, mFontSize ).getX2();
+			}
 		}
 
 		// if any number of chunks fit on this line, render them
@@ -154,7 +161,7 @@ void Text::renderMesh()
 			// advance to a new line with perhaps more space
 			newLine(&cursor);
 
-			// try to render the remaining parts of this line
+			// try to render the remaining chunks of this line
 			aitr = std::find( aitr, mAllow.end(), *mitr );
 		}
 	}
@@ -275,8 +282,13 @@ bool Text::bindShader()
 {
 	if( ! mShader ) 
 	{
-		try { mShader = gl::GlslProg( getVertexShader().c_str(), getFragmentShader().c_str() ); }
-		catch( const std::exception &e ) { mShader = gl::GlslProg(); return false; }
+		try { 
+			mShader = gl::GlslProg( getVertexShader().c_str(), getFragmentShader().c_str() ); 
+		}
+		catch( const std::exception &e ) { 
+			app::console() << "Could not load&compile shader: " << e.what() << std::endl;
+			mShader = gl::GlslProg(); return false; 
+		}
 	}
 
 	mShader.bind();
