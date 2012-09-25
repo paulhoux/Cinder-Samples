@@ -36,7 +36,7 @@ public:
 	//!
 	typedef enum { LEFT, CENTER, RIGHT } Alignment;
 	//! Specifies the boundary used to break up text in word wrapping and other algorithms
-	typedef enum { NONE, LINE, WORD, SYLLABLE, CHARACTER } Boundary;
+	typedef enum { NONE, LINE, WORD } Boundary;
 public:
 	Text(void) : mInvalid(true), mBoundsInvalid(true),
 		mAlignment(LEFT), mBoundary(WORD), 

@@ -115,23 +115,31 @@ void Text::renderMesh()
 		// calculate the maximum allowed width for this line
 		linewidth = getWidthAt( cursor.y );
 
-		// measure chunks to see if it fits
-		trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
-		width = mFont->measure( trimmed, mFontSize ).getX2();
+		switch (mBoundary ) {
+		case LINE:
+			// aitr already points to mitr, thus the whole line is rendered
+			trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+			break;
+		case WORD:
+			// measure chunks to see if it fits
+			trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+			width = mFont->measure( trimmed, mFontSize ).getX2();
 
-		// if they don't, remove the last chunk and try again until they all fit
-		while( linewidth > 0.0f && width > linewidth && *aitr > index ) {
-			--aitr;
+			// if they don't, remove the last chunk and try again until they all fit
+			while( linewidth > 0.0f && width > linewidth && *aitr > index ) {
+				--aitr;
 
-			// perform fast approximation of width by subtracting last chunk
-			std::wstring chunk = mText.substr(*aitr, *(aitr+1) - *aitr);
-			width -= mFont->measure( chunk, mFontSize ).getX2();
+				// perform fast approximation of width by subtracting last chunk
+				std::wstring chunk = mText.substr(*aitr, *(aitr+1) - *aitr);
+				width -= mFont->measure( chunk, mFontSize ).getX2();
 			
-			// perform precise measurement only if approximation was less than linewidth
-			if( width <= linewidth ) {
-				trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
-				width = mFont->measure( trimmed, mFontSize ).getX2();
+				// perform precise measurement only if approximation was less than linewidth
+				if( width <= linewidth ) {
+					trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+					width = mFont->measure( trimmed, mFontSize ).getX2();
+				}
 			}
+			break;
 		}
 
 		// if any number of chunks fit on this line, render them
