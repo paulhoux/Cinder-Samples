@@ -64,20 +64,13 @@ void PostProcessingApp::prepareSettings( Settings *settings )
 void PostProcessingApp::setup()
 {
 	// load test image
-	try { 
-		mImage = gl::Texture( loadImage( loadAsset("test.png") ) );
-	}
-	catch(...){}
+	try { mImage = gl::Texture( loadImage( loadAsset("test.png") ) ); }
+	catch( const std::exception &e ) { console() << "Could not load image: " << e.what() << std::endl; }
 
 	// load post-processing shader
 	//  adapted from a shader by Iñigo Quílez ( http://www.iquilezles.org/ )
-	try {
-		mShader = gl::GlslProg( loadAsset("post_process_vert.glsl"), loadAsset("post_process_frag.glsl") );
-	}
-	catch( gl::GlslProgCompileExc e ) {
-		console() << "Could not compile shader: " << e.what() << std::endl;
-	}
-	catch(...) {}
+	try { mShader = gl::GlslProg( loadAsset("post_process_vert.glsl"), loadAsset("post_process_frag.glsl") ); }
+	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; quit(); }
 }
 
 void PostProcessingApp::update()
@@ -121,15 +114,8 @@ void PostProcessingApp::keyDown( KeyEvent event )
 		case KeyEvent::KEY_ESCAPE:
 			quit();
 			break;
-		case KeyEvent::KEY_F4:
-			if(event.isAltDown()) {
-				quit();
-			} 
-			break;
-		case KeyEvent::KEY_RETURN:
-			if(event.isAltDown()) {
-				setFullScreen( !isFullScreen() );
-			}
+		case KeyEvent::KEY_f:
+			setFullScreen( !isFullScreen() );
 			break;
 	}
 }
