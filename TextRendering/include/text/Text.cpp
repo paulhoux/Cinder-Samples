@@ -140,6 +140,9 @@ void Text::renderMesh()
 				}
 			}
 			break;
+		case NONE:
+			trimmed = boost::trim_copy( mText );
+			break;
 		}
 
 		// if any number of chunks fit on this line, render them

@@ -64,13 +64,14 @@ void Constellations::setCameraDistance( float distance )
 {
 	static const float minimum = 0.25f;
 	static const float maximum = 1.0f;
+	static const float range = 50.0f;
 
-	if( distance > 300.0f ) {
-		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - 300.0f) / 200.0f );
+	if( distance > range ) {
+		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - range) / range );
 		mAttenuation = math<float>::clamp( mAttenuation, 0.0f, maximum );
 	}
 	else {
-		mAttenuation = math<float>::clamp( 1.0f - math<float>::log10( distance ) / math<float>::log10(100.0f), minimum, maximum );
+		mAttenuation = math<float>::clamp( 1.0f - math<float>::log10( distance ) / math<float>::log10(range), minimum, maximum );
 	}
 }
 

@@ -155,7 +155,7 @@ std::string TextLabels::getVertexShader() const
 		"	// if the label is behind us, then don't draw the label (set alpha to zero)\n"
 		"	float a = (position.w < 0) ? 0.0 : gl_Color.a;\n"
 		"	// only draw labels close to the camera\n"
-		"	//a *= clamp( 1.0 - position.z * 0.02, 0.0, 1.0 );\n"
+		"	//a *= clamp( pow(1.0 - position.w * 0.01, 3.0), 0.0, 1.0 );\n"
 		"\n"
 		"	gl_FrontColor = vec4( gl_Color.rgb, a );\n"
 		"\n"

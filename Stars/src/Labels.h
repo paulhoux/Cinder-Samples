@@ -37,6 +37,8 @@ public:
 	virtual void setup();
 	virtual void update() {};
 	virtual void draw();
+	
+	virtual void setCameraDistance( float distance );
 
 	//! load a comma separated file containing the database
 	virtual void load( ci::DataSourceRef source );
@@ -47,5 +49,7 @@ public:
 	void	write( ci::DataTargetRef target );
 protected:
 	ph::text::TextLabels	mLabels;
+
+	float					mAttenuation;
 };
 

@@ -44,11 +44,26 @@ void ConstellationLabels::draw()
 {
 	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
 	gl::enableAdditiveBlending();
-	gl::color( Color(0.5f, 0.6f, 0.8f) );
+	gl::color( Color(0.5f, 0.6f, 0.8f) * mAttenuation );
 
 	mLabels.draw();
 
 	glPopAttrib();
+}
+
+void ConstellationLabels::setCameraDistance( float distance )
+{
+	static const float minimum = 0.25f;
+	static const float maximum = 1.0f;
+	static const float range = 10.0f;
+
+	if( distance > range ) {
+		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - range) / range );
+		mAttenuation = math<float>::clamp( mAttenuation, 0.0f, maximum );
+	}
+	else {
+		mAttenuation = math<float>::clamp( 1.0f - math<float>::log10( distance ) / math<float>::log10(range), minimum, maximum );
+	}
 }
 
 void ConstellationLabels::load( DataSourceRef source )

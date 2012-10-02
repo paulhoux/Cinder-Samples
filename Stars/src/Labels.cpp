@@ -60,11 +60,26 @@ void Labels::draw()
 {
 	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
 	gl::enableAdditiveBlending();
-	gl::color( Color::white() );
+	gl::color( Color::white() * mAttenuation );
 
 	mLabels.draw();
 
 	glPopAttrib();
+}
+
+void Labels::setCameraDistance( float distance )
+{
+	static const float minimum = 0.25f;
+	static const float maximum = 1.0f;
+	static const float range = 10.0f;
+
+	if( distance > range ) {
+		mAttenuation = ci::lerp<float>( minimum, 0.0f, (distance - range) / range );
+		mAttenuation = math<float>::clamp( mAttenuation, 0.0f, maximum );
+	}
+	else {
+		mAttenuation = math<float>::clamp( 1.0f - math<float>::log10( distance ) / math<float>::log10(range), minimum, maximum );
+	}
 }
 
 void Labels::load( DataSourceRef source )

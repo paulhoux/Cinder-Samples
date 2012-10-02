@@ -33,6 +33,8 @@ public:
 
 	void draw();
 
+	void setCameraDistance( float distance );
+
 	//! load a comma separated file containing the database
 	void	load( ci::DataSourceRef source );
 };

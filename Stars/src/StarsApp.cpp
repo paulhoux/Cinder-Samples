@@ -249,10 +249,12 @@ void StarsApp::update()
 	mCamera.setDistanceTime(time);
 	mCamera.update(elapsed);
 
-	// update background and user interface
+	// adjust content based on camera distance
 	float distance = mCamera.getCamera().getEyePoint().length();
 	mBackground.setCameraDistance( distance );
+	mLabels.setCameraDistance( distance );
 	mConstellations.setCameraDistance( distance );
+	mConstellationLabels.setCameraDistance( distance );
 	mUserInterface.setCameraDistance( distance );
 
 	//
