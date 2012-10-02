@@ -366,11 +366,10 @@ Vec2f Node::project(float x, float y) const
 	Area		viewport = gl::getViewport();
 	Matrix44f	projection = gl::getProjection();
 
-	// since we don't have GLU, we have to do the calculation ourselves:
-	// -find the modelview-projection-matrix
+	// find the modelview-projection-matrix
 	Matrix44f mvp = projection * mWorldTransform;
 
-	// -transform object-space to normalized clip-space coordinates [-1, 1]
+	//
 	Vec4f in(x, y, 0.0f, 1.0f);
 
 	Vec4f out = mvp * in;
@@ -380,7 +379,7 @@ Vec2f Node::project(float x, float y) const
 	out.y *= out.w;
 	out.z *= out.w;
 
-	// -calculate screen-space coordinates
+	// map to window coordinates
 	Vec2f result;
 	result.x = viewport.getX1() + viewport.getWidth() * (out.x + 1.0f) / 2.0f;
 	result.y = viewport.getY1() + viewport.getHeight() * (1.0f - (out.y + 1.0f) / 2.0f);
@@ -398,7 +397,7 @@ Vec3f Node::unproject(float x, float y, float z) const
 
 	// find the inverse modelview-projection-matrix
 	Matrix44f mvp = projection * mWorldTransform;
-	mvp.invert(1.0e-7f);
+	mvp.invert(5.96e-8f);
 
 	// map x and y from window coordinates
 	Vec4f in(x, float(viewport.getHeight()) - y - 1.0f, z, 1.0f);
@@ -551,7 +550,7 @@ Vec2f Node2D::parentToScreen( const Vec2f &pt ) const
 
 Vec2f Node2D::parentToObject( const Vec2f &pt ) const
 {
-	Vec3f p = mTransform.inverted().transformPointAffine( Vec3f(pt, 0.0f) );
+	Vec3f p = mTransform.inverted(5.96e-8f).transformPointAffine( Vec3f(pt, 0.0f) );
 	return Vec2f(p.x, p.y);
 }
 
