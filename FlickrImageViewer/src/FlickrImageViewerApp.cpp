@@ -1,9 +1,14 @@
 /*
- Copyright (C)2011 Paul Houx
- All rights reserved.
+ Copyright (c) 2010-2012, Paul Houx - All rights reserved.
+ This code is intended for use with the Cinder C++ library: http://libcinder.org
 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted without specific prior written permission.
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+ the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -16,6 +21,7 @@
 */
 
 #include "cinder/CinderMath.h"
+#include "cinder/Display.h"
 #include "cinder/Xml.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
@@ -58,7 +64,7 @@ void FlickrImageViewerApp::prepareSettings( Settings *settings )
 {
 	settings->setWindowSize(600, 600);
 	settings->setTitle("Flickr Image Viewer");
-	settings->setFrameRate(60.0f);
+	settings->setFrameRate(300.0f);
 
 	// run in windowed mode and watch the Output messages window to learn
 	// more about asynchronous loading. Press 'F" to toggle full screen.
@@ -68,6 +74,10 @@ void FlickrImageViewerApp::prepareSettings( Settings *settings )
 
 void FlickrImageViewerApp::setup()
 {
+	DisplayRef display = Display::getMainDisplay();
+	console() << display->getMonitorID() << std::endl;
+	console() << display->getMonitorString() << std::endl;
+
 	// which image are we viewing next?
 	mIndex = 0;
 
@@ -234,6 +244,13 @@ void FlickrImageViewerApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_v:
 		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
 		break;
+
+	case KeyEvent::KEY_0: setFrameRate( 1.0f ); break;
+	case KeyEvent::KEY_1: setFrameRate( 15.0f ); break;
+	case KeyEvent::KEY_2: setFrameRate( 60.0f ); break;
+	case KeyEvent::KEY_3: setFrameRate( 100.0f ); break;
+	case KeyEvent::KEY_4: setFrameRate( 300.0f ); break;
+	case KeyEvent::KEY_5: setFrameRate( 500.0f ); break;
 	}
 }
 
