@@ -1,6 +1,9 @@
 Stars
 =============
 
+Note: at the moment this sample needs code from several commits to the Cinder framework in order to compile successfully. As a sample it has grown out of proportion :) To compile, check out the 'stereoscopic' branch on the Cinder repository, then merge (without committing) the 'paulhoux:unicode_linebreak' branch and recompile Cinder. In the near future, this will be made easier.
+
+
 This sample will show you how to:
 * render advanced, animated point sprites using shaders
 * construct VBO meshes that are not GL_TRIANGLES like TriMesh
