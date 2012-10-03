@@ -114,6 +114,10 @@
   <ItemGroup>
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\assets\shaders\phong_frag.glsl" />
+    <None Include="..\assets\shaders\phong_vert.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

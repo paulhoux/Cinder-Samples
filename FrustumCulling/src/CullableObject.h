@@ -32,7 +32,7 @@ typedef std::shared_ptr<class CullableObject> CullableObjectRef;
 class CullableObject
 {
 public:
-	CullableObject(ci::gl::VboMesh mesh, ci::gl::Texture diffuse, ci::gl::Texture normal, ci::gl::Texture specular);
+	CullableObject(ci::gl::VboMesh mesh);
 	virtual ~CullableObject(void);
 
 	void setup();
@@ -57,13 +57,10 @@ protected:
 	//! and can be used to easily calculate the world space bounding box
 	ci::Matrix44f	mTransform;
 
-	//! gl::Texture and gl::VboMesh both are implicitly shared pointers,
-	//		so when passing them from FrustumCullingReduxApp to this CullableObject class,
-	//		we are not making a copy, but simply keep a reference to the same mesh
-	//		and textures. In the near future, Texture may be renamed to TextureRef and
-	//		VboMesh may become VboMeshRef for clarity.
-	const ci::gl::Texture	mDiffuse;
-	const ci::gl::Texture	mNormal;
-	const ci::gl::Texture	mSpecular;
+	//! a gl::VboMesh is an implicitly shared pointer,
+	//	so when passing them from FrustumCullingReduxApp to this CullableObject class,
+	//	we are not making a copy, but simply keep a reference to the same mesh
+	//	and textures. In the near future, Texture may be renamed to TextureRef and
+	//	VboMesh may become VboMeshRef for clarity.
 	const ci::gl::VboMesh	mVboMesh;
 };

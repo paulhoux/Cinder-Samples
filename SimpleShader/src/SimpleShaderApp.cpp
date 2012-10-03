@@ -64,8 +64,10 @@ void SimpleShaderApp::update()
 
 void SimpleShaderApp::draw()
 {	
+	// clear the window
 	gl::clear();
 
+	// bind the shader and tell it which texture units to use (see: shader_frag.glsl)
 	mShader.bind();
 	mShader.uniform("tex0", 0);	
 	mShader.uniform("tex1", 1);
@@ -80,6 +82,11 @@ void SimpleShaderApp::draw()
 	// now run the shader for every pixel in the window
 	// by drawing a full screen rectangle
 	gl::drawSolidRect( Rectf( getWindowBounds() ), false );
+
+	// unbind textures and shader
+	mTexture1.unbind();
+	mTexture0.unbind();
+	mShader.unbind();
 }
 
 CINDER_APP_BASIC( SimpleShaderApp, RendererGl )

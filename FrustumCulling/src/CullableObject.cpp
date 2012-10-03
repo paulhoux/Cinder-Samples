@@ -24,8 +24,8 @@
 
 using namespace ci;
 
-CullableObject::CullableObject(ci::gl::VboMesh mesh, ci::gl::Texture diffuse, ci::gl::Texture normal, ci::gl::Texture specular)
-	: mVboMesh(mesh), mDiffuse(diffuse), mNormal(normal), mSpecular(specular), bIsCulled(false)
+CullableObject::CullableObject(ci::gl::VboMesh mesh)
+	: mVboMesh(mesh), bIsCulled(false)
 {
 	setTransform( Vec3f::zero(), Vec3f::zero(), Vec3f::one() * 0.10f );
 }
@@ -54,23 +54,11 @@ void CullableObject::draw()
 	if(mVboMesh) {
 		gl::color( Color::white() );
 
-		//! enable and bind the textures (optional, not used)
-		gl::enable(GL_TEXTURE_2D);
-		if(mDiffuse) mDiffuse.bind(0);
-		if(mNormal) mNormal.bind(1);
-		if(mSpecular) mSpecular.bind(2);
-
 		//! draw the mesh 
 		gl::pushModelView();
 		gl::multModelView(mTransform);
 		gl::draw( mVboMesh );
 		gl::popModelView();
-
-		//! unbind the textures (optional, not used)
-		if(mSpecular) mSpecular.unbind();
-		if(mNormal) mNormal.unbind();
-		if(mDiffuse) mDiffuse.unbind();
-		gl::disable(GL_TEXTURE_2D);
 	}
 }
 
