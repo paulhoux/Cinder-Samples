@@ -39,7 +39,7 @@ protected:
 void TextRenderingApp::prepareSettings(Settings *settings)
 {
 	settings->setFrameRate(200.0f);
-	settings->setWindowSize(640, 720);
+	settings->setWindowSize(720, 720);
 }
 
 void TextRenderingApp::setup()
@@ -52,17 +52,17 @@ void TextRenderingApp::setup()
 
 	try { 
 		// load fonts using the FontStore
-		fonts().loadFont( loadAsset("fonts/BubblegumSans-Regular.sdff") ); 
+		fonts().loadFont( loadAsset("fonts/Walter Turncoat.sdff") ); 
 
 		// create a text box (rectangular text area)
 		mTextBox = TextBox( getWindowSize() );
 		// set font and font size
-		mTextBox.setFont( fonts().getFont("BubblegumSans-Regular") );
-		mTextBox.setFontSize( 24.0f );
+		mTextBox.setFont( fonts().getFont("Walter Turncoat") );
+		mTextBox.setFontSize( 18.0f );
 		// break lines between words
 		mTextBox.setBoundary( Text::WORD );
 		// adjust space between lines
-		mTextBox.setLineSpace( 1.0f );
+		mTextBox.setLineSpace( 1.1f );
 
 		// load a long text and hand it to the text box
 		mTextBox.setText( loadString( loadAsset("fonts/readme.txt") ) );

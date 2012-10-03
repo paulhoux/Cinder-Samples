@@ -20,6 +20,9 @@ The post-processing will make your image or movie look as if it was projected us
 All kudo's for the shader should go to Iñigo Quílez (http://www.iquilezles.org/). See the ShaderToy in the "Lemon" section of his website.
 
 
+For more information, see: http://forum.libcinder.org/topic/problems-loading-glsl-from-disk-resource#23286000000775003
+
+
 <u>Controls:</u>
 * press <b>F</b> to toggle full screen
 * press <b>ESC</b> to quit

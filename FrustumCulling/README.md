@@ -7,6 +7,9 @@ This sample will show you how to:
 * use frustum culling to render this complex scene efficiently
 
 
+For more information, see: http://forum.libcinder.org/topic/easier-frustum-culling
+
+
 <u>Controls:</u>
 * use the <b>mouse</b> to control the camera
 * press <b>SPACE</b> to freeze the culling camera
