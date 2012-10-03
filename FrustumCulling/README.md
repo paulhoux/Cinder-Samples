@@ -13,6 +13,8 @@ This sample will show you how to:
 * press <b>V</b> to toggle vertical sync
 * press <b>F</b> to toggle full screen
 * press <b>W</b> to toggle wire frames
+* press <b>B</b> to toggle estimated bounding boxes
+* press <b>Shift+B</b> to toggle exact bounding boxes
 * press <b>ESC</b> to quit
 
 
