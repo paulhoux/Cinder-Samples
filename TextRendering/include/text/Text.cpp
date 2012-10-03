@@ -186,22 +186,25 @@ void Text::renderString( const std::wstring &str, Vec2f *cursor )
 		uint16_t id = (uint16_t) *itr;
 
 		if( mFont->contains(id) ) {
-			size_t index = mVertices.size();
+			// skip whitespace characters
+			if( ! isWhitespaceUtf16(id) ) {
+				size_t index = mVertices.size();
 
-			Rectf bounds = mFont->getBounds(id, mFontSize);
-			mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
+				Rectf bounds = mFont->getBounds(id, mFontSize);
+				mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
 			
-			bounds = mFont->getTexCoords(id);
-			mTexcoords.push_back( bounds.getUpperLeft() );
-			mTexcoords.push_back( bounds.getUpperRight() );
-			mTexcoords.push_back( bounds.getLowerRight() );
-			mTexcoords.push_back( bounds.getLowerLeft() );
+				bounds = mFont->getTexCoords(id);
+				mTexcoords.push_back( bounds.getUpperLeft() );
+				mTexcoords.push_back( bounds.getUpperRight() );
+				mTexcoords.push_back( bounds.getLowerRight() );
+				mTexcoords.push_back( bounds.getLowerLeft() );
 
-			mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
-			mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
+				mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
+				mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
+			}
 
 			cursor->x += mFont->getAdvance(id, mFontSize);
 		}

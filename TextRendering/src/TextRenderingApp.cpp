@@ -52,12 +52,12 @@ void TextRenderingApp::setup()
 
 	try { 
 		// load fonts using the FontStore
-		fonts().loadFont( loadAsset("fonts/Walter Turncoat.sdff") ); 
+		fonts().loadFont( loadAsset("fonts/WalterTurncoat.sdff") ); 
 
 		// create a text box (rectangular text area)
 		mTextBox = TextBox( getWindowSize() );
 		// set font and font size
-		mTextBox.setFont( fonts().getFont("Walter Turncoat") );
+		mTextBox.setFont( fonts().getFont("WalterTurncoat") );
 		mTextBox.setFontSize( 18.0f );
 		// break lines between words
 		mTextBox.setBoundary( Text::WORD );
