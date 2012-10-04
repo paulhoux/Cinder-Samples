@@ -23,6 +23,7 @@
 #include "NodeRectangle.h"
 
 #include "cinder/Rand.h"
+#include "cinder/app/AppBasic.h"
 
 using namespace ci;
 using namespace ci::app;

@@ -21,6 +21,7 @@
 */
 
 #include "nodes/Node.h"
+#include "cinder/app/AppBasic.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -311,6 +312,31 @@ bool Node::treeMouseUp( MouseEvent event )
 	return handled;
 }
 
+bool Node::mouseMove( MouseEvent event )
+{
+	return false; 
+}
+
+bool Node::mouseDown( MouseEvent event )
+{
+	return false; 
+}
+
+bool Node::mouseDrag( MouseEvent event )
+{
+	return false; 
+}
+
+bool Node::mouseUp( MouseEvent event )
+{
+	return false; 
+}
+
+bool Node::mouseUpOutside( MouseEvent event )
+{
+	return false; 
+}
+
 bool Node::treeKeyDown( KeyEvent event )
 {
 	if(!mIsVisible) return false;
@@ -345,6 +371,16 @@ bool Node::treeKeyUp( KeyEvent event )
 	return handled;
 }
 
+bool Node::keyDown( KeyEvent event )
+{
+	return false; 
+}
+
+bool Node::keyUp( KeyEvent event )
+{
+	return false; 
+}
+
 bool Node::treeResize( ResizeEvent event )
 {
 	// test children first, from top to bottom
@@ -358,6 +394,11 @@ bool Node::treeResize( ResizeEvent event )
 	if(!handled) handled = resize(event);
 
 	return handled;
+}
+
+bool Node::resize( ResizeEvent event )
+{
+	return false; 
 }
 
 Vec2f Node::project(float x, float y) const
@@ -442,77 +483,6 @@ Node2D::~Node2D(void)
 {
 }
 
-void Node2D::setViewport(int w, int h)
-{
-	// Set the viewport, so nothing will be drawn outside this node.
-	// Assumes node is unrotated! Functionality has not been tested through-and-through,
-	// use at your own risk.
-
-	// calculate correct screen area
-	Vec2f upperLeft = objectToScreen(Vec2f(0, 0));
-	Vec2f lowerRight = objectToScreen(Vec2f((float) w, (float) h));
-	Area viewport = Area((int) floorf(upperLeft.x), (int) floorf(upperLeft.y), 
-		(int) ceilf(lowerRight.x), (int) ceilf(lowerRight.y));	
-
-	// store current viewport
-	if(!mRestoreViewport)
-	{
-		mRestoreViewport = true;
-		glGetIntegerv(GL_VIEWPORT, mStoredViewport);
-	}
-
-	gl::setViewport(viewport);
-}
-
-void Node2D::resetViewport()
-{	
-	if(!mRestoreViewport) return;
-
-	glViewport(mStoredViewport[0], mStoredViewport[1], mStoredViewport[2], mStoredViewport[3]);
-	mRestoreViewport = false;
-}
-
-void Node2D::enableScissor(float x, float y, float w, float h)
-{
-	// Enable scissoring, so nothing will be drawn outside this node.
-	// Assumes node is unrotated! Functionality has not been tested through-and-through,
-	// use at your own risk.
-	
-	// calculate correct screen area
-	Vec2f upperLeft = objectToScreen(Vec2f(x, y));
-	Vec2f lowerRight = objectToScreen(Vec2f(x+w, y+h));
-
-	// by rounding, we prevent pixels from bleeding at the edges
-	Area bounds = Area((int) ceilf(upperLeft.x), (int) ceilf(upperLeft.y), 
-		(int) floorf(lowerRight.x), (int) floorf(lowerRight.y));
-
-	// store current scissor box
-	if(!mIsScissorEnabled)
-	{
-		mRestoreScissor = glIsEnabled(GL_SCISSOR_TEST);
-		glGetIntegerv(GL_SCISSOR_BOX, mStoredScissor);
-	}
-
-	// enable scissoring
-	Area viewport = gl::getViewport();
-	glScissor(bounds.x1, viewport.y2 - bounds.y2, bounds.getWidth(), bounds.getHeight());
-	glEnable(GL_SCISSOR_TEST);
-
-	mIsScissorEnabled = true;
-}
-
-void Node2D::disableScissor()
-{
-	if(!mIsScissorEnabled) return;
-
-	if(mRestoreScissor)
-		glScissor(mStoredScissor[0], mStoredScissor[1], mStoredScissor[2], mStoredScissor[3]);
-	else
-		glDisable(GL_SCISSOR_TEST);
-
-	mIsScissorEnabled = false;
-}
-
 Vec2f Node2D::screenToParent( const Vec2f &pt ) const
 {
 	Vec2f p = pt;
@@ -561,32 +531,7 @@ Vec2f Node2D::objectToParent( const Vec2f &pt ) const
 }
 
 Vec2f Node2D::objectToScreen( const Vec2f &pt ) const
-{/*
-	Matrix44f	projection = gl::getProjection();
-	Area		viewport = gl::getViewport();
-
-	Matrix44f mvp = projection * mWorldTransform;
-
-	Vec4f in;
-	in.x = pt.x;
-	in.y = pt.y;
-	in.z = 0.0f;
-	in.w = 1.0f;
-
-	Vec4f out = mvp * in;
-	if(out.w != 0.0f) out.w = 1.0f / out.w;
-	out.x *= out.w;
-	out.y *= out.w;
-	out.z *= out.w;
-
-	Vec2f result;
-	result.x = viewport.getX1() + viewport.getWidth() * (out.x + 1.0f) / 2.0f;
-	result.y = viewport.getY1() + viewport.getHeight() * (1.0f - (out.y + 1.0f) / 2.0f);
-	//result.z = (out.z + 1.0f) / 2.0f;
-
-	return result;
-	*/
-
+{
 	return project(pt);
 }
 
@@ -598,48 +543,12 @@ Node3D::Node3D(void)
 	mRotation	= Quatf::identity();
 	mScale		= Vec3f::one();
 	mAnchor		= Vec3f::zero();
-
-	//mBoundingBox = AxisAlignedBox3f( ci::Vec3f::zero(), ci::Vec3f::zero() );
 }
 
 Node3D::~Node3D(void)
 {
 }
-/*
-void Node3D::treeDraw()
-{
-	if(!mIsVisible) return;
 
-	// let derived class know we are about to draw stuff
-	predraw();
-
-	// apply transform
-	gl::pushModelView();
-
-	// usual way to update modelview matrix
-	gl::multModelView( mTransform );
-
-	// 
-	glPushName(mUUID);
-
-	// draw this node by calling derived class
-	draw();
-
-	// draw this node's children
-	NodeList::iterator itr;
-	for(itr=mChildren.begin();itr!=mChildren.end();++itr)
-		(*itr)->treeDraw();
-
-	//
-	glPopName();
-	
-	// restore transform
-	gl::popModelView();
-
-	// let derived class know we are done drawing
-	postdraw();
-}
-*/
 void Node3D::treeDrawWireframe()
 {
 	if(!mIsVisible) return;

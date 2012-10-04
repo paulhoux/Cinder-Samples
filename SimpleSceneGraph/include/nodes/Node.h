@@ -22,13 +22,21 @@
 
 #pragma once
 
-#include "cinder/AxisAlignedBox.h"
-#include "cinder/Camera.h"
+// forward declarations
+namespace cinder {
+	class AxisAlignedBox; 
+	class Camera; class CameraPersp; class CameraStereo; class CameraOrtho;
+	namespace app {
+		class MouseEvent; class KeyEvent; class ResizeEvent; class FileDropEvent;
+	}
+}
+
+//#include "cinder/AxisAlignedBox.h"
+//#include "cinder/Camera.h"
 #include "cinder/Color.h"
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
 #include "cinder/Vector.h"
-#include "cinder/app/AppBasic.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Material.h"
 
@@ -172,26 +180,26 @@ public:
 	//! calls the mouseUp() function of this node and all its decendants until a TRUE is passed back
 	virtual bool treeMouseUp( ci::app::MouseEvent event );
 
-	virtual bool mouseMove( ci::app::MouseEvent event ){ return false; }
-	virtual bool mouseDown( ci::app::MouseEvent event ){ return false; }
-	virtual bool mouseDrag( ci::app::MouseEvent event ){ return false; }
-	virtual bool mouseUp( ci::app::MouseEvent event ){ return false; }
+	virtual bool mouseMove( ci::app::MouseEvent event );
+	virtual bool mouseDown( ci::app::MouseEvent event );
+	virtual bool mouseDrag( ci::app::MouseEvent event );
+	virtual bool mouseUp( ci::app::MouseEvent event );
 
 	// support for easy picking system
-	virtual bool mouseUpOutside( ci::app::MouseEvent event ){ return false; }
+	virtual bool mouseUpOutside( ci::app::MouseEvent event );
 	
 	//! calls the keyDown() function of this node and all its decendants until a TRUE is passed back
 	virtual bool treeKeyDown( ci::app::KeyEvent event );
 	//! calls the keyUp() function of this node and all its decendants until a TRUE is passed back
 	virtual bool treeKeyUp( ci::app::KeyEvent event );
 
-	virtual bool keyDown( ci::app::KeyEvent event ){ return false; }
-	virtual bool keyUp( ci::app::KeyEvent event ){ return false; }
+	virtual bool keyDown( ci::app::KeyEvent event );
+	virtual bool keyUp( ci::app::KeyEvent event );
 
 	//! calls the resize() function of this node and all its decendants until a TRUE is passed back
 	bool treeResize( ci::app::ResizeEvent event );
 
-	virtual bool resize( ci::app::ResizeEvent event ){ return false; }
+	virtual bool resize( ci::app::ResizeEvent event );
 
 	// stream support
 	virtual inline std::string toString() const { return "Node"; }
@@ -320,14 +328,6 @@ public:
 	virtual void		setSize(float w, float h){ mWidth=w; mHeight=h; }
 	virtual void		setSize( const ci::Vec2i &size ){ mWidth=(float)size.x; mHeight=(float)size.y; }
 	virtual void		setBounds( const ci::Rectf &bounds ){ mWidth=bounds.getWidth(); mHeight=bounds.getHeight(); }
-
-	//
-	void setViewport(int w, int h);
-	void resetViewport();
-
-	//
-	void enableScissor(float x, float y, float w, float h);
-	void disableScissor();	
 
 	// conversions from screen to world to object coordinates and vice versa
 	virtual ci::Vec2f screenToParent( const ci::Vec2f &pt ) const ;
