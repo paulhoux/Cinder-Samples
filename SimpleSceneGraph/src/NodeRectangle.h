@@ -37,13 +37,17 @@ class NodeRectangle
 	: public ph::nodes::Node2D
 {
 public:
+	typedef enum { UNTOUCHED, DRAGGING, SCALING, ROTATING } TouchMode;
+
 	NodeRectangle(void);
 	virtual ~NodeRectangle(void);
 
 	//! The nodes support Cinder's game loop methods:
-	//! setup(), shutdown(), update(), draw(). Note that
-	//! the update method takes a double "elapsed time"!
-	void update( double elapsed );
+	//! setup(), shutdown(), update(), draw().
+	//! Note that the update() method takes a double,
+	//! which is the elapsed time since last update in seconds.
+	void setup();
+	void update( double elapsed=0.0 );
 	void draw();
 
 	//! The nodes support Cinder's event methods:
@@ -52,8 +56,14 @@ public:
 	bool mouseDown( ci::app::MouseEvent event );
 	bool mouseDrag( ci::app::MouseEvent event );
 	bool mouseUp( ci::app::MouseEvent event );
+
 protected:
-	bool		mIsDragged;
-	ci::Vec2f	mOffset;
-	ci::Color	mColor;
+	TouchMode		mTouchMode;
+
+	ci::Vec2f		mInitialPosition;
+	ci::Quatf		mInitialRotation;
+	ci::Vec2f		mInitialScale;
+	
+	ci::Vec2f		mInitialMouse;
+	ci::Vec2f		mCurrentMouse;
 };

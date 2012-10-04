@@ -34,7 +34,9 @@ unsigned int	Node::uuidCount = 1;
 NodeMap			Node::uuidLookup;
 
 Node::Node(void)
-	: mUuid(uuidCount), mIsVisible(true), mIsClickable(true), mIsTransformInvalidated(true)
+	: mUuid(uuidCount), 
+	mIsVisible(true), mIsClickable(true), mIsSelected(false), mIsSetup(false),
+	mIsTransformInvalidated(true)
 {
 	// default constructor for [Node]
 	nodeCount++;
@@ -214,6 +216,11 @@ void Node::treeDraw()
 {
 	if(!mIsVisible) 
 		return;
+
+	if(!mIsSetup) {
+		setup();
+		mIsSetup = true;
+	}
 
 	// update transform matrix by calling derived class's function
 	if(mIsTransformInvalidated) transform();
@@ -438,7 +445,7 @@ Vec3f Node::unproject(float x, float y, float z) const
 
 	// find the inverse modelview-projection-matrix
 	Matrix44f mvp = projection * mWorldTransform;
-	mvp.invert(5.96e-8f);
+	mvp.invert(0.0f);
 
 	// map x and y from window coordinates
 	Vec4f in(x, float(viewport.getHeight()) - y - 1.0f, z, 1.0f);
@@ -473,10 +480,6 @@ Node2D::Node2D(void)
 	mAnchor		= Vec2f::zero();
 
 	mAnchorIsPercentage = false;
-
-	mRestoreViewport = false;
-	mIsScissorEnabled = false;
-	mRestoreScissor = false;
 }
 
 Node2D::~Node2D(void)

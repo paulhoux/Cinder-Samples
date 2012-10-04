@@ -30,16 +30,18 @@ using namespace ci::app;
 using namespace ph::nodes;
 
 NodeRectangle::NodeRectangle(void)
+	: mTouchMode(UNTOUCHED)
 {
-	mIsDragged = false;
-	mColor = Color::white();
-
-	// apply random rotation 
-	setRotation( toRadians( Rand::randFloat(-15.0f, 15.0f) ) );
 }
 
 NodeRectangle::~NodeRectangle(void)
 {
+}
+
+void NodeRectangle::setup()
+{
+	// apply random rotation on setup
+	setRotation( toRadians( Rand::randFloat(-15.0f, 15.0f) ) );
 }
 
 void NodeRectangle::update(double elapsed)
@@ -57,7 +59,7 @@ void NodeRectangle::draw()
 	gl::disableAlphaBlending();
 
 	// draw frame
-	gl::color( mColor );
+	gl::color( (mTouchMode!=UNTOUCHED) ? Color(1,1,0) : mIsSelected ? Color(0,1,0) : Color(1,1,1) );
 	gl::drawStrokedRect( bounds );
 
 	// draw lines to the origin of each child
@@ -65,64 +67,84 @@ void NodeRectangle::draw()
 	NodeRectangleList nodes = getChildren<NodeRectangle>();
 	NodeRectangleList::iterator itr;
 	for(itr=nodes.begin(); itr!=nodes.end(); ++itr) 
-		gl::drawLine( Vec2f::zero(), (*itr)->getPosition() );
+		gl::drawLine( getAnchor(), (*itr)->getPosition() );
 }
 
 bool NodeRectangle::mouseMove(MouseEvent event)
 {
-	// The event specifies the mouse coordinates in screen space,
-	// and our node position is specified in parent space. So, transform coordinates
-	// from one space to the other using the built-in methods.
-
-	// check if mouse is inside node (screen space -> object space)
+	// check if mouse is inside node (convert from screen space to object space)
 	Vec2f pt = screenToObject( event.getPos() );
-	if( getBounds().contains(pt) ) 
-		mColor = Color(0, 1, 0);
-	else if( mIsDragged )
-		mColor = Color(1, 1, 0);
-	else
-		mColor = Color(1, 1, 1);
 
+	// select node if mouse is inside
+	setSelected( getBounds().contains(pt) );
+
+	// keep doing this for all remaining nodes
 	return false;
 }
 
 bool NodeRectangle::mouseDown(MouseEvent event)
-{
-	// The event specifies the mouse coordinates in screen space,
-	// and our node position is specified in parent space. So, transform coordinates
-	// from one space to the other using the built-in methods.
-	
-	// check if we clicked inside node (screen space -> object space)
+{	
+	// check if mouse is inside node (convert from screen space to object space)
 	Vec2f pt = screenToObject( event.getPos() );
 	if(! getBounds().contains(pt) ) return false;
 
-	mColor = Color(1, 1, 0);
+	// The event specifies the mouse coordinates in screen space,
+	// and our node position is specified in parent space. So, transform coordinates
+	// from one space to the other using the built-in methods.
+	mCurrentMouse = screenToParent( event.getPos() ) - getPosition();
+	mInitialMouse = mCurrentMouse;
 
-	// calculate click offset
-	mOffset = screenToParent( event.getPos() ) - getPosition();
-	mIsDragged = true;
+	mInitialPosition = getPosition();
+	mInitialRotation = getRotation();
+	mInitialScale = getScale();
+
+	// drag if clicked with left, scale if clicked with middle, rotate if clicked with right
+	if( event.isLeftDown() )
+		mTouchMode = DRAGGING;
+	else if( event.isMiddleDown() )
+		mTouchMode = SCALING;
+	else if( event.isRightDown() )
+		mTouchMode = ROTATING;
 
 	return true;
 }
 
 bool NodeRectangle::mouseDrag(MouseEvent event)
 {
-	if(!mIsDragged) return false;
-
 	// The event specifies the mouse coordinates in screen space,
 	// and our position is specified in parent space. So, transform coordinates
 	// from one space to the other using the built-in methods.
-	Vec2f pt = screenToParent( event.getPos() ) - mOffset;
-	setPosition( pt );
+	mCurrentMouse = screenToParent( event.getPos() ) - mInitialPosition;
 
-	return true;
+	switch(mTouchMode) {
+	case DRAGGING:		
+		setPosition( mInitialPosition + (mCurrentMouse - mInitialMouse) );
+		return true;
+	case SCALING:
+		{
+			float d0 = (mInitialMouse).length();
+			float d1 = (mCurrentMouse).length();
+			setScale( mInitialScale * (d1 / d0) );
+		}
+		break;
+	case ROTATING:
+		{
+			// calculate angle with x-axis of initial mouse
+			float a0 = math<float>::atan2( mInitialMouse.y, mInitialMouse.x );
+			// calculate angle with x-axis of current mouse
+			float a1 = math<float>::atan2( mCurrentMouse.y, mCurrentMouse.x );
+			// add the angle difference to the rotation angle
+			setRotation( mInitialRotation.getAngle() + (a1 - a0) );
+		}
+		return true;
+	}
+
+	return false;
 }
 
 bool NodeRectangle::mouseUp(MouseEvent event)
 {
-	mIsDragged = false;
-
-	mColor = Color(1, 1, 1);
+	mTouchMode = UNTOUCHED;
 
 	return false;
 }

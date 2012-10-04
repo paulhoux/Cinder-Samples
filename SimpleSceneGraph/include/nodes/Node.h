@@ -31,8 +31,6 @@ namespace cinder {
 	}
 }
 
-//#include "cinder/AxisAlignedBox.h"
-//#include "cinder/Camera.h"
 #include "cinder/Color.h"
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
@@ -150,35 +148,48 @@ public:
 	//!
 	void invalidateTransform() const { mIsTransformInvalidated = true; }
 
+	//! 
+	virtual void setSelected(bool selected=true){ mIsSelected = selected; }
+	//! returns wether this node is selected
+	virtual bool isSelected() const { return mIsSelected; }
+
 	//! signal parent that this node has been clicked or activated
-	virtual void selectChild(NodeRef node){}
+	virtual void selectChild(NodeRef node) {
+		NodeList::iterator itr;
+		for(itr=mChildren.begin(); itr!=mChildren.end(); ++itr) 
+			(*itr)->setSelected( *itr == node );
+	}
 	//! signal parent that this node has been released or deactivated
-	virtual void deselectChild(NodeRef node){}
+	virtual void deselectChild(NodeRef node) {
+		NodeList::iterator itr;
+		for(itr=mChildren.begin(); itr!=mChildren.end(); ++itr) 
+			(*itr)->setSelected( false );
+	}
 
 	// tree parse functions
 	//! calls the setup() function of this node and all its decendants
-	virtual void treeSetup();
+	void treeSetup();
 	//! calls the shutdown() function of this node and all its decendants
-	virtual void treeShutdown();
+	void treeShutdown();
 	//! calls the update() function of this node and all its decendants
-	virtual void treeUpdate(double elapsed);
+	void treeUpdate(double elapsed=0.0);
 	//! calls the draw() function of this node and all its decendants
-	virtual void treeDraw();
+	void treeDraw();
 
-	virtual void setup(){}
-	virtual void shutdown(){}
-	virtual void update( double elapsed ){}
-	virtual void draw(){}
+	virtual void setup() {}
+	virtual void shutdown() {}
+	virtual void update( double elapsed=0.0 ) {}
+	virtual void draw() {}
 
 	// supported events
 	//! calls the mouseMove() function of this node and all its decendants until a TRUE is passed back
-	virtual bool treeMouseMove( ci::app::MouseEvent event );
+	bool treeMouseMove( ci::app::MouseEvent event );
 	//! calls the mouseDown() function of this node and all its decendants until a TRUE is passed back
-	virtual bool treeMouseDown( ci::app::MouseEvent event );
+	bool treeMouseDown( ci::app::MouseEvent event );
 	//! calls the mouseDrag() function of this node and all its decendants until a TRUE is passed back
-	virtual bool treeMouseDrag( ci::app::MouseEvent event );
+	bool treeMouseDrag( ci::app::MouseEvent event );
 	//! calls the mouseUp() function of this node and all its decendants until a TRUE is passed back
-	virtual bool treeMouseUp( ci::app::MouseEvent event );
+	bool treeMouseUp( ci::app::MouseEvent event );
 
 	virtual bool mouseMove( ci::app::MouseEvent event );
 	virtual bool mouseDown( ci::app::MouseEvent event );
@@ -189,9 +200,9 @@ public:
 	virtual bool mouseUpOutside( ci::app::MouseEvent event );
 	
 	//! calls the keyDown() function of this node and all its decendants until a TRUE is passed back
-	virtual bool treeKeyDown( ci::app::KeyEvent event );
+	bool treeKeyDown( ci::app::KeyEvent event );
 	//! calls the keyUp() function of this node and all its decendants until a TRUE is passed back
-	virtual bool treeKeyUp( ci::app::KeyEvent event );
+	bool treeKeyUp( ci::app::KeyEvent event );
 
 	virtual bool keyDown( ci::app::KeyEvent event );
 	virtual bool keyUp( ci::app::KeyEvent event );
@@ -207,6 +218,7 @@ public:
 protected:
 	bool					mIsVisible;
 	bool					mIsClickable;
+	bool					mIsSelected;
 
 	const unsigned int		mUuid;
 
@@ -236,6 +248,8 @@ protected:
 	//! required transform() function to populate the transform matrix
 	virtual void transform() const = 0;
 private:
+	bool				mIsSetup;
+
 	//! nodeCount is used to count the number of Node instances for debugging purposes
 	static int			nodeCount;
 	//! uuidCount is used to generate new unique id's
@@ -371,15 +385,6 @@ protected:
 
 		// TODO set mIsTransformValidated to false once the world matrix stuff has been rewritten
 	}
-private:
-	// for restoring current viewport
-	GLboolean	mRestoreViewport;
-	GLint		mStoredViewport[4];
-
-	// for restoring current scissor box
-	bool		mIsScissorEnabled;
-	GLboolean	mRestoreScissor;
-	GLint		mStoredScissor[4];
 };
 
 // Basic support for 3D nodes

@@ -29,6 +29,7 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+using namespace ph::nodes;
 
 class SimpleSceneGraphApp : public AppBasic {
 public:
@@ -49,11 +50,10 @@ public:
 
 	void resize( ResizeEvent event );
 protected:
-	//! Keeps track of current game time, used to calculate elapsed time in seconds.
-	double				mTime;
-
-	//! The root node: an instance of our own NodeRectangle class
-	NodeRectangleRef	mRoot;
+	//! The root node
+	Node2DRef			mRoot;
+	//! The big rectangle that acts as a parent for the smaller ones
+	NodeRectangleRef	mParent;
 };
 
 void SimpleSceneGraphApp::prepareSettings( Settings *settings )
@@ -63,47 +63,55 @@ void SimpleSceneGraphApp::prepareSettings( Settings *settings )
 
 void SimpleSceneGraphApp::setup()
 {
-	// Initialize game time
-	mTime = getElapsedSeconds();
+	// create the root node
+	mRoot = Node2DRef( new Node2D() );
 
-	// create the root node: a large rectangle
-	mRoot = NodeRectangleRef( new NodeRectangle() );
+	// create a large rectangle first
+	mParent = NodeRectangleRef( new NodeRectangle() );
 	// specify the position of the anchor point on our canvas
-	mRoot->setPosition(400, 300);
+	mParent->setPosition(400, 300); // relative to parent node
 	// we can easily set the anchor point to its center
-	mRoot->setAnchorPercentage(0.5f, 0.5f);
+	mParent->setAnchorPercentage(0.5f, 0.5f);
 	// set the size of the node
-	mRoot->setSize(600, 450);
+	mParent->setSize(600, 450);
+	// add it to the root of our scenegraph
+	mRoot->addChild(mParent);
 
-	// add smaller rectangles to the root node
+		// add smaller rectangles to the root node
 	NodeRectangleRef child1( new NodeRectangle() );
-	child1->setPosition(0, 0); // relative to parent node
+	child1->setPosition(200, 225); // relative to parent node
+	child1->setAnchorPercentage(0.5f, 0.5f);
 	child1->setSize(240, 200);
-	mRoot->addChild(child1);
+	mParent->addChild(child1);
 
 	NodeRectangleRef child2( new NodeRectangle() );
-	child2->setPosition(260, 0); // relative to parent node
+	child2->setPosition(400, 225); // relative to parent node
+	child2->setAnchorPercentage(0.5f, 0.5f);
 	child2->setSize(240, 200);
-	mRoot->addChild(child2);
+	mParent->addChild(child2);
 
 	// add even smaller rectangles to the child rectangles
 	NodeRectangleRef child( new NodeRectangle() );
-	child->setPosition(5, 5); // relative to parent node
+	child->setPosition(60, 100); // relative to parent node
+	child->setAnchorPercentage(0.5f, 0.5f);
 	child->setSize(100, 100);
 	child1->addChild(child);
 
 	child.reset( new NodeRectangle() );
-	child->setPosition(110, 5); // relative to parent node
+	child->setPosition(180, 100); // relative to parent node
+	child->setAnchorPercentage(0.5f, 0.5f);
 	child->setSize(100, 100);
 	child1->addChild(child);
 
 	child.reset( new NodeRectangle() );
-	child->setPosition(5, 5); // relative to parent node
+	child->setPosition(60, 100); // relative to parent node
+	child->setAnchorPercentage(0.5f, 0.5f);
 	child->setSize(100, 100);
 	child2->addChild(child);
 
 	child.reset( new NodeRectangle() );
-	child->setPosition(110, 5); // relative to parent node
+	child->setPosition(180, 100); // relative to parent node
+	child->setAnchorPercentage(0.5f, 0.5f);
 	child->setSize(100, 100);
 	child2->addChild(child);
 
@@ -119,15 +127,8 @@ void SimpleSceneGraphApp::shutdown()
 
 void SimpleSceneGraphApp::update()
 {
-	// calculate elapsed time since last frame
-	double elapsed = getElapsedSeconds() - mTime;
-	mTime = getElapsedSeconds();
-
-	// rotate the root node around its anchor point
-	//mRoot->setRotation( (float) (0.1 * mTime) );
-
 	// update all nodes
-	mRoot->treeUpdate( elapsed );
+	mRoot->treeUpdate();
 }
 
 void SimpleSceneGraphApp::draw()
@@ -139,17 +140,19 @@ void SimpleSceneGraphApp::draw()
 	// draw all nodes, starting with the root node
 	mRoot->treeDraw();
 
-	// example: convert root's origin to screen coordinates and draw a red circle
+	// example of coordinate conversion: 
+	// convert big rectangle's origin to screen coordinates and draw a red circle there
 	gl::color( Color(1, 0, 0) );
-	gl::drawSolidCircle( mRoot->objectToScreen( Vec2f::zero() ), 5.0f );
+	gl::drawSolidCircle( mParent->objectToScreen( Vec2f::zero() ), 5.0f );
 }
 
 void SimpleSceneGraphApp::mouseMove( MouseEvent event )
 {
 	// pass the mouseMove event to all nodes. Important: this can easily bring your
 	// frame rate down if you have a lot of nodes and none of them does anything with
-	// this event. Only use it if you must! Needs optimization.
-	//mRoot->treeMouseMove(event);
+	// this event. Only use it if you have just a few nodes, like in this sample,
+	// or catch it as soon as possible by returning TRUE in your mouseMove() method.
+	mRoot->treeMouseMove(event);
 }
 
 void SimpleSceneGraphApp::mouseDown( MouseEvent event )
