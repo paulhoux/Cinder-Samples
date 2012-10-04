@@ -98,13 +98,11 @@ bool NodeRectangle::mouseDown(MouseEvent event)
 	mInitialRotation = getRotation();
 	mInitialScale = getScale();
 
-	// drag if clicked with left, scale if clicked with middle, rotate if clicked with right
+	// drag if clicked with left, scale and rotate if clicked with right
 	if( event.isLeftDown() )
 		mTouchMode = DRAGGING;
-	else if( event.isMiddleDown() )
-		mTouchMode = SCALING;
 	else if( event.isRightDown() )
-		mTouchMode = ROTATING;
+		mTouchMode = RESIZING;
 
 	return true;
 }
@@ -120,15 +118,13 @@ bool NodeRectangle::mouseDrag(MouseEvent event)
 	case DRAGGING:		
 		setPosition( mInitialPosition + (mCurrentMouse - mInitialMouse) );
 		return true;
-	case SCALING:
+	case RESIZING:
 		{
-			float d0 = (mInitialMouse).length();
-			float d1 = (mCurrentMouse).length();
+			// calculate a new scale
+			float d0 = mInitialMouse.length();
+			float d1 = mCurrentMouse.length();
 			setScale( mInitialScale * (d1 / d0) );
-		}
-		break;
-	case ROTATING:
-		{
+
 			// calculate angle with x-axis of initial mouse
 			float a0 = math<float>::atan2( mInitialMouse.y, mInitialMouse.x );
 			// calculate angle with x-axis of current mouse

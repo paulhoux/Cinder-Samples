@@ -37,7 +37,7 @@ class NodeRectangle
 	: public ph::nodes::Node2D
 {
 public:
-	typedef enum { UNTOUCHED, DRAGGING, SCALING, ROTATING } TouchMode;
+	typedef enum { UNTOUCHED, DRAGGING, RESIZING } TouchMode;
 
 	NodeRectangle(void);
 	virtual ~NodeRectangle(void);
