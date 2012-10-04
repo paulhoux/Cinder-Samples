@@ -93,7 +93,17 @@ void SimpleSceneGraphApp::setup()
 	child1->addChild(child);
 
 	child.reset( new NodeRectangle() );
+	child->setPosition(110, 5); // relative to parent node
+	child->setSize(100, 100);
+	child1->addChild(child);
+
+	child.reset( new NodeRectangle() );
 	child->setPosition(5, 5); // relative to parent node
+	child->setSize(100, 100);
+	child2->addChild(child);
+
+	child.reset( new NodeRectangle() );
+	child->setPosition(110, 5); // relative to parent node
 	child->setSize(100, 100);
 	child2->addChild(child);
 
@@ -114,7 +124,7 @@ void SimpleSceneGraphApp::update()
 	mTime = getElapsedSeconds();
 
 	// rotate the root node around its anchor point
-	mRoot->setRotation( (float) (0.1 * mTime) );
+	//mRoot->setRotation( (float) (0.1 * mTime) );
 
 	// update all nodes
 	mRoot->treeUpdate( elapsed );

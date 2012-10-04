@@ -22,6 +22,8 @@
 
 #include "NodeRectangle.h"
 
+#include "cinder/Rand.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace ph::nodes;
@@ -30,6 +32,9 @@ NodeRectangle::NodeRectangle(void)
 {
 	mIsDragged = false;
 	mColor = Color::white();
+
+	// apply random rotation 
+	setRotation( toRadians( Rand::randFloat(-15.0f, 15.0f) ) );
 }
 
 NodeRectangle::~NodeRectangle(void)
