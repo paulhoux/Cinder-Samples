@@ -236,8 +236,8 @@ protected:
 	//! required transform() function to populate the transform matrix
 	virtual void transform() const = 0;
 private:
-	//! refCount is used to count the number of Node instances for debugging purposes
-	static int			refCount;
+	//! nodeCount is used to count the number of Node instances for debugging purposes
+	static int			nodeCount;
 	//! uuidCount is used to generate new unique id's
 	static unsigned int uuidCount;
 	//! uuidLookup allows us to quickly find a Node by id

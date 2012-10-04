@@ -29,7 +29,7 @@ using namespace std;
 
 namespace ph { namespace nodes {
 
-int				Node::refCount = 0;
+int				Node::nodeCount = 0;
 unsigned int	Node::uuidCount = 1;
 NodeMap			Node::uuidLookup;
 
@@ -37,7 +37,7 @@ Node::Node(void)
 	: mUuid(uuidCount), mIsVisible(true), mIsClickable(true), mIsTransformInvalidated(true)
 {
 	// default constructor for [Node]
-	refCount++;
+	nodeCount++;
 	uuidCount++;
 	
 	mTransform.setToIdentity();
@@ -50,7 +50,7 @@ Node::~Node(void)
 	removeChildren();
 
 	//
-	refCount--;
+	nodeCount--;
 
 	// remove from lookup table
 	uuidLookup.erase(mUuid);

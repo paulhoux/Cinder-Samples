@@ -138,6 +138,10 @@ void SimpleSceneGraphApp::draw()
 
 	// draw all nodes, starting with the root node
 	mRoot->treeDraw();
+
+	// example: convert root's origin to screen coordinates and draw a red circle
+	gl::color( Color(1, 0, 0) );
+	gl::drawSolidCircle( mRoot->objectToScreen( Vec2f::zero() ), 5.0f );
 }
 
 void SimpleSceneGraphApp::mouseMove( MouseEvent event )
