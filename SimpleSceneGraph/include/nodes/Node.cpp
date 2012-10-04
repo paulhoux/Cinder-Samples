@@ -218,7 +218,7 @@ void Node::treeDraw()
 	if(mIsTransformInvalidated) transform();
 
 	// let derived class know we are about to draw stuff
-	begin();
+	predraw();
 
 	// apply transform
 	gl::pushModelView();
@@ -238,7 +238,7 @@ void Node::treeDraw()
 	gl::popModelView();
 
 	// let derived class know we are done drawing
-	end();
+	postdraw();
 }
 
 // Note: the scene graph implementation is currently not fast enough to support mouseMove events
@@ -611,7 +611,7 @@ void Node3D::treeDraw()
 	if(!mIsVisible) return;
 
 	// let derived class know we are about to draw stuff
-	begin();
+	predraw();
 
 	// apply transform
 	gl::pushModelView();
@@ -637,7 +637,7 @@ void Node3D::treeDraw()
 	gl::popModelView();
 
 	// let derived class know we are done drawing
-	end();
+	postdraw();
 }
 */
 void Node3D::treeDrawWireframe()

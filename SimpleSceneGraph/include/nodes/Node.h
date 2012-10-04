@@ -221,9 +221,9 @@ protected:
 	ci::Vec3f	unproject( const ci::Vec3f &pt ) const { return unproject(pt.x, pt.y, pt.z); }
 
 	//! function that is called right before drawing this node
-	virtual void begin(){}
+	virtual void predraw(){}
 	//! function that is called right after drawing this node
-	virtual void end(){}
+	virtual void postdraw(){}
 
 	//! required transform() function to populate the transform matrix
 	virtual void transform() const = 0;
