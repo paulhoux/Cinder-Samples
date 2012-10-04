@@ -17,17 +17,17 @@ Another alternative scene graph would be FBX, which I will probably start using 
 
 
 As I said, my scene graph doesn't come with documentation, but here are a few tips:
-# To create your objects, extend either the Node2D or Node3D class.
-# Your class should then implement the basic setup(), update(double elapsed) and draw() methods and you are good to go.
-# In your main application's setup(), create a root Node3D for your 3D world and a root Node2D for your 2D interface.
-# Create the rest of the nodes and add them as children to the root or to each other. Each node can only be a child of one parent node, but a node can have as many children as you like.
-# Node2D can be a child of Node3D and the other way around. In most cases, however, it doesn't make much sense to mix and match them and converting mouse coordinates to object space may not give the right results.
-# When all children have been created, make sure to call root->treeSetup() to recursively call each node's setup() function. This will be done from 'trunk' to 'leaf', so a node's parent will be initialized before the node itself is initialized, which is the right way to do things.
-# In your main application's update(), calculate the elapsed time in seconds and then call root->treeUpdate(elapsed) to recursively call each node's update() function (trunk to leaf). There is no need (anymore) to separately call treeTransform(), as was needed in an older version.
-# If you want, you can perform frustum culling after the update by creating a frustum from your camera and then call root->treeCull(frustum). For this to work, your nodes should have a valid object space bounding box that you have to supply using the node->setBoundingBox() function.
-# In your main application's draw(), setup the camera any way you like, then call root->treeDraw().
-# A node's begin() function is called just before it is drawn. Use it to setup render states for the whole tree of which this node is the trunk. For example, you can bind an FBO so everything will be drawn to the FBO instead. I will probably rename begin() to predraw() in the future. Use end() to clean up after the tree has been drawn (e.g. unbind the FBO). I will rename it to postdraw() in the future.
-# To pass a MouseEvent to your nodes, simply call e.g. root->treeMouseDown(event). The event will be processed from 'leaf' to 'trunk', so everything on top will be checked before going deeper into your scene. Note that root->treeMouseMove(event) is usually too slow - tree traversal is not optimized in my system and in this particular case most nodes will not react to the event so it has to visit a lot of nodes before being handled. 
+* To create your objects, extend either the Node2D or Node3D class.
+* Your class should then implement the basic setup(), update(double elapsed) and draw() methods and you are good to go.
+* In your main application's setup(), create a root Node3D for your 3D world and a root Node2D for your 2D interface.
+* Create the rest of the nodes and add them as children to the root or to each other. Each node can only be a child of one parent node, but a node can have as many children as you like.
+* Node2D can be a child of Node3D and the other way around. In most cases, however, it doesn't make much sense to mix and match them and converting mouse coordinates to object space may not give the right results.
+* When all children have been created, make sure to call root->treeSetup() to recursively call each node's setup() function. This will be done from 'trunk' to 'leaf', so a node's parent will be initialized before the node itself is initialized, which is the right way to do things.
+* In your main application's update(), calculate the elapsed time in seconds and then call root->treeUpdate(elapsed) to recursively call each node's update() function (trunk to leaf). There is no need (anymore) to separately call treeTransform(), as was needed in an older version.
+* If you want, you can perform frustum culling after the update by creating a frustum from your camera and then call root->treeCull(frustum). For this to work, your nodes should have a valid object space bounding box that you have to supply using the node->setBoundingBox() function.
+* In your main application's draw(), setup the camera any way you like, then call root->treeDraw().
+* A node's begin() function is called just before it is drawn. Use it to setup render states for the whole tree of which this node is the trunk. For example, you can bind an FBO so everything will be drawn to the FBO instead. I will probably rename begin() to predraw() in the future. Use end() to clean up after the tree has been drawn (e.g. unbind the FBO). I will rename it to postdraw() in the future.
+* To pass a MouseEvent to your nodes, simply call e.g. root->treeMouseDown(event). The event will be processed from 'leaf' to 'trunk', so everything on top will be checked before going deeper into your scene. Note that root->treeMouseMove(event) is usually too slow - tree traversal is not optimized in my system and in this particular case most nodes will not react to the event so it has to visit a lot of nodes before being handled. 
 
 
 Although my scene graph is far from perfect, in practice it does its job and helps me keep my sanity :)
