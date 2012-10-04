@@ -1,36 +1,8 @@
-Stars
-=============
+Text Rendering using Signed Distance Fields
+===========================================
 
 Note: at the moment this sample needs code from several commits to the Cinder framework in order to compile successfully. As a sample it has grown out of proportion :) To compile, check out the 'paulhoux:unicode_linebreak' branch on the Cinder repository and recompile Cinder. In the near future, this will be made easier.
 
-
-This sample will show you how to:
-* render advanced, animated point sprites using shaders
-* construct VBO meshes that are not GL_TRIANGLES like TriMesh
-* use the IrrKlang sound engine to play sound effects and music
-* use the new CameraStereo class to render in stereoscopic 3D (side-by-side)
-* create your own camera class that can be animated or controlled by the user
-* read and parse a text file containing data
-* read and write a binary data file for faster loading
-
-
-Note: for the sample to play music, add MP3, WAV, OGG and/or FLAC files to the <i>./assets/music</i> folder. 
-
-
-<u>Controls:</u>
-* use the <b>mouse</b> to control the camera
-* press <b>SPACE</b> to enable automatic camera animation
-* press <b>S</b> to toggle stereoscopic (side-by-side) 3D
-* press <b>G</b> to toggle the celestial grid
-* press <b>L</b> to toggle name labels
-* press <b>C</b> to toggle constellations
-* press <b>V</b> to toggle vertical sync
-* press <b>F</b> to toggle full screen
-* press <b>A</b> to show/hide the cursor arrow
-* press <b>ESC</b> to quit
-* press <b>MEDIA_NEXT_TRACK</b> to play the next song
-* press <b>MEDIA_PREV_TRACK</b> to play the previous song
-* press the <b>MEDIA_STOP</b> or <b>MEDIA_PLAY_PAUSE</b> keys to stop, play and pause the music
 
 -Paul
 
