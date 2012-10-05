@@ -9,7 +9,7 @@ Detailed GIT instructions:
 1. I assume you have cloned Cinder to a folder named "cinder_master". See for more information: http://libcinder.org/docs/welcome/GitSetup.html
 2. Open a command window and switch to the drive that contains your "cinder_master" folder: ```d:```
 3. Go to the "cinder_master" directory: ```cd "\path\to\cinder_master"```
-4. Check if 'paulhoux' is added as a remote: ```>git remote show```
+4. Check if 'paulhoux' is added as a remote: ```git remote show```
 5. If not, add it: ```git remote add paulhoux https://github.com/paulhoux/Cinder.git```
 6. Fetch the paulhoux repository: ```git fetch paulhoux```
 7. If you have made local changes to the repository, commit or revert them.
