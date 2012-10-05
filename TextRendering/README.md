@@ -6,14 +6,14 @@ Note: at the moment this sample needs code from several commits to the Cinder fr
 
 Detailed GIT instructions:
 
-1. I assume you have cloned Cinder to a folder named "cinder_master" and my Cinder-Samples to a folder named "cinder_samples", as described in {root}/README.md.
-2. Open a command window and switch to the drive that contains your "cinder_master" folder: ```>d:```
-3. Go to the "cinder_master" directory: ```>cd "\path\to\cinder_master"```
+1. I assume you have cloned Cinder to a folder named "cinder_master". See for more information: http://libcinder.org/docs/welcome/GitSetup.html
+2. Open a command window and switch to the drive that contains your "cinder_master" folder: ```d:```
+3. Go to the "cinder_master" directory: ```cd "\path\to\cinder_master"```
 4. Check if 'paulhoux' is added as a remote: ```>git remote show```
-5. If not, add it: ```>git remote add paulhoux https://github.com/paulhoux/Cinder.git```
-6. Fetch the paulhoux repository: ```>git fetch paulhoux```
+5. If not, add it: ```git remote add paulhoux https://github.com/paulhoux/Cinder.git```
+6. Fetch the paulhoux repository: ```git fetch paulhoux```
 7. If you have made local changes to the repository, commit or revert them.
-8. Finally, checkout the 'paulhoux:unicode_linebreak' branch: ```>git checkout -b paulhoux/unicode_linebreak```
+8. Finally, checkout the 'paulhoux:unicode_linebreak' branch: ```git checkout -b paulhoux/unicode_linebreak```
 9. Recompile Cinder.
 
 -Paul
