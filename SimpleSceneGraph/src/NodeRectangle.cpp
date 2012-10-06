@@ -130,7 +130,7 @@ bool NodeRectangle::mouseDrag(MouseEvent event)
 			// calculate angle with x-axis of current mouse
 			float a1 = math<float>::atan2( mCurrentMouse.y, mCurrentMouse.x );
 			// add the angle difference to the rotation angle
-			setRotation( mInitialRotation.getAngle() + (a1 - a0) );
+			setRotation( mInitialRotation * Quatf( Vec3f::zAxis(), (a1-a0) ) );
 		}
 		return true;
 	}
