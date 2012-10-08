@@ -268,7 +268,7 @@ std::string Text::getFragmentShader() const
 		"\n"
 		"uniform sampler2D	tex0;\n"
 		"\n"
-		"const float smoothness = 64.0;\n"
+		"const float smoothness = 128.0;\n"
 		"const float gamma = 2.2;\n"
 		"\n"
 		"void main()\n"

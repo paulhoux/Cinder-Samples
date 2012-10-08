@@ -253,7 +253,7 @@ void Font::write(const ci::DataTargetRef target)
 	}
 
 	// write image data
-	writeImage( DataTargetStream::createRef(out), mSurface, ImageTarget::Options(), "png" );
+	writeImage( DataTargetStream::createRef(out), mSurface.getChannelRed(), ImageTarget::Options(), "png" );
 }
 
 Rectf Font::getBounds(uint16_t charcode, float fontSize) const
