@@ -55,7 +55,7 @@ public:
 	float		getLineSpace() const { return mLineSpace; }
 	void		setLineSpace( float value ) { mLineSpace = value; mInvalid = true; }
 
-	float		getLeading() const { return (mFont ? mFont->getLeading(mFontSize) * mLineSpace : 0.0f); }
+	float		getLeading() const { return (mFont ? std::floorf( mFont->getLeading(mFontSize) * mLineSpace + 0.5f ) : 0.0f); }
 
 	Alignment	getAlignment() const { return mAlignment; }
 	void		setAlignment( Alignment alignment ) { mAlignment = alignment; mInvalid = true; }
@@ -75,7 +75,7 @@ protected:
 	//! function to move the cursor to the next line
 	virtual	bool	newLine( ci::Vec2f *cursor ) { 
 		cursor->x = 0.0f; 
-		cursor->y += std::floorf(getLeading() + 0.5f); 
+		cursor->y += getLeading();
 		
 		return ( getHeight() == 0.0f || cursor->y < getHeight() );
 	}		

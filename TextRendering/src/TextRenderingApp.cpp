@@ -34,6 +34,11 @@ protected:
 
 	//! 
 	TextBox			mTextBox;
+
+	//!
+	Vec2f			mOffset;
+	Vec2f			mPosition;
+	Vec2f			mTarget;
 };
 
 void TextRenderingApp::prepareSettings(Settings *settings)
@@ -49,6 +54,9 @@ void TextRenderingApp::setup()
 
 	mFrontColor = Color::black();
 	mBackColor = Color::white();
+
+	mOffset = Vec2f(20, 0);
+	mPosition = mTarget = Vec2f(0, 0);
 
 	try { 
 		// load fonts using the FontStore
@@ -80,6 +88,7 @@ void TextRenderingApp::shutdown()
 
 void TextRenderingApp::update()
 {
+	mPosition += 0.15f * (mTarget - mPosition);
 }
 
 void TextRenderingApp::draw()
@@ -91,13 +100,14 @@ void TextRenderingApp::draw()
 	gl::clear( mBackColor );
 
 	// draw text box centered inside the window
-	Area fit = Area::proportionalFit( Area(Vec2i::zero(), mTextBox.getSize()), getWindowBounds(), true, false ); 
+	//Area fit = Area::proportionalFit( Area(Vec2i::zero(), mTextBox.getSize()), getWindowBounds(), true, false ); 
 
 	gl::color( mFrontColor );
 	gl::enableAlphaBlending();
 
 	gl::pushModelView();
-	gl::translate( fit.getUL() );
+	//gl::translate( fit.getUL() );
+	gl::translate( mPosition + mOffset );
 
 	mTextBox.draw();
 
@@ -107,7 +117,8 @@ void TextRenderingApp::draw()
 	gl::disableAlphaBlending();
 
 	if(mShowBounds)
-		mTextBox.drawBounds( fit.getUL() );
+		mTextBox.drawBounds( mPosition + mOffset );
+		//mTextBox.drawBounds( fit.getUL() );
 }
 
 void TextRenderingApp::mouseDown( MouseEvent event )
@@ -116,6 +127,8 @@ void TextRenderingApp::mouseDown( MouseEvent event )
 
 void TextRenderingApp::keyDown( KeyEvent event )
 {
+	int n = math<float>::floor( mTarget.y / mTextBox.getLeading() );
+
 	switch(event.getCode()) {
 	case KeyEvent::KEY_ESCAPE:
 		quit();
@@ -132,15 +145,26 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_b:
 		mShowBounds = !mShowBounds;
 		break;
+	case KeyEvent::KEY_PAGEDOWN:
+		n -= math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() );
+		mTarget.y = n * mTextBox.getLeading();
+		break;
+	case KeyEvent::KEY_PAGEUP:
+		n += math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() );
+		if( n > 0 ) n = 0;
+		mTarget.y = n * mTextBox.getLeading();
+		break;
 	case KeyEvent::KEY_SPACE:
 		{ Color temp = mFrontColor; mFrontColor = mBackColor; mBackColor = temp; }
 		break;
 	case KeyEvent::KEY_LEFTBRACKET:
 		if(mTextBox.getFontSize() > 0.5f)
 			mTextBox.setFontSize( mTextBox.getFontSize() - 0.5f );
+		mTarget.y = n * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_RIGHTBRACKET:
 		mTextBox.setFontSize( mTextBox.getFontSize() + 0.5f );
+		mTarget.y = n * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_LEFT:
 		if( mTextBox.getAlignment() == TextBox::RIGHT )
@@ -157,10 +181,12 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_UP:
 		if( mTextBox.getLineSpace() > 0.2f )
 			mTextBox.setLineSpace( mTextBox.getLineSpace() - 0.1f );
+		mTarget.y = n * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_DOWN:
 		if( mTextBox.getLineSpace() < 5.0f )
 			mTextBox.setLineSpace( mTextBox.getLineSpace() + 0.1f );
+		mTarget.y = n * mTextBox.getLeading();
 		break;
 	}
 
@@ -173,6 +199,7 @@ void TextRenderingApp::resize( ResizeEvent event )
 	// allow 20 pixels margin
 	Area box( Vec2i::zero(), event.getSize() );
 	box.expand(-20, -20);
+	box.setY2( box.getY1() );
 
 	mTextBox.setSize( box.getSize() );
 }
