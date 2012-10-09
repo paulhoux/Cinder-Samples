@@ -21,6 +21,7 @@
 */
 
 #include "cinder/Camera.h"
+#include "cinder/ImageIo.h"
 #include "cinder/MayaCamUI.h"
 #include "cinder/Perlin.h"
 #include "cinder/Surface.h"
@@ -60,6 +61,7 @@ private:
 	gl::GlslProg	mShader;
 	gl::Texture		mWaveTexture;
 	gl::Texture		mNoiseTexture;
+	gl::Texture		mBackgroundTexture;
 	gl::VboMesh		mVboMesh;
 };
 
@@ -70,7 +72,7 @@ void XMBApp::prepareSettings(Settings *settings)
 
 void XMBApp::setup()
 {
-	mCamera.setEyePoint( Vec3f( 0.0f, 15.0f, -150.0f ) );
+	mCamera.setEyePoint( Vec3f( 0.0f, 0.0f, -130.0f ) );
 	mCamera.setCenterOfInterestPoint( Vec3f( 0.0f, 0.0f, 0.0f ) ) ;
 	mMayaCam.setCurrentCam( mCamera );
 
@@ -78,6 +80,7 @@ void XMBApp::setup()
 	createTextures();
 
 	try {
+		mBackgroundTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) );
 		mShader = gl::GlslProg( loadAsset("xmb_vert.glsl"), loadAsset("xmb_frag.glsl"), loadAsset("xmb_geom.glsl"), GL_TRIANGLES, GL_TRIANGLES, 3 );
 	}
 	catch( const std::exception &e ) {
@@ -92,7 +95,9 @@ void XMBApp::update()
 
 void XMBApp::draw()
 {
-	gl::clear(); 
+	gl::clear();
+
+	gl::draw( mBackgroundTexture, getWindowBounds() );
 
 	gl::pushMatrices();
 	gl::setMatrices( mCamera );
@@ -129,6 +134,7 @@ void XMBApp::draw()
 void XMBApp::resize( ResizeEvent event )
 {
 	mCamera.setAspectRatio( event.getAspectRatio() );
+	mMayaCam.setCurrentCam( mCamera );
 }
 
 void XMBApp::mouseMove( MouseEvent event )
@@ -152,6 +158,20 @@ void XMBApp::mouseUp( MouseEvent event )
 
 void XMBApp::keyDown( KeyEvent event )
 {
+	switch( event.getCode() )
+	{
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_f:
+		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_SPACE:
+		mCamera.setEyePoint( Vec3f( 0.0f, 0.0f, -130.0f ) );
+		mCamera.setCenterOfInterestPoint( Vec3f( 0.0f, 0.0f, 0.0f ) ) ;
+		mMayaCam.setCurrentCam( mCamera );
+		break;
+	}
 }
 
 void XMBApp::keyUp( KeyEvent event )
@@ -165,20 +185,24 @@ void XMBApp::createMesh()
 	vector<Vec3f>		normals;
 	vector<uint32_t>	indices;
 
-	for(int x=0;x<200;++x) {
-		for(int z=0;z<60;++z) {
-			vertices.push_back( Vec3f( float(x - 100), 0.0f, float(z - 30) ) );
+	const int RES_X = 500;
+	const int RES_Z = 250;
+	const Vec3f size(200.0f, 0.0f, 50.0f);
+
+	for(int x=0;x<RES_X;++x) {
+		for(int z=0;z<RES_Z;++z) {
+			vertices.push_back( Vec3f( (float(x) / RES_X) - 0.5f , 0.0f, float(z) / RES_Z - 0.5f ) * size );
 			normals.push_back( Vec3f::yAxis() );
-			texcoords.push_back( Vec2f( float(x) / 200.0f, float(z) / 60.0f ) );
+			texcoords.push_back( Vec2f( float(x) / RES_X, float(z) / RES_Z ) );
 		}
 	}
 
-	for(int x=0;x<200-1;++x) {
-		for(int z=0;z<60-1;++z) {
-			uint32_t a = x * 60 + z;
+	for(int x=0;x<RES_X-1;++x) {
+		for(int z=0;z<RES_Z-1;++z) {
+			uint32_t a = x * RES_Z + z;
 
-			indices.push_back( a ); indices.push_back( a + 60 ); indices.push_back( a + 1 );
-			indices.push_back( a + 60 ); indices.push_back( a + 61 );  indices.push_back( a + 1 );
+			indices.push_back( a ); indices.push_back( a + RES_Z ); indices.push_back( a + 1 );
+			indices.push_back( a + RES_Z ); indices.push_back( a + RES_Z + 1 );  indices.push_back( a + 1 );
 		}
 	}
 

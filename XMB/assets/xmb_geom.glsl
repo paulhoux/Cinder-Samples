@@ -11,8 +11,9 @@ void main(void)
 	// color should be more opaque if normal is facing upward
     float a = 0.5 + 0.5 * dot(normal, vec3(0, 1, 0));
 
+	// pass on the vertices and vertex colors
     for(int i=0; i< gl_VerticesIn; i++){
-		gl_FrontColor = vec4( 1.0, 1.0, 1.0, pow(a, 10.0) );
+		gl_FrontColor = vec4( 1.0, 1.0, 1.0, 0.6 * pow(a, 10.0) );
         gl_Position = gl_PositionIn[i];
         EmitVertex();
     }
