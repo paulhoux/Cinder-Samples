@@ -118,11 +118,11 @@ void Text::renderMesh()
 		switch (mBoundary ) {
 		case LINE:
 			// aitr already points to mitr, thus the whole line is rendered
-			trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
 			break;
 		case WORD:
 			// measure chunks to see if it fits
-			trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
 			width = mFont->measure( trimmed, mFontSize ).getX2();
 
 			// if they don't, remove the last chunk and try again until they all fit
@@ -135,7 +135,7 @@ void Text::renderMesh()
 			
 				// perform precise measurement only if approximation was less than linewidth
 				if( width <= linewidth ) {
-					trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
+					trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
 					width = mFont->measure( trimmed, mFontSize ).getX2();
 				}
 			}
