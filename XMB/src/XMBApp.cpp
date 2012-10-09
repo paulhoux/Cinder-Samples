@@ -27,6 +27,7 @@
 #include "cinder/Surface.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/Vbo.h"
@@ -55,14 +56,25 @@ public:
 private:
 	void createMesh();
 	void createTextures();
+
+	void renderDisplacementMap();
+	void renderNormalMap();
 private:
 	MayaCamUI		mMayaCam;
 	CameraPersp		mCamera;
-	gl::GlslProg	mShader;
-	gl::Texture		mWaveTexture;
+
+	gl::Fbo			mDispMapFbo;
+	gl::GlslProg	mDispMapShader;
+
+	gl::Fbo			mNormalMapFbo;
+	gl::GlslProg	mNormalMapShader;
+
+	gl::Texture		mSinusTexture;
 	gl::Texture		mNoiseTexture;
 	gl::Texture		mBackgroundTexture;
+	
 	gl::VboMesh		mVboMesh;
+	gl::GlslProg	mMeshShader;
 };
 
 void XMBApp::prepareSettings(Settings *settings)
@@ -81,12 +93,24 @@ void XMBApp::setup()
 
 	try {
 		mBackgroundTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) );
-		mShader = gl::GlslProg( loadAsset("xmb_vert.glsl"), loadAsset("xmb_frag.glsl"), loadAsset("xmb_geom.glsl"), GL_TRIANGLES, GL_TRIANGLES, 3 );
+
+		mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
+		mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
+		mMeshShader = gl::GlslProg( loadAsset("xmb_vert.glsl"), loadAsset("xmb_frag.glsl") );
 	}
 	catch( const std::exception &e ) {
 		console() << e.what() << std::endl;
 		quit();
 	}
+
+	gl::Fbo::Format fmt;
+	fmt.enableDepthBuffer(false);
+
+	fmt.setColorInternalFormat( GL_R32F );
+	mDispMapFbo = gl::Fbo(256, 256, fmt);
+	
+	fmt.setColorInternalFormat( GL_RGB32F );
+	mNormalMapFbo = gl::Fbo(256, 256, fmt);
 }
 
 void XMBApp::update()
@@ -97,8 +121,21 @@ void XMBApp::draw()
 {
 	gl::clear();
 
+	// render background
 	gl::draw( mBackgroundTexture, getWindowBounds() );
 
+	//
+	gl::draw( mNoiseTexture );
+	
+	// render displacement map
+	renderDisplacementMap();
+	gl::draw( mDispMapFbo.getTexture(), Vec2f(256,0) );
+
+	// render normal map
+	renderNormalMap();
+	gl::draw( mNormalMapFbo.getTexture(), Vec2f(512,0) );
+
+	// finally, render our mesh using vertex displacement
 	gl::pushMatrices();
 	gl::setMatrices( mCamera );
 
@@ -106,29 +143,100 @@ void XMBApp::draw()
 	//gl::enableWireframe();
 	gl::enableAlphaBlending();
 
-	mWaveTexture.enableAndBind();
-	mNoiseTexture.bind(1);
+	mDispMapFbo.getTexture().enableAndBind();
+	mNormalMapFbo.getTexture().bind(1);
 
-	mShader.bind();
-	mShader.uniform( "time", float( getElapsedSeconds() ) );
-	mShader.uniform( "sinus", 0 );
-	mShader.uniform( "noise", 1 );
+	mMeshShader.bind();
+	mMeshShader.uniform( "displacement_map", 0 );
+	mMeshShader.uniform( "normal_map", 1 );
 
 	gl::draw( mVboMesh );
 
-	mShader.unbind();
+	mMeshShader.unbind();
 
-	mNoiseTexture.unbind();
-	mWaveTexture.unbind();
+	mNormalMapFbo.unbindTexture();
+	mDispMapFbo.unbindTexture();
 
 	gl::disableAlphaBlending();
 	//gl::disableWireframe();
 
 	gl::popMatrices();
+}
 
-	//gl::draw( mNoiseTexture );
-	//gl::draw( mNoiseTexture, Vec2f(256,0) );
-	//gl::draw( mNoiseTexture, Vec2f(0,256) );
+void XMBApp::renderDisplacementMap()
+{
+	if(mDispMapShader) 
+	{
+		mDispMapFbo.bindFramebuffer();
+		{
+			// setup viewport and matrices 
+			glPushAttrib( GL_VIEWPORT_BIT );
+			gl::setViewport( mDispMapFbo.getBounds() );
+
+			gl::pushMatrices();
+			gl::setMatricesWindow( mDispMapFbo.getSize(), false );
+
+			// clear the color buffer
+			gl::clear();			
+
+			// bind the textures containing sinus and noise values
+			mSinusTexture.enableAndBind();
+			mNoiseTexture.bind(1);
+
+			// render the displacement map
+			mDispMapShader.bind();
+			mDispMapShader.uniform( "time", float( getElapsedSeconds() ) );
+			mDispMapShader.uniform( "sinus", 0 );
+			mDispMapShader.uniform( "noise", 1 );
+			gl::drawSolidRect( mDispMapFbo.getBounds() );
+			mDispMapShader.unbind();
+
+			// clean up after ourselves
+			mNoiseTexture.unbind();
+			mSinusTexture.unbind();
+
+			gl::popMatrices();
+
+			glPopAttrib();
+		}
+		mDispMapFbo.unbindFramebuffer();
+	}
+}
+
+void XMBApp::renderNormalMap()
+{
+	if(mNormalMapShader) 
+	{
+		mNormalMapFbo.bindFramebuffer();
+		{
+			// setup viewport and matrices 
+			glPushAttrib( GL_VIEWPORT_BIT );
+			gl::setViewport( mNormalMapFbo.getBounds() );
+
+			gl::pushMatrices();
+			gl::setMatricesWindow( mNormalMapFbo.getSize(), false );
+
+			// clear the color buffer
+			gl::clear();			
+
+			// bind the textures containing sinus and noise values
+			mDispMapFbo.getTexture().enableAndBind();
+
+			// render the displacement map
+			mNormalMapShader.bind();
+			mNormalMapShader.uniform( "texture", 0 );
+			gl::drawSolidRect( mNormalMapFbo.getBounds() );
+			mNormalMapShader.unbind();
+
+			// clean up after ourselves
+			mDispMapFbo.getTexture().unbind();
+
+			gl::popMatrices();
+
+			glPopAttrib();
+		}
+		mNormalMapFbo.unbindFramebuffer();
+	}
 }
 
 void XMBApp::resize( ResizeEvent event )
@@ -165,6 +273,13 @@ void XMBApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_s:
+		try { 
+			mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
+			mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
+		}
+		catch( const std::exception &e ) { console() << e.what() << std::endl; }
 		break;
 	case KeyEvent::KEY_SPACE:
 		mCamera.setEyePoint( Vec3f( 0.0f, 0.0f, -130.0f ) );
@@ -223,26 +338,26 @@ void XMBApp::createTextures()
 {
 	gl::Texture::Format fmt;
 	fmt.setWrap( GL_REPEAT, GL_REPEAT );
+	fmt.setInternalFormat( GL_R32F );
 
 	// create sinus texture
-	Surface s( 1024, 1, false, SurfaceChannelOrder::CHAN_RED );
-	Surface::Iter itr = s.getIter();
+	Surface32f s( 1024, 1, false, SurfaceChannelOrder::CHAN_RED );
+	Surface32f::Iter itr = s.getIter();
 	while( itr.line() ) {
 		while( itr.pixel() ) {
 			Vec2i p = itr.getPos();
 			float x = 0.5f + 0.5f * math<float>::sin( p.x / 1024.0f * float(2.0 * M_PI) );
-			uint8_t c = uint8_t( x * 255.0f );
-			s.setPixel( p, ColorT<uint8_t>(c, c, c) );
+			s.setPixel( p, Color(x, x, x) );
 		}
 	}
 
-	mWaveTexture = gl::Texture( s, fmt );
+	mSinusTexture = gl::Texture( s, fmt );
 
 	// create noise texture
 	Perlin perlin(6, 1);
 	int w = 256;
 	int h = 256;
-	Surface n( w, h, false, SurfaceChannelOrder::CHAN_RED );
+	Surface32f n( w, h, false, SurfaceChannelOrder::CHAN_RED );
 	itr = n.getIter();
 	while( itr.line() ) {
 		while( itr.pixel() ) {
@@ -252,8 +367,7 @@ void XMBApp::createTextures()
 				perlin.fBm( p.x-1.0f, p.y-1.0f ) * p.x * p.y +
 				perlin.fBm( p.x, p.y-1.0f ) * (1.0f - p.x) * p.y;
 			x += 0.5f;
-			uint8_t c = uint8_t( x * 255.0f );
-			n.setPixel( itr.getPos(), ColorT<uint8_t>(c, c, c) );
+			n.setPixel( itr.getPos(), Color(x, x, x) );
 		}
 	}
 

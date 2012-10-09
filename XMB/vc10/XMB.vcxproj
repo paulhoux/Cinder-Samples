@@ -113,8 +113,11 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\assets\displacement_map_frag.glsl" />
+    <None Include="..\assets\displacement_map_vert.glsl" />
+    <None Include="..\assets\normal_map_frag.glsl" />
+    <None Include="..\assets\normal_map_vert.glsl" />
     <None Include="..\assets\xmb_frag.glsl" />
-    <None Include="..\assets\xmb_geom.glsl" />
     <None Include="..\assets\xmb_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
