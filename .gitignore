@@ -2,7 +2,6 @@
 /*/vc10/Debug
 /*/vc10/ipch
 /*/vc10/Release
-*.filters
 *.opensdf
 *.sdf
 *.suo
