@@ -35,7 +35,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class XMBApp : public AppBasic {
+class SmoothDisplacementMappingApp : public AppBasic {
 public:
 	void prepareSettings( Settings *settings );
 	
@@ -81,14 +81,14 @@ private:
 	gl::GlslProg	mMeshShader;
 };
 
-void XMBApp::prepareSettings(Settings *settings)
+void SmoothDisplacementMappingApp::prepareSettings(Settings *settings)
 {
 	settings->setTitle("Vertex Displacement Mapping with Smooth Normals");
 	settings->setWindowSize( 1280, 720 );
 	settings->setFrameRate( 300.0f );
 }
 
-void XMBApp::setup()
+void SmoothDisplacementMappingApp::setup()
 {
 	mDrawTextures = false;
 	mDrawWireframe = false;
@@ -106,7 +106,7 @@ void XMBApp::setup()
 		// this shader will create a normal map based on the displacement map
 		mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
 		// this shader will use the displacement and normal maps to displace vertices of a mesh
-		mMeshShader = gl::GlslProg( loadAsset("xmb_vert.glsl"), loadAsset("xmb_frag.glsl") );
+		mMeshShader = gl::GlslProg( loadAsset("mesh_vert.glsl"), loadAsset("mesh_frag.glsl") );
 	}
 	catch( const std::exception &e ) {
 		// something went wrong
@@ -133,7 +133,7 @@ void XMBApp::setup()
 	mNormalMapFbo = gl::Fbo(256, 256, fmt);
 }
 
-void XMBApp::update()
+void SmoothDisplacementMappingApp::update()
 {
 	// render displacement map
 	renderDisplacementMap();
@@ -142,7 +142,7 @@ void XMBApp::update()
 	renderNormalMap();
 }
 
-void XMBApp::draw()
+void SmoothDisplacementMappingApp::draw()
 {
 	gl::clear();
 
@@ -197,14 +197,14 @@ void XMBApp::draw()
 	gl::popMatrices();
 }
 
-void XMBApp::resetCamera()
+void SmoothDisplacementMappingApp::resetCamera()
 {
 	mCamera.setEyePoint( Vec3f( 0.0f, 0.0f, 130.0f ) );
 	mCamera.setCenterOfInterestPoint( Vec3f( 0.0f, 0.0f, 0.0f ) ) ;
 	mMayaCam.setCurrentCam( mCamera );
 }
 
-void XMBApp::renderDisplacementMap()
+void SmoothDisplacementMappingApp::renderDisplacementMap()
 {
 	if(mDispMapShader) 
 	{
@@ -241,7 +241,7 @@ void XMBApp::renderDisplacementMap()
 	}
 }
 
-void XMBApp::renderNormalMap()
+void SmoothDisplacementMappingApp::renderNormalMap()
 {
 	if(mNormalMapShader) 
 	{
@@ -278,35 +278,35 @@ void XMBApp::renderNormalMap()
 	}
 }
 
-void XMBApp::resize( ResizeEvent event )
+void SmoothDisplacementMappingApp::resize( ResizeEvent event )
 {
 	// if window is resized, update camera aspect ratio
 	mCamera.setAspectRatio( event.getAspectRatio() );
 	mMayaCam.setCurrentCam( mCamera );
 }
 
-void XMBApp::mouseMove( MouseEvent event )
+void SmoothDisplacementMappingApp::mouseMove( MouseEvent event )
 {
 }
 
-void XMBApp::mouseDown( MouseEvent event )
+void SmoothDisplacementMappingApp::mouseDown( MouseEvent event )
 {
 	// handle user input
 	mMayaCam.mouseDown( event.getPos() );
 }
 
-void XMBApp::mouseDrag( MouseEvent event )
+void SmoothDisplacementMappingApp::mouseDrag( MouseEvent event )
 {
 	// handle user input
 	mMayaCam.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 	mCamera = mMayaCam.getCamera();
 }
 
-void XMBApp::mouseUp( MouseEvent event )
+void SmoothDisplacementMappingApp::mouseUp( MouseEvent event )
 {
 }
 
-void XMBApp::keyDown( KeyEvent event )
+void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() )
 	{
@@ -327,7 +327,7 @@ void XMBApp::keyDown( KeyEvent event )
 		try { 
 			mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
 			mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
-			mMeshShader = gl::GlslProg( loadAsset("xmb_vert.glsl"), loadAsset("xmb_frag.glsl") );
+			mMeshShader = gl::GlslProg( loadAsset("mesh_vert.glsl"), loadAsset("mesh_frag.glsl") );
 		}
 		catch( const std::exception &e ) { console() << e.what() << std::endl; }
 		break;
@@ -350,11 +350,11 @@ void XMBApp::keyDown( KeyEvent event )
 	}
 }
 
-void XMBApp::keyUp( KeyEvent event )
+void SmoothDisplacementMappingApp::keyUp( KeyEvent event )
 {
 }
 
-void XMBApp::createMesh()
+void SmoothDisplacementMappingApp::createMesh()
 {
 	// initialize data buffers
 	vector<Vec3f>		vertices;
@@ -399,7 +399,7 @@ void XMBApp::createMesh()
 	mVboMesh.bufferIndices( indices );
 }
 
-void XMBApp::createTextures()
+void SmoothDisplacementMappingApp::createTextures()
 {
 	gl::Texture::Format fmt;
 	fmt.setWrap( GL_REPEAT, GL_REPEAT );
@@ -419,4 +419,4 @@ void XMBApp::createTextures()
 	mSinusTexture = gl::Texture( s, fmt );
 }
 
-CINDER_APP_BASIC( XMBApp, RendererGl )
+CINDER_APP_BASIC( SmoothDisplacementMappingApp, RendererGl )

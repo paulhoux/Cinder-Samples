@@ -115,10 +115,10 @@
   <ItemGroup>
     <None Include="..\assets\displacement_map_frag.glsl" />
     <None Include="..\assets\displacement_map_vert.glsl" />
+    <None Include="..\assets\mesh_frag.glsl" />
+    <None Include="..\assets\mesh_vert.glsl" />
     <None Include="..\assets\normal_map_frag.glsl" />
     <None Include="..\assets\normal_map_vert.glsl" />
-    <None Include="..\assets\xmb_frag.glsl" />
-    <None Include="..\assets\xmb_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,7 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\XMBApp.cpp">
+    <ClCompile Include="..\src\SmoothDisplacementMappingApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,10 +45,10 @@
     <None Include="..\assets\normal_map_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\xmb_vert.glsl">
+    <None Include="..\assets\mesh_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\xmb_frag.glsl">
+    <None Include="..\assets\mesh_frag.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
