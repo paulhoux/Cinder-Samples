@@ -83,13 +83,14 @@ private:
 void XMBApp::prepareSettings(Settings *settings)
 {
 	settings->setTitle("Playstation XrossMediaBar");
+	settings->setWindowSize( 1280, 720 );
 	settings->setFrameRate( 300.0f );
 }
 
 void XMBApp::setup()
 {
 	mDrawTextures = false;
-	mDrawWireframe = false;
+	mDrawWireframe = true;
 
 	resetCamera();
 
