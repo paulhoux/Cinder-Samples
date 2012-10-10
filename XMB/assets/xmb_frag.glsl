@@ -9,8 +9,10 @@ void main()
 	// retrieve normal from texture
 	vec3 N = gl_NormalMatrix * texture2D( normal_map, gl_TexCoord[0].xy ).rgb;
 
-	float a = max(0.0, dot( vec3(0,1,1), normalize(N) ));
-	a = 0.75 * pow(a, 75.0);
+	// perform some falloff magic
+	float falloff = sin( max( dot( N, vec3(0.25, 1.0, 0.25) ), 0.0) * 2.25);	
+	float alpha = 0.3 * pow( falloff, 12.0 );
 
-	gl_FragColor = vec4( a, a, a, 1 );
+	// output color
+	gl_FragColor = vec4( 1.0, 1.0, 1.0, alpha );
 }

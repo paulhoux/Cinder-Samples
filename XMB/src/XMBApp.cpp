@@ -63,6 +63,7 @@ private:
 private:
 	bool			mDrawTextures;
 	bool			mDrawWireframe;
+	bool			mDrawOriginalMesh;
 
 	MayaCamUI		mMayaCam;
 	CameraPersp		mCamera;
@@ -82,7 +83,7 @@ private:
 
 void XMBApp::prepareSettings(Settings *settings)
 {
-	settings->setTitle("Playstation XrossMediaBar");
+	settings->setTitle("Vertex Displacement Mapping with Smooth Normals");
 	settings->setWindowSize( 1280, 720 );
 	settings->setFrameRate( 300.0f );
 }
@@ -90,31 +91,44 @@ void XMBApp::prepareSettings(Settings *settings)
 void XMBApp::setup()
 {
 	mDrawTextures = false;
-	mDrawWireframe = true;
+	mDrawWireframe = false;
+	mDrawOriginalMesh = false;
 
+	// initialize our camera
 	resetCamera();
 
+	// load background texture and shaders
 	try {
 		mBackgroundTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) );
 
+		// this shader will render a displacement map to a floating point texture, updated every frame
 		mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
+		// this shader will create a normal map based on the displacement map
 		mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
+		// this shader will use the displacement and normal maps to displace vertices of a mesh
 		mMeshShader = gl::GlslProg( loadAsset("xmb_vert.glsl"), loadAsset("xmb_frag.glsl") );
 	}
 	catch( const std::exception &e ) {
+		// something went wrong
 		console() << e.what() << std::endl;
 		quit();
 	}
 
+	// create the basic mesh (a flat plane)
 	createMesh();
+	// create the procedural textures
 	createTextures();
 
+	// create the frame buffer objects for the displacement map and the normal map
 	gl::Fbo::Format fmt;
 	fmt.enableDepthBuffer(false);
+	fmt.setWrap( GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE );
 
+	// use a single channel (red) for the displacement map
 	fmt.setColorInternalFormat( GL_R32F );
 	mDispMapFbo = gl::Fbo(256, 256, fmt);
 	
+	// use 3 channels (rgb) for the normal map
 	fmt.setColorInternalFormat( GL_RGB32F );
 	mNormalMapFbo = gl::Fbo(256, 256, fmt);
 }
@@ -135,30 +149,34 @@ void XMBApp::draw()
 	// render background
 	gl::draw( mBackgroundTexture, getWindowBounds() );
 
-
-	//
+	// if enabled, show the displacement and normal maps 
 	if(mDrawTextures) 
 	{	
 		gl::draw( mDispMapFbo.getTexture(), Vec2f(0,0) );
 		gl::draw( mNormalMapFbo.getTexture(), Vec2f(256,0) );
 	}
 
-	// finally, render our mesh using vertex displacement
+	// setup the 3D camera
 	gl::pushMatrices();
 	gl::setMatrices( mCamera );
 
-	//gl::enableDepthRead();
-	//gl::enableDepthWrite();
-	gl::enableAlphaBlending();
+	// setup render states
+	gl::enableAdditiveBlending();
 	if(mDrawWireframe) 
 		gl::enableWireframe();
 
-	//gl::color( ColorA(1, 1, 1, 0.2f) );
-	//gl::draw( mVboMesh );
+	// draw undisplaced mesh if enabled
+	if(mDrawOriginalMesh)
+	{
+		gl::color( ColorA(1, 1, 1, 0.2f) );
+		gl::draw( mVboMesh );
+	}
 
-	mDispMapFbo.getTexture().enableAndBind();
+	// bind the displacement and normal maps, each to their own texture unit
+	mDispMapFbo.getTexture().bind(0);
 	mNormalMapFbo.getTexture().bind(1);
 
+	// render our mesh using vertex displacement
 	mMeshShader.bind();
 	mMeshShader.uniform( "displacement_map", 0 );
 	mMeshShader.uniform( "normal_map", 1 );
@@ -168,14 +186,14 @@ void XMBApp::draw()
 
 	mMeshShader.unbind();
 
+	// unbind texture maps
 	mNormalMapFbo.unbindTexture();
 	mDispMapFbo.unbindTexture();
 	
+	// clean up after ourselves
 	gl::disableWireframe();
 	gl::disableAlphaBlending();
-	//gl::disableDepthWrite();
-	//gl::disableDepthRead();
-
+	
 	gl::popMatrices();
 }
 
@@ -202,18 +220,20 @@ void XMBApp::renderDisplacementMap()
 			gl::pushMatrices();
 			gl::setMatricesWindow( mDispMapFbo.getSize(), false );
 
-			// bind the textures containing sinus and noise values
-			mSinusTexture.enableAndBind();
+			// bind the texture containing sinus values
+			mSinusTexture.bind(0);
 
 			// render the displacement map
 			mDispMapShader.bind();
-			mDispMapShader.uniform( "time", 4.0f * float( getElapsedSeconds() ) );
+			mDispMapShader.uniform( "time", float( getElapsedSeconds() ) );
+			mDispMapShader.uniform( "amplitude", 18.0f );
 			mDispMapShader.uniform( "sinus", 0 );
 			gl::drawSolidRect( mDispMapFbo.getBounds() );
 			mDispMapShader.unbind();
 
 			// clean up after ourselves
 			mSinusTexture.unbind();
+
 			gl::popMatrices();
 			glPopAttrib();
 		}
@@ -237,8 +257,8 @@ void XMBApp::renderNormalMap()
 			// clear the color buffer
 			gl::clear();			
 
-			// bind the textures 
-			mDispMapFbo.getTexture().enableAndBind();
+			// bind the displacement map
+			mDispMapFbo.getTexture().bind(0);
 
 			// render the normal map
 			mNormalMapShader.bind();
@@ -260,6 +280,7 @@ void XMBApp::renderNormalMap()
 
 void XMBApp::resize( ResizeEvent event )
 {
+	// if window is resized, update camera aspect ratio
 	mCamera.setAspectRatio( event.getAspectRatio() );
 	mMayaCam.setCurrentCam( mCamera );
 }
@@ -270,11 +291,13 @@ void XMBApp::mouseMove( MouseEvent event )
 
 void XMBApp::mouseDown( MouseEvent event )
 {
+	// handle user input
 	mMayaCam.mouseDown( event.getPos() );
 }
 
 void XMBApp::mouseDrag( MouseEvent event )
 {
+	// handle user input
 	mMayaCam.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 	mCamera = mMayaCam.getCamera();
 }
@@ -288,12 +311,19 @@ void XMBApp::keyDown( KeyEvent event )
 	switch( event.getCode() )
 	{
 	case KeyEvent::KEY_ESCAPE:
+		// quit
 		quit();
 		break;
 	case KeyEvent::KEY_f:
+		// toggle full screen
 		setFullScreen( !isFullScreen() );
 		break;
+	case KeyEvent::KEY_m:
+		// toggle original mesh
+		mDrawOriginalMesh = !mDrawOriginalMesh;
+		break;
 	case KeyEvent::KEY_s:
+		// reload shaders
 		try { 
 			mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
 			mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
@@ -302,15 +332,19 @@ void XMBApp::keyDown( KeyEvent event )
 		catch( const std::exception &e ) { console() << e.what() << std::endl; }
 		break;
 	case KeyEvent::KEY_t:
+		// toggle draw textures
 		mDrawTextures = !mDrawTextures;
 		break;
 	case KeyEvent::KEY_v:
+		// toggle vertical sync
 		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
 		break;
 	case KeyEvent::KEY_w:
+		// toggle wire frame
 		mDrawWireframe = !mDrawWireframe;
 		break;
 	case KeyEvent::KEY_SPACE:
+		// reset camera
 		resetCamera();
 		break;
 	}
@@ -322,13 +356,15 @@ void XMBApp::keyUp( KeyEvent event )
 
 void XMBApp::createMesh()
 {
+	// initialize data buffers
 	vector<Vec3f>		vertices;
 	vector<Vec2f>		texcoords;
 	vector<Vec3f>		normals;
 	vector<uint32_t>	indices;
 
-	const int RES_X = 100;
-	const int RES_Z = 50;
+	// create vertex, normal and texcoord buffers
+	const int RES_X = 160;
+	const int RES_Z = 40;
 	const Vec3f size(200.0f, 0.0f, 50.0f);
 
 	for(int x=0;x<RES_X;++x) {
@@ -339,6 +375,7 @@ void XMBApp::createMesh()
 		}
 	}
 
+	// create index buffer
 	for(int x=0;x<RES_X-1;++x) {
 		for(int z=0;z<RES_Z-1;++z) {
 			uint32_t a = x * RES_Z + z;
@@ -348,6 +385,7 @@ void XMBApp::createMesh()
 		}
 	}
 
+	// using the buffered data, create a vertex buffer object
 	gl::VboMesh::Layout layout;
 	layout.setStaticPositions();
 	layout.setStaticTexCoords2d();

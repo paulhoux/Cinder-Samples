@@ -1,4 +1,7 @@
 // adapted from: http://www.tartiflop.com/disp2norm/srcview/index.html
+// note: I have omitted the second and third order processing, because this
+//       would require branching, which would stall the GPU needlessly.
+//       You will notice incorrect normals at the edges of the normal map.
 
 #version 120
 
@@ -18,6 +21,7 @@ void main(void)
 	normal.x = -0.5 * (getDisplacement(1,0) - getDisplacement(-1,0));
 	normal.z = -0.5 * (getDisplacement(0,1) - getDisplacement(0,-1));
 	normal.y = 1.0 / amplitude;
+	normal = normalize(normal);
 
 	gl_FragColor = vec4( normal, 1.0 );
 }

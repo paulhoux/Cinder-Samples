@@ -7,7 +7,7 @@ varying vec4 v;
 void main()
 {
 	// lookup displacement in map
-	float displacement = 15.0 * texture2D( displacement_map, gl_MultiTexCoord0.xy ).r;
+	float displacement = texture2D( displacement_map, gl_MultiTexCoord0.xy ).r;
 
 	// now take the vertex and displace it along its normal
 	v = gl_Vertex;
