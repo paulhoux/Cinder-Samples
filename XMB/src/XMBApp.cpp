@@ -23,7 +23,6 @@
 #include "cinder/Camera.h"
 #include "cinder/ImageIo.h"
 #include "cinder/MayaCamUI.h"
-#include "cinder/Perlin.h"
 #include "cinder/Surface.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
@@ -59,7 +58,12 @@ private:
 
 	void renderDisplacementMap();
 	void renderNormalMap();
+
+	void resetCamera();
 private:
+	bool			mDrawTextures;
+	bool			mDrawWireframe;
+
 	MayaCamUI		mMayaCam;
 	CameraPersp		mCamera;
 
@@ -70,7 +74,6 @@ private:
 	gl::GlslProg	mNormalMapShader;
 
 	gl::Texture		mSinusTexture;
-	gl::Texture		mNoiseTexture;
 	gl::Texture		mBackgroundTexture;
 	
 	gl::VboMesh		mVboMesh;
@@ -79,14 +82,16 @@ private:
 
 void XMBApp::prepareSettings(Settings *settings)
 {
-	settings->setTitle("Cinder Sample");
+	settings->setTitle("Playstation XrossMediaBar");
+	settings->setFrameRate( 300.0f );
 }
 
 void XMBApp::setup()
 {
-	mCamera.setEyePoint( Vec3f( 0.0f, 0.0f, -130.0f ) );
-	mCamera.setCenterOfInterestPoint( Vec3f( 0.0f, 0.0f, 0.0f ) ) ;
-	mMayaCam.setCurrentCam( mCamera );
+	mDrawTextures = false;
+	mDrawWireframe = false;
+
+	resetCamera();
 
 	createMesh();
 	createTextures();
@@ -115,6 +120,11 @@ void XMBApp::setup()
 
 void XMBApp::update()
 {
+	// render displacement map
+	renderDisplacementMap();
+
+	// render normal map
+	renderNormalMap();
 }
 
 void XMBApp::draw()
@@ -124,24 +134,22 @@ void XMBApp::draw()
 	// render background
 	gl::draw( mBackgroundTexture, getWindowBounds() );
 
-	//
-	gl::draw( mNoiseTexture );
-	
-	// render displacement map
-	renderDisplacementMap();
-	gl::draw( mDispMapFbo.getTexture(), Vec2f(256,0) );
 
-	// render normal map
-	renderNormalMap();
-	gl::draw( mNormalMapFbo.getTexture(), Vec2f(512,0) );
+	//
+	if(mDrawTextures) 
+	{	
+		gl::draw( mDispMapFbo.getTexture(), Vec2f(0,0) );
+		gl::draw( mNormalMapFbo.getTexture(), Vec2f(256,0) );
+	}
 
 	// finally, render our mesh using vertex displacement
 	gl::pushMatrices();
 	gl::setMatrices( mCamera );
 
 	gl::color( Color::white() );
-	//gl::enableWireframe();
 	gl::enableAlphaBlending();
+	if(mDrawWireframe) 
+		gl::enableWireframe();
 
 	mDispMapFbo.getTexture().enableAndBind();
 	mNormalMapFbo.getTexture().bind(1);
@@ -156,11 +164,18 @@ void XMBApp::draw()
 
 	mNormalMapFbo.unbindTexture();
 	mDispMapFbo.unbindTexture();
-
+	
 	gl::disableAlphaBlending();
-	//gl::disableWireframe();
+	gl::disableWireframe();
 
 	gl::popMatrices();
+}
+
+void XMBApp::resetCamera()
+{
+	mCamera.setEyePoint( Vec3f( 0.0f, 0.0f, 130.0f ) );
+	mCamera.setCenterOfInterestPoint( Vec3f( 0.0f, 0.0f, 0.0f ) ) ;
+	mMayaCam.setCurrentCam( mCamera );
 }
 
 void XMBApp::renderDisplacementMap()
@@ -169,6 +184,9 @@ void XMBApp::renderDisplacementMap()
 	{
 		mDispMapFbo.bindFramebuffer();
 		{
+			// clear the color buffer
+			gl::clear();			
+
 			// setup viewport and matrices 
 			glPushAttrib( GL_VIEWPORT_BIT );
 			gl::setViewport( mDispMapFbo.getBounds() );
@@ -176,27 +194,19 @@ void XMBApp::renderDisplacementMap()
 			gl::pushMatrices();
 			gl::setMatricesWindow( mDispMapFbo.getSize(), false );
 
-			// clear the color buffer
-			gl::clear();			
-
 			// bind the textures containing sinus and noise values
 			mSinusTexture.enableAndBind();
-			mNoiseTexture.bind(1);
 
 			// render the displacement map
 			mDispMapShader.bind();
 			mDispMapShader.uniform( "time", float( getElapsedSeconds() ) );
 			mDispMapShader.uniform( "sinus", 0 );
-			mDispMapShader.uniform( "noise", 1 );
 			gl::drawSolidRect( mDispMapFbo.getBounds() );
 			mDispMapShader.unbind();
 
 			// clean up after ourselves
-			mNoiseTexture.unbind();
 			mSinusTexture.unbind();
-
 			gl::popMatrices();
-
 			glPopAttrib();
 		}
 		mDispMapFbo.unbindFramebuffer();
@@ -278,13 +288,21 @@ void XMBApp::keyDown( KeyEvent event )
 		try { 
 			mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
 			mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
+			mMeshShader = gl::GlslProg( loadAsset("xmb_vert.glsl"), loadAsset("xmb_frag.glsl") );
 		}
 		catch( const std::exception &e ) { console() << e.what() << std::endl; }
 		break;
+	case KeyEvent::KEY_t:
+		mDrawTextures = !mDrawTextures;
+		break;
+	case KeyEvent::KEY_v:
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
+	case KeyEvent::KEY_w:
+		mDrawWireframe = !mDrawWireframe;
+		break;
 	case KeyEvent::KEY_SPACE:
-		mCamera.setEyePoint( Vec3f( 0.0f, 0.0f, -130.0f ) );
-		mCamera.setCenterOfInterestPoint( Vec3f( 0.0f, 0.0f, 0.0f ) ) ;
-		mMayaCam.setCurrentCam( mCamera );
+		resetCamera();
 		break;
 	}
 }
@@ -300,8 +318,8 @@ void XMBApp::createMesh()
 	vector<Vec3f>		normals;
 	vector<uint32_t>	indices;
 
-	const int RES_X = 500;
-	const int RES_Z = 250;
+	const int RES_X = 100;
+	const int RES_Z = 50;
 	const Vec3f size(200.0f, 0.0f, 50.0f);
 
 	for(int x=0;x<RES_X;++x) {
@@ -316,8 +334,8 @@ void XMBApp::createMesh()
 		for(int z=0;z<RES_Z-1;++z) {
 			uint32_t a = x * RES_Z + z;
 
-			indices.push_back( a ); indices.push_back( a + RES_Z ); indices.push_back( a + 1 );
-			indices.push_back( a + RES_Z ); indices.push_back( a + RES_Z + 1 );  indices.push_back( a + 1 );
+			indices.push_back( a ); indices.push_back( a + 1 ); indices.push_back( a + RES_Z );
+			indices.push_back( a + RES_Z );  indices.push_back( a + 1 ); indices.push_back( a + RES_Z + 1 );
 		}
 	}
 
@@ -352,26 +370,6 @@ void XMBApp::createTextures()
 	}
 
 	mSinusTexture = gl::Texture( s, fmt );
-
-	// create noise texture
-	Perlin perlin(6, 1);
-	int w = 256;
-	int h = 256;
-	Surface32f n( w, h, false, SurfaceChannelOrder::CHAN_RED );
-	itr = n.getIter();
-	while( itr.line() ) {
-		while( itr.pixel() ) {
-			Vec2f p = Vec2f( itr.getPos() ) / Vec2f(w, h);
-			float x = perlin.fBm( p.x, p.y ) * (1.0f - p.x) * (1.0f - p.y) +
-				perlin.fBm( p.x-1.0f, p.y ) * p.x * (1.0f - p.y) +
-				perlin.fBm( p.x-1.0f, p.y-1.0f ) * p.x * p.y +
-				perlin.fBm( p.x, p.y-1.0f ) * (1.0f - p.x) * p.y;
-			x += 0.5f;
-			n.setPixel( itr.getPos(), Color(x, x, x) );
-		}
-	}
-
-	mNoiseTexture = gl::Texture( n, fmt );
 }
 
 CINDER_APP_BASIC( XMBApp, RendererGl )
