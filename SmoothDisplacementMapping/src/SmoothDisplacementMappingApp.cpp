@@ -152,7 +152,9 @@ void SmoothDisplacementMappingApp::draw()
 	// if enabled, show the displacement and normal maps 
 	if(mDrawTextures) 
 	{	
+		gl::color( Color(0.05f, 0.05f, 0.05f) );
 		gl::draw( mDispMapFbo.getTexture(), Vec2f(0,0) );
+		gl::color( Color(1, 1, 1) );
 		gl::draw( mNormalMapFbo.getTexture(), Vec2f(256,0) );
 	}
 
@@ -363,8 +365,8 @@ void SmoothDisplacementMappingApp::createMesh()
 	vector<uint32_t>	indices;
 
 	// create vertex, normal and texcoord buffers
-	const int RES_X = 160;
-	const int RES_Z = 40;
+	const int RES_X = 200;
+	const int RES_Z = 50;
 	const Vec3f size(200.0f, 0.0f, 50.0f);
 
 	for(int x=0;x<RES_X;++x) {
