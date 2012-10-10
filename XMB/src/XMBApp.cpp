@@ -94,9 +94,6 @@ void XMBApp::setup()
 
 	resetCamera();
 
-	createMesh();
-	createTextures();
-
 	try {
 		mBackgroundTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) );
 
@@ -108,6 +105,9 @@ void XMBApp::setup()
 		console() << e.what() << std::endl;
 		quit();
 	}
+
+	createMesh();
+	createTextures();
 
 	gl::Fbo::Format fmt;
 	fmt.enableDepthBuffer(false);
@@ -147,10 +147,14 @@ void XMBApp::draw()
 	gl::pushMatrices();
 	gl::setMatrices( mCamera );
 
-	gl::color( Color::white() );
+	//gl::enableDepthRead();
+	//gl::enableDepthWrite();
 	gl::enableAlphaBlending();
 	if(mDrawWireframe) 
 		gl::enableWireframe();
+
+	//gl::color( ColorA(1, 1, 1, 0.2f) );
+	//gl::draw( mVboMesh );
 
 	mDispMapFbo.getTexture().enableAndBind();
 	mNormalMapFbo.getTexture().bind(1);
@@ -159,6 +163,7 @@ void XMBApp::draw()
 	mMeshShader.uniform( "displacement_map", 0 );
 	mMeshShader.uniform( "normal_map", 1 );
 
+	gl::color( Color::white() );
 	gl::draw( mVboMesh );
 
 	mMeshShader.unbind();
@@ -166,8 +171,10 @@ void XMBApp::draw()
 	mNormalMapFbo.unbindTexture();
 	mDispMapFbo.unbindTexture();
 	
-	gl::disableAlphaBlending();
 	gl::disableWireframe();
+	gl::disableAlphaBlending();
+	//gl::disableDepthWrite();
+	//gl::disableDepthRead();
 
 	gl::popMatrices();
 }
@@ -200,7 +207,7 @@ void XMBApp::renderDisplacementMap()
 
 			// render the displacement map
 			mDispMapShader.bind();
-			mDispMapShader.uniform( "time", float( getElapsedSeconds() ) );
+			mDispMapShader.uniform( "time", 4.0f * float( getElapsedSeconds() ) );
 			mDispMapShader.uniform( "sinus", 0 );
 			gl::drawSolidRect( mDispMapFbo.getBounds() );
 			mDispMapShader.unbind();
@@ -230,12 +237,13 @@ void XMBApp::renderNormalMap()
 			// clear the color buffer
 			gl::clear();			
 
-			// bind the textures containing sinus and noise values
+			// bind the textures 
 			mDispMapFbo.getTexture().enableAndBind();
 
-			// render the displacement map
+			// render the normal map
 			mNormalMapShader.bind();
 			mNormalMapShader.uniform( "texture", 0 );
+			mNormalMapShader.uniform( "amplitude", 4.0f );
 			gl::drawSolidRect( mNormalMapFbo.getBounds() );
 			mNormalMapShader.unbind();
 

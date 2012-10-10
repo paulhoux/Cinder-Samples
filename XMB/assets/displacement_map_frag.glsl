@@ -12,18 +12,18 @@ float sinf( float period )
 // calculate displacement based on uv coordinate
 float displace( vec2 uv )
 {
-	float d = sinf( (uv.x * 0.2) - time * 0.03 );
+	float d = 1.5 * sinf( (uv.x * 0.5) - time * 0.03 );
 	d *= sinf( (uv.x * 0.8) - time * 0.02 );
 	d += 0.25 * sinf( ((uv.x + uv.y) * 1.1) - time * 0.05 );
 	d += 0.25 * sinf( (uv.y * 1.2) - time * 0.01 );
 	d += 0.1 * sinf( ((uv.y + uv.x) * 2.8) - time * 0.09 );
 	d += 0.15 * sinf( ((uv.y - uv.x) * 1.9) - time * 0.08 );
 
-	return d;
+	return 0.5 + 0.5 * d;
 }
 
 void main()
 {
-	float d = 0.5 + 0.5 * displace( gl_TexCoord[0].xy );
+	float d = displace( gl_TexCoord[0].xy );
 	gl_FragColor = vec4( d, d, d, 1.0 );
 }

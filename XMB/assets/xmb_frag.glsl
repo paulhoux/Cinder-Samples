@@ -2,18 +2,15 @@
 
 uniform sampler2D normal_map;
 
+varying vec4 v;
+
 void main()
 {
-	const vec3 falloff = normalize( vec3(0.25, 1.0, 0.25) );
-
 	// retrieve normal from texture
-	vec3 normal = 2.0 * texture2D( normal_map, gl_TexCoord[0].xy ).rgb - vec3(1.0);
-	normal = gl_NormalMatrix * normal;
+	vec3 N = gl_NormalMatrix * texture2D( normal_map, gl_TexCoord[0].xy ).rgb;
 
-	//
-	float a = max( 0.0, dot(normal, falloff) );
-	a = pow(a, 15.0) + 0.5 * pow(a, 7.5);
+	float a = max(0.0, dot( vec3(0,1,1), normalize(N) ));
+	a = 0.75 * pow(a, 75.0);
 
-	// simply use the interpolated vertex colors
-	gl_FragColor = vec4(1.0, 1.0, 1.0, 0.05 + 0.70 * a);
+	gl_FragColor = vec4( a, a, a, 1 );
 }

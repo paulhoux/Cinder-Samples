@@ -2,16 +2,18 @@
 
 uniform sampler2D displacement_map;
 
+varying vec4 v;
+
 void main()
 {
 	// lookup displacement in map
-	float displacement = 2.0 * texture2D( displacement_map, gl_MultiTexCoord0.xy ).r - 1.0;
+	float displacement = 15.0 * texture2D( displacement_map, gl_MultiTexCoord0.xy ).r;
 
 	// now take the vertex and displace it along its normal
-	vec4 v = gl_Vertex;
-	v.x += gl_Normal.x * displacement * 10.0;
-	v.y += gl_Normal.y * displacement * 10.0;
-	v.z += gl_Normal.z * displacement * 10.0;
+	v = gl_Vertex;
+	v.x += gl_Normal.x * displacement;
+	v.y += gl_Normal.y * displacement;
+	v.z += gl_Normal.z * displacement;
 
 	// pass it on to the fragment shader
 	gl_Position = gl_ModelViewProjectionMatrix * v;

@@ -1,30 +1,23 @@
+// adapted from: http://www.tartiflop.com/disp2norm/srcview/index.html
+
 #version 120
 
 uniform sampler2D texture;
+uniform float amplitude;
+
+float getDisplacement( float dx, float dy )
+{
+	vec2 uv = gl_TexCoord[0].xy;
+	return texture2D( texture, uv + vec2( dFdx(uv.s) * dx, dFdy(uv.t) * dy ) ).r;
+}
 
 void main(void)
 {
-	vec2 d = vec2(dFdx(gl_TexCoord[0].s), dFdy(gl_TexCoord[0].t));
+	// calculate first order centered finite difference
+	vec3 normal;
+	normal.x = -0.5 * (getDisplacement(1,0) - getDisplacement(-1,0));
+	normal.z = -0.5 * (getDisplacement(0,1) - getDisplacement(0,-1));
+	normal.y = 1.0 / amplitude;
 
-	float tl = texture2D(texture, gl_TexCoord[0].st + d * vec2(-1.0, -1.0)).x;  // top left
-	float l = texture2D(texture, gl_TexCoord[0].st + d * vec2(-1.0, 0.0)).x;  // left
-	float bl = texture2D(texture, gl_TexCoord[0].st + d * vec2(-1.0, 1.0)).x;  // bottom left
-	float t = texture2D(texture, gl_TexCoord[0].st + d * vec2( 0.0, -1.0)).x;  // top
-	float b = texture2D(texture, gl_TexCoord[0].st + d * vec2( 0.0, 1.0)).x;  // bottom
-	float tr = texture2D(texture, gl_TexCoord[0].st + d * vec2( 1.0, -1.0)).x;  // top right
-	float r = texture2D(texture, gl_TexCoord[0].st + d * vec2( 1.0, 0.0)).x;  // right
-	float br = texture2D(texture, gl_TexCoord[0].st + d * vec2( 1.0, 1.0)).x;  // bottom right
-
-	// Compute dx using Sobel 
-	float dX = tr + 2.0*r + br -tl - 2.0*l - bl;
-
-	// Compute dy using Sobel
-	float dY = bl + 2.0*b + br -tl - 2.0*t - tr;
-
-	vec4 N = vec4( normalize( vec3(dX, 0.05, dY) ), 1.0 );
-
-	N *= 0.5;
-	N += 0.5;
-
-	gl_FragColor = N;
+	gl_FragColor = vec4( normal, 1.0 );
 }
