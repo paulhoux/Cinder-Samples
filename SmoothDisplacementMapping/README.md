@@ -17,6 +17,9 @@ This sample will show you how to:
 * use both map to render a animated, transparent piece of cloth that looks a lot like the PlayStation's XrossMediaBar background (but that's just a coincidence, don't you think? ;))
 
 
+All of this is done on the GPU, very little work remains for the CPU. The sample can therefor easily run at 300+ FPS. Note that you really need a modern GPU for this, with support for floating point textures and vertex shader texture lookup. If your GPU support shader model 4, you're good to go.
+
+
 <u>Controls:</u>
 * use the <b>mouse</b> to control the camera
 * press <b>SPACE</b> to reset the camera
