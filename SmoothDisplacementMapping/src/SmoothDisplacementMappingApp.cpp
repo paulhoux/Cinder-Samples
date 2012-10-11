@@ -364,47 +364,46 @@ void SmoothDisplacementMappingApp::keyUp( KeyEvent event )
 
 void SmoothDisplacementMappingApp::createMesh()
 {
-	// initialize data buffers
-	vector<Vec3f>		vertices;
-	vector<Vec2f>		texcoords;
-	vector<Vec3f>		normals;
-	vector<uint32_t>	indices;
+	// use the TriMesh class to easily construct the vertex buffer object
+	TriMesh mesh;
 
-	// create vertex, normal and texcoord buffers
-	const int RES_X = 200;
-	const int RES_Z = 50;
-	const Vec3f size(200.0f, 0.0f, 50.0f);
+	// create vertex and texcoord buffers
+	const int RES_X = 400;
+	const int RES_Z = 100;
+	const Vec3f size(200.0f, 1.0f, 50.0f);
 
 	for(int x=0;x<RES_X;++x) {
 		for(int z=0;z<RES_Z;++z) {
-			vertices.push_back( Vec3f( (float(x) / RES_X) - 0.5f , 0.0f, float(z) / RES_Z - 0.5f ) * size );
-			normals.push_back( Vec3f::yAxis() );
-			texcoords.push_back( Vec2f( float(x) / RES_X, float(z) / RES_Z ) );
+			float u = float(x) / RES_X;
+			float v = float(z) / RES_Z;
+			mesh.appendVertex( size * Vec3f( u - 0.5f , 0.0f, v - 0.5f ) );
+			mesh.appendTexCoord( Vec2f( u, v ) );
 		}
 	}
 
 	// create index buffer
+	vector< uint32_t > indices;
 	for(int x=0;x<RES_X-1;++x) {
 		for(int z=0;z<RES_Z-1;++z) {
-			uint32_t a = x * RES_Z + z;
+			uint32_t i = x * RES_Z + z;
 
-			indices.push_back( a ); indices.push_back( a + 1 ); indices.push_back( a + RES_Z );
-			indices.push_back( a + RES_Z );  indices.push_back( a + 1 ); indices.push_back( a + RES_Z + 1 );
+			indices.push_back( i ); indices.push_back( i + 1 ); indices.push_back( i + RES_Z );
+			indices.push_back( i + RES_Z );  indices.push_back( i + 1 ); indices.push_back( i + RES_Z + 1 );
 		}
 	}
+	mesh.appendIndices( &indices.front(), indices.size() );
 
-	// using the buffered data, create a vertex buffer object
+	// calculate normals
+	mesh.recalculateNormals();
+
+	// construct vertex buffer object
 	gl::VboMesh::Layout layout;
 	layout.setStaticPositions();
 	layout.setStaticTexCoords2d();
-	layout.setStaticNormals();
 	layout.setStaticIndices();
+	layout.setStaticNormals();
 
-	mVboMesh = gl::VboMesh( vertices.size(), indices.size(), layout, GL_TRIANGLES );
-	mVboMesh.bufferPositions( vertices );
-	mVboMesh.bufferTexCoords2d( 0, texcoords );
-	mVboMesh.bufferNormals( normals );
-	mVboMesh.bufferIndices( indices );
+	mVboMesh = gl::VboMesh( mesh, layout );
 }
 
 void SmoothDisplacementMappingApp::createTextures()

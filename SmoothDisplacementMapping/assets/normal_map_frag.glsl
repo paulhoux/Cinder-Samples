@@ -16,7 +16,7 @@ float getDisplacement( float dx, float dy )
 
 void main(void)
 {
-	// calculate first order centered finite difference
+	// calculate first order centered finite difference (y-direction)
 	vec3 normal;
 	normal.x = -0.5 * (getDisplacement(1,0) - getDisplacement(-1,0));
 	normal.z = -0.5 * (getDisplacement(0,1) - getDisplacement(0,-1));
