@@ -5,19 +5,19 @@ Smooth Displacement Mapping
 Vertex displacement mapping is a technique where you use a texture or a procedural function to change the position of vertices in a mesh. It is often used to create a terrain with mountains from a height field. 
 
 
-But when the vertex position changes, its associated normal vector should also change, because the mesh is no longer flat. One way to calculate the new normal would be by using a geometry shader. This is often called per-face normal computation on the GPU, because it can only calculate one normal vector for the whole triangle. The result looks facetted: each triangle will appear to be flat.
+For dynamically changing height fields, like an animated flag, not only the vertex position should change, but also its associated normal vector. One way to calculate the new normal would be to use a geometry shader. This is often called per-face normal computation on the GPU, because it can only calculate one normal vector for the whole triangle. The result looks faceted: each triangle will appear to be flat.
 
 
-To overcome this, you should calculate a new normal map if your height field (a.k.a. displacement map) changes. This can easily be done on the GPU, which is great if your displacement map changes every frame.
+To overcome this, you can use a normal map. This is an additional texture that corresponds to the height field and contains offsets to the original surface normals. You should calculate a new normal map every time your height field (a.k.a. displacement map) changes. This can easily be done on the GPU. Using floating point textures, this is quite easy and can be done using a simple fragment shader.
 
 
 This sample will show you how to:
 * render to a floating point texture to create a displacement map on-the-fly
 * render the corresponding normal map, also a floating point texture
-* use both map to render a animated, transparent piece of cloth that looks a lot like the PlayStation's XrossMediaBar background (but that's just a coincidence, don't you think? ;))
+* use both maps to render an animated, transparent piece of cloth that looks a lot like Sony PlayStation's XrossMediaBar background (but that's just a coincidence, don't you think? ;))
 
 
-All of this is done on the GPU, very little work remains for the CPU. The sample can therefor easily run at 300+ FPS. Note that you really need a modern GPU for this, with support for floating point textures and vertex shader texture lookup. If your GPU support shader model 4, you're good to go.
+All of this is done on the GPU, very little work remains for the CPU. The sample can therefor easily run at 300+ FPS. Note that you do need a modern GPU for this, with support for floating point textures and vertex shader texture fetch. If your GPU supports shader model 3, you're probably good to go.
 
 
 <u>Controls:</u>
