@@ -2,13 +2,16 @@ Smooth Displacement Mapping
 ===========================
 
 
-Vertex displacement mapping is a technique where you use a texture or a procedural function to change the position of vertices in a mesh. It is often used to create a terrain with mountains from a height field. 
+Vertex displacement mapping is a technique where a texture or a procedural function is used to dynamically change the position of vertices in a mesh. It is often used to create a terrain with mountains from a height field, ocean waves or an animated flag. 
 
 
 For dynamically changing height fields, like an animated flag, not only the vertex position should change, but also its associated normal vector. One way to calculate the new normal would be to use a geometry shader. This is often called per-face normal computation on the GPU, because it can only calculate one normal vector for the whole triangle. The result looks faceted: each triangle will appear to be flat.
 
 
-To overcome this, you can use a normal map. This is an additional texture that corresponds to the height field and contains offsets to the original surface normals. You should calculate a new normal map every time your height field (a.k.a. displacement map) changes. This can easily be done on the GPU. Using floating point textures, this is quite easy and can be done using a simple fragment shader.
+To overcome this, you can use a normal map. This is an additional texture that corresponds to the height field and contains offsets to the original surface normals. A shader can then fetch the normal from this texture on a per pixel basis. The great news is that normals are even automatically interpolated, so per-pixel shading will look incredibly smooth. 
+
+
+You should calculate a new normal map every time your height field (a.k.a. displacement map) changes. This can easily be done on the GPU. Using floating point textures, this is even easier and can be done using a simple fragment shader.
 
 
 This sample will show you how to:
