@@ -129,7 +129,7 @@ std::string TextLabels::getVertexShader() const
 	const char *vs = 
 		"#version 120\n"
 		"\n"
-		"uniform vec2 viewportSize;\n"
+		"uniform vec2 viewport_size;\n"
 		"\n"
 		"vec3 toClipSpace(vec4 vertex)\n"
 		"{\n"
@@ -138,7 +138,7 @@ std::string TextLabels::getVertexShader() const
 		"\n"
 		"vec2 toScreenSpace(vec4 vertex)\n"
 		"{\n"
-		"	return vec2( vertex.xy / vertex.w ) * viewportSize;\n"
+		"	return vec2( vertex.xy / vertex.w ) * viewport_size;\n"
 		"}\n"
 		"\n"
 		"void main()\n"
@@ -170,7 +170,7 @@ bool TextLabels::bindShader()
 {
 	if( Text::bindShader() )
 	{
-		mShader.uniform( "viewportSize", Vec2f( app::getWindowSize() ) );
+		mShader.uniform( "viewport_size", Vec2f( app::getWindowSize() ) );
 		return true;
 	}
 

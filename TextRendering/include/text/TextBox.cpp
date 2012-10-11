@@ -33,7 +33,7 @@ using namespace std;
 void TextBox::drawBounds( const ci::Vec2f &offset )
 {
 	glPushAttrib( GL_ENABLE_BIT | GL_CURRENT_BIT );
-	gl::color( ColorA(1, 1, 0, 1.0f) );
+	gl::color( ColorA(1, 0, 0, 1.0f) );
 	gl::drawStrokedRoundedRect( Rectf( offset, offset + mSize ), 5.0f );
 	glPopAttrib();
 }

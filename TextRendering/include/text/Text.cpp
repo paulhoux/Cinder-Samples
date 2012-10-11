@@ -145,36 +145,34 @@ void Text::renderMesh()
 			break;
 		}
 
-		// if any number of chunks fit on this line, render them
-		if( *aitr > index ) {
-			// adjust alignment
-			switch( mAlignment ) {
+		// if no chunks fit on this line, just render the first chunk
+		if( *aitr <= index ) {
+			++aitr;
+			
+			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
+			width = mFont->measure( trimmed, mFontSize ).getX2();
+		}
+
+		// adjust alignment
+		switch( mAlignment ) {
 			case CENTER: cursor.x = 0.5f * (linewidth - width); break;
 			case RIGHT: cursor.x = (linewidth - width); break;
-			}
-
-			// add this fitting part of the text to the mesh 
-			renderString( trimmed, &cursor );
-
-			// advance cursor to new line
-			if( !newLine(&cursor) ) break;			
-
-			// advance iterators
-			index = *aitr; // start at end of this chunk
-
-			if( *aitr == *mitr ) 
-				++mitr; // if all chunks on this line are rendered, end at next "must break"
-
-			if( mitr != mMust.end() ) // try to render the remaining chunks of this line
-				aitr = std::find( aitr, mAllow.end(), *mitr );
 		}
-		else {
-			// advance to a new line with perhaps more space
-			newLine(&cursor);
 
-			// try to render the remaining chunks of this line
+		// add this fitting part of the text to the mesh 
+		renderString( trimmed, &cursor );
+
+		// advance cursor to new line
+		if( !newLine(&cursor) ) break;			
+
+		// advance iterators
+		index = *aitr; // start at end of this chunk
+
+		if( *aitr == *mitr ) 
+			++mitr; // if all chunks on this line are rendered, end at next "must break"
+
+		if( mitr != mMust.end() ) // try to render the remaining chunks of this line
 			aitr = std::find( aitr, mAllow.end(), *mitr );
-		}
 	}
 }
 
@@ -266,15 +264,15 @@ std::string Text::getFragmentShader() const
 	const char *fs = 
 		"#version 110\n"
 		"\n"
-		"uniform sampler2D	tex0;\n"
+		"uniform sampler2D	font_map;\n"
+		"uniform float      smoothness;\n"
 		"\n"
-		"const float smoothness = 128.0;\n"
 		"const float gamma = 2.2;\n"
 		"\n"
 		"void main()\n"
 		"{\n"
 		"	// retrieve signed distance\n"
-		"	vec4 clr = texture2D( tex0, gl_TexCoord[0].xy );\n"
+		"	vec4 clr = texture2D( font_map, gl_TexCoord[0].xy );\n"
 		"	float sdf = clr.r;\n"
 		"\n"
 		"	// perform adaptive anti-aliasing of the edges\n"
@@ -306,7 +304,8 @@ bool Text::bindShader()
 	}
 
 	mShader.bind();
-	mShader.uniform( "tex0", 0 );
+	mShader.uniform( "font_map", 0 );
+	mShader.uniform( "smoothness", 64.0f );
 
 	return true;
 }

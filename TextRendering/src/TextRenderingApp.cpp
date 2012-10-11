@@ -44,7 +44,7 @@ protected:
 void TextRenderingApp::prepareSettings(Settings *settings)
 {
 	settings->setFrameRate(200.0f);
-	settings->setWindowSize(720, 720);
+	settings->setWindowSize(480, 720);
 }
 
 void TextRenderingApp::setup()
@@ -55,17 +55,17 @@ void TextRenderingApp::setup()
 	mFrontColor = Color::black();
 	mBackColor = Color::white();
 
-	mOffset = Vec2f(20, 0);
+	mOffset = Vec2f(20, 20);
 	mPosition = mTarget = Vec2f(0, 0);
 
 	try { 
 		// load fonts using the FontStore
-		fonts().loadFont( loadAsset("fonts/WalterTurncoat.sdff") ); 
+		fonts().loadFont( loadAsset("fonts/Walter Turncoat Regular.sdff") ); 
 
 		// create a text box (rectangular text area)
 		mTextBox = TextBox( getWindowSize() );
 		// set font and font size
-		mTextBox.setFont( fonts().getFont("WalterTurncoat") );
+		mTextBox.setFont( fonts().getFont("Walter Turncoat Regular") );
 		mTextBox.setFontSize( 18.0f );
 		// break lines between words
 		mTextBox.setBoundary( Text::WORD );
@@ -127,7 +127,7 @@ void TextRenderingApp::mouseDown( MouseEvent event )
 
 void TextRenderingApp::keyDown( KeyEvent event )
 {
-	int n = math<float>::floor( mTarget.y / mTextBox.getLeading() );
+	int n = int( math<float>::floor( mTarget.y / mTextBox.getLeading() ) );
 
 	switch(event.getCode()) {
 	case KeyEvent::KEY_ESCAPE:
@@ -142,15 +142,15 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_w:
 		mShowWireframe = !mShowWireframe;
 		break;
-	case KeyEvent::KEY_b:
-		mShowBounds = !mShowBounds;
-		break;
+	//case KeyEvent::KEY_b:
+	//	mShowBounds = !mShowBounds;
+	//	break;
 	case KeyEvent::KEY_PAGEDOWN:
-		n -= math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() );
+		n -= int( math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() ) );
 		mTarget.y = n * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_PAGEUP:
-		n += math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() );
+		n += int( math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() ) );
 		if( n > 0 ) n = 0;
 		mTarget.y = n * mTextBox.getLeading();
 		break;
@@ -240,7 +240,7 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 				ph::text::FontRef font( new ph::text::Font() );
 				font->create( loadFile(fileB), loadFile(fileA) );
 				// create a compact SDFF file
-				font->write( writeFile( getAssetPath("") / "fonts" / (font->getFamily() + ".sdff") ) );
+				font->write( writeFile( fileB.parent_path() / (font->getFamily() + ".sdff") ) );
 				// add font to font manager
 				fonts().addFont( font );
 				// set the text font
@@ -256,7 +256,7 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 				ph::text::FontRef font( new ph::text::Font() );
 				font->create( loadFile(fileA), loadFile(fileB) );
 				// create a compact SDFF file
-				font->write( writeFile( getAssetPath("") / "fonts" / (font->getFamily() + ".sdff") ) );
+				font->write( writeFile( fileA.parent_path() / (font->getFamily() + ".sdff") ) );
 				// add font to font manager
 				fonts().addFont( font );
 				// set the text font
