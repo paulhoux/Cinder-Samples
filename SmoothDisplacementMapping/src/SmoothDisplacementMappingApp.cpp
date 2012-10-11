@@ -55,6 +55,7 @@ public:
 private:
 	void createMesh();
 	void createTextures();
+	bool compileShaders();
 
 	void renderDisplacementMap();
 	void renderNormalMap();
@@ -97,26 +98,12 @@ void SmoothDisplacementMappingApp::setup()
 	// initialize our camera
 	resetCamera();
 
-	// load background texture and shaders
-	try {
-		mBackgroundTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) );
-
-		// this shader will render a displacement map to a floating point texture, updated every frame
-		mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
-		// this shader will create a normal map based on the displacement map
-		mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
-		// this shader will use the displacement and normal maps to displace vertices of a mesh
-		mMeshShader = gl::GlslProg( loadAsset("mesh_vert.glsl"), loadAsset("mesh_frag.glsl") );
-	}
-	catch( const std::exception &e ) {
-		// something went wrong
-		console() << e.what() << std::endl;
-		quit();
-	}
+	// load and compile shaders
+	if( ! compileShaders() ) quit();	
 
 	// create the basic mesh (a flat plane)
 	createMesh();
-	// create the procedural textures
+	// create the textures
 	createTextures();
 
 	// create the frame buffer objects for the displacement map and the normal map
@@ -147,7 +134,8 @@ void SmoothDisplacementMappingApp::draw()
 	gl::clear();
 
 	// render background
-	gl::draw( mBackgroundTexture, getWindowBounds() );
+	if(mBackgroundTexture)
+		gl::draw( mBackgroundTexture, getWindowBounds() );
 
 	// if enabled, show the displacement and normal maps 
 	if(mDrawTextures) 
@@ -174,23 +162,26 @@ void SmoothDisplacementMappingApp::draw()
 		gl::draw( mVboMesh );
 	}
 
-	// bind the displacement and normal maps, each to their own texture unit
-	mDispMapFbo.getTexture().bind(0);
-	mNormalMapFbo.getTexture().bind(1);
+	if( mDispMapFbo && mNormalMapFbo && mMeshShader )
+	{
+		// bind the displacement and normal maps, each to their own texture unit
+		mDispMapFbo.getTexture().bind(0);
+		mNormalMapFbo.getTexture().bind(1);
 
-	// render our mesh using vertex displacement
-	mMeshShader.bind();
-	mMeshShader.uniform( "displacement_map", 0 );
-	mMeshShader.uniform( "normal_map", 1 );
+		// render our mesh using vertex displacement
+		mMeshShader.bind();
+		mMeshShader.uniform( "displacement_map", 0 );
+		mMeshShader.uniform( "normal_map", 1 );
 
-	gl::color( Color::white() );
-	gl::draw( mVboMesh );
+		gl::color( Color::white() );
+		gl::draw( mVboMesh );
 
-	mMeshShader.unbind();
+		mMeshShader.unbind();
 
-	// unbind texture maps
-	mNormalMapFbo.unbindTexture();
-	mDispMapFbo.unbindTexture();
+		// unbind texture maps
+		mNormalMapFbo.unbindTexture();
+		mDispMapFbo.unbindTexture();
+	}
 	
 	// clean up after ourselves
 	gl::disableWireframe();
@@ -208,7 +199,7 @@ void SmoothDisplacementMappingApp::resetCamera()
 
 void SmoothDisplacementMappingApp::renderDisplacementMap()
 {
-	if(mDispMapShader) 
+	if( mDispMapShader && mDispMapFbo ) 
 	{
 		mDispMapFbo.bindFramebuffer();
 		{
@@ -228,7 +219,7 @@ void SmoothDisplacementMappingApp::renderDisplacementMap()
 			// render the displacement map
 			mDispMapShader.bind();
 			mDispMapShader.uniform( "time", float( getElapsedSeconds() ) );
-			mDispMapShader.uniform( "amplitude", 18.0f );
+			mDispMapShader.uniform( "amplitude", 5.0f );
 			mDispMapShader.uniform( "sinus", 0 );
 			gl::drawSolidRect( mDispMapFbo.getBounds() );
 			mDispMapShader.unbind();
@@ -245,7 +236,7 @@ void SmoothDisplacementMappingApp::renderDisplacementMap()
 
 void SmoothDisplacementMappingApp::renderNormalMap()
 {
-	if(mNormalMapShader) 
+	if( mNormalMapShader && mNormalMapFbo ) 
 	{
 		mNormalMapFbo.bindFramebuffer();
 		{
@@ -278,6 +269,26 @@ void SmoothDisplacementMappingApp::renderNormalMap()
 		}
 		mNormalMapFbo.unbindFramebuffer();
 	}
+}
+
+bool SmoothDisplacementMappingApp::compileShaders()
+{	
+	try 
+	{ 
+		// this shader will render a displacement map to a floating point texture, updated every frame
+		mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
+		// this shader will create a normal map based on the displacement map
+		mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
+		// this shader will use the displacement and normal maps to displace vertices of a mesh
+		mMeshShader = gl::GlslProg( loadAsset("mesh_vert.glsl"), loadAsset("mesh_frag.glsl") );
+	}
+	catch( const std::exception &e ) 
+	{ 
+		console() << e.what() << std::endl; 
+		return false;
+	}
+
+	return true;
 }
 
 void SmoothDisplacementMappingApp::resize( ResizeEvent event )
@@ -326,12 +337,7 @@ void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_s:
 		// reload shaders
-		try { 
-			mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
-			mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
-			mMeshShader = gl::GlslProg( loadAsset("mesh_vert.glsl"), loadAsset("mesh_frag.glsl") );
-		}
-		catch( const std::exception &e ) { console() << e.what() << std::endl; }
+		compileShaders();
 		break;
 	case KeyEvent::KEY_t:
 		// toggle draw textures
@@ -403,22 +409,26 @@ void SmoothDisplacementMappingApp::createMesh()
 
 void SmoothDisplacementMappingApp::createTextures()
 {
+	// load background image
+	try { mBackgroundTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) ); }
+	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+
+	// create sinus texture, which is used when rendering the displacement map
 	gl::Texture::Format fmt;
 	fmt.setWrap( GL_REPEAT, GL_REPEAT );
 	fmt.setInternalFormat( GL_R32F );
 
-	// create sinus texture
-	Surface32f s( 1024, 1, false, SurfaceChannelOrder::CHAN_RED );
-	Surface32f::Iter itr = s.getIter();
+	Surface32f surface( 1024, 1, false, SurfaceChannelOrder::CHAN_RED );
+	Surface32f::Iter itr = surface.getIter();
 	while( itr.line() ) {
 		while( itr.pixel() ) {
 			Vec2i p = itr.getPos();
-			float x = 0.5f + 0.5f * math<float>::sin( p.x / 1024.0f * float(2.0 * M_PI) );
-			s.setPixel( p, Color(x, x, x) );
+			float n = math<float>::sin( p.x / 1024.0f * float(2.0 * M_PI) );
+			surface.setPixel( p, Color(n, n, n) );
 		}
 	}
 
-	mSinusTexture = gl::Texture( s, fmt );
+	mSinusTexture = gl::Texture( surface, fmt );
 }
 
 CINDER_APP_BASIC( SmoothDisplacementMappingApp, RendererGl )
