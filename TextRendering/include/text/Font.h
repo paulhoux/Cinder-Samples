@@ -49,6 +49,7 @@ public:
 		float d;	// xadvance - adjusts character positioning
 	};
 
+	typedef std::map<uint16_t, Metrics>	MetricsMap;
 public:
 	Font(void);
 	~Font(void);
@@ -94,6 +95,11 @@ public:
 	//!
 	ci::Rectf	measure( const std::wstring &text, float fontSize=12.0f ) const;
 
+	//!
+	float		measureWidth( const std::string &text, float fontSize=12.0f ) const { return measureWidth( ci::toUtf16(text), fontSize ); }
+	//!
+	float		measureWidth( const std::wstring &text, float fontSize=12.0f ) const;
+
 	/*//!
 	ci::Vec2f	render( ci::TriMesh2d &mesh, const std::string &text, float fontSize=12.0f, const ci::Vec2f &origin=ci::Vec2f::zero() ) {
 		render( mesh, ci::toUtf16(text), fontSize, origin );
@@ -116,7 +122,7 @@ protected:
 	ci::Surface			mSurface;
 	ci::gl::Texture		mTexture;
 
-	std::map<uint16_t, Metrics>	mMetrics;
+	MetricsMap			mMetrics;
 };
 
 class FontExc : public std::exception {

@@ -116,9 +116,10 @@ void Font::create(const ci::DataSourceRef png, const ci::DataSourceRef txt)
 
 	// measure font (standard ASCII range only to prevent weird characters influencing the measurements)
 	for(uint16_t i=33;i<127;++i) {
-		if(mMetrics.find(i) != mMetrics.end()) {
-			mAscent = std::max( mAscent, mMetrics.at(i).dy );
-			mDescent = std::max( mDescent, mMetrics.at(i).h - mMetrics.at(i).dy );
+		MetricsMap::const_iterator itr = mMetrics.find(i);
+		if(itr != mMetrics.end()) {
+			mAscent = std::max( mAscent, itr->second.dy );
+			mDescent = std::max( mDescent, itr->second.h - itr->second.dy );
 		}
 	}
 
@@ -236,7 +237,7 @@ void Font::write(const ci::DataTargetRef target)
 		uint16_t count = (uint16_t) mMetrics.size();
 		out->writeLittle( count );
 
-		std::map<uint16_t, Metrics>::const_iterator itr;
+		MetricsMap::const_iterator itr;
 		for(itr=mMetrics.begin();itr!=mMetrics.end();++itr) {
 			// write char code
 			out->writeLittle( itr->first );
@@ -258,11 +259,14 @@ void Font::write(const ci::DataTargetRef target)
 
 Rectf Font::getBounds(uint16_t charcode, float fontSize) const
 {
-	if( mMetrics.find(charcode) != mMetrics.end() ) {
+	MetricsMap::const_iterator itr = mMetrics.find(charcode);
+	if( itr != mMetrics.end() ) {
 			float	scale = (fontSize / mFontSize);
-			Metrics	m = mMetrics.at(charcode);
 
-			return Rectf( Vec2f(m.dx, -m.dy) * scale, Vec2f(m.dx + m.w, m.h - m.dy) * scale );
+			return Rectf( 
+				Vec2f(itr->second.dx, -itr->second.dy) * scale, 
+				Vec2f(itr->second.dx + itr->second.w, itr->second.h - itr->second.dy) * scale 
+			);
 	}
 	else
 		return Rectf();
@@ -270,11 +274,14 @@ Rectf Font::getBounds(uint16_t charcode, float fontSize) const
 
 Rectf Font::getTexCoords(uint16_t charcode) const
 {
-	if( mMetrics.find(charcode) != mMetrics.end() ) {
+	MetricsMap::const_iterator itr = mMetrics.find(charcode);
+	if( itr != mMetrics.end() ) {
 			Vec2f	size( mTexture.getSize() );
-			Metrics	m = mMetrics.at(charcode);
 
-			return Rectf( Vec2f(m.x, m.y) / size, Vec2f(m.x + m.w, m.y + m.h) / size );
+			return Rectf( 
+				Vec2f(itr->second.x, itr->second.y) / size, 
+				Vec2f(itr->second.x + itr->second.w, itr->second.y + itr->second.h) / size 
+			);
 	}
 	else
 		return Rectf();
@@ -283,9 +290,10 @@ Rectf Font::getTexCoords(uint16_t charcode) const
 float Font::getAdvance(uint16_t charcode, float fontSize) const
 {
 	float	scale = (fontSize / mFontSize);
-
-	if( mMetrics.find(charcode) != mMetrics.end() ) 
-		return mMetrics.at(charcode).d * scale;
+	
+	MetricsMap::const_iterator itr = mMetrics.find(charcode);
+	if( itr != mMetrics.end() ) 
+		return itr->second.d * scale;
 
 	return 0.0f;
 }
@@ -295,81 +303,46 @@ Rectf Font::measure(const std::wstring &text, float fontSize) const
 	float offset = 0.0f;
 	Rectf result(0.0f, 0.0f, 0.0f, 0.0f);
 
-	float scale = (fontSize / mFontSize);
+	std::wstring::const_iterator citr;
+	for(citr=text.begin();citr!=text.end();++citr) {
+		uint16_t id = (uint16_t) *citr;
 
-	std::wstring::const_iterator itr;
-	for(itr=text.begin();itr!=text.end();++itr) {
-		uint16_t id = (uint16_t) *itr;
+		// TODO: handle special chars like /t
 
-		// TODO: handle special chars
-
-		if(mMetrics.find(id) != mMetrics.end()) {
-			Metrics m = mMetrics.at(id);
-			result.include( Rectf(offset + (m.dx * scale), -(m.dy * scale), offset + (m.dx + m.w) * scale, (m.h - m.dy) * scale) );
-			offset += m.d * scale;
+		MetricsMap::const_iterator itr = mMetrics.find(id);
+		if(itr != mMetrics.end()) {
+			result.include( 
+				Rectf(offset + itr->second.dx, -itr->second.dy, 
+				offset + itr->second.dx + itr->second.w, itr->second.h - itr->second.dy) 
+			);
+			offset += itr->second.d;
 		}
 	}
 
 	// return
-	return result;
+	return result.scaled( fontSize / mFontSize );
 }
 
-/*
-Vec2f Font::render(TriMesh2d &mesh, const std::wstring &text, float fontSize, const Vec2f &origin)
+float Font::measureWidth(const std::wstring &text, float fontSize) const 
 {
-	// set cursor
-	Vec2f cursor(origin);
-	Vec2f size( mTexture.getSize() );
+	float offset = 0.0f;
+	float adjust = 0.0f;
 
-	float scale = (fontSize / mFontSize);
+	std::wstring::const_iterator citr;
+	for(citr=text.begin();citr!=text.end();++citr) {
+		uint16_t id = (uint16_t) *citr;
 
-	// 
-	std::vector<uint32_t>	indices;
+		// TODO: handle special chars like /t
 
-	std::wstring::const_iterator itr;
-	for(itr=text.begin();itr!=text.end();++itr) {
-		uint16_t id = (uint16_t) *itr;
-
-		// TODO better handling of special character
-		if(id == '\n') {
-			cursor.x = 0.0f;
-			cursor.y += mLeading * scale;
-		}
-		else if(id == '\r') {
-		}
-		else if(id == '\t') { 
-			cursor.x += 4.0f * mSpaceWidth * scale;
-		}
-		else if(id == 32) {
-			cursor.x += mSpaceWidth * scale;
-		}
-		else if( mMetrics.find(id) != mMetrics.end() ) {
-			Metrics m = mMetrics[id];
-
-			int n = (int) mesh.getVertices().size();
-			mesh.appendVertex( cursor + Vec2f(m.dx, -m.dy) * scale );
-			mesh.appendVertex( cursor + Vec2f(m.dx + m.w, -m.dy) * scale );
-			mesh.appendVertex( cursor + Vec2f(m.dx + m.w, -m.dy + m.h) * scale );
-			mesh.appendVertex( cursor + Vec2f(m.dx, -m.dy + m.h) * scale );
-			
-			mesh.appendTexCoord( Vec2f(m.x, m.y) / size );
-			mesh.appendTexCoord( Vec2f(m.x + m.w, m.y) / size );
-			mesh.appendTexCoord( Vec2f(m.x + m.w, m.y + m.h) / size );
-			mesh.appendTexCoord( Vec2f(m.x, m.y + m.h) / size );
-
-			indices.push_back(n); indices.push_back(n+3); indices.push_back(n+1);
-			indices.push_back(n+1); indices.push_back(n+3); indices.push_back(n+2);
-
-			cursor += Vec2f(m.d, 0.0f) * scale;
+		MetricsMap::const_iterator itr = mMetrics.find(id);
+		if(itr != mMetrics.end()) {
+			offset += itr->second.d;
+			adjust = itr->second.dx + itr->second.w - itr->second.d;
 		}
 	}
 
-	//
-	mesh.appendIndices( &(*(indices.begin())), indices.size() );
-
-	//
-	return cursor;
+	// return
+	return (offset + adjust) * ( fontSize / mFontSize );
 }
-*/
 
 } } // namespace ph::text

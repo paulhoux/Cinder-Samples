@@ -123,7 +123,7 @@ void Text::renderMesh()
 		case WORD:
 			// measure chunks to see if it fits
 			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
-			width = mFont->measure( trimmed, mFontSize ).getX2();
+			width = mFont->measureWidth( trimmed, mFontSize );
 
 			// if they don't, remove the last chunk and try again until they all fit
 			while( linewidth > 0.0f && width > linewidth && *aitr > index ) {
@@ -131,26 +131,23 @@ void Text::renderMesh()
 
 				// perform fast approximation of width by subtracting last chunk
 				std::wstring chunk = mText.substr(*aitr, *(aitr+1) - *aitr);
-				width -= mFont->measure( chunk, mFontSize ).getX2();
+				width -= mFont->measureWidth( chunk, mFontSize );
 			
 				// perform precise measurement only if approximation was less than linewidth
 				if( width <= linewidth ) {
 					trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
-					width = mFont->measure( trimmed, mFontSize ).getX2();
+					width = mFont->measureWidth( trimmed, mFontSize );
 				}
 			}
-			break;
-		case NONE:
-			trimmed = boost::trim_copy( mText );
-			break;
 		}
 
 		// if no chunks fit on this line, just render the first chunk
 		if( *aitr <= index ) {
-			++aitr;
+			while( *aitr <= index )
+				++aitr;
 			
 			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
-			width = mFont->measure( trimmed, mFontSize ).getX2();
+			width = mFont->measureWidth( trimmed, mFontSize );
 		}
 
 		// adjust alignment
