@@ -96,9 +96,9 @@ public:
 	ci::Rectf	measure( const std::wstring &text, float fontSize=12.0f ) const;
 
 	//!
-	float		measureWidth( const std::string &text, float fontSize=12.0f ) const { return measureWidth( ci::toUtf16(text), fontSize ); }
+	float		measureWidth( const std::string &text, float fontSize=12.0f, bool precise=true ) const { return measureWidth( ci::toUtf16(text), fontSize, precise ); }
 	//!
-	float		measureWidth( const std::wstring &text, float fontSize=12.0f ) const;
+	float		measureWidth( const std::wstring &text, float fontSize=12.0f, bool precise=true ) const;
 
 	/*//!
 	ci::Vec2f	render( ci::TriMesh2d &mesh, const std::string &text, float fontSize=12.0f, const ci::Vec2f &origin=ci::Vec2f::zero() ) {

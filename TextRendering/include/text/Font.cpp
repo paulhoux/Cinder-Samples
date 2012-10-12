@@ -323,7 +323,7 @@ Rectf Font::measure(const std::wstring &text, float fontSize) const
 	return result.scaled( fontSize / mFontSize );
 }
 
-float Font::measureWidth(const std::wstring &text, float fontSize) const 
+float Font::measureWidth(const std::wstring &text, float fontSize, bool precise) const 
 {
 	float offset = 0.0f;
 	float adjust = 0.0f;
@@ -341,8 +341,12 @@ float Font::measureWidth(const std::wstring &text, float fontSize) const
 		}
 	}
 
-	// return
-	return (offset + adjust) * ( fontSize / mFontSize );
+	// precise measurement takes into account that the last character 
+	// contributes to the total width only by its own width, not its advance
+	if( precise )
+		return (offset + adjust) * ( fontSize / mFontSize );
+	else
+		return offset * (fontSize / mFontSize);
 }
 
 } } // namespace ph::text

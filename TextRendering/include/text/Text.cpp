@@ -99,7 +99,7 @@ void Text::renderMesh()
 	const float		height = getHeight() > 0.0f ? (getHeight() - mFont->getDescent(mFontSize)) : 0.0f;
 	float			width, linewidth;
 	size_t			index = 0;
-	std::wstring	trimmed;
+	std::wstring	trimmed, chunk;
 	
 	// initialize cursor position
 	Vec2f cursor(0.0f, std::floorf(mFont->getAscent(mFontSize) + 0.5f));
@@ -110,44 +110,63 @@ void Text::renderMesh()
 
 	// process text in chunks
 	std::vector<size_t>::iterator	mitr = mMust.begin();
-	std::vector<size_t>::iterator	aitr = std::find( mAllow.begin(), mAllow.end(), *mitr );
+	std::vector<size_t>::iterator	aitr = mAllow.begin();
 	while( aitr != mAllow.end() && mitr != mMust.end() && (height == 0.0f || cursor.y <= height) ) {
 		// calculate the maximum allowed width for this line
 		linewidth = getWidthAt( cursor.y );
 
 		switch (mBoundary ) {
 		case LINE:
-			// aitr already points to mitr, thus the whole line is rendered
-			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
+			// render the whole paragraph
+			trimmed = boost::trim_copy( mText.substr(index, *mitr - index) );
+			width = mFont->measureWidth( trimmed, mFontSize, true );
+
+			// advance iterator
+			index = *mitr;
+			++mitr;
 			break;
 		case WORD:
-			// measure chunks to see if it fits
+			// measure the first chunk on this line
 			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
-			width = mFont->measureWidth( trimmed, mFontSize );
+			width = mFont->measureWidth( trimmed, mFontSize, false );
 
-			// if they don't, remove the last chunk and try again until they all fit
-			while( linewidth > 0.0f && width > linewidth && *aitr > index ) {
-				--aitr;
+			// if it fits, add the next chunk until no more chunks fit or are available
+			while( linewidth > 0.0f && width < linewidth && *aitr != *mitr )
+			{
+				++aitr;
+				
+				chunk = mText.substr(*(aitr-1), *aitr - *(aitr-1));
+				width += mFont->measureWidth( chunk, mFontSize, false );
+			}
 
-				// perform fast approximation of width by subtracting last chunk
-				std::wstring chunk = mText.substr(*aitr, *(aitr+1) - *aitr);
-				width -= mFont->measureWidth( chunk, mFontSize );
-			
-				// perform precise measurement only if approximation was less than linewidth
-				if( width <= linewidth ) {
+			if( linewidth > 0.0f && width > linewidth )
+			{
+				if( *aitr == index )
+				{
+					// not a single chunk fits on this line, just render the first one
+					width = mFont->measureWidth( trimmed, mFontSize );
+				}
+				else
+				{
+					// end of line passed, remove the last chunk
+					--aitr;
+
 					trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
 					width = mFont->measureWidth( trimmed, mFontSize );
 				}
 			}
-		}
+			else
+			{
+				// end of paragraph encountered				
+				trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
+				width = mFont->measureWidth( trimmed, mFontSize );
+				
+				++mitr;
+			}
 
-		// if no chunks fit on this line, just render the first chunk
-		if( *aitr <= index ) {
-			while( *aitr <= index )
-				++aitr;
-			
-			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
-			width = mFont->measureWidth( trimmed, mFontSize );
+			// advance iterator
+			index = *aitr;
+			++aitr;
 		}
 
 		// adjust alignment
@@ -160,17 +179,9 @@ void Text::renderMesh()
 		renderString( trimmed, &cursor );
 
 		// advance cursor to new line
-		if( !newLine(&cursor) ) break;			
-
-		// advance iterators
-		index = *aitr; // start at end of this chunk
-
-		if( *aitr == *mitr ) 
-			++mitr; // if all chunks on this line are rendered, end at next "must break"
-
-		if( mitr != mMust.end() ) // try to render the remaining chunks of this line
-			aitr = std::find( aitr, mAllow.end(), *mitr );
+		if( !newLine(&cursor) ) break;
 	}
+
 }
 
 void Text::renderString( const std::wstring &str, Vec2f *cursor )
@@ -269,8 +280,7 @@ std::string Text::getFragmentShader() const
 		"void main()\n"
 		"{\n"
 		"	// retrieve signed distance\n"
-		"	vec4 clr = texture2D( font_map, gl_TexCoord[0].xy );\n"
-		"	float sdf = clr.r;\n"
+		"	float sdf = texture2D( font_map, gl_TexCoord[0].xy ).r;\n"
 		"\n"
 		"	// perform adaptive anti-aliasing of the edges\n"
 		"	float w = clamp( smoothness * (abs(dFdx(gl_TexCoord[0].x)) + abs(dFdy(gl_TexCoord[0].y))), 0.0, 0.5);\n"
