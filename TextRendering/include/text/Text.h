@@ -96,9 +96,9 @@ protected:
 	virtual void		createMesh();
 protected:
 	bool					mInvalid;
-	mutable bool			mBoundsInvalid;
 
-	ci::Rectf				mBounds;
+	mutable bool			mBoundsInvalid;
+	mutable ci::Rectf		mBounds;
 
 	Alignment				mAlignment;
 	Boundary				mBoundary;

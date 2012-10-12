@@ -46,7 +46,7 @@ void Labels::setup()
 	text::fonts().loadFont( loadAsset("fonts/Ubuntu-BoldItalic.sdff") ); 
 	mLabels.setFont( text::fonts().getFont("Ubuntu-BoldItalic") );
 	mLabels.setFontSize( 16.0f );
-	mLabels.setBoundary( text::Text::NONE );
+	mLabels.setBoundary( text::Text::LINE );
 	//mLabels.setOffset( 2.5f, 2.5f );
 
 	double alpha = toRadians( 17.76112222 * 15.0 );

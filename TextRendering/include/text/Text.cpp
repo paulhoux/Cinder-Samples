@@ -118,7 +118,7 @@ void Text::renderMesh()
 		switch (mBoundary ) {
 		case LINE:
 			// render the whole paragraph
-			trimmed = boost::trim_copy( mText.substr(index, *mitr - index) );
+			trimmed = boost::trim_copy( mText.substr(index, *mitr - index + 1) );
 			width = mFont->measureWidth( trimmed, mFontSize, true );
 
 			// advance iterator
@@ -181,7 +181,6 @@ void Text::renderMesh()
 		// advance cursor to new line
 		if( !newLine(&cursor) ) break;
 	}
-
 }
 
 void Text::renderString( const std::wstring &str, Vec2f *cursor )
@@ -215,6 +214,9 @@ void Text::renderString( const std::wstring &str, Vec2f *cursor )
 			cursor->x += mFont->getAdvance(id, mFontSize);
 		}
 	}
+
+	//
+	mBoundsInvalid = true;
 }
 
 void Text::createMesh()
@@ -241,8 +243,19 @@ void Text::createMesh()
 
 Rectf Text::getBounds() const
 {
-	if(mBoundsInvalid) {
-		//mBounds = mMesh.calcBoundingBox();
+	if( mBoundsInvalid )
+	{
+		mBounds = Rectf(0.0f, 0.0f, 0.0f, 0.0f);
+
+		vector< Vec3f >::const_iterator itr = mVertices.begin();
+		while( itr != mVertices.end() ) {
+			mBounds.x1 = ci::math<float>::min( itr->x, mBounds.x1 );
+			mBounds.y1 = ci::math<float>::min( itr->y, mBounds.y1 );
+			mBounds.x2 = ci::math<float>::max( itr->x, mBounds.x2 );
+			mBounds.y2 = ci::math<float>::max( itr->y, mBounds.y2 );
+			++ itr;
+		}
+
 		mBoundsInvalid = false;
 	}
 

@@ -97,6 +97,9 @@ void TextLabels::renderString( const std::wstring &str, Vec2f *cursor )
 			cursor->x += mFont->getAdvance(id, mFontSize);
 		}
 	}
+
+	//
+	mBoundsInvalid = true;
 }
 
 void TextLabels::createMesh()
@@ -160,7 +163,7 @@ std::string TextLabels::getVertexShader() const
 		"	gl_FrontColor = vec4( gl_Color.rgb, a );\n"
 		"\n"
 		"	// calculate vertex position by offsetting it\n"
-		"	gl_Position = vec4( (gl_Vertex.xy * vec2(1.0, -1.0)) / viewportSize * 2.0 + offset.xy, 0.0, 1.0 );\n"
+		"	gl_Position = vec4( (gl_Vertex.xy * vec2(1.0, -1.0)) / viewport_size * 2.0 + offset.xy, 0.0, 1.0 );\n"
 		"}";
 
 	return std::string(vs);

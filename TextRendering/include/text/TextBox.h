@@ -48,8 +48,8 @@ public:
 	//!
 	ci::Vec2f	getSize() const { return mSize; }
 	//!
-	void		setSize(float width, float height) { mSize = ci::Vec2f(width, height); mInvalid = true; }
-	void		setSize(const ci::Vec2f &size) { mSize = size; mInvalid = true; }
+	void		setSize(float width, float height) { mSize = ci::Vec2f(width, height); mInvalid = true; mBoundsInvalid = true; }
+	void		setSize(const ci::Vec2f &size) { mSize = size; mInvalid = true; mBoundsInvalid = true; }
 protected:
 	//! get the maximum width of the text at the specified vertical position
 	virtual float getWidthAt(float y) { return mSize.x; }
