@@ -70,7 +70,7 @@ void TextRenderingApp::setup()
 		// break lines between words
 		mTextBox.setBoundary( Text::WORD );
 		// adjust space between lines
-		mTextBox.setLineSpace( 1.1f );
+		mTextBox.setLineSpace( 1.2f );
 
 		// load a long text and hand it to the text box
 		mTextBox.setText( loadString( loadAsset("fonts/readme.txt") ) );
