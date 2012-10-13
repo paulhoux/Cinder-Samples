@@ -21,9 +21,7 @@
 */
 
 #include "cinder/Rand.h"
-#if defined( CINDER_MSW )
 #include "cinder/Unicode.h"
-#endif
 
 #include "text/Text.h"
 
@@ -111,11 +109,13 @@ void Text::renderMesh()
 	// process text in chunks
 	std::vector<size_t>::iterator	mitr = mMust.begin();
 	std::vector<size_t>::iterator	aitr = mAllow.begin();
-	while( aitr != mAllow.end() && mitr != mMust.end() && (height == 0.0f || cursor.y <= height) ) {
+	while( aitr != mAllow.end() && mitr != mMust.end() && (height == 0.0f || cursor.y <= height) ) 
+	{
 		// calculate the maximum allowed width for this line
 		linewidth = getWidthAt( cursor.y );
 
-		switch (mBoundary ) {
+		switch (mBoundary ) 
+		{
 		case LINE:
 			// render the whole paragraph
 			trimmed = boost::trim_copy( mText.substr(index, *mitr - index + 1) );
@@ -124,55 +124,73 @@ void Text::renderMesh()
 			// advance iterator
 			index = *mitr;
 			++mitr;
+
 			break;
 		case WORD:
 			// measure the first chunk on this line
-			trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
-			width = mFont->measureWidth( trimmed, mFontSize, false );
+			chunk = ( mText.substr(index, *aitr - index + 1) );
+			width = mFont->measureWidth( chunk, mFontSize, false );
 
 			// if it fits, add the next chunk until no more chunks fit or are available
 			while( linewidth > 0.0f && width < linewidth && *aitr != *mitr )
 			{
 				++aitr;
+
+				if( aitr == mAllow.end() )
+					break;
 				
-				chunk = mText.substr(*(aitr-1), *aitr - *(aitr-1));
+				chunk = ( mText.substr(*(aitr-1) + 1, *aitr - *(aitr-1)) );
 				width += mFont->measureWidth( chunk, mFontSize, false );
 			}
 
-			if( linewidth > 0.0f && width > linewidth )
-			{
-				if( *aitr == index )
-				{
-					// not a single chunk fits on this line, just render the first one
-					width = mFont->measureWidth( trimmed, mFontSize );
-				}
-				else
-				{
-					// end of line passed, remove the last chunk
-					--aitr;
-
-					trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
-					width = mFont->measureWidth( trimmed, mFontSize );
-				}
+			// end of line encountered
+			if( aitr == mAllow.begin() || *(aitr-1) <= index )
+			{	// not a single chunk fits on this line, just render what we have				
 			}
-			else
+			else if( linewidth > 0.0f && width > linewidth )
+			{	// remove the last chunk				
+				--aitr;
+			}	
+
+			if( aitr != mAllow.end() )
 			{
-				// end of paragraph encountered				
-				trimmed = boost::trim_copy( mText.substr(index, *aitr - index) );
+				// 
+				trimmed = boost::trim_copy( mText.substr(index + 1, *aitr - index) );
 				width = mFont->measureWidth( trimmed, mFontSize );
+
+				// end of paragraph encountered, move to next
+				if( *aitr == *mitr )
+					++mitr;	
+				/*else if( mAlignment == JUSTIFIED )
+				{
+					// count spaces
+					uint32_t c = std::count( trimmed.begin(), trimmed.end(), 32 );
+					if( c == 0 ) break;
+					// remaining whitespace
+					float remaining = getWidthAt( cursor.y ) - width;
+					float space = mFont->getAdvance( 32, mFontSize );
+					// 
+					stretch = (remaining / c + space) / space;
+					if( stretch > 3.0f ) stretch = 1.0f;
+				}*/
 				
-				++mitr;
+				// advance iterator
+				index = *aitr;
+				++aitr;	
 			}
 
-			// advance iterator
-			index = *aitr;
-			++aitr;
+			break;	
 		}
 
 		// adjust alignment
 		switch( mAlignment ) {
-			case CENTER: cursor.x = 0.5f * (linewidth - width); break;
-			case RIGHT: cursor.x = (linewidth - width); break;
+			case CENTER: 
+				cursor.x = 0.5f * (linewidth - width);
+				break;
+			case RIGHT: 
+				cursor.x = (linewidth - width); 
+				break;
+			break;
 		}
 
 		// add this fitting part of the text to the mesh 
@@ -183,7 +201,7 @@ void Text::renderMesh()
 	}
 }
 
-void Text::renderString( const std::wstring &str, Vec2f *cursor )
+void Text::renderString( const std::wstring &str, Vec2f *cursor, float stretch )
 {
 	std::wstring::const_iterator itr;
 	for(itr=str.begin();itr!=str.end();++itr) {
@@ -211,7 +229,10 @@ void Text::renderString( const std::wstring &str, Vec2f *cursor )
 				mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
 			}
 
-			cursor->x += mFont->getAdvance(id, mFontSize);
+			if( id == 32 )
+				cursor->x += stretch * mFont->getAdvance(id, mFontSize);
+			else
+				cursor->x += mFont->getAdvance(id, mFontSize);
 		}
 	}
 

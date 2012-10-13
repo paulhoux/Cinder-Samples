@@ -127,7 +127,8 @@ void TextRenderingApp::mouseDown( MouseEvent event )
 
 void TextRenderingApp::keyDown( KeyEvent event )
 {
-	int n = int( math<float>::floor( mTarget.y / mTextBox.getLeading() ) );
+	int line = int( math<float>::floor( mTarget.y / mTextBox.getLeading() ) );
+	int max_lines = int( math<float>::floor( mTextBox.getBounds().getHeight() / mTextBox.getLeading() ) );
 
 	switch(event.getCode()) {
 	case KeyEvent::KEY_ESCAPE:
@@ -146,13 +147,14 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	//	mShowBounds = !mShowBounds;
 	//	break;
 	case KeyEvent::KEY_PAGEDOWN:
-		n -= int( math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() ) );
-		mTarget.y = n * mTextBox.getLeading();
+		line -= int( math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() ) );
+		if( line < -max_lines ) line = -max_lines;
+		mTarget.y = line * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_PAGEUP:
-		n += int( math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() ) );
-		if( n > 0 ) n = 0;
-		mTarget.y = n * mTextBox.getLeading();
+		line += int( math<float>::floor( (getWindowHeight() - 40.0f) / mTextBox.getLeading() ) );
+		if( line > 0 ) line = 0;
+		mTarget.y = line * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_SPACE:
 		{ Color temp = mFrontColor; mFrontColor = mBackColor; mBackColor = temp; }
@@ -160,11 +162,11 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_LEFTBRACKET:
 		if(mTextBox.getFontSize() > 0.5f)
 			mTextBox.setFontSize( mTextBox.getFontSize() - 0.5f );
-		mTarget.y = n * mTextBox.getLeading();
+		mTarget.y = line * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_RIGHTBRACKET:
 		mTextBox.setFontSize( mTextBox.getFontSize() + 0.5f );
-		mTarget.y = n * mTextBox.getLeading();
+		mTarget.y = line * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_LEFT:
 		if( mTextBox.getAlignment() == TextBox::RIGHT )
@@ -181,12 +183,12 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_UP:
 		if( mTextBox.getLineSpace() > 0.2f )
 			mTextBox.setLineSpace( mTextBox.getLineSpace() - 0.1f );
-		mTarget.y = n * mTextBox.getLeading();
+		mTarget.y = line * mTextBox.getLeading();
 		break;
 	case KeyEvent::KEY_DOWN:
 		if( mTextBox.getLineSpace() < 5.0f )
 			mTextBox.setLineSpace( mTextBox.getLineSpace() + 0.1f );
-		mTarget.y = n * mTextBox.getLeading();
+		mTarget.y = line * mTextBox.getLeading();
 		break;
 	}
 

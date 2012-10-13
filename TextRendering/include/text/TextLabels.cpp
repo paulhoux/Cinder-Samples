@@ -20,6 +20,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "cinder/Unicode.h"
+
 #include "text/TextLabels.h"
 
 #include <boost/algorithm/string.hpp>
@@ -67,7 +69,7 @@ void TextLabels::renderMesh()
 	}
 }
 
-void TextLabels::renderString( const std::wstring &str, Vec2f *cursor )
+void TextLabels::renderString( const std::wstring &str, Vec2f *cursor, float stretch )
 {
 	std::wstring::const_iterator itr;
 	for(itr=str.begin();itr!=str.end();++itr) {
@@ -75,26 +77,32 @@ void TextLabels::renderString( const std::wstring &str, Vec2f *cursor )
 		uint16_t id = (uint16_t) *itr;
 
 		if( mFont->contains(id) ) {
-			size_t index = mVertices.size();
+			// skip whitespace characters
+			if( ! isWhitespaceUtf16(id) ) {
+				size_t index = mVertices.size();
 
-			Rectf bounds = mFont->getBounds(id, mFontSize);
-			mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
+				Rectf bounds = mFont->getBounds(id, mFontSize);
+				mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
 			
-			bounds = mFont->getTexCoords(id);
-			mTexcoords.push_back( bounds.getUpperLeft() );
-			mTexcoords.push_back( bounds.getUpperRight() );
-			mTexcoords.push_back( bounds.getLowerRight() );
-			mTexcoords.push_back( bounds.getLowerLeft() );
+				bounds = mFont->getTexCoords(id);
+				mTexcoords.push_back( bounds.getUpperLeft() );
+				mTexcoords.push_back( bounds.getUpperRight() );
+				mTexcoords.push_back( bounds.getLowerRight() );
+				mTexcoords.push_back( bounds.getLowerLeft() );
 
-			mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
-			mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
+				mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
+				mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
 			
-			mOffsets.insert(mOffsets.end(), 4, mOffset);
+				mOffsets.insert(mOffsets.end(), 4, mOffset);
+			}
 
-			cursor->x += mFont->getAdvance(id, mFontSize);
+			if( id == 32 )
+				cursor->x += stretch * mFont->getAdvance(id, mFontSize);
+			else
+				cursor->x += mFont->getAdvance(id, mFontSize);
 		}
 	}
 

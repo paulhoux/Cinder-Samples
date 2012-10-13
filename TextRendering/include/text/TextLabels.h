@@ -83,7 +83,7 @@ protected:
 	//! renders the current contents of mText
 	virtual void		renderMesh();
 	//! helper to render a non-word-wrapped string
-	virtual void		renderString( const std::wstring &str, ci::Vec2f *cursor );
+	virtual void		renderString( const std::wstring &str, ci::Vec2f *cursor, float stretch=1.0f );
 	//! creates the VBO from the data in the buffers
 	virtual void		createMesh();
 private:
