@@ -68,11 +68,32 @@ void TextRenderingApp::prepareSettings(Settings *settings)
 	settings->setFrameRate(500.0f);
 
 	// set initial window size
-	settings->setWindowSize(500, 750);
+	settings->setWindowSize(550, 750);
 }
 
 void TextRenderingApp::setup()
 {
+	try { 
+		// load fonts using the FontStore
+		fonts().loadFont( loadAsset("fonts/Walter Turncoat Regular.sdff") ); 
+
+		// create a text box (rectangular text area)
+		mTextBox = TextBox( 400, 500 );
+		// set font and font size
+		mTextBox.setFont( fonts().getFont("Walter Turncoat Regular") );
+		mTextBox.setFontSize( 14.0f );
+		// break lines between words
+		mTextBox.setBoundary( Text::WORD );
+		// adjust space between lines
+		mTextBox.setLineSpace( 1.5f );
+
+		// load a text and hand it to the text box
+		mTextBox.setText( loadString( loadAsset("fonts/readme.txt") ) );
+	}
+	catch( const std::exception & e ) { 
+		console() << e.what() << std::endl; 
+	}
+	
 	// initialize member variables
 	mShowBounds = false;
 	mShowWireframe= false;
@@ -82,31 +103,10 @@ void TextRenderingApp::setup()
 
 	// set initial text position and scale
 	mScale = 1.0f;
-	mAnchor.x = 200.0f;
-	mAnchor.y = 250.0f;
+	mAnchor.x = 0.0f;
+	mAnchor.y = 0.0f;
 	mAnchorTarget = mAnchor = constrainAnchor( mAnchor );
 	mAnchorSpeed = Vec3f::zero();
-
-	try { 
-		// load fonts using the FontStore
-		fonts().loadFont( loadAsset("fonts/Neucha Regular.sdff") ); 
-
-		// create a text box (rectangular text area)
-		mTextBox = TextBox( 400, 500 );
-		// set font and font size
-		mTextBox.setFont( fonts().getFont("Neucha Regular") );
-		mTextBox.setFontSize( 24.0f );
-		// break lines between words
-		mTextBox.setBoundary( Text::WORD );
-		// adjust space between lines
-		mTextBox.setLineSpace( 1.1f );
-
-		// load a text and hand it to the text box
-		mTextBox.setText( loadString( loadAsset("fonts/readme.txt") ) );
-	}
-	catch( const std::exception & e ) { 
-		console() << e.what() << std::endl; 
-	}
 
 	// update the window title
 	updateWindowTitle();
@@ -243,6 +243,10 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_ESCAPE:
 		quit();
 		break;
+	case KeyEvent::KEY_d:
+		// load a very long text and hand it to the text box
+		mTextBox.setText( loadString( loadAsset("text/345.txt") ) );
+		break;
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
 		break;
@@ -299,6 +303,16 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		mAnchorTarget.y -= (getWindowHeight() / mScale) - mTextBox.getLeading();
 		mAnchorSpeed = Vec3f::zero();
 		break;
+	case KeyEvent::KEY_HOME:
+		mAnchorTarget.x = 0.0f;
+		mAnchorTarget.y = 0.0f;
+		mAnchorSpeed = Vec3f::zero();
+		break;
+	case KeyEvent::KEY_END:
+		mAnchorTarget.x = mTextBox.getBounds().getWidth();
+		mAnchorTarget.y = mTextBox.getBounds().getHeight();
+		mAnchorSpeed = Vec3f::zero();
+		break;
 	}
 
 	//
@@ -309,8 +323,6 @@ void TextRenderingApp::resize( ResizeEvent event )
 {
 	// resize text box with a margin of 20 pixels on each side
 	mTextBox.setSize( event.getWidth() - 40.0f, 0.0f );
-
-	mAnchor = mAnchorTarget = constrainAnchor( mAnchorTarget );
 }
 
 void TextRenderingApp::fileDrop( FileDropEvent event )
