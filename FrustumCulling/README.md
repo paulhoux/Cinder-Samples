@@ -1,6 +1,8 @@
 FrustumCulling
 ==============
 
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/FrustumCulling/PREVIEW.png)
+
 This sample will show you how to:
 * load an OBJ file and convert it to a fast-loading binary mesh file
 * render 1500 meshes of 1000 polygons each for a total of 1,500,000 polygons

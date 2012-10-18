@@ -1,6 +1,8 @@
 Text Rendering using Signed Distance Fields
 ===========================================
 
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/TextRendering/PREVIEW.png)
+
 Note: at the moment this sample needs code from several commits to the Cinder framework in order to compile successfully. To compile, check out the 'paulhoux:unicode_linebreak' branch on the Cinder repository and recompile Cinder. In the near future, this will hopefully be made easier.
 
 

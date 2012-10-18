@@ -1,6 +1,8 @@
 Post Processing
 ===============
 
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/PostProcessing/PREVIEW.png)
+
 This sample will show you how to:
 * load and display an image file
 * load, play and display a QuickTime movie

@@ -1,6 +1,8 @@
 Simple Scene Graph
 ==================
 
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/SimpleSceneGraph/PREVIEW.png)
+
 This sample will show you how to:
 * create a scene made of related objects
 * detect which object was clicked

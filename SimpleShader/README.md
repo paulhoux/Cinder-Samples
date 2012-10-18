@@ -1,6 +1,8 @@
 SimpleShader
 ============
 
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/SimpleShader/PREVIEW.png)
+
 This sample will show you how to:
 * load an image file and create an OpenGL texture from it
 * load and compile a simple GLSL shader

@@ -1,6 +1,8 @@
 BouncingBalls
 =============
 
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/BouncingBalls/PREVIEW.png)
+
 This sample will show you how to:
 * create a fast-drawing, textured circle on the fly using a VboMesh
 * apply simple physics (velocity, gravity) to animate the ball
