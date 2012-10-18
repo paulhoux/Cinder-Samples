@@ -65,6 +65,10 @@ private:
 	bool			mDrawTextures;
 	bool			mDrawWireframe;
 	bool			mDrawOriginalMesh;
+	bool			mEnableShader;
+
+	float			mAmplitude;
+	float			mAmplitudeTarget;
 
 	MayaCamUI		mMayaCam;
 	CameraPersp		mCamera;
@@ -94,6 +98,10 @@ void SmoothDisplacementMappingApp::setup()
 	mDrawTextures = false;
 	mDrawWireframe = false;
 	mDrawOriginalMesh = false;
+	mEnableShader = true;
+
+	mAmplitude = 0.0f;
+	mAmplitudeTarget = 5.0f;
 
 	// initialize our camera
 	resetCamera();
@@ -122,6 +130,8 @@ void SmoothDisplacementMappingApp::setup()
 
 void SmoothDisplacementMappingApp::update()
 {
+	mAmplitude += 0.02f * (mAmplitudeTarget - mAmplitude);
+
 	// render displacement map
 	renderDisplacementMap();
 
@@ -172,6 +182,7 @@ void SmoothDisplacementMappingApp::draw()
 		mMeshShader.bind();
 		mMeshShader.uniform( "displacement_map", 0 );
 		mMeshShader.uniform( "normal_map", 1 );
+		mMeshShader.uniform( "falloff_enabled", mEnableShader );
 
 		gl::color( Color::white() );
 		gl::draw( mVboMesh );
@@ -219,7 +230,7 @@ void SmoothDisplacementMappingApp::renderDisplacementMap()
 			// render the displacement map
 			mDispMapShader.bind();
 			mDispMapShader.uniform( "time", float( getElapsedSeconds() ) );
-			mDispMapShader.uniform( "amplitude", 5.0f );
+			mDispMapShader.uniform( "amplitude", mAmplitude );
 			mDispMapShader.uniform( "sinus", 0 );
 			gl::drawSolidRect( mDispMapFbo.getBounds() );
 			mDispMapShader.unbind();
@@ -257,7 +268,10 @@ void SmoothDisplacementMappingApp::renderNormalMap()
 			mNormalMapShader.bind();
 			mNormalMapShader.uniform( "texture", 0 );
 			mNormalMapShader.uniform( "amplitude", 4.0f );
-			gl::drawSolidRect( mNormalMapFbo.getBounds() );
+
+			Area bounds = mNormalMapFbo.getBounds(); //bounds.expand(-1, -1);
+			gl::drawSolidRect( bounds );
+
 			mNormalMapShader.unbind();
 
 			// clean up after ourselves
@@ -354,6 +368,15 @@ void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_SPACE:
 		// reset camera
 		resetCamera();
+		break;
+	case KeyEvent::KEY_a:
+		if( mAmplitudeTarget < 5.0f )
+			mAmplitudeTarget = 5.0f;
+		else
+			mAmplitudeTarget = 0.0f;
+		break;
+	case KeyEvent::KEY_q:
+		mEnableShader = !mEnableShader;
 		break;
 	}
 }
