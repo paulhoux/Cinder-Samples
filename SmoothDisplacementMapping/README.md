@@ -1,6 +1,8 @@
 Smooth Displacement Mapping
 ===========================
 
+![Preview](paulhoux.github.com/Cinder-Samples/PREVIEW.png)
+
 
 Vertex displacement mapping is a technique where a texture or a procedural function is used to dynamically change the position of vertices in a mesh. It is often used to create a terrain with mountains from a height field, ocean waves or an animated flag. 
 
