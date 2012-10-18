@@ -113,6 +113,8 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\assets\background_frag.glsl" />
+    <None Include="..\assets\background_vert.glsl" />
     <None Include="..\assets\displacement_map_frag.glsl" />
     <None Include="..\assets\displacement_map_vert.glsl" />
     <None Include="..\assets\mesh_frag.glsl" />

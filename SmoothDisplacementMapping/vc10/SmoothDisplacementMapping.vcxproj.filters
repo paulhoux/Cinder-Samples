@@ -51,5 +51,11 @@
     <None Include="..\assets\mesh_frag.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\assets\background_vert.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\background_frag.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -16,12 +16,13 @@ float displace( vec2 uv )
 	// large up and down movement
 	float d = sinf( (uv.x * 0.5) - time * 0.01 );
 	// add a large wave from left to right
-	d -= 1.2 * sinf( (uv.x * 1.2) - time * 0.03 );
+	d -= 1.2 * sinf( (uv.x * 0.9) - time * 0.04 );
+	// add diagonal waves from back to front
+	d -= 0.25 * sinf( ((uv.x + uv.y) * 2.2) - time * 0.05 );
 	// add additional waves for increased complexity
-	d -= 0.15 * sinf( (uv.x * 1.3 + uv.y * 2.2) - time * 0.02 );
-	d += 0.20 * sinf( uv.y * 1.2 - time * 0.01 );
-	d += 0.25 * sinf( (uv.x - uv.y * 2.9) - time * 0.08 );
-	d -= 0.10 * sinf( (uv.y + uv.x * 2.8) - time * 0.04 );
+	d += 0.25 * sinf( (uv.y * 1.2) - time * 0.01 );
+	d -= 0.15 * sinf( ((uv.y + uv.x) * 2.8) - time * 0.09 );
+	d += 0.15 * sinf( ((uv.y - uv.x) * 1.9) - time * 0.08 );
 
 	return d;
 }

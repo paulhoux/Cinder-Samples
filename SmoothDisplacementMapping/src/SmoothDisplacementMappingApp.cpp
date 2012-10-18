@@ -80,10 +80,12 @@ private:
 	gl::GlslProg	mNormalMapShader;
 
 	gl::Texture		mSinusTexture;
-	gl::Texture		mBackgroundTexture;
 	
 	gl::VboMesh		mVboMesh;
 	gl::GlslProg	mMeshShader;
+	
+	gl::Texture		mBackgroundTexture;
+	gl::GlslProg	mBackgroundShader;
 };
 
 void SmoothDisplacementMappingApp::prepareSettings(Settings *settings)
@@ -144,8 +146,14 @@ void SmoothDisplacementMappingApp::draw()
 	gl::clear();
 
 	// render background
-	if(mBackgroundTexture)
+	if( mBackgroundTexture && mBackgroundShader )
+	{
+		mBackgroundShader.bind();
+		mBackgroundShader.uniform( "texture", 0 );
+		mBackgroundShader.uniform( "hue", float( 0.025 * getElapsedSeconds() ) );
 		gl::draw( mBackgroundTexture, getWindowBounds() );
+		mBackgroundShader.unbind();
+	}
 
 	// if enabled, show the displacement and normal maps 
 	if(mDrawTextures) 
@@ -289,6 +297,8 @@ bool SmoothDisplacementMappingApp::compileShaders()
 {	
 	try 
 	{ 
+		// this shader will render all colors using a change in hue
+		mBackgroundShader = gl::GlslProg( loadAsset("background_vert.glsl"), loadAsset("background_frag.glsl") );
 		// this shader will render a displacement map to a floating point texture, updated every frame
 		mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
 		// this shader will create a normal map based on the displacement map
@@ -431,9 +441,12 @@ void SmoothDisplacementMappingApp::createMesh()
 
 void SmoothDisplacementMappingApp::createTextures()
 {
-	// load background image
-	try { mBackgroundTexture = gl::Texture( loadImage( loadAsset("background.jpg") ) ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+	try {
+		mBackgroundTexture = gl::Texture( loadImage( loadAsset( "background.png") ) );
+	}
+	catch( const std::exception &e ) { 
+		console() << "Could not load image: " << e.what() << std::endl;
+	}
 
 	// create sinus texture, which is used when rendering the displacement map
 	gl::Texture::Format fmt;

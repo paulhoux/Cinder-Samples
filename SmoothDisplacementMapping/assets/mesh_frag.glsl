@@ -16,9 +16,8 @@ void main()
 	vec3 Nfinal = gl_NormalMatrix * normalize(Nsurface + Nmap - Ndirection);
 
 	// perform some falloff magic
-	float lambert = dot( Nfinal, vec3(0.15, 1.0, 0.15) );
-	float falloff = 0.03 + 0.3 * pow( sin( 0.5 + lambert * 2.0 ), 50.0 );
-	float alpha = falloff_enabled ? falloff : 0.25;
+	float falloff = sin( max( dot( Nfinal, vec3(0.25, 1.0, 0.25) ), 0.0) * 2.25);	
+	float alpha = 0.01 + (falloff_enabled ? 0.3 * pow( falloff, 25.0 ) : 0.3);
 
 	// output color
 	gl_FragColor = vec4( 1.0, 1.0, 1.0, alpha );
