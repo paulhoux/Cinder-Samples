@@ -1,0 +1,1 @@
+Put your own music files (WAV, OGG, MP3 or FLAC) in this folder to automatically play them from the application.
