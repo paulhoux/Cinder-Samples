@@ -78,8 +78,6 @@ private:
 
 	gl::Fbo			mNormalMapFbo;
 	gl::GlslProg	mNormalMapShader;
-
-	gl::Texture		mSinusTexture;
 	
 	gl::VboMesh		mVboMesh;
 	gl::GlslProg	mMeshShader;
@@ -92,7 +90,7 @@ void SmoothDisplacementMappingApp::prepareSettings(Settings *settings)
 {
 	settings->setTitle("Vertex Displacement Mapping with Smooth Normals");
 	settings->setWindowSize( 1280, 720 );
-	settings->setFrameRate( 300.0f );
+	settings->setFrameRate( 500.0f );
 }
 
 void SmoothDisplacementMappingApp::setup()
@@ -153,7 +151,7 @@ void SmoothDisplacementMappingApp::draw()
 		mBackgroundShader.uniform( "hue", float( 0.025 * getElapsedSeconds() ) );
 		gl::draw( mBackgroundTexture, getWindowBounds() );
 		mBackgroundShader.unbind();
-	}
+	}//*/
 
 	// if enabled, show the displacement and normal maps 
 	if(mDrawTextures) 
@@ -206,7 +204,7 @@ void SmoothDisplacementMappingApp::draw()
 	gl::disableWireframe();
 	gl::disableAlphaBlending();
 	
-	gl::popMatrices();
+	gl::popMatrices();//*/
 }
 
 void SmoothDisplacementMappingApp::resetCamera()
@@ -232,20 +230,14 @@ void SmoothDisplacementMappingApp::renderDisplacementMap()
 			gl::pushMatrices();
 			gl::setMatricesWindow( mDispMapFbo.getSize(), false );
 
-			// bind the texture containing sinus values
-			mSinusTexture.bind(0);
-
 			// render the displacement map
 			mDispMapShader.bind();
 			mDispMapShader.uniform( "time", float( getElapsedSeconds() ) );
 			mDispMapShader.uniform( "amplitude", mAmplitude );
-			mDispMapShader.uniform( "sinus", 0 );
 			gl::drawSolidRect( mDispMapFbo.getBounds() );
 			mDispMapShader.unbind();
 
 			// clean up after ourselves
-			mSinusTexture.unbind();
-
 			gl::popMatrices();
 			glPopAttrib();
 		}
@@ -447,23 +439,6 @@ void SmoothDisplacementMappingApp::createTextures()
 	catch( const std::exception &e ) { 
 		console() << "Could not load image: " << e.what() << std::endl;
 	}
-
-	// create sinus texture, which is used when rendering the displacement map
-	gl::Texture::Format fmt;
-	fmt.setWrap( GL_REPEAT, GL_REPEAT );
-	fmt.setInternalFormat( GL_R32F );
-
-	Surface32f surface( 1024, 1, false, SurfaceChannelOrder::CHAN_RED );
-	Surface32f::Iter itr = surface.getIter();
-	while( itr.line() ) {
-		while( itr.pixel() ) {
-			Vec2i p = itr.getPos();
-			float n = math<float>::sin( p.x / 1024.0f * float(2.0 * M_PI) );
-			surface.setPixel( p, Color(n, n, n) );
-		}
-	}
-
-	mSinusTexture = gl::Texture( surface, fmt );
 }
 
 CINDER_APP_BASIC( SmoothDisplacementMappingApp, RendererGl )
