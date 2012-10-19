@@ -5,7 +5,7 @@ uniform float		amplitude;
 
 float wave( float period )
 {
-	return 2.0 * sin( period * 6.283185 ) - 1.0;
+	return sin( period * 6.283185 );
 }
 
 // calculate displacement based on uv coordinate

@@ -101,7 +101,7 @@ void SmoothDisplacementMappingApp::setup()
 	mEnableShader = true;
 
 	mAmplitude = 0.0f;
-	mAmplitudeTarget = 5.0f;
+	mAmplitudeTarget = 10.0f;
 
 	// initialize our camera
 	resetCamera();
@@ -372,8 +372,8 @@ void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 		resetCamera();
 		break;
 	case KeyEvent::KEY_a:
-		if( mAmplitudeTarget < 5.0f )
-			mAmplitudeTarget = 5.0f;
+		if( mAmplitudeTarget < 10.0f )
+			mAmplitudeTarget = 10.0f;
 		else
 			mAmplitudeTarget = 0.0f;
 		break;
