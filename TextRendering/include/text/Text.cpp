@@ -155,7 +155,7 @@ void Text::renderMesh()
 			if( aitr != mAllow.end() )
 			{
 				// 
-				trimmed = boost::trim_copy( mText.substr(index + 1, *aitr - index) );
+				trimmed = boost::trim_copy( mText.substr(index, *aitr - index + 1) );
 				width = mFont->measureWidth( trimmed, mFontSize );
 
 				// end of paragraph encountered, move to next
