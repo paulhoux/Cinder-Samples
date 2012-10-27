@@ -29,7 +29,8 @@
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/Texture.h"
 
-#include <map>
+#include <unordered_map>
+#include <vector>
 
 namespace ph { namespace text {
 
@@ -40,16 +41,18 @@ class Font
 public:
 	// stores the font metrics for a single character
 	struct Metrics {
-		float x;	// x - of character in texture
-		float y;	// y - of character in texture
-		float w;	// width - of character in texture
-		float h;	// height - of character in texture
+		float x1;	// x - top left of character in texture
+		float y1;	// y - top left of character in texture
+		float x2;	// x - bottom right of character in texture
+		float y2;	// y - bottom right of character in texture
+		float w;	// w - width of character
+		float h;	// h - height of character
 		float dx;	// xoffset - adjusts character positioning
 		float dy;	// yoffset - adjusts character positioning
 		float d;	// xadvance - adjusts character positioning
 	};
 
-	typedef std::map<uint16_t, Metrics>	MetricsMap;
+	typedef std::vector<Metrics>	MetricsData;
 public:
 	Font(void);
 	~Font(void);
@@ -72,9 +75,6 @@ public:
 	float		getLeading( float fontSize=12.0f ) const { return mLeading * (fontSize / mFontSize); }
 	//!
 	float		getSpaceWidth( float fontSize=12.0f ) const { return mSpaceWidth * (fontSize / mFontSize); }
-
-	//!
-	bool		contains(uint16_t charcode) const { return (mMetrics.find(charcode) != mMetrics.end()); }
 
 	//!
 	ci::Rectf	getBounds(uint16_t charcode, float fontSize=12.0f) const;
@@ -122,7 +122,7 @@ protected:
 	ci::Surface			mSurface;
 	ci::gl::Texture		mTexture;
 
-	MetricsMap			mMetrics;
+	MetricsData			mMetrics;
 };
 
 class FontExc : public std::exception {

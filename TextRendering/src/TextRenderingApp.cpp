@@ -23,6 +23,7 @@ public:
 	void mouseWheel( MouseEvent event );
 
 	void keyDown( KeyEvent event );
+	void keyUp( KeyEvent event );
 
 	void resize( ResizeEvent event );
 	void fileDrop( FileDropEvent event );
@@ -48,6 +49,7 @@ protected:
 	//! textbox animation members
 	Vec3f			mAnchorTarget;
 	Vec3f			mAnchorSpeed;
+	float			mScaleSpeed;
 
 	//! interaction members
 	Vec3f			mInitialAnchor;
@@ -68,7 +70,7 @@ void TextRenderingApp::prepareSettings(Settings *settings)
 	settings->setFrameRate(500.0f);
 
 	// set initial window size
-	settings->setWindowSize(550, 750);
+	settings->setWindowSize(1280,720);//(550, 750);
 }
 
 void TextRenderingApp::setup()
@@ -98,11 +100,12 @@ void TextRenderingApp::setup()
 	mShowBounds = false;
 	mShowWireframe= false;
 
-	mFrontColor = Color::black();
-	mBackColor = Color::white();
+	mFrontColor = Color(0.1f, 0.1f, 0.1f);
+	mBackColor = Color(0.9f, 0.9f, 0.9f);
 
 	// set initial text position and scale
 	mScale = 1.0f;
+	mScaleSpeed = 1.0f;
 	mAnchor.x = 0.0f;
 	mAnchor.y = 0.0f;
 	mAnchorTarget = mAnchor = constrainAnchor( mAnchor );
@@ -119,6 +122,9 @@ void TextRenderingApp::shutdown()
 
 void TextRenderingApp::update()
 {	
+	// adjust scale
+	mScale *= mScaleSpeed;
+
 	// if scrolling, gradually reduce speed and adjust target
 	mAnchorSpeed *= 0.95f;
 	mAnchorTarget -= mAnchorSpeed;
@@ -176,6 +182,7 @@ void TextRenderingApp::mouseDown( MouseEvent event )
 	// make sure auto-scrolling is disabled
 	mAnchorTarget = mAnchor;	
 	mAnchorSpeed = Vec3f::zero();
+	mScaleSpeed = 1.0f;
 
 	// keep track of current frame, so we can calculate average drag speed in mouseUp()
 	mMouseDownFrame = getElapsedFrames();
@@ -313,10 +320,26 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		mAnchorTarget.y = mTextBox.getBounds().getHeight();
 		mAnchorSpeed = Vec3f::zero();
 		break;
+	case KeyEvent::KEY_KP_MINUS:
+		mScaleSpeed = 0.995f;
+		break;
+	case KeyEvent::KEY_KP_PLUS:
+		mScaleSpeed = 1.005f;
+		break;
 	}
 
 	//
 	updateWindowTitle();
+}
+
+void TextRenderingApp::keyUp( KeyEvent event )
+{	
+	switch(event.getCode()) {
+	case KeyEvent::KEY_KP_MINUS:
+	case KeyEvent::KEY_KP_PLUS:
+		mScaleSpeed = 1.0f;
+		break;
+	}
 }
 
 void TextRenderingApp::resize( ResizeEvent event )

@@ -49,7 +49,9 @@ void Font::create(const ci::DataSourceRef png, const ci::DataSourceRef txt)
 	mAscent = 0.0f;
 	mDescent = 0.0f;
 	mSpaceWidth = 0.0f;
+
 	mMetrics.clear();
+	mMetrics.resize( 65536 );
 
 	// try to load the font texture
 	try { 
@@ -83,7 +85,7 @@ void Font::create(const ci::DataSourceRef png, const ci::DataSourceRef txt)
 		if(count < 1) throw;
 
 		// create the metrics
-		uint32_t id = 0;
+		uint32_t charcode = 0;
 		for(int i=2;i<count+2;++i) {
 			tokens = ci::split(lines[i], " ");
 			Metrics m;
@@ -92,11 +94,11 @@ void Font::create(const ci::DataSourceRef png, const ci::DataSourceRef txt)
 				if(kvp.size() < 2) continue;
 
 				if(kvp[0] == "id")
-					id = boost::lexical_cast<uint32_t>( kvp[1] );
+					charcode = boost::lexical_cast<uint32_t>( kvp[1] );
 				else if(kvp[0] == "x")
-					m.x = boost::lexical_cast<float>( kvp[1] );
+					m.x1 = boost::lexical_cast<float>( kvp[1] );
 				else if(kvp[0] == "y")
-					m.y = boost::lexical_cast<float>( kvp[1] );
+					m.y1 = boost::lexical_cast<float>( kvp[1] );
 				else if(kvp[0] == "width")
 					m.w = boost::lexical_cast<float>( kvp[1] );
 				else if(kvp[0] == "height")
@@ -109,25 +111,25 @@ void Font::create(const ci::DataSourceRef png, const ci::DataSourceRef txt)
 					m.d = boost::lexical_cast<float>( kvp[1] );
 			}
 
-			mMetrics[id] = m;
+			m.x2 = m.x1 + m.w;
+			m.y2 = m.y1 + m.h;
+			mMetrics[charcode] = m;
 		} 
 	}
 	catch( ... ) { throw FontInvalidSourceExc(); }
 
 	// measure font (standard ASCII range only to prevent weird characters influencing the measurements)
 	for(uint16_t i=33;i<127;++i) {
-		MetricsMap::const_iterator itr = mMetrics.find(i);
+		MetricsData::const_iterator itr = mMetrics.begin() + i;
 		if(itr != mMetrics.end()) {
-			mAscent = std::max( mAscent, itr->second.dy );
-			mDescent = std::max( mDescent, itr->second.h - itr->second.dy );
+			mAscent = std::max( mAscent, itr->dy );
+			mDescent = std::max( mDescent, itr->h - itr->dy );
 		}
 	}
 
 	mLeading = mAscent + mDescent;
-	mFontSize = mAscent + mDescent;
-	
-	if(mMetrics.find(32) != mMetrics.end())
-		mSpaceWidth = mMetrics[32].d;
+	mFontSize = mAscent + mDescent;	
+	mSpaceWidth = mMetrics[32].d;
 }
 
 void Font::read(const ci::DataSourceRef source)
@@ -159,26 +161,29 @@ void Font::read(const ci::DataSourceRef source)
 
 	// read metrics data
 	mMetrics.clear();
+	mMetrics.resize(65536);
 
 	try {
 		uint16_t count;
 		in->readLittle( &count );
 
 		for(int i=0;i<count;++i) {
-			uint16_t id;
-			in->readLittle( &id );
+			uint16_t charcode;
+			in->readLittle( &charcode );
 
-			Metrics metrics;
-			in->readData( (void*) &(metrics.x), sizeof(metrics.x) );
-			in->readData( (void*) &(metrics.y), sizeof(metrics.y) );
-			in->readData( (void*) &(metrics.w), sizeof(metrics.w) );
-			in->readData( (void*) &(metrics.h), sizeof(metrics.h) );
+			Metrics m;
+			in->readData( (void*) &(m.x1), sizeof(m.x1) );
+			in->readData( (void*) &(m.y1), sizeof(m.y1) );
+			in->readData( (void*) &(m.w), sizeof(m.w) );
+			in->readData( (void*) &(m.h), sizeof(m.h) );
 
-			in->readData( (void*) &(metrics.dx), sizeof(metrics.dx) );
-			in->readData( (void*) &(metrics.dy), sizeof(metrics.dy) );
-			in->readData( (void*) &(metrics.d), sizeof(metrics.d) );
-
-			mMetrics[id] = metrics;
+			in->readData( (void*) &(m.dx), sizeof(m.dx) );
+			in->readData( (void*) &(m.dy), sizeof(m.dy) );
+			in->readData( (void*) &(m.d), sizeof(m.d) );
+			
+			m.x2 = m.x1 + m.w;
+			m.y2 = m.y1 + m.h;
+			mMetrics[charcode] = m;
 		}
 	}
 	catch( ... ) {
@@ -237,19 +242,19 @@ void Font::write(const ci::DataTargetRef target)
 		uint16_t count = (uint16_t) mMetrics.size();
 		out->writeLittle( count );
 
-		MetricsMap::const_iterator itr;
+		MetricsData::const_iterator itr;
 		for(itr=mMetrics.begin();itr!=mMetrics.end();++itr) {
 			// write char code
-			out->writeLittle( itr->first );
+			out->writeLittle( itr - mMetrics.begin() );
 			// write metrics
-			out->writeData( (void*) &(itr->second.x), sizeof(itr->second.x) );
-			out->writeData( (void*) &(itr->second.y), sizeof(itr->second.y) );
-			out->writeData( (void*) &(itr->second.w), sizeof(itr->second.w) );
-			out->writeData( (void*) &(itr->second.h), sizeof(itr->second.h) );
+			out->writeData( (void*) &(itr->x1), sizeof(itr->x1) );
+			out->writeData( (void*) &(itr->y1), sizeof(itr->y1) );
+			out->writeData( (void*) &(itr->w), sizeof(itr->w) );
+			out->writeData( (void*) &(itr->h), sizeof(itr->h) );
 			
-			out->writeData( (void*) &(itr->second.dx), sizeof(itr->second.dx) );
-			out->writeData( (void*) &(itr->second.dy), sizeof(itr->second.dy) );
-			out->writeData( (void*) &(itr->second.d), sizeof(itr->second.d) );
+			out->writeData( (void*) &(itr->dx), sizeof(itr->dx) );
+			out->writeData( (void*) &(itr->dy), sizeof(itr->dy) );
+			out->writeData( (void*) &(itr->d), sizeof(itr->d) );
 		}
 	}
 
@@ -259,13 +264,13 @@ void Font::write(const ci::DataTargetRef target)
 
 Rectf Font::getBounds(uint16_t charcode, float fontSize) const
 {
-	MetricsMap::const_iterator itr = mMetrics.find(charcode);
+	MetricsData::const_iterator itr = mMetrics.begin() + charcode;
 	if( itr != mMetrics.end() ) {
 			float	scale = (fontSize / mFontSize);
 
 			return Rectf( 
-				Vec2f(itr->second.dx, -itr->second.dy) * scale, 
-				Vec2f(itr->second.dx + itr->second.w, itr->second.h - itr->second.dy) * scale 
+				Vec2f(itr->dx, -itr->dy) * scale, 
+				Vec2f(itr->dx + itr->w, itr->h - itr->dy) * scale 
 			);
 	}
 	else
@@ -274,13 +279,13 @@ Rectf Font::getBounds(uint16_t charcode, float fontSize) const
 
 Rectf Font::getTexCoords(uint16_t charcode) const
 {
-	MetricsMap::const_iterator itr = mMetrics.find(charcode);
+	MetricsData::const_iterator itr = mMetrics.begin() + charcode;
 	if( itr != mMetrics.end() ) {
 			Vec2f	size( mTexture.getSize() );
 
 			return Rectf( 
-				Vec2f(itr->second.x, itr->second.y) / size, 
-				Vec2f(itr->second.x + itr->second.w, itr->second.y + itr->second.h) / size 
+				Vec2f(itr->x1, itr->y1) / size, 
+				Vec2f(itr->x2, itr->y2) / size 
 			);
 	}
 	else
@@ -291,9 +296,9 @@ float Font::getAdvance(uint16_t charcode, float fontSize) const
 {
 	float	scale = (fontSize / mFontSize);
 	
-	MetricsMap::const_iterator itr = mMetrics.find(charcode);
+	MetricsData::const_iterator itr = mMetrics.begin() + charcode;
 	if( itr != mMetrics.end() ) 
-		return itr->second.d * scale;
+		return itr->d * scale;
 
 	return 0.0f;
 }
@@ -305,17 +310,17 @@ Rectf Font::measure(const std::wstring &text, float fontSize) const
 
 	std::wstring::const_iterator citr;
 	for(citr=text.begin();citr!=text.end();++citr) {
-		uint16_t id = (uint16_t) *citr;
+		uint16_t charcode = (uint16_t) *citr;
 
 		// TODO: handle special chars like /t
 
-		MetricsMap::const_iterator itr = mMetrics.find(id);
+		MetricsData::const_iterator itr = mMetrics.begin() + charcode;
 		if(itr != mMetrics.end()) {
 			result.include( 
-				Rectf(offset + itr->second.dx, -itr->second.dy, 
-				offset + itr->second.dx + itr->second.w, itr->second.h - itr->second.dy) 
+				Rectf(offset + itr->dx, -itr->dy, 
+				offset + itr->dx + itr->w, itr->h - itr->dy) 
 			);
-			offset += itr->second.d;
+			offset += itr->d;
 		}
 	}
 
@@ -330,23 +335,22 @@ float Font::measureWidth(const std::wstring &text, float fontSize, bool precise)
 
 	std::wstring::const_iterator citr;
 	for(citr=text.begin();citr!=text.end();++citr) {
-		uint16_t id = (uint16_t) *citr;
+		uint16_t charcode = (uint16_t) *citr;
 
 		// TODO: handle special chars like /t
 
-		MetricsMap::const_iterator itr = mMetrics.find(id);
+		MetricsData::const_iterator itr = mMetrics.begin() + charcode;
 		if(itr != mMetrics.end()) {
-			offset += itr->second.d;
-			adjust = itr->second.dx + itr->second.w - itr->second.d;
+			offset += itr->d;
+			
+			// precise measurement takes into account that the last character 
+			// contributes to the total width only by its own width, not its advance
+			if( precise )
+				adjust = itr->dx + itr->w - itr->d;
 		}
 	}
-
-	// precise measurement takes into account that the last character 
-	// contributes to the total width only by its own width, not its advance
-	if( precise )
-		return (offset + adjust) * ( fontSize / mFontSize );
-	else
-		return offset * (fontSize / mFontSize);
+	
+	return (offset + adjust) * ( fontSize / mFontSize );
 }
 
 } } // namespace ph::text
