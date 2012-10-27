@@ -70,7 +70,7 @@ void TextRenderingApp::prepareSettings(Settings *settings)
 	settings->setFrameRate(500.0f);
 
 	// set initial window size
-	settings->setWindowSize(1280,720);//(550, 750);
+	settings->setWindowSize(550, 750);
 }
 
 void TextRenderingApp::setup()
