@@ -30,7 +30,6 @@
 #include "cinder/gl/Texture.h"
 
 #include <unordered_map>
-#include <vector>
 
 namespace ph { namespace text {
 
@@ -52,7 +51,7 @@ public:
 		float d;	// xadvance - adjusts character positioning
 	};
 
-	typedef std::vector<Metrics>	MetricsData;
+	typedef std::unordered_map<uint16_t, Metrics>	MetricsData;
 public:
 	Font(void);
 	~Font(void);
@@ -77,11 +76,23 @@ public:
 	float		getSpaceWidth( float fontSize=12.0f ) const { return mSpaceWidth * (fontSize / mFontSize); }
 
 	//!
+	bool		contains(uint16_t charcode) const { return ( mMetrics.find(charcode) != mMetrics.end() ); }
+
+	//!
+	Metrics		getMetrics(uint16_t charcode) const;
+
+	//!
 	ci::Rectf	getBounds(uint16_t charcode, float fontSize=12.0f) const;
+	//!
+	inline ci::Rectf getBounds(const Metrics &metrics, float fontSize=12.0f) const;
 	//!
 	ci::Rectf	getTexCoords(uint16_t charcode) const;
 	//!
+	inline ci::Rectf getTexCoords(const Metrics &metrics) const;
+	//!
 	float		getAdvance(uint16_t charcode, float fontSize=12.0f) const;
+	//!
+	inline float getAdvance(const Metrics &metrics, float fontSize=12.0f) const;
 
 	//!
 	void		enableAndBind() const { if(mTexture) mTexture.enableAndBind(); }
@@ -100,13 +111,6 @@ public:
 	//!
 	float		measureWidth( const std::wstring &text, float fontSize=12.0f, bool precise=true ) const;
 
-	/*//!
-	ci::Vec2f	render( ci::TriMesh2d &mesh, const std::string &text, float fontSize=12.0f, const ci::Vec2f &origin=ci::Vec2f::zero() ) {
-		render( mesh, ci::toUtf16(text), fontSize, origin );
-	}
-	//!
-	ci::Vec2f	render( ci::TriMesh2d &mesh, const std::wstring &text, float fontSize=12.0f, const ci::Vec2f &origin=ci::Vec2f::zero() );
-	//*/
 protected:
 	bool				mInvalid;
 
@@ -121,6 +125,7 @@ protected:
 
 	ci::Surface			mSurface;
 	ci::gl::Texture		mTexture;
+	ci::Vec2f			mTextureSize;
 
 	MetricsData			mMetrics;
 };

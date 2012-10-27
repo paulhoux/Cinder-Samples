@@ -108,8 +108,9 @@ void Text::renderMesh()
 
 	double t = app::getElapsedSeconds();
 
-	//
-	size_t sz = mText.length();
+	// reserve some room in the buffers, to prevent excessive resizing. Do not use the full string length,
+	// because the text may contain white space characters that don't need to be rendered.
+	size_t sz = mText.length() / 2;
 	mVertices.reserve( 4 * sz );
 	mTexcoords.reserve( 4 * sz );
 	mIndices.reserve( 6 * sz );
@@ -218,30 +219,36 @@ void Text::renderString( const std::wstring &str, Vec2f *cursor, float stretch )
 		// retrieve character code
 		uint16_t id = (uint16_t) *itr;
 
-		// skip whitespace characters
-		if( ! isWhitespaceUtf16(id) ) {
-			size_t index = mVertices.size();
+		if( mFont->contains(id) ) {
+			// get metrics for this character to speed up measurements
+			Font::Metrics m = mFont->getMetrics(id);
 
-			Rectf bounds = mFont->getBounds(id, mFontSize);
-			mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
-			mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
+			// skip whitespace characters
+			if( ! isWhitespaceUtf16(id) ) {
+				size_t index = mVertices.size();
+
+
+				Rectf bounds = mFont->getBounds(m, mFontSize);
+				mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
+				mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
 			
-			bounds = mFont->getTexCoords(id);
-			mTexcoords.push_back( bounds.getUpperLeft() );
-			mTexcoords.push_back( bounds.getUpperRight() );
-			mTexcoords.push_back( bounds.getLowerRight() );
-			mTexcoords.push_back( bounds.getLowerLeft() );
+				bounds = mFont->getTexCoords(m);
+				mTexcoords.push_back( bounds.getUpperLeft() );
+				mTexcoords.push_back( bounds.getUpperRight() );
+				mTexcoords.push_back( bounds.getLowerRight() );
+				mTexcoords.push_back( bounds.getLowerLeft() );
 
-			mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
-			mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
+				mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
+				mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
+			}
+
+			if( id == 32 )
+				cursor->x += stretch * mFont->getAdvance(m, mFontSize);
+			else
+				cursor->x += mFont->getAdvance(m, mFontSize);
 		}
-
-		if( id == 32 )
-			cursor->x += stretch * mFont->getAdvance(id, mFontSize);
-		else
-			cursor->x += mFont->getAdvance(id, mFontSize);
 	}
 
 	//

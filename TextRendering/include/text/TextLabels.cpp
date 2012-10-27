@@ -77,17 +77,20 @@ void TextLabels::renderString( const std::wstring &str, Vec2f *cursor, float str
 		uint16_t id = (uint16_t) *itr;
 
 		if( mFont->contains(id) ) {
+			// get metrics for this character to speed up measurements
+			Font::Metrics m = mFont->getMetrics(id);
+
 			// skip whitespace characters
 			if( ! isWhitespaceUtf16(id) ) {
 				size_t index = mVertices.size();
 
-				Rectf bounds = mFont->getBounds(id, mFontSize);
+				Rectf bounds = mFont->getBounds(m, mFontSize);
 				mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
 				mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
 				mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
 				mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
 			
-				bounds = mFont->getTexCoords(id);
+				bounds = mFont->getTexCoords(m);
 				mTexcoords.push_back( bounds.getUpperLeft() );
 				mTexcoords.push_back( bounds.getUpperRight() );
 				mTexcoords.push_back( bounds.getLowerRight() );
@@ -100,9 +103,9 @@ void TextLabels::renderString( const std::wstring &str, Vec2f *cursor, float str
 			}
 
 			if( id == 32 )
-				cursor->x += stretch * mFont->getAdvance(id, mFontSize);
+				cursor->x += stretch * mFont->getAdvance(m, mFontSize);
 			else
-				cursor->x += mFont->getAdvance(id, mFontSize);
+				cursor->x += mFont->getAdvance(m, mFontSize);
 		}
 	}
 
