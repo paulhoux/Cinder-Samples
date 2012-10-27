@@ -22,7 +22,12 @@ Detailed GIT instructions:
 This sample is a WORK IN PROGRESS and actually not meant as a sample, but as a test application for ultra-fast text rendering in OpenGL using Signed Distance Fields. This technique, pioneered by Valve in 2007, allows scaling bitmap fonts without much loss in visual quality. And since bitmap fonts are extremely fast to render and 100% cross-platform, I personally can't think of a better way to render text.
 
 
-On the TODO list: text markup, text on path, justified text, threaded text boxes, support for more than 1 font, font style, font color or font size in a single text.
+On the TODO list: 
+* text markup, 
+* text on path, 
+* justified text, 
+* threaded text boxes, 
+* support for more than 1 font, font style, font color or font size in a single text.
 
 
 Run the sample for more information.
