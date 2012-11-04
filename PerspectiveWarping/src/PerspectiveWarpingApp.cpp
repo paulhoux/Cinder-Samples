@@ -170,16 +170,16 @@ void PerspectiveWarpingApp::update()
 
 		// convert to OpenGL matrix
 		mTransform[0]	= warp.ptr<double>(0)[0]; 
-        mTransform[4]	= warp.ptr<double>(0)[1]; 
-        mTransform[12]	= warp.ptr<double>(0)[2]; 
+		mTransform[4]	= warp.ptr<double>(0)[1]; 
+		mTransform[12]	= warp.ptr<double>(0)[2]; 
 
-        mTransform[1]	= warp.ptr<double>(1)[0]; 
-        mTransform[5]	= warp.ptr<double>(1)[1]; 
-        mTransform[13]	= warp.ptr<double>(1)[2]; 
+		mTransform[1]	= warp.ptr<double>(1)[0]; 
+		mTransform[5]	= warp.ptr<double>(1)[1]; 
+		mTransform[13]	= warp.ptr<double>(1)[2]; 
 
-        mTransform[3]	= warp.ptr<double>(2)[0]; 
-        mTransform[7]	= warp.ptr<double>(2)[1]; 
-        mTransform[15]	= warp.ptr<double>(2)[2]; 
+		mTransform[3]	= warp.ptr<double>(2)[0]; 
+		mTransform[7]	= warp.ptr<double>(2)[1]; 
+		mTransform[15]	= warp.ptr<double>(2)[2]; 
 
 		mIsInvalid = false;
 	}
