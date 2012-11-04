@@ -34,33 +34,11 @@
 // using the #pragma directive
 #ifdef CINDER_MSW
 #ifndef _DEBUG
-	#pragma comment(lib, "opencv_calib3d230.lib")
-	#pragma comment(lib, "opencv_contrib230.lib")
 	#pragma comment(lib, "opencv_core230.lib")
-	#pragma comment(lib, "opencv_features2d230.lib")
-	#pragma comment(lib, "opencv_flann230.lib")
-	#pragma comment(lib, "opencv_gpu230.lib")
-	#pragma comment(lib, "opencv_haartraining_engine.lib")
-	#pragma comment(lib, "opencv_highgui230.lib")
 	#pragma comment(lib, "opencv_imgproc230.lib")
-	#pragma comment(lib, "opencv_legacy230.lib")
-	#pragma comment(lib, "opencv_ml230.lib")
-	#pragma comment(lib, "opencv_objdetect230.lib")
-	#pragma comment(lib, "opencv_video230.lib")
 #else
-	#pragma comment(lib, "opencv_calib3d230d.lib")
-	#pragma comment(lib, "opencv_contrib230d.lib")
 	#pragma comment(lib, "opencv_core230d.lib")
-	#pragma comment(lib, "opencv_features2d230d.lib")
-	#pragma comment(lib, "opencv_flann230d.lib")
-	#pragma comment(lib, "opencv_gpu230d.lib")
-	#pragma comment(lib, "opencv_haartraining_engined.lib")
-	#pragma comment(lib, "opencv_highgui230d.lib")
 	#pragma comment(lib, "opencv_imgproc230d.lib")
-	#pragma comment(lib, "opencv_legacy230d.lib")
-	#pragma comment(lib, "opencv_ml230d.lib")
-	#pragma comment(lib, "opencv_objdetect230d.lib")
-	#pragma comment(lib, "opencv_video230d.lib")
 #endif
 #endif
 
