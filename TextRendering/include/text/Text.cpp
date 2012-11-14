@@ -106,7 +106,7 @@ void Text::renderMesh()
 	if( mMust.empty() || mAllow.empty() )
 		findBreaksUtf16( mText, &mMust, &mAllow );
 
-	double t = app::getElapsedSeconds();
+	//double t = app::getElapsedSeconds();
 
 	// reserve some room in the buffers, to prevent excessive resizing. Do not use the full string length,
 	// because the text may contain white space characters that don't need to be rendered.
@@ -209,7 +209,7 @@ void Text::renderMesh()
 		if( !newLine(&cursor) ) break;
 	}
 
-	app::console() << ( app::getElapsedSeconds() - t ) << std::endl;
+	//app::console() << ( app::getElapsedSeconds() - t ) << std::endl;
 }
 
 void Text::renderString( const std::wstring &str, Vec2f *cursor, float stretch )

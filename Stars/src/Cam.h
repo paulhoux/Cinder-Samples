@@ -43,6 +43,9 @@ public:
 
 	void		resize( ci::app::ResizeEvent event );
 
+	double		getFov() const { return mFov.value(); }
+	void		setFov( double angle ) { mFov = ci::math<double>::clamp( angle, 1.0, 179.0 ); }
+
 	void		setCurrentCam( const ci::CameraStereo &aCurrentCam );
 
 	const ci::CameraStereo&	getCamera();
