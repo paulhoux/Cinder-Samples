@@ -23,7 +23,6 @@
 #include "text/TextBox.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/locale.hpp>
 
 namespace ph { namespace text {
 

@@ -25,7 +25,6 @@
 #include "text/TextLabels.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/locale.hpp>
 
 namespace ph { namespace text {
 
