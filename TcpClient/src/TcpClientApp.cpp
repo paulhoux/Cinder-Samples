@@ -20,11 +20,13 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+// To make sure boost::asio is loaded first, include our header file first
+#include "TcpClient.h"
+
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Font.h"
 #include "cinder/Text.h"
-#include "TcpClient.h"
 
 using namespace ci;
 using namespace ci::app;

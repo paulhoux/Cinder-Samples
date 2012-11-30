@@ -29,15 +29,11 @@
     #include <sdkddkver.h>
 #endif
 
-//#include <map>
 #include <string>
 #include <iostream>
-//#include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-//#include <boost/algorithm/string.hpp>
-//#include <boost/thread.hpp>
 #include <boost/signals2.hpp>
 
 #include "cinder/app/AppBasic.h"
