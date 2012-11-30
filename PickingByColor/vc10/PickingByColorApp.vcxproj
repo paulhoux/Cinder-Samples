@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{74202EDD-91D2-4D2A-B0B6-355CEB16E6BE}</ProjectGuid>
+    <ProjectGuid>{7BA1EC7D-15AD-4604-9191-5E713CC9321E}</ProjectGuid>
     <RootNamespace>PickingByColorApp</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>

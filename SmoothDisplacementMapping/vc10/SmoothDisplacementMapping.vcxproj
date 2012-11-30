@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{74202EDD-91D2-4D2A-B0B6-355CEB16E6BE}</ProjectGuid>
+    <ProjectGuid>{F39E1993-823F-4AB9-90AE-67FD35B54D6A}</ProjectGuid>
     <RootNamespace>SmoothDisplacementMappingApp</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>

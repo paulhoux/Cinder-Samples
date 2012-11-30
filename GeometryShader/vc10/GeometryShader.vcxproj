@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{74202EDD-91D2-4D2A-B0B6-355CEB16E6BE}</ProjectGuid>
+    <ProjectGuid>{F2D556ED-353C-4338-96D0-D4850E11B663}</ProjectGuid>
     <RootNamespace>GeometryShaderApp</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>

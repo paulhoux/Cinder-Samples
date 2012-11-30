@@ -392,7 +392,7 @@ void SmoothDisplacementMappingApp::createMesh()
 	// use the TriMesh class to easily construct the vertex buffer object
 	TriMesh mesh;
 
-	// create vertex and texcoord buffers
+	// create vertex, normal and texcoord buffers
 	const int RES_X = 400;
 	const int RES_Z = 100;
 	const Vec3f size(200.0f, 1.0f, 50.0f);
@@ -402,6 +402,7 @@ void SmoothDisplacementMappingApp::createMesh()
 			float u = float(x) / RES_X;
 			float v = float(z) / RES_Z;
 			mesh.appendVertex( size * Vec3f( u - 0.5f , 0.0f, v - 0.5f ) );
+			mesh.appendNormal( Vec3f::yAxis() );
 			mesh.appendTexCoord( Vec2f( u, v ) );
 		}
 	}
@@ -417,9 +418,6 @@ void SmoothDisplacementMappingApp::createMesh()
 		}
 	}
 	mesh.appendIndices( &indices.front(), indices.size() );
-
-	// calculate normals
-	mesh.recalculateNormals();
 
 	// construct vertex buffer object
 	gl::VboMesh::Layout layout;
