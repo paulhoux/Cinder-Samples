@@ -47,7 +47,7 @@ public:
 	{
 		std::mutex::scoped_lock lock(mMutex);
 
-		std::map<Key, Data>::iterator itr = mQueue.find(key);
+		typename std::map<Key, Data>::iterator itr = mQueue.find(key);
 		return (itr != mQueue.end());
 	}
 
