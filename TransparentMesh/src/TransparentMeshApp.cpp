@@ -38,7 +38,7 @@ public:
 	void update();
 	void draw();
 	
-	void resize( ResizeEvent event );
+	void resize();
 	
 	void mouseMove( MouseEvent event );	
 	void mouseDown( MouseEvent event );	
@@ -144,11 +144,11 @@ void TransparentMeshApp::draw()
 	gl::disableDepthRead();
 }
 
-void TransparentMeshApp::resize( ResizeEvent event )
+void TransparentMeshApp::resize()
 {
 	// update the camera's aspect ratio
 	CameraPersp cam = mCamera.getCamera();
-	cam.setAspectRatio( event.getAspectRatio() );
+	cam.setAspectRatio( getWindowAspectRatio() );
 	mCamera.setCurrentCam( cam );
 }
 

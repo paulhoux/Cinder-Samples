@@ -48,7 +48,7 @@ public:
 	void update();
 	void draw();
 	
-	void resize( ResizeEvent event );
+	void resize();
 	
 	void mouseMove( MouseEvent event );	
 	void mouseDown( MouseEvent event );	
@@ -265,11 +265,11 @@ void HexagonMirrorApp::initializeBuffer()
 	}
 }
 
-void HexagonMirrorApp::resize( ResizeEvent event )
+void HexagonMirrorApp::resize()
 {
 	// adjust the camera aspect ratio
 	CameraPersp cam = mCamera.getCamera();
-	cam.setAspectRatio( event.getAspectRatio() );
+	cam.setAspectRatio( getWindowAspectRatio() );
 	mCamera.setCurrentCam( cam );
 }
 

@@ -43,7 +43,7 @@ public:
 	void update();
 	void draw();
 	
-	void resize( ResizeEvent event );
+	void resize();
 	
 	void mouseMove( MouseEvent event );	
 	void mouseDown( MouseEvent event );	
@@ -307,10 +307,10 @@ bool SmoothDisplacementMappingApp::compileShaders()
 	return true;
 }
 
-void SmoothDisplacementMappingApp::resize( ResizeEvent event )
+void SmoothDisplacementMappingApp::resize()
 {
 	// if window is resized, update camera aspect ratio
-	mCamera.setAspectRatio( event.getAspectRatio() );
+	mCamera.setAspectRatio( getWindowAspectRatio() );
 	mMayaCam.setCurrentCam( mCamera );
 }
 

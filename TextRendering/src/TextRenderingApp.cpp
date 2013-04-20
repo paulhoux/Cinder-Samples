@@ -25,7 +25,7 @@ public:
 	void keyDown( KeyEvent event );
 	void keyUp( KeyEvent event );
 
-	void resize( ResizeEvent event );
+	void resize();
 	void fileDrop( FileDropEvent event );
 protected:
 	Vec3f	constrainAnchor( const Vec3f &pt ) const;
@@ -342,10 +342,10 @@ void TextRenderingApp::keyUp( KeyEvent event )
 	}
 }
 
-void TextRenderingApp::resize( ResizeEvent event )
+void TextRenderingApp::resize()
 {
 	// resize text box with a margin of 20 pixels on each side
-	mTextBox.setSize( event.getWidth() - 40.0f, 0.0f );
+	mTextBox.setSize( getWindowWidth() - 40.0f, 0.0f );
 }
 
 void TextRenderingApp::fileDrop( FileDropEvent event )

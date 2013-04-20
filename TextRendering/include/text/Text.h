@@ -94,6 +94,12 @@ protected:
 	virtual void		renderString( const std::wstring &str, ci::Vec2f *cursor, float stretch=1.0f );
 	//! creates the VBO from the data in the buffers
 	virtual void		createMesh();
+public:
+	// special Unicode functions (requires Cinder v0.8.5)
+	void findBreaksUtf8( const std::string &line, std::vector<size_t> *must, std::vector<size_t> *allow );
+	void findBreaksUtf16( const std::wstring &line, std::vector<size_t> *must, std::vector<size_t> *allow );
+	bool isWhitespaceUtf8( const char ch );
+	bool isWhitespaceUtf16( const wchar_t ch );
 protected:
 	bool					mInvalid;
 

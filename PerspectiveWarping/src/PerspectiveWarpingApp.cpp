@@ -54,7 +54,7 @@ public:
 	void update();
 	void draw();
 	
-	void resize( ResizeEvent event );
+	void resize();
 	
 	void mouseMove( MouseEvent event );	
 	void mouseDown( MouseEvent event );	
@@ -187,7 +187,7 @@ void PerspectiveWarpingApp::draw()
 		gl::drawSolidCircle( Vec2f( mDestination[mSelected].x, mDestination[mSelected].y ), 3.0f );
 }
 
-void PerspectiveWarpingApp::resize( ResizeEvent event )
+void PerspectiveWarpingApp::resize()
 {
 	// simply recalculate the transformation matrix
 	mIsInvalid = true;

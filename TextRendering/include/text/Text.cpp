@@ -374,4 +374,66 @@ bool Text::unbindShader()
 	return true;
 }
 
+void Text::findBreaksUtf8( const std::string &line, std::vector<size_t> *must, std::vector<size_t> *allow )
+{
+	std::vector<uint8_t> resultBreaks;
+	calcLinebreaksUtf8( line.c_str(), &resultBreaks );
+
+	//
+	must->clear();
+	allow->clear();
+
+	//
+	for(size_t i=0;i<resultBreaks.size();++i) {
+		if( resultBreaks[i] == ci::UNICODE_ALLOW_BREAK )
+			allow->push_back( i );
+		else if( resultBreaks[i] == ci::UNICODE_MUST_BREAK ) {
+			must->push_back( i );
+			allow->push_back( i );
+		}
+	}
+}
+
+void Text::findBreaksUtf16( const std::wstring &line, std::vector<size_t> *must, std::vector<size_t> *allow )
+{
+	std::vector<uint8_t> resultBreaks;
+	calcLinebreaksUtf16( (uint16_t*) line.c_str(), &resultBreaks );
+
+	//
+	must->clear();
+	allow->clear();
+
+	//
+	for(size_t i=0;i<resultBreaks.size();++i) {
+		if( resultBreaks[i] == ci::UNICODE_ALLOW_BREAK )
+			allow->push_back( i );
+		else if( resultBreaks[i] == ci::UNICODE_MUST_BREAK ) {
+			must->push_back( i );
+			allow->push_back( i );
+		}
+	}
+} 
+
+bool Text::isWhitespaceUtf8( const char ch )
+{ 
+	return isWhitespaceUtf16( (short) ch ); 
+}
+
+bool Text::isWhitespaceUtf16( const wchar_t ch )
+{
+	// see: http://en.wikipedia.org/wiki/Whitespace_character, 
+	// make sure the values are in ascending order, 
+	// otherwise the binary search won't work
+	static const wchar_t arr[] = {
+		0x0009, 0x000A, 0x000B, 0x000C, 0x000D,
+		0x0020, 0x0085, 0x00A0, 0x1680, 0x180E,
+		0x2000, 0x2001, 0x2002, 0x2003, 0x2004,
+		0x2005, 0x2006, 0x2007, 0x2008, 0x2009,
+		0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000
+	};
+	static const vector<wchar_t> whitespace(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+
+	return std::binary_search( whitespace.begin(), whitespace.end(), ch );
+}
+
 } } // namespace ph::text

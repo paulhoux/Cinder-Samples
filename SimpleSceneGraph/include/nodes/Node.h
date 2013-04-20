@@ -65,12 +65,12 @@ public:
 	//! returns the node's parent node (provide a templated function for easier down-casting of nodes)
 	template <class T>
 	boost::shared_ptr<T>	getParent() const { 
-		return boost::shared_dynamic_cast<T>(mParent.lock()); 
+		return boost::dynamic_pointer_cast<T>(mParent.lock()); 
 	}
 	//! returns a node higher up in the hierarchy of the desired type, if any
 	template <class T>
 	boost::shared_ptr<T>	getTreeParent() const { 
-		boost::shared_ptr<T> node = boost::shared_dynamic_cast<T>(mParent.lock()); 
+		boost::shared_ptr<T> node = boost::dynamic_pointer_cast<T>(mParent.lock()); 
 		if(node) 
 			return node;
 		else if(mParent.lock()) 
@@ -110,7 +110,7 @@ public:
 		std::deque< boost::shared_ptr<T> > result;
 		NodeList::iterator itr;
 		for(itr=mChildren.begin(); itr!=mChildren.end(); ++itr) {
-			boost::shared_ptr<T>  node = boost::shared_dynamic_cast<T>(*itr); 
+			boost::shared_ptr<T>  node = boost::dynamic_pointer_cast<T>(*itr); 
 			if(node) result.push_back(node);
 		}
 		return result;
@@ -208,9 +208,9 @@ public:
 	virtual bool keyUp( ci::app::KeyEvent event );
 
 	//! calls the resize() function of this node and all its decendants until a TRUE is passed back
-	bool treeResize( ci::app::ResizeEvent event );
+	bool treeResize();
 
-	virtual bool resize( ci::app::ResizeEvent event );
+	virtual bool resize();
 
 	// stream support
 	virtual inline std::string toString() const { return "Node"; }

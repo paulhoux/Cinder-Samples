@@ -45,7 +45,7 @@ public:
 
 	void keyDown( KeyEvent event );
 
-	void resize( ResizeEvent event );
+	void resize();
 protected:
 	gl::Texture loadTexture( const std::string &path );
 	void		loadShader( const std::string &path );
@@ -307,16 +307,16 @@ void GeometryShaderApp::keyDown( KeyEvent event )
 	}
 }
 
-void GeometryShaderApp::resize( ResizeEvent event )
+void GeometryShaderApp::resize()
 {
 	// keep points centered
-	Vec2f offset = 0.5f * Vec2f( event.getSize() - mWindowSize );
+	Vec2f offset = 0.5f * Vec2f( getWindowSize() - mWindowSize );
 
 	std::vector<Vec2f>::iterator itr;
 	for(itr=mPoints.begin();itr!=mPoints.end();++itr)
 		*itr += offset;
 
-	mWindowSize = event.getSize();
+	mWindowSize = getWindowSize();
 
 	// invalidate mesh
 	mVboMesh = gl::VboMesh();

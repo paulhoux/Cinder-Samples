@@ -53,7 +53,7 @@ class FrustumCullingApp
 
 	void keyDown( KeyEvent event );
 
-	void resize( ResizeEvent event );
+	void resize();
   protected:
 	//! load the heart shaped mesh 
 	void			loadObject();
@@ -345,7 +345,7 @@ void FrustumCullingApp::keyDown( KeyEvent event )
 	renderHelpToTexture();
 }
 
-void FrustumCullingApp::resize( ResizeEvent event )
+void FrustumCullingApp::resize()
 {
 }
 

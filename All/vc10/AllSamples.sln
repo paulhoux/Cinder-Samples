@@ -29,6 +29,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TcpClientApp", "..\..\TcpCl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TransparentMesh", "..\..\TransparentMesh\vc10\TransparentMesh.vcxproj", "{7A519E37-6C49-4D79-9D22-9B655C7F8DEA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stars", "..\..\Stars\vc10\Stars.vcxproj", "{334E7308-F801-4C95-A9C4-CB55DE716195}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextRendering", "..\..\TextRendering\vc10\TextRendering.vcxproj", "{C0C499E0-AC21-426C-BB1B-B0DA3BF37D15}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -91,6 +95,14 @@ Global
 		{7A519E37-6C49-4D79-9D22-9B655C7F8DEA}.Debug|Win32.Build.0 = Debug|Win32
 		{7A519E37-6C49-4D79-9D22-9B655C7F8DEA}.Release|Win32.ActiveCfg = Release|Win32
 		{7A519E37-6C49-4D79-9D22-9B655C7F8DEA}.Release|Win32.Build.0 = Release|Win32
+		{334E7308-F801-4C95-A9C4-CB55DE716195}.Debug|Win32.ActiveCfg = Debug|Win32
+		{334E7308-F801-4C95-A9C4-CB55DE716195}.Debug|Win32.Build.0 = Debug|Win32
+		{334E7308-F801-4C95-A9C4-CB55DE716195}.Release|Win32.ActiveCfg = Release|Win32
+		{334E7308-F801-4C95-A9C4-CB55DE716195}.Release|Win32.Build.0 = Release|Win32
+		{C0C499E0-AC21-426C-BB1B-B0DA3BF37D15}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C0C499E0-AC21-426C-BB1B-B0DA3BF37D15}.Debug|Win32.Build.0 = Debug|Win32
+		{C0C499E0-AC21-426C-BB1B-B0DA3BF37D15}.Release|Win32.ActiveCfg = Release|Win32
+		{C0C499E0-AC21-426C-BB1B-B0DA3BF37D15}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

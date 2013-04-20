@@ -58,7 +58,7 @@ public:
 	void	mouseUp( MouseEvent event );
 
 	void	keyDown( KeyEvent event );
-	void	resize( ResizeEvent event );
+	void	resize();
 	void	fileDrop( FileDropEvent event );
 protected:
 	void	playMusic( const fs::path &path, bool loop=false );
@@ -520,9 +520,9 @@ void StarsApp::keyDown( KeyEvent event )
 	}
 }
 
-void StarsApp::resize( ResizeEvent event )
+void StarsApp::resize()
 {
-	mCamera.resize( event );
+	mCamera.resize();
 }
 
 void StarsApp::fileDrop( FileDropEvent event )

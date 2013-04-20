@@ -388,22 +388,22 @@ bool Node::keyUp( KeyEvent event )
 	return false; 
 }
 
-bool Node::treeResize( ResizeEvent event )
+bool Node::treeResize()
 {
 	// test children first, from top to bottom
 	NodeList nodes(mChildren);
 	NodeList::reverse_iterator itr;
 	bool handled = false;
 	for(itr=nodes.rbegin();itr!=nodes.rend()&&!handled;++itr)
-		handled = (*itr)->treeResize(event);
+		handled = (*itr)->treeResize();
 
 	// if not handled, test this node
-	if(!handled) handled = resize(event);
+	if(!handled) handled = resize();
 
 	return handled;
 }
 
-bool Node::resize( ResizeEvent event )
+bool Node::resize()
 {
 	return false; 
 }
@@ -569,7 +569,7 @@ void Node3D::treeDrawWireframe()
 	NodeList::iterator itr;
 	for(itr=mChildren.begin();itr!=mChildren.end();++itr) {
 		// only call other Node3D's
-		Node3DRef node = boost::shared_dynamic_cast<Node3D>(*itr);
+		Node3DRef node = boost::dynamic_pointer_cast<Node3D>(*itr);
 		if(node) node->treeDrawWireframe();
 	}
 	

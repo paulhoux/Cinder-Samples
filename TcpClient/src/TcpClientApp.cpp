@@ -40,7 +40,7 @@ public:
 	void update();
 	void draw();
 
-	void resize( ResizeEvent event );
+	void resize();
 
 	// slots that are called by the server
 	void onConnected(const boost::asio::ip::tcp::endpoint&);
@@ -85,9 +85,9 @@ void TcpClientApp::draw()
 	if(mTexture) gl::draw(mTexture, Vec2f(10, 10));
 }
 
-void TcpClientApp::resize( ResizeEvent event )
+void TcpClientApp::resize()
 {	
-	if(mTextBoxRef) mTextBoxRef->setSize( event.getSize() - Vec2i(20, 20) );
+	if(mTextBoxRef) mTextBoxRef->setSize( getWindowSize() - Vec2i(20, 20) );
 }
 	
 void TcpClientApp::onConnected(const boost::asio::ip::tcp::endpoint &endpoint)

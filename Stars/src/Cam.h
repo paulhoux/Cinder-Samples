@@ -41,7 +41,7 @@ public:
 	void		mouseDrag( const ci::Vec2i &mousePos, bool leftDown, bool middleDown, bool rightDown );
 	void		mouseUp( const ci::Vec2i &mousePos );
 
-	void		resize( ci::app::ResizeEvent event );
+	void		resize();
 
 	double		getFov() const { return mFov.value(); }
 	void		setFov( double angle ) { mFov = ci::math<double>::clamp( angle, 1.0, 179.0 ); }

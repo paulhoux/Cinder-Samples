@@ -48,7 +48,7 @@ public:
 	void keyDown( KeyEvent event );
 	void keyUp( KeyEvent event );
 
-	void resize( ResizeEvent event );
+	void resize();
 protected:
 	//! The root node
 	Node2DRef			mRoot;
@@ -196,9 +196,9 @@ void SimpleSceneGraphApp::keyUp( KeyEvent event )
 	mRoot->treeKeyUp(event);
 }
 
-void SimpleSceneGraphApp::resize( ResizeEvent event )
+void SimpleSceneGraphApp::resize()
 {
-	mRoot->treeResize(event);
+	mRoot->treeResize();
 }
 
 CINDER_APP_BASIC( SimpleSceneGraphApp, RendererGl )

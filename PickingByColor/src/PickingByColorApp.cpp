@@ -50,7 +50,7 @@ public:
 	void keyDown( KeyEvent event );
 	void keyUp( KeyEvent event );
 
-	void resize( ResizeEvent event );
+	void resize();
 
 	//! renders the scene
 	void render();
@@ -238,15 +238,15 @@ void PickingByColorApp::keyUp( KeyEvent event )
 {
 }
 
-void PickingByColorApp::resize( ResizeEvent event )
+void PickingByColorApp::resize()
 {
 	// setup the camera
 	CameraPersp cam = mCamera.getCamera();
-	cam.setPerspective( 60.0f, event.getAspectRatio(), 0.1f, 1000.0f );
+	cam.setPerspective( 60.0f, getWindowAspectRatio(), 0.1f, 1000.0f );
 	mCamera.setCurrentCam( cam );
 
 	// create or resize framebuffer if needed
-	if(!mFbo || mFbo.getWidth() != event.getWidth() || mFbo.getHeight() != event.getHeight()) {
+	if(!mFbo || mFbo.getWidth() != getWindowWidth() || mFbo.getHeight() != getWindowHeight()) {
 		gl::Fbo::Format fmt;
 
 		// we create multiple color targets:
@@ -259,7 +259,7 @@ void PickingByColorApp::resize( ResizeEvent event )
 		fmt.setSamples(4);
 
 		// create the buffer
-		mFbo = gl::Fbo( event.getWidth(), event.getHeight(), fmt );
+		mFbo = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
 	}
 }
 

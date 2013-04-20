@@ -198,9 +198,9 @@ void Cam::mouseUp(  const Vec2i &mousePos  )
 	mDeltaD = avg.z;
 }
 
-void Cam::resize( ResizeEvent event )
+void Cam::resize()
 {
-	mCurrentCam.setAspectRatio(event.getAspectRatio());
+	mCurrentCam.setAspectRatio(getWindowAspectRatio());
 }
 
 void Cam::setCurrentCam( const CameraStereo &aCurrentCam ) 
