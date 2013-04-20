@@ -3,23 +3,8 @@ Text Rendering using Signed Distance Fields
 
 ![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/TextRendering/PREVIEW.png)
 
-Note: at the moment this sample needs code from several commits to the Cinder framework in order to compile successfully. To compile, check out the 'paulhoux:unicode_linebreak' branch on the Cinder repository and recompile Cinder. In the near future, this will hopefully be made easier.
 
-
-Detailed GIT instructions:
-
-1. I assume you have cloned Cinder to a folder named "cinder_master". See for more information: http://libcinder.org/docs/welcome/GitSetup.html
-2. Open a command window and switch to the drive that contains your "cinder_master" folder: ```d:```
-3. Go to the "cinder_master" directory: ```cd "\path\to\cinder_master"```
-4. Check if 'paulhoux' is added as a remote: ```git remote show```
-5. If not, add it: ```git remote add paulhoux https://github.com/paulhoux/Cinder.git```
-6. Fetch the paulhoux repository: ```git fetch paulhoux```
-7. If you have made local changes to the repository, commit or revert them.
-8. Finally, checkout the 'paulhoux:unicode_linebreak' branch: ```git checkout -b paulhoux/unicode_linebreak```
-9. Recompile Cinder.
-
-
-This sample is a WORK IN PROGRESS and actually not meant as a sample, but as a test application for ultra-fast text rendering in OpenGL using Signed Distance Fields. This technique, pioneered by Valve in 2007, allows scaling bitmap fonts without much loss in visual quality. And since bitmap fonts are extremely fast to render and 100% cross-platform, I personally can't think of a better way to render text.
+This sample is a WORK IN PROGRESS and actually not meant as a sample, but as a test application for ultra-fast text rendering in OpenGL using Signed Distance Fields. This technique, pioneered by Valve in 2007, allows scaling bitmap fonts without much loss in visual quality. And since bitmap fonts are extremely fast to render and 100% cross-platform, I personally can't think of a better way to render text in 3D applications.
 
 
 On the TODO list: 
@@ -36,7 +21,7 @@ Run the sample for more information.
 -Paul
 
 
-Copyright (c) 2012, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
+Copyright (c) 2012-2013, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

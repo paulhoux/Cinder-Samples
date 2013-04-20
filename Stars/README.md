@@ -3,23 +3,8 @@ Stars
 
 ![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/Stars/PREVIEW.png)
 
-Note: at the moment this sample needs code from several commits to the Cinder framework in order to compile successfully. To compile, check out the 'paulhoux:unicode_linebreak' branch on the Cinder repository and recompile Cinder. In the near future, this will hopefully be made easier.
 
-
-Detailed GIT instructions:
-
-1. I assume you have cloned Cinder to a folder named "cinder_master". See for more information: http://libcinder.org/docs/welcome/GitSetup.html
-2. Open a command window and switch to the drive that contains your "cinder_master" folder: ```d:```
-3. Go to the "cinder_master" directory: ```cd "\path\to\cinder_master"```
-4. Check if 'paulhoux' is added as a remote: ```git remote show```
-5. If not, add it: ```git remote add paulhoux https://github.com/paulhoux/Cinder.git```
-6. Fetch the paulhoux repository: ```git fetch paulhoux```
-7. If you have made local changes to the repository, commit or revert them.
-8. Finally, checkout the 'paulhoux:unicode_linebreak' branch: ```git checkout -b paulhoux/unicode_linebreak```
-9. Recompile Cinder.
-
-
-This sample will show you how to:
+This very elaborate sample will show you how to:
 * render advanced, animated point sprites using shaders
 * construct VBO meshes that are not GL_TRIANGLES like TriMesh
 * use the IrrKlang sound engine to play sound effects and music
@@ -50,7 +35,7 @@ Note: for the sample to play music, add MP3, WAV, OGG and/or FLAC files to the <
 -Paul
 
 
-Copyright (c) 2012, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
+Copyright (c) 2012-2013, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
