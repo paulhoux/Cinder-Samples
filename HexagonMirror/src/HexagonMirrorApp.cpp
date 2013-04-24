@@ -106,7 +106,7 @@ void HexagonMirrorApp::setup()
 
 	// load shader
 	try { mShaderInstanced = gl::GlslProg( loadAsset("phong_vert.glsl"), loadAsset("phong_frag.glsl") ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+	catch( const std::exception &e ) { console() << "Could not load and compile shader: " << e.what() << std::endl; }
 
 	// create a vertex array object, which allows us to efficiently position each instance
 	initializeBuffer();
@@ -115,13 +115,19 @@ void HexagonMirrorApp::setup()
 	loadMesh();
 
 	// connect to a webcam
-	mWebcam = Capture( 160, 120 );
+	try { mWebcam = Capture( 160, 120 ); }
+	catch( const std::exception &e ) { 
+		console() << "Could not connect to webcam: " << e.what() << std::endl;
+
+		try { mWebcamTexture = loadImage( loadAsset("placeholder.png") ); }
+		catch( const std::exception &e ) { }
+	}
 }
 
 void HexagonMirrorApp::update()
 {
 	// update webcam image
-	if( mWebcam.checkNewFrame() )
+	if( mWebcam && mWebcam.checkNewFrame() )
 		mWebcamTexture = gl::Texture( mWebcam.getSurface() );
 }
 
@@ -149,7 +155,7 @@ void HexagonMirrorApp::draw()
 		// bind the shader, which will do all the hard work for us
 		mShaderInstanced.bind();
 		mShaderInstanced.uniform( "texture", 0 );
-		mShaderInstanced.uniform( "scale", Vec2f( 1.0f / (3.0f * INSTANCES_PER_ROW), 1.0f / (3.0f * INSTANCES_PER_ROW) ) );
+		mShaderInstanced.uniform( "scale", Vec2f( 1.0f / (3.0f * INSTANCES_PER_ROW), 1.0f / (2.25f * INSTANCES_PER_ROW) ) );
 
 		// bind the buffer containing the model matrix for each instance,
 		// this will allow us to pass this information as a vertex shader attribute.
