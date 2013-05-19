@@ -35,5 +35,5 @@ void main()
 	N = normalize( gl_NormalMatrix * vec3( model_matrix * m * vec4( gl_Normal, 0.0 ) ) );
 	
 	gl_Position = gl_ProjectionMatrix * V;
-	gl_FrontColor = clr;
+	gl_FrontColor = vec4(1, 1, 1, 1);
 }
