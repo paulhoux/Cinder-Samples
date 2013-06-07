@@ -28,6 +28,9 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/app/AppBasic.h"
 
+#define SCENE_SIZE 512
+#define BLUR_SIZE 128
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -53,7 +56,10 @@ protected:
 	gl::GlslProg	mShaderBlur;
 	gl::GlslProg	mShaderPhong;
 	
-	gl::Texture		mTexture;
+	gl::Texture		mTextureColor;
+	gl::Texture		mTextureIllumination;
+	gl::Texture		mTextureSpecular;
+
 	TriMesh			mMesh;
 	Matrix44f		mTransform;
 	CameraPersp		mCamera;
@@ -68,12 +74,16 @@ void BloomingNeonApp::prepareSettings( Settings *settings )
 
 void BloomingNeonApp::setup()
 {
+	gl::Fbo::Format fmt;
+	fmt.setSamples(8);
+	fmt.setCoverageSamples(8);
+
 	// setup our scene Fbo
-	mFboScene = gl::Fbo(512, 512);
+	mFboScene = gl::Fbo(SCENE_SIZE, SCENE_SIZE, fmt);
 
 	// setup our blur Fbo's, smaller ones will generate a bigger blur
-	mFboBlur1 = gl::Fbo(64, 64);
-	mFboBlur2 = gl::Fbo(64, 64);
+	mFboBlur1 = gl::Fbo(BLUR_SIZE, BLUR_SIZE);
+	mFboBlur2 = gl::Fbo(BLUR_SIZE, BLUR_SIZE);
 
 	// load and compile the shaders
 	try { 
@@ -86,26 +96,26 @@ void BloomingNeonApp::setup()
 	}
 
 	// setup the stuff to render our ducky
-	mTransform.setToIdentity();
+	mTransform.setToIdentity();	
 
-	gl::Texture::Format format;
-	format.enableMipmapping(true);
+	// model and textures generously provided by AngryFly: 
+	//   http://www.turbosquid.com/3d-models/free-3ds-mode-space/588767
+	mMesh.read( loadAsset("space_frigate.msh") );
 
-	mTexture = gl::Texture( loadImage( loadAsset("ducky.png") ), format );
+	mTextureIllumination = gl::Texture( loadImage( loadAsset("space_frigate_illumination.jpg") ) );
+	mTextureColor = gl::Texture( loadImage( loadAsset("space_frigate_color.jpg") ) );
+	mTextureSpecular = gl::Texture( loadImage( loadAsset("space_frigate_specular.jpg") ) );
 
-	mMesh.read( loadAsset("ducky.msh") );
-
-	mCamera.setEyePoint( Vec3f(2.5f, 5.0f, 5.0f) );
-	mCamera.setCenterOfInterestPoint( Vec3f(0.0f, 2.0f, 0.0f) );
+	//
+	mCamera.setEyePoint( Vec3f(0.0f, 8.0f, 25.0f) );
+	mCamera.setCenterOfInterestPoint( Vec3f(0.0f, -1.0f, 0.0f) );
 	mCamera.setPerspective( 60.0f, getWindowAspectRatio(), 1.0f, 1000.0f );
 }
 
 void BloomingNeonApp::update()
 {
 	mTransform.setToIdentity();
-	mTransform.rotate( Vec3f::xAxis(), sinf( (float) getElapsedSeconds() * 3.0f ) * 0.08f );
-	mTransform.rotate( Vec3f::yAxis(), (float) getElapsedSeconds() * 0.1f );
-	mTransform.rotate( Vec3f::zAxis(), sinf( (float) getElapsedSeconds() * 4.3f ) * 0.09f );
+	mTransform.rotate( Vec3f::yAxis(), (float) getElapsedSeconds() * 0.2f );
 }
 
 void BloomingNeonApp::draw()
@@ -116,11 +126,13 @@ void BloomingNeonApp::draw()
 	// store our viewport, so we can restore it later
 	Area viewport = gl::getViewport();
 
-	// render a simple scene into mFboScene
+	// render scene into mFboScene using illumination texture
+	mTextureIllumination.enableAndBind();
+	mTextureSpecular.bind(1);
 	gl::setViewport( mFboScene.getBounds() );
 	mFboScene.bindFramebuffer();
 		gl::pushMatrices();
-			gl::setMatricesWindow(512, 512, false);
+			gl::setMatricesWindow(SCENE_SIZE, SCENE_SIZE, false);
 			gl::clear( Color::black() );
 			render();
 		gl::popMatrices();
@@ -131,14 +143,15 @@ void BloomingNeonApp::draw()
 	mShaderBlur.uniform("tex0", 0); // use texture unit 0
  
 	// tell the shader to blur horizontally and the size of 1 pixel
-	mShaderBlur.uniform("sampleOffset", Vec2f(1.0f/mFboBlur1.getWidth(), 0.0f));
+	mShaderBlur.uniform("sample_offset", Vec2f(1.0f/mFboBlur1.getWidth(), 0.0f));
+	mShaderBlur.uniform("attenuation", 2.5f);
 
 	// copy a horizontally blurred version of our scene into the first blur Fbo
 	gl::setViewport( mFboBlur1.getBounds() );
 	mFboBlur1.bindFramebuffer();
 		mFboScene.bindTexture(0);
 		gl::pushMatrices();
-			gl::setMatricesWindow(64, 64, false);
+			gl::setMatricesWindow(BLUR_SIZE, BLUR_SIZE, false);
 			gl::clear( Color::black() );
 			gl::drawSolidRect( mFboBlur1.getBounds() );
 		gl::popMatrices();
@@ -146,14 +159,15 @@ void BloomingNeonApp::draw()
 	mFboBlur1.unbindFramebuffer();	
  
 	// tell the shader to blur vertically and the size of 1 pixel
-	mShaderBlur.uniform("sampleOffset", Vec2f(0.0f, 1.0f/mFboBlur2.getHeight()));
+	mShaderBlur.uniform("sample_offset", Vec2f(0.0f, 1.0f/mFboBlur2.getHeight()));
+	mShaderBlur.uniform("attenuation", 2.5f);
 
 	// copy a vertically blurred version of our blurred scene into the second blur Fbo
 	gl::setViewport( mFboBlur2.getBounds() );
 	mFboBlur2.bindFramebuffer();
 		mFboBlur1.bindTexture(0);
 		gl::pushMatrices();
-			gl::setMatricesWindow(64, 64, false);
+			gl::setMatricesWindow(BLUR_SIZE, BLUR_SIZE, false);
 			gl::clear( Color::black() );
 			gl::drawSolidRect( mFboBlur2.getBounds() );
 		gl::popMatrices();
@@ -162,6 +176,18 @@ void BloomingNeonApp::draw()
 
 	// unbind the shader
 	mShaderBlur.unbind();
+
+	// render scene into mFboScene using color texture
+	mTextureColor.enableAndBind();
+	mTextureSpecular.bind(1);
+	gl::setViewport( mFboScene.getBounds() );
+	mFboScene.bindFramebuffer();
+		gl::pushMatrices();
+			gl::setMatricesWindow(SCENE_SIZE, SCENE_SIZE, false);
+			gl::clear( Color::black() );
+			render();
+		gl::popMatrices();
+	mFboScene.unbindFramebuffer();
 
 	// restore the viewport
 	gl::setViewport( viewport );
@@ -219,16 +245,15 @@ void BloomingNeonApp::render()
 		gl::enableDepthRead();
 		gl::enableDepthWrite();
 		
-		mTexture.enableAndBind();
 			mShaderPhong.bind();
-			mShaderPhong.uniform("tex0", 0);
+			mShaderPhong.uniform("tex_diffuse", 0);
+			mShaderPhong.uniform("tex_specular", 1);
 				gl::pushModelView();
 				gl::multModelView( mTransform );
 					gl::color( Color::white() );
 					gl::draw( mMesh );
 				gl::popModelView();		
 			mShaderPhong.unbind();
-		mTexture.unbind();
 
 		gl::disableDepthWrite();
 		gl::disableDepthRead();
