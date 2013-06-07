@@ -34,11 +34,11 @@
 // using the #pragma directive
 #ifdef CINDER_MSW
 #ifndef _DEBUG
-	#pragma comment(lib, "opencv_core230.lib")
-	#pragma comment(lib, "opencv_imgproc230.lib")
+	#pragma comment(lib, "opencv_core243.lib")
+	#pragma comment(lib, "opencv_imgproc243.lib")
 #else
-	#pragma comment(lib, "opencv_core230d.lib")
-	#pragma comment(lib, "opencv_imgproc230d.lib")
+	#pragma comment(lib, "opencv_core243d.lib")
+	#pragma comment(lib, "opencv_imgproc243d.lib")
 #endif
 #endif
 
