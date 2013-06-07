@@ -64,7 +64,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw;..\..\..\cinder_master\blocks\opencv\lib\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw;..\..\..\cinder_master\blocks\opencv\lib\vc11;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -92,8 +92,8 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw;..\..\..\cinder_master\blocks\opencv\lib\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw;..\..\..\cinder_master\blocks\opencv\lib\vc11;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
