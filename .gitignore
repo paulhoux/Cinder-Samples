@@ -2,7 +2,11 @@
 /*/vc10/Debug
 /*/vc10/ipch
 /*/vc10/Release
+/*/vc11/Debug
+/*/vc11/ipch
+/*/vc11/Release
 *.opensdf
 *.sdf
 *.suo
 *.user
+*.gitignore
