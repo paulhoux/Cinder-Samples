@@ -1,87 +1,87 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BloomingNeon", "..\..\BloomingNeon\vc10\BloomingNeon.vcxproj", "{74202EDD-91D2-4D2A-B0B6-355CEB16E6BE}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BloomingNeon", "..\..\BloomingNeon\vc11\BloomingNeon.vcxproj", "{74202EDD-91D2-4D2A-B0B6-355CEB16E6BE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BouncingBalls", "..\..\BouncingBalls\vc10\BouncingBalls.vcxproj", "{E35AE6DB-7C3F-41B4-A920-1CAE379AF3C9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BouncingBalls", "..\..\BouncingBalls\vc11\BouncingBalls.vcxproj", "{E35AE6DB-7C3F-41B4-A920-1CAE379AF3C9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FlickrImageViewer", "..\..\FlickrImageViewer\vc10\FlickrImageViewer.vcxproj", "{49C6A701-336C-4322-9A1C-7AD16E7F0274}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FlickrImageViewer", "..\..\FlickrImageViewer\vc11\FlickrImageViewer.vcxproj", "{49C6A701-336C-4322-9A1C-7AD16E7F0274}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrustumCulling", "..\..\FrustumCulling\vc10\FrustumCulling.vcxproj", "{002ADFC9-BC5C-43A1-9AB5-C7D966CB41C2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrustumCulling", "..\..\FrustumCulling\vc11\FrustumCulling.vcxproj", "{002ADFC9-BC5C-43A1-9AB5-C7D966CB41C2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeometryShader", "..\..\GeometryShader\vc10\GeometryShader.vcxproj", "{F2D556ED-353C-4338-96D0-D4850E11B663}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeometryShader", "..\..\GeometryShader\vc11\GeometryShader.vcxproj", "{F2D556ED-353C-4338-96D0-D4850E11B663}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HexagonMirror", "..\..\HexagonMirror\vc10\HexagonMirror.vcxproj", "{A72C9054-F427-4C24-A6CF-B02395550B7A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HexagonMirror", "..\..\HexagonMirror\vc11\HexagonMirror.vcxproj", "{A72C9054-F427-4C24-A6CF-B02395550B7A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PerspectiveWarping", "..\..\PerspectiveWarping\vc10\PerspectiveWarping.vcxproj", "{09E7D986-4E2C-4B29-B992-2C54C7112D6C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PerspectiveWarping", "..\..\PerspectiveWarping\vc11\PerspectiveWarping.vcxproj", "{09E7D986-4E2C-4B29-B992-2C54C7112D6C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PickingByColorApp", "..\..\PickingByColor\vc10\PickingByColorApp.vcxproj", "{7BA1EC7D-15AD-4604-9191-5E713CC9321E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PickingByColorApp", "..\..\PickingByColor\vc11\PickingByColorApp.vcxproj", "{7BA1EC7D-15AD-4604-9191-5E713CC9321E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PostProcessing", "..\..\PostProcessing\vc10\PostProcessing.vcxproj", "{7B1D5758-9F5D-4F8E-8697-F84CC86848D8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PostProcessing", "..\..\PostProcessing\vc11\PostProcessing.vcxproj", "{7B1D5758-9F5D-4F8E-8697-F84CC86848D8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleSceneGraph", "..\..\SimpleSceneGraph\vc10\SimpleSceneGraph.vcxproj", "{F26CECC0-AD66-407A-B679-246E95C84632}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleSceneGraph", "..\..\SimpleSceneGraph\vc11\SimpleSceneGraph.vcxproj", "{F26CECC0-AD66-407A-B679-246E95C84632}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleShader", "..\..\SimpleShader\vc10\SimpleShader.vcxproj", "{051C58B4-0F72-43FA-ACF2-3E375EC2FCCF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleShader", "..\..\SimpleShader\vc11\SimpleShader.vcxproj", "{051C58B4-0F72-43FA-ACF2-3E375EC2FCCF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SmoothDisplacementMapping", "..\..\SmoothDisplacementMapping\vc10\SmoothDisplacementMapping.vcxproj", "{F39E1993-823F-4AB9-90AE-67FD35B54D6A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SmoothDisplacementMapping", "..\..\SmoothDisplacementMapping\vc11\SmoothDisplacementMapping.vcxproj", "{F39E1993-823F-4AB9-90AE-67FD35B54D6A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TcpClientApp", "..\..\TcpClient\vc10\TcpClientApp.vcxproj", "{1B2AD9D2-950A-4888-9F94-B329CE5D37F8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TcpClientApp", "..\..\TcpClient\vc11\TcpClientApp.vcxproj", "{1B2AD9D2-950A-4888-9F94-B329CE5D37F8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TransparentMesh", "..\..\TransparentMesh\vc10\TransparentMesh.vcxproj", "{7A519E37-6C49-4D79-9D22-9B655C7F8DEA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TransparentMesh", "..\..\TransparentMesh\vc11\TransparentMesh.vcxproj", "{7A519E37-6C49-4D79-9D22-9B655C7F8DEA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stars", "..\..\Stars\vc10\Stars.vcxproj", "{334E7308-F801-4C95-A9C4-CB55DE716195}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stars", "..\..\Stars\vc11\Stars.vcxproj", "{334E7308-F801-4C95-A9C4-CB55DE716195}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextRendering", "..\..\TextRendering\vc10\TextRendering.vcxproj", "{C0C499E0-AC21-426C-BB1B-B0DA3BF37D15}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextRendering", "..\..\TextRendering\vc11\TextRendering.vcxproj", "{C0C499E0-AC21-426C-BB1B-B0DA3BF37D15}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cinder", "..\..\..\cinder_master\vc10\cinder.vcxproj", "{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cinder", "..\..\..\cinder_master\vc11\cinder.vcxproj", "{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
