@@ -7,7 +7,10 @@
     <None Include="..\assets\shaders\lines_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\shaders\lines_geom.glsl">
+    <None Include="..\assets\shaders\lines_geom1.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\shaders\lines_geom2.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
