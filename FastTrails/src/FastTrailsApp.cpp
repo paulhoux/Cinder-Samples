@@ -45,7 +45,7 @@ public:
 	void update();
 	void draw();
 	
-	void resize( ResizeEvent event );
+	void resize();
 	
 	void mouseDown( MouseEvent event );	
 	void mouseDrag( MouseEvent event );	
@@ -193,11 +193,11 @@ void FastTrailsApp::draw()
 	gl::disableWireframe();
 }
 
-void FastTrailsApp::resize( ResizeEvent event )
+void FastTrailsApp::resize()
 {
 	// adjust aspect ratio
 	CameraPersp cam = mCamera.getCamera();
-	cam.setAspectRatio( event.getAspectRatio() );
+	cam.setAspectRatio( getWindowAspectRatio() );
 	mCamera.setCurrentCam( cam );
 }
 

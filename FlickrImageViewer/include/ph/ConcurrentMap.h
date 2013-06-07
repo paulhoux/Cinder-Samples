@@ -25,7 +25,12 @@
 
 #pragma once
 
-#include "cinder/Thread.h"
+// use the boost thread library instead of Cinder's
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/condition_variable.hpp>
+
 #include <map>
 
 namespace ph {
@@ -39,13 +44,13 @@ public:
 
 	void clear()
 	{
-		std::mutex::scoped_lock lock(mMutex);
+		boost::mutex::scoped_lock lock(mMutex);
 		mQueue.clear();
 	}
 
 	bool contains(Key const& key)
 	{
-		std::mutex::scoped_lock lock(mMutex);
+		boost::mutex::scoped_lock lock(mMutex);
 
 		typename std::map<Key, Data>::iterator itr = mQueue.find(key);
 		return (itr != mQueue.end());
@@ -53,7 +58,7 @@ public:
 
 	bool erase(Key const& key)
 	{
-		std::mutex::scoped_lock lock(mMutex);
+		boost::mutex::scoped_lock lock(mMutex);
 
 		size_t n = mQueue.erase(key);
 
@@ -62,7 +67,7 @@ public:
 
     void push(Key const& key, Data const& data)
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
         mQueue[key] = data;
         lock.unlock();
         mCondition.notify_one();
@@ -70,13 +75,13 @@ public:
 
     bool empty() const
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
         return mQueue.empty();
     }
 
 	bool get(Key const& key, Data& popped_value)
 	{
-		std::mutex::scoped_lock lock(mMutex);
+		boost::mutex::scoped_lock lock(mMutex);
 
 		typename std::map<Key, Data>::iterator itr = mQueue.find(key);
 		if (itr == mQueue.end())
@@ -89,7 +94,7 @@ public:
 
     bool try_pop(Key const& key, Data& popped_value)
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
 
 		typename std::map<Key, Data>::iterator itr = mQueue.find(key);
 		if (itr == mQueue.end())
@@ -103,7 +108,7 @@ public:
 
     void wait_and_pop(Key const& key, Data& popped_value)
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
 		typename std::map<Key, Data>::iterator itr;
         while(mQueue.find(key) == mQueue.end())
         {
@@ -115,8 +120,8 @@ public:
     }
 private:
     std::map<Key, Data>			mQueue;
-    mutable std::mutex		mMutex;
-    std::condition_variable	mCondition;
+    mutable boost::mutex		mMutex;
+    boost::condition_variable	mCondition;
 };
 
 } // namespace ph

@@ -25,7 +25,12 @@
 
 #pragma once
 
-#include "cinder/Thread.h"
+// use the boost thread library instead of Cinder's
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/condition_variable.hpp>
+
 #include <queue>
 
 namespace ph {
@@ -39,7 +44,7 @@ public:
 	
     void push(Data const& data)
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
         mQueue.push(data);
         lock.unlock();
         mCondition.notify_one();
@@ -47,13 +52,13 @@ public:
 
     bool empty() const
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
         return mQueue.empty();
     }
 
     bool try_pop(Data& popped_value)
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
         if(mQueue.empty())
         {
             return false;
@@ -66,7 +71,7 @@ public:
 
     void wait_and_pop(Data& popped_value)
     {
-        std::mutex::scoped_lock lock(mMutex);
+        boost::mutex::scoped_lock lock(mMutex);
         while(mQueue.empty())
         {
             mCondition.wait(lock);
@@ -77,8 +82,8 @@ public:
     }
 private:
     std::queue<Data>			mQueue;
-    mutable std::mutex		mMutex;
-    std::condition_variable	mCondition;
+    mutable boost::mutex		mMutex;
+    boost::condition_variable	mCondition;
 };
 
 } // namespace ph
