@@ -72,8 +72,8 @@ void BloomingNeonApp::setup()
 	mFboScene = gl::Fbo(512, 512);
 
 	// setup our blur Fbo's, smaller ones will generate a bigger blur
-	mFboBlur1 = gl::Fbo(512/8, 512/8);
-	mFboBlur2 = gl::Fbo(512/8, 512/8);
+	mFboBlur1 = gl::Fbo(64, 64);
+	mFboBlur2 = gl::Fbo(64, 64);
 
 	// load and compile the shaders
 	try { 
@@ -138,7 +138,7 @@ void BloomingNeonApp::draw()
 	mFboBlur1.bindFramebuffer();
 		mFboScene.bindTexture(0);
 		gl::pushMatrices();
-			gl::setMatricesWindow(512, 512, false);
+			gl::setMatricesWindow(64, 64, false);
 			gl::clear( Color::black() );
 			gl::drawSolidRect( mFboBlur1.getBounds() );
 		gl::popMatrices();
@@ -153,7 +153,7 @@ void BloomingNeonApp::draw()
 	mFboBlur2.bindFramebuffer();
 		mFboBlur1.bindTexture(0);
 		gl::pushMatrices();
-			gl::setMatricesWindow(512, 512, false);
+			gl::setMatricesWindow(64, 64, false);
 			gl::clear( Color::black() );
 			gl::drawSolidRect( mFboBlur2.getBounds() );
 		gl::popMatrices();
