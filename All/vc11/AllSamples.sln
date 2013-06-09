@@ -83,6 +83,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextRendering", "..\..\Text
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cinder", "..\..\..\cinder_master\vc11\cinder.vcxproj", "{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnalogClock", "..\..\AnalogClock\vc11\AnalogClock.vcxproj", "{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -157,6 +162,10 @@ Global
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}.Debug|Win32.Build.0 = Debug|Win32
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}.Release|Win32.ActiveCfg = Release|Win32
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}.Release|Win32.Build.0 = Release|Win32
+		{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}.Debug|Win32.Build.0 = Debug|Win32
+		{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}.Release|Win32.ActiveCfg = Release|Win32
+		{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
