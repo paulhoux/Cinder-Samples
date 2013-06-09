@@ -1,8 +1,6 @@
 Tcp Client using Boost::ASIO
 ============================
 
-![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/TransparentMesh/PREVIEW.png)
-
 
 See https://forum.libcinder.org/topic/sample-using-boost-asio-to-create-a-tcp-client for more information.
 
