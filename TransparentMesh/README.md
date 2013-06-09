@@ -4,6 +4,9 @@ Transparent Mesh Rendering
 ![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/TransparentMesh/PREVIEW.png)
 
 
+See https://forum.libcinder.org/topic/mix-2d-with-3d-models for more information.
+
+
 Copyright (c) 2013, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
