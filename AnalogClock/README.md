@@ -1,5 +1,5 @@
-Blooming Neon Effect
-====================
+Analog Clock
+============
 
 ![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/AnalogClock/PREVIEW.png)
 
@@ -10,7 +10,7 @@ This sample is aimed at beginning Cinder users. It will show you how to:
 * use ```gl::color()``` to modify the current drawing color
 
 
-Copyright (c) 2012, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
+Copyright (c) 2013, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
