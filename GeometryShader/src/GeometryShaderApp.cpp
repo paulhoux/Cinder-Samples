@@ -349,4 +349,4 @@ void GeometryShaderApp::loadShader( const std::string &path )
 	}
 }
 
-CINDER_APP_BASIC( GeometryShaderApp, RendererGl(6) )
+CINDER_APP_BASIC( GeometryShaderApp, RendererGl )
