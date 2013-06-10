@@ -1,5 +1,9 @@
 #version 120
 
+// point sprite sizes differ between ATI/AMD and NVIDIA GPU's,
+// ATI's are twice as large and have to be scaled down
+uniform float	scale;
+
 // define a few constants here, for faster rendering
 const float LOG_BASE10 = 1.0 / log2(10.0);
 
@@ -27,7 +31,7 @@ void main() {
 	float apparent = magnitude - 5.0 * (1.0 - log10(distance));
 
 	// calculate point size based on apparent magnitude
-    gl_PointSize = SIZE * pow(SIZE_MODIFIER, 1.0 - apparent); 
+    gl_PointSize = scale * SIZE * pow(SIZE_MODIFIER, 1.0 - apparent); 
 
 	// determine color
 	float brightness = clamp((MAG_LOWER_BOUND + (1.0 - apparent)) / MAG_RANGE, 0.0, 1.0);

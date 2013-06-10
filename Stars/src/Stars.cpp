@@ -44,6 +44,15 @@ Stars::~Stars(void)
 
 void Stars::setup()
 {	
+	// point sprite sizes differ between ATI/AMD and NVIDIA GPU's,
+	// ATI's are twice as large and have to be scaled down
+	std::string vendor = std::string( (char*) glGetString( GL_VENDOR ) );
+
+	if( vendor == "ATI Technologies Inc." )
+		mScale = 0.5f;
+	else
+		mScale = 1.0f;
+
 	// load shader and point sprite texture
 	try { mShader = gl::GlslProg( loadAsset("shaders/stars_vert.glsl"), loadAsset("shaders/stars_frag.glsl") ); }
 	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; }	
@@ -104,6 +113,7 @@ void Stars::enablePointSprites()
 	mShader.uniform("tex1", 1);
 	mShader.uniform("time", (float) getElapsedSeconds() );
 	mShader.uniform("aspect", mAspectRatio);
+	mShader.uniform("scale", mScale);
 }
 
 void Stars::disablePointSprites()

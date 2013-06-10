@@ -108,4 +108,5 @@ private:
 	std::vector< ci::Color > mColors;
 
 	float				mAspectRatio;
+	float				mScale;
 };
