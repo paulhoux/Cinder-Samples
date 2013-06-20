@@ -439,15 +439,12 @@ Vec3f TextRenderingApp::constrainAnchor( const Vec3f &pt ) const
 
 void TextRenderingApp::updateWindowTitle()
 {
-#ifdef WIN32
-	std::wstringstream str;
+	std::stringstream str;
 	str << "TextRenderingApp -";
-	str << " Font family: " << toUtf16( mTextBox.getFontFamily() );
+	str << " Font family: " << mTextBox.getFontFamily();
 	str << " (" << mTextBox.getFontSize() << ")";
-
-	HWND hWnd = getRenderer()->getHwnd();
-	::SetWindowText( hWnd, str.str().c_str() );
-#endif
+	
+	getWindow()->setTitle( str.str() );
 }
 
 CINDER_APP_BASIC( TextRenderingApp, RendererGl )
