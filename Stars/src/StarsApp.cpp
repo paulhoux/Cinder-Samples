@@ -20,6 +20,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "cinder/MayaCamUI.h"
 #include "cinder/Utilities.h"
 #include "cinder/Timer.h"
 #include "cinder/app/AppBasic.h"
@@ -71,6 +72,8 @@ protected:
 	void	forceShowCursor();
 	void	constrainCursor( const Vec2i &pos );
 
+	void	render();
+
 	fs::path	getFirstFile( const fs::path &path );	
 	fs::path	getNextFile( const fs::path &current );
 	fs::path	getPrevFile( const fs::path &current );
@@ -83,6 +86,7 @@ protected:
 
 	// camera
 	Cam				mCamera;
+	MayaCamUI		mHandheldCam;
 
 	// graphical elements
 	Stars				mStars;
@@ -102,6 +106,7 @@ protected:
 	bool			mIsConstellationsVisible;
 	bool			mIsCursorVisible;
 	bool			mIsStereoscopic;
+	bool			mIsCylindrical;
 
 	//
 	shared_ptr<ISoundEngine>	mSoundEngine;
@@ -180,11 +185,14 @@ void StarsApp::setup()
 	cam.setNearClip( 0.01f );
 	cam.setFarClip( 5000.0f );
 
+	mHandheldCam.setCurrentCam(cam);
+
 	//
 	mIsGridVisible = false;
 	mIsLabelsVisible = false;
 	mIsConstellationsVisible = false;
 	mIsStereoscopic = false;
+	mIsCylindrical = false;
 
 	// create stars
 	mStars.setup();
@@ -276,103 +284,102 @@ void StarsApp::update()
 
 void StarsApp::draw()
 {		
-	float w = 0.5f * getWindowWidth();
-	float h = 1.0f * getWindowHeight();
+	float w = static_cast<float>(getWindowWidth());
+	float h = static_cast<float>(getWindowHeight());
 
 	gl::clear( Color::black() ); 
 
 	if(mIsStereoscopic) {
 		glPushAttrib( GL_VIEWPORT_BIT );
+		gl::pushMatrices();
 
 		// render left eye
-		gl::setViewport( Area(0, 0, w, h) );
 		mCamera.enableStereoLeft();
-		gl::pushMatrices();
+
+		gl::setViewport( Area(0, 0, w * 0.5f, h) );
 		gl::setMatrices( mCamera.getCamera() );
-		{
-			// draw background
-			mBackground.draw();
-
-			// draw grid
-			if(mIsGridVisible) 
-				mGrid.draw();
-
-			// draw stars
-			mStars.draw();
-
-			// draw constellations
-			if(mIsConstellationsVisible) {
-				mConstellations.draw();
-				mConstellationLabels.draw();
-			}
-
-			// draw labels
-			if(mIsLabelsVisible)
-				mLabels.draw();
-		}
-		gl::popMatrices();
+		render();
 	
 		// draw user interface
 		mUserInterface.draw();
 
 		// render right eye
-		gl::setViewport( Area(w, 0, w * 2.0f, h) );
 		mCamera.enableStereoRight();
-		gl::pushMatrices();
+
+		gl::setViewport( Area(w * 0.5f, 0, w, h) );
 		gl::setMatrices( mCamera.getCamera() );
-		{
-			// draw background
-			mBackground.draw();
-
-			// draw grid
-			if(mIsGridVisible) 
-				mGrid.draw();
-
-			// draw stars
-			mStars.draw();
-
-			// draw constellations
-			if(mIsConstellationsVisible) {
-				mConstellations.draw();
-				mConstellationLabels.draw();
-			}
-
-			// draw labels
-			if(mIsLabelsVisible)
-				mLabels.draw();
-		}
-		gl::popMatrices();
+		render();
 	
 		// draw user interface
 		mUserInterface.draw();
-		
+
+		gl::popMatrices();		
+		glPopAttrib();
+	}
+	else if(mIsCylindrical) {
+		float dh = 0.5f * (h - 0.25f * w);			
+
+		// store viewport, camera and matrices, so we can restore later
+		glPushAttrib( GL_VIEWPORT_BIT );
+		CameraStereo original = mCamera.getCamera();
+		gl::pushMatrices();
+
+		// setup camera
+		CameraStereo cam = mCamera.getCamera();
+		cam.disableStereo();
+		cam.setAspectRatio( 1.0f );
+		cam.setFov( 90.0 / static_cast<double>(cam.getAspectRatio()) );
+
+		Vec3f right, up;	
+		cam.getBillboardVectors(&right, &up);
+		Vec3f forward = up.cross(right);
+
+		// render side 1
+		gl::setViewport( Area(0, dh, w * 0.25f, h - dh) );
+
+		cam.setViewDirection( -forward );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();
+
+		// render side 2
+		gl::setViewport( Area(w * 0.25f, dh, w * 0.5f, h - dh) );
+
+		cam.setViewDirection( -right );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();
+
+		// render side 3
+		gl::setViewport( Area(w * 0.5f, dh, w * 0.75f, h - dh) );
+
+		cam.setViewDirection( forward );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();		
+	
+		// draw user interface
+		mUserInterface.draw();
+
+		// render side 4
+		gl::setViewport( Area(w * 0.75f, dh, w, h - dh) );
+
+		cam.setViewDirection( right );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();
+
+		// restore states
+		gl::popMatrices();		
+		mCamera.setCurrentCam(original);
 		glPopAttrib();
 	}
 	else {
 		mCamera.disableStereo();
+
 		gl::pushMatrices();
 		gl::setMatrices( mCamera.getCamera() );
-		{
-			// draw background
-			mBackground.draw();
-
-			// draw grid
-			if(mIsGridVisible) 
-				mGrid.draw();
-
-			// draw stars
-			mStars.draw();
-
-			// draw constellations
-			if(mIsConstellationsVisible) {
-				mConstellations.draw();
-				mConstellationLabels.draw();
-			}
-
-			// draw labels
-			if(mIsLabelsVisible)
-				mLabels.draw();
-		}
+		render();
 		gl::popMatrices();
 	
 		// draw user interface
@@ -391,11 +398,39 @@ void StarsApp::draw()
 	gl::disableAlphaBlending();
 }
 
+void StarsApp::render()
+{
+	// draw background
+	mBackground.draw();
+
+	// draw grid
+	if(mIsGridVisible) 
+		mGrid.draw();
+
+	// draw stars
+	mStars.draw();
+
+	// draw constellations
+	if(mIsConstellationsVisible) {
+		mConstellations.draw();
+
+		// labels don't behave well in cylindrical view
+		if(!mIsCylindrical)
+			mConstellationLabels.draw();
+	}
+
+	// draw labels (labels don't behave well in cylindrical view)
+	if(mIsLabelsVisible && !mIsCylindrical)
+		mLabels.draw();
+}
+
 void StarsApp::mouseDown( MouseEvent event )
 {
 	// allow user to control camera
 	mCursorPos = mCursorPrevious = event.getPos();
 	mCamera.mouseDown( mCursorPos );
+
+	//mHandheldCam.mouseDown( mCursorPos );
 }
 
 void StarsApp::mouseDrag( MouseEvent event )
@@ -407,6 +442,8 @@ void StarsApp::mouseDrag( MouseEvent event )
 
 	// allow user to control camera
 	mCamera.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+
+	//mHandheldCam.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void StarsApp::mouseUp( MouseEvent event )
@@ -485,7 +522,13 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_s:
 		// toggle stereoscopic view
 		mIsStereoscopic = !mIsStereoscopic;
+		mIsCylindrical = false;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		break;
+	case KeyEvent::KEY_d:
+		mIsCylindrical = !mIsCylindrical;
+		mIsStereoscopic = false;
+		mStars.setAspectRatio( mIsCylindrical ? 0.25f : 1.0f );
 		break;
 	case KeyEvent::KEY_PLUS:
 	case KeyEvent::KEY_EQUALS:
@@ -523,6 +566,10 @@ void StarsApp::keyDown( KeyEvent event )
 void StarsApp::resize()
 {
 	mCamera.resize();
+	
+	CameraPersp cam = mHandheldCam.getCamera();
+	cam.setAspectRatio( getWindowAspectRatio() );
+	mHandheldCam.setCurrentCam( cam );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )
