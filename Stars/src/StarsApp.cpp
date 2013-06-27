@@ -26,6 +26,7 @@
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
+#include "cinder/gl/GlslProg.h"
 
 #include "Background.h"
 #include "Cam.h"
@@ -113,6 +114,7 @@ protected:
 
 	//
 	gl::Fbo			mFbo;
+	gl::GlslProg	mShader;
 
 	//
 	shared_ptr<ISoundEngine>	mSoundEngine;
@@ -207,6 +209,14 @@ void StarsApp::setup()
 	// create labels
 	mLabels.setup();
 	mConstellationLabels.setup();
+
+	//
+	try {
+		mShader = gl::GlslProg( loadAsset("shaders/cylindrical_vert.glsl"), loadAsset("shaders/cylindrical_frag.glsl") );
+	}
+	catch( const std::exception &e ) {
+		console() << e.what() << std::endl;
+	}
 
 	//
 	mMusicExtensions.push_back( ".flac" );
@@ -389,8 +399,16 @@ void StarsApp::draw()
 		glPopAttrib();
 
 		// draw frame buffer (TODO: use fragment shader to warp contents)
+		mShader.bind();
+		mShader.uniform("panoTex", 0);
+		mShader.uniform("radians", 2.0f * (float) M_PI );
+		mShader.uniform("numCameras", 4.0f);
+		mShader.uniform("invNumCamsHalf", 1.0f / 8.0f);
+
 		Rectf centered = Rectf(mFbo.getBounds()).getCenteredFit( getWindowBounds(), false );
 		gl::draw( mFbo.getTexture(), centered );
+
+		mShader.unbind();
 	}
 	else {
 		mCamera.disableStereo();
@@ -662,6 +680,7 @@ void StarsApp::createFbo()
 	gl::Fbo::Format fmt;
 	fmt.setSamples(samples);
 	fmt.setCoverageSamples(samples);
+	fmt.setWrap( GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER );
 	
 	mFbo = gl::Fbo( w, h, fmt );
 
