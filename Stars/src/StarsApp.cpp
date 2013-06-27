@@ -25,6 +25,7 @@
 #include "cinder/Timer.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Fbo.h"
 
 #include "Background.h"
 #include "Cam.h"
@@ -74,6 +75,8 @@ protected:
 
 	void	render();
 
+	void	createFbo();
+
 	fs::path	getFirstFile( const fs::path &path );	
 	fs::path	getNextFile( const fs::path &current );
 	fs::path	getPrevFile( const fs::path &current );
@@ -107,6 +110,9 @@ protected:
 	bool			mIsCursorVisible;
 	bool			mIsStereoscopic;
 	bool			mIsCylindrical;
+
+	//
+	gl::Fbo			mFbo;
 
 	//
 	shared_ptr<ISoundEngine>	mSoundEngine;
@@ -284,8 +290,8 @@ void StarsApp::update()
 
 void StarsApp::draw()
 {		
-	float w = static_cast<float>(getWindowWidth());
-	float h = static_cast<float>(getWindowHeight());
+	int w = getWindowWidth();
+	int h = getWindowHeight();
 
 	gl::clear( Color::black() ); 
 
@@ -296,7 +302,7 @@ void StarsApp::draw()
 		// render left eye
 		mCamera.enableStereoLeft();
 
-		gl::setViewport( Area(0, 0, w * 0.5f, h) );
+		gl::setViewport( Area(0, 0, w / 2, h) );
 		gl::setMatrices( mCamera.getCamera() );
 		render();
 	
@@ -306,7 +312,7 @@ void StarsApp::draw()
 		// render right eye
 		mCamera.enableStereoRight();
 
-		gl::setViewport( Area(w * 0.5f, 0, w, h) );
+		gl::setViewport( Area(w / 2, 0, w, h) );
 		gl::setMatrices( mCamera.getCamera() );
 		render();
 	
@@ -317,7 +323,12 @@ void StarsApp::draw()
 		glPopAttrib();
 	}
 	else if(mIsCylindrical) {
-		float dh = 0.5f * (h - 0.25f * w);			
+		// render to the frame buffer object, which has the same size as the window
+		createFbo();
+		mFbo.bindFramebuffer();	
+
+		w = mFbo.getWidth();
+		h = mFbo.getHeight();
 
 		// store viewport, camera and matrices, so we can restore later
 		glPushAttrib( GL_VIEWPORT_BIT );
@@ -328,14 +339,14 @@ void StarsApp::draw()
 		CameraStereo cam = mCamera.getCamera();
 		cam.disableStereo();
 		cam.setAspectRatio( 1.0f );
-		cam.setFov( 90.0 / static_cast<double>(cam.getAspectRatio()) );
+		cam.setFov( 90.0f );
 
 		Vec3f right, up;	
 		cam.getBillboardVectors(&right, &up);
 		Vec3f forward = up.cross(right);
 
 		// render side 1
-		gl::setViewport( Area(0, dh, w * 0.25f, h - dh) );
+		gl::setViewport( Area(0, 0, w / 4, h) );
 
 		cam.setViewDirection( -forward );
 		cam.setWorldUp( up );
@@ -343,7 +354,7 @@ void StarsApp::draw()
 		render();
 
 		// render side 2
-		gl::setViewport( Area(w * 0.25f, dh, w * 0.5f, h - dh) );
+		gl::setViewport( Area(w / 4, 0, (w * 2) / 4, h) );
 
 		cam.setViewDirection( -right );
 		cam.setWorldUp( up );
@@ -351,7 +362,7 @@ void StarsApp::draw()
 		render();
 
 		// render side 3
-		gl::setViewport( Area(w * 0.5f, dh, w * 0.75f, h - dh) );
+		gl::setViewport( Area((w * 2) / 4, 0, (w * 3) / 4, h) );
 
 		cam.setViewDirection( forward );
 		cam.setWorldUp( up );
@@ -362,17 +373,24 @@ void StarsApp::draw()
 		mUserInterface.draw();
 
 		// render side 4
-		gl::setViewport( Area(w * 0.75f, dh, w, h - dh) );
+		gl::setViewport( Area((w * 3) / 4, 0, w, h) );
 
 		cam.setViewDirection( right );
 		cam.setWorldUp( up );
 		gl::setMatrices( cam );
 		render();
 
+		// unbind the frame buffer object
+		mFbo.unbindFramebuffer();
+
 		// restore states
 		gl::popMatrices();		
 		mCamera.setCurrentCam(original);
 		glPopAttrib();
+
+		// draw frame buffer (TODO: use fragment shader to warp contents)
+		Rectf centered = Rectf(mFbo.getBounds()).getCenteredFit( getWindowBounds(), false );
+		gl::draw( mFbo.getTexture(), centered );
 	}
 	else {
 		mCamera.disableStereo();
@@ -626,6 +644,30 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 	}
 
 	return sound;
+}
+
+void StarsApp::createFbo()
+{
+	int w = getWindowWidth();
+	int h = getWindowWidth() / 4; 
+
+	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
+		return;
+
+	// use the same anti-aliasing as the main buffer
+	RendererGlRef renderer = static_pointer_cast<RendererGl>( this->getRenderer() );
+	int samples = renderer ? RendererGl::sAntiAliasingSamples[ renderer->getAntiAliasing() ] : 0;
+
+	//
+	gl::Fbo::Format fmt;
+	fmt.setSamples(samples);
+	fmt.setCoverageSamples(samples);
+	
+	mFbo = gl::Fbo( w, h, fmt );
+
+	// work-around for the flipped texture issue
+	mFbo.getTexture().setFlipped();
+	mFbo.getDepthTexture().setFlipped();
 }
 
 void StarsApp::forceHideCursor()
