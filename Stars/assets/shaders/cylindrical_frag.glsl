@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010-2012, Paul Houx - All rights reserved.
+ Copyright (c) 2013, Paul Houx - All rights reserved.
  This code is intended for use with the Cinder C++ library: http://libcinder.org
 
  Portions of this code (C) Robert Hodgin.
@@ -39,7 +39,7 @@ void main()
 	float t			= gl_TexCoord[0].t;
 
 	float offset	= floor( s * sides ) / sides;
-	float azimuth	= s - ( offset + reciprocal );
+	float azimuth	= (s - offset) - reciprocal;
 	float tangent	= tan( radians * azimuth );
 	float distance	= sqrt( tangent * tangent + 1.0 ); 
 	         
