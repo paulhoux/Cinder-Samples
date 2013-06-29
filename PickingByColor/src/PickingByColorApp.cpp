@@ -169,8 +169,6 @@ void PickingByColorApp::update()
 
 void PickingByColorApp::draw()
 {
-	Rectf r1 = Rectf(0, (float) getWindowHeight(), (float) getWindowWidth(), 0);
-
 	// bind framebuffer
 	mFbo.bindFramebuffer();
 
@@ -182,10 +180,10 @@ void PickingByColorApp::draw()
 
 	// draw the scene
 	gl::color( Color::white() );
-	gl::draw( mFbo.getTexture(0), r1 );
+	gl::draw( mFbo.getTexture(0), getWindowBounds() );
 
 	// draw the color coded scene in the upper left corner
-	gl::draw( mFbo.getTexture(1), r1 * 0.2f );
+	gl::draw( mFbo.getTexture(1), Rectf(getWindowBounds()) * 0.2f );
 	
 	// perform picking and display the results
 	//  (alternatively you can do it in the 'mouseMove' or 'mouseDown' function)
@@ -194,9 +192,9 @@ void PickingByColorApp::draw()
 	gl::disableAlphaBlending();
 
 	// draw the picking framebuffer in the upper right corner
-	Rectf r2 = (Rectf) mPickingFbo.getBounds() * 5.0f;
-	r2.offset( Vec2f((float) getWindowWidth() - r2.getWidth(), 0) );
-	gl::draw( mPickingFbo.getTexture(), Rectf(r2.x1, r2.y2, r2.x2, r2.y1) );
+	Rectf rct = (Rectf) mPickingFbo.getBounds() * 5.0f;
+	rct.offset( Vec2f((float) getWindowWidth() - rct.getWidth(), 0) );
+	gl::draw( mPickingFbo.getTexture(), Rectf(rct.x1, rct.y1, rct.x2, rct.y2) );
 }
 
 void PickingByColorApp::mouseMove( MouseEvent event )
@@ -260,6 +258,10 @@ void PickingByColorApp::resize()
 
 		// create the buffer
 		mFbo = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
+
+		// work-around for an old Cinder issue
+		mFbo.getTexture(0).setFlipped(true);
+		mFbo.getTexture(1).setFlipped(true);
 	}
 }
 
@@ -356,6 +358,9 @@ std::string PickingByColorApp::pick( const Vec2i &position )
 		fmt.setMinFilter(GL_LINEAR);
 
 		mPickingFbo = gl::Fbo(area.getWidth(), area.getHeight(), fmt);
+
+		// work-around for an old Cinder issue
+		mPickingFbo.getTexture(0).setFlipped(true);
 	}
 
 	// (Cinder does not yet provide a way to handle multiple color targets in the blitTo function, 
