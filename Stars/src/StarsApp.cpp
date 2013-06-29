@@ -63,6 +63,9 @@ public:
 	void	keyDown( KeyEvent event );
 	void	resize();
 	void	fileDrop( FileDropEvent event );
+
+	bool	isStereoscopic() const { return mIsStereoscopic; }
+	bool	isCylindrical() const { return mIsCylindrical; }
 protected:
 	void	playMusic( const fs::path &path, bool loop=false );
 	void	stopMusic();
@@ -528,15 +531,11 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mIsCylindrical = false;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
-		// adjust line width if necessary
-		glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
 		break;
 	case KeyEvent::KEY_d:
 		// cylindrical panorama
 		mIsCylindrical = !mIsCylindrical;
 		mIsStereoscopic = false;
-		// adjust line width if necessary
-		glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
 		break;
 	case KeyEvent::KEY_RETURN:
 		createShader();
@@ -557,9 +556,6 @@ void StarsApp::keyDown( KeyEvent event )
 void StarsApp::resize()
 {
 	mCamera.resize();
-		
-	// adjust line width if necessary
-	glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )
@@ -794,5 +790,8 @@ fs::path	StarsApp::getPrevFile( const fs::path &current )
 	// failed, return empty path
 	return fs::path();
 }
+
+// allow easy access to the application from outside
+static StarsApp* StarsAppPtr() { return static_cast<StarsApp*>( App::get() ); }
 
 CINDER_APP_BASIC( StarsApp, RendererGl )

@@ -44,7 +44,9 @@ void Constellations::draw()
 {
 	if(!mMesh) return;
 
-	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT );
+
+	glLineWidth( 1.0f );
 	gl::color( Color(0.5f, 0.6f, 0.8f) * mAttenuation );
 	gl::enableAdditiveBlending();
 
