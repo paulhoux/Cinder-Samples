@@ -34,10 +34,10 @@ public:
 	~UserInterface(void);
 
 	void	setup();
-	void	draw();
+	void	draw( const std::string &text );
 
 	//! set distance of camera to Sun in parsecs, then convert to lightyears
-	void	setCameraDistance( float distance ) { mDistance = distance * 3.261631f; mBox.setText( (boost::format(mText) % mDistance).str() ); }
+	void	setCameraDistance( float distance ) { mDistance = distance * 3.261631f; }
 private:
 	float				mDistance;
 

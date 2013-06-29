@@ -51,7 +51,7 @@ void UserInterface::setup()
 	mText = std::string("%.0f lightyears from the Sun");
 }
 
-void UserInterface::draw()
+void UserInterface::draw( const std::string &text )
 {
 	glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
 	gl::disableDepthRead();
@@ -73,7 +73,12 @@ void UserInterface::draw()
 
 		gl::drawLine( Vec2f(-400, 0.5f), Vec2f(400, 0.5f) );
 
-		gl::translate( Vec2i(-400, 5) );
+		gl::translate( Vec2i(-400, -29) );
+		mBox.setText( text );
+		mBox.draw();
+
+		gl::translate( Vec2i(0, 34) );
+		mBox.setText( (boost::format(mText) % mDistance).str() );
 		mBox.draw();
 	}
 	gl::popMatrices();

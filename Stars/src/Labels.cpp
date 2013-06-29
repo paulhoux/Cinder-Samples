@@ -33,6 +33,7 @@ using namespace ci::app;
 using namespace ph;
 
 Labels::Labels(void)
+	: mAttenuation(1.0f)
 {
 }
 
@@ -60,7 +61,7 @@ void Labels::draw()
 {
 	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
 	gl::enableAdditiveBlending();
-	gl::color( Color::white() * mAttenuation );
+	gl::color( ColorA(1.0f, 1.0f, 1.0f, mAttenuation) );
 
 	mLabels.draw();
 

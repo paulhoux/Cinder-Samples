@@ -42,6 +42,8 @@
 
 #pragma comment(lib, "irrKlang.lib")
 
+#define NUM_PANORAMA_SIDES 3
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -76,6 +78,7 @@ protected:
 
 	void	render();
 
+	void	createShader();
 	void	createFbo();
 
 	fs::path	getFirstFile( const fs::path &path );	
@@ -115,6 +118,9 @@ protected:
 	//
 	gl::Fbo			mFbo;
 	gl::GlslProg	mShader;
+	time_t			mModifiedVS;
+	time_t			mModifiedFS;
+	uint32_t		mRefresh;
 
 	//
 	shared_ptr<ISoundEngine>	mSoundEngine;
@@ -211,14 +217,6 @@ void StarsApp::setup()
 	mConstellationLabels.setup();
 
 	//
-	try {
-		mShader = gl::GlslProg( loadAsset("shaders/cylindrical_vert.glsl"), loadAsset("shaders/cylindrical_frag.glsl") );
-	}
-	catch( const std::exception &e ) {
-		console() << e.what() << std::endl;
-	}
-
-	//
 	mMusicExtensions.push_back( ".flac" );
 	mMusicExtensions.push_back( ".ogg" );
 	mMusicExtensions.push_back( ".wav" );
@@ -243,6 +241,12 @@ void StarsApp::setup()
 		fs::path path = getFirstFile( getAssetPath("") / "music" );
 		playMusic(path);
 	}
+
+	//
+	mModifiedVS = 0;
+	mModifiedFS = 0;
+	mRefresh = 0;
+	createShader();
 
 	//
 	mTimer.start();
@@ -296,6 +300,9 @@ void StarsApp::update()
 			playMusic( getNextFile(mMusicPath) );
 		}
 	}
+
+	//
+	createShader();
 }
 
 void StarsApp::draw()
@@ -317,7 +324,7 @@ void StarsApp::draw()
 		render();
 	
 		// draw user interface
-		mUserInterface.draw();
+		mUserInterface.draw("Stereoscopic Projection");
 
 		// render right eye
 		mCamera.enableStereoRight();
@@ -327,7 +334,7 @@ void StarsApp::draw()
 		render();
 	
 		// draw user interface
-		mUserInterface.draw();
+		mUserInterface.draw("Stereoscopic Projection");
 
 		gl::popMatrices();		
 		glPopAttrib();
@@ -355,41 +362,45 @@ void StarsApp::draw()
 		cam.getBillboardVectors(&right, &up);
 		Vec3f forward = up.cross(right);
 
-		// render side 1
-		gl::setViewport( Area(0, 0, w / 4, h) );
-
-		cam.setViewDirection( -forward );
-		cam.setWorldUp( up );
-		gl::setMatrices( cam );
-		render();
-
-		// render side 2
-		gl::setViewport( Area(w / 4, 0, (w * 2) / 4, h) );
+		// render left side
+		gl::setViewport( Area(0, 0, w / NUM_PANORAMA_SIDES, h) );
 
 		cam.setViewDirection( -right );
 		cam.setWorldUp( up );
 		gl::setMatrices( cam );
 		render();
-
-		// render side 3
-		gl::setViewport( Area((w * 2) / 4, 0, (w * 3) / 4, h) );
+		
+		// render front side
+		gl::setViewport( Area(w / NUM_PANORAMA_SIDES, 0, (w * 2) / NUM_PANORAMA_SIDES, h) );
 
 		cam.setViewDirection( forward );
 		cam.setWorldUp( up );
 		gl::setMatrices( cam );
-		render();		
+		render();	
 	
 		// draw user interface
-		mUserInterface.draw();
+		mUserInterface.draw("Cylindrical Projection");
 
-		// render side 4
-		gl::setViewport( Area((w * 3) / 4, 0, w, h) );
+#if (NUM_PANORAMA_SIDES > 2)
+		// render right side
+		gl::setViewport( Area((w * 2) / NUM_PANORAMA_SIDES, 0, (w * 3) / NUM_PANORAMA_SIDES, h) );
 
 		cam.setViewDirection( right );
 		cam.setWorldUp( up );
 		gl::setMatrices( cam );
 		render();
+#endif
 
+#if (NUM_PANORAMA_SIDES > 3)
+		// render back side
+		gl::setViewport( Area((w * 3) / NUM_PANORAMA_SIDES, 0, (w * 4) / NUM_PANORAMA_SIDES, h) );
+
+		cam.setViewDirection( -forward );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();
+#endif
+		
 		// unbind the frame buffer object
 		mFbo.unbindFramebuffer();
 
@@ -398,17 +409,23 @@ void StarsApp::draw()
 		mCamera.setCurrentCam(original);
 		glPopAttrib();
 
-		// draw frame buffer (TODO: use fragment shader to warp contents)
-		mShader.bind();
-		mShader.uniform("panoTex", 0);
-		mShader.uniform("radians", 2.0f * (float) M_PI );
-		mShader.uniform("numCameras", 4.0f);
-		mShader.uniform("invNumCamsHalf", 1.0f / 8.0f);
+		// draw frame buffer and perform cylindrical projection using a fragment shader
+		if(mShader) {
+			float sides = NUM_PANORAMA_SIDES;
+			float radians = NUM_PANORAMA_SIDES * float( M_PI / 2.0 );
+			float reciprocal = 0.5f / NUM_PANORAMA_SIDES;
+
+			mShader.bind();
+			mShader.uniform("texture", 0);
+			mShader.uniform("sides", sides);
+			mShader.uniform("radians", radians );
+			mShader.uniform("reciprocal", reciprocal );
+		}
 
 		Rectf centered = Rectf(mFbo.getBounds()).getCenteredFit( getWindowBounds(), false );
 		gl::draw( mFbo.getTexture(), centered );
 
-		mShader.unbind();
+		if(mShader) mShader.unbind();
 	}
 	else {
 		mCamera.disableStereo();
@@ -419,7 +436,7 @@ void StarsApp::draw()
 		gl::popMatrices();
 	
 		// draw user interface
-		mUserInterface.draw();
+		mUserInterface.draw("Perspective Projection");
 	}
 
 	// fade in at start of application
@@ -447,17 +464,16 @@ void StarsApp::render()
 	mStars.draw();
 
 	// draw constellations
-	if(mIsConstellationsVisible) {
+	if(mIsConstellationsVisible) 
 		mConstellations.draw();
 
-		// labels don't behave well in cylindrical view
-		if(!mIsCylindrical)
+	// draw labels (for now, labels don't behave well in cylindrical view)
+	if(mIsLabelsVisible && !mIsCylindrical) {
+		mLabels.draw();
+
+		if(mIsConstellationsVisible) 
 			mConstellationLabels.draw();
 	}
-
-	// draw labels (labels don't behave well in cylindrical view)
-	if(mIsLabelsVisible && !mIsCylindrical)
-		mLabels.draw();
 }
 
 void StarsApp::mouseDown( MouseEvent event )
@@ -560,11 +576,18 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mIsCylindrical = false;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		// adjust line width if necessary
+		glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
 		break;
 	case KeyEvent::KEY_d:
+		// cylindrical panorama
 		mIsCylindrical = !mIsCylindrical;
 		mIsStereoscopic = false;
-		mStars.setAspectRatio( mIsCylindrical ? 0.25f : 1.0f );
+		// adjust line width if necessary
+		glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
+		break;
+	case KeyEvent::KEY_RETURN:
+		createShader();
 		break;
 	case KeyEvent::KEY_PLUS:
 	case KeyEvent::KEY_EQUALS:
@@ -606,6 +629,9 @@ void StarsApp::resize()
 	CameraPersp cam = mHandheldCam.getCamera();
 	cam.setAspectRatio( getWindowAspectRatio() );
 	mHandheldCam.setCurrentCam( cam );
+		
+	// adjust line width if necessary
+	glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )
@@ -664,23 +690,58 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 	return sound;
 }
 
+void StarsApp::createShader()
+{
+	if( mRefresh == static_cast<uint32_t>( getElapsedSeconds() ) )
+		return;
+
+	mRefresh = static_cast<uint32_t>( getElapsedSeconds() );
+
+	fs::path vs = getAssetPath("") / "shaders/cylindrical_vert.glsl";
+	fs::path fs = getAssetPath("") / "shaders/cylindrical_frag.glsl";
+
+	bool updated = false;
+	if(fs::exists(vs) && fs::last_write_time(vs) != mModifiedVS)
+		updated = true;
+	else if(fs::exists(fs) && fs::last_write_time(fs) != mModifiedFS)
+		updated = true;
+
+	if(!updated)
+		return;
+
+	console() << "Loading shader" << std::endl;
+
+	//
+	try {
+		mShader = gl::GlslProg( loadFile(vs), loadFile(fs) );
+		mModifiedVS = fs::last_write_time(vs);
+		mModifiedFS = fs::last_write_time(fs);
+	}
+	catch( const std::exception &e ) {
+		console() << e.what() << std::endl;
+		mShader = gl::GlslProg();
+	}
+}
+
 void StarsApp::createFbo()
 {
-	int w = getWindowWidth();
-	int h = getWindowWidth() / 4; 
+	// we create an FBO that is twice the size of the window, for improved shader texture look-up
+	int w = getWindowWidth() * 2;
+	int h = getWindowWidth() * 2 / NUM_PANORAMA_SIDES; 
 
 	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
 		return;
 
-	// use the same anti-aliasing as the main buffer
-	RendererGlRef renderer = static_pointer_cast<RendererGl>( this->getRenderer() );
-	int samples = renderer ? RendererGl::sAntiAliasingSamples[ renderer->getAntiAliasing() ] : 0;
+	// use the same anti-aliasing as the main buffer (note: this is no longer necessary, due to double sized FBO)
+	//RendererGlRef renderer = static_pointer_cast<RendererGl>( this->getRenderer() );
+	//int aa = math<int>::max( 0, renderer->getAntiAliasing() );
+	//int samples = RendererGl::sAntiAliasingSamples[aa];
 
 	//
 	gl::Fbo::Format fmt;
-	fmt.setSamples(samples);
-	fmt.setCoverageSamples(samples);
-	fmt.setWrap( GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER );
+	fmt.setWrap( GL_REPEAT, GL_CLAMP_TO_BORDER );
+	//fmt.setSamples(samples);
+	//fmt.setCoverageSamples(samples);
 	
 	mFbo = gl::Fbo( w, h, fmt );
 
