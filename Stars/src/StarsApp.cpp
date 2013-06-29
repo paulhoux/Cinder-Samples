@@ -93,7 +93,6 @@ protected:
 
 	// camera
 	Cam				mCamera;
-	MayaCamUI		mHandheldCam;
 
 	// graphical elements
 	Stars				mStars;
@@ -107,7 +106,7 @@ protected:
 	// animation timer
 	Timer			mTimer;
 
-	// 
+	// toggles
 	bool			mIsGridVisible;
 	bool			mIsLabelsVisible;
 	bool			mIsConstellationsVisible;
@@ -115,19 +114,16 @@ protected:
 	bool			mIsStereoscopic;
 	bool			mIsCylindrical;
 
-	//
+	// frame buffer and shader used for cylindrical projection
 	gl::Fbo			mFbo;
 	gl::GlslProg	mShader;
-	time_t			mModifiedVS;
-	time_t			mModifiedFS;
-	uint32_t		mRefresh;
 
-	//
+	// sound
 	shared_ptr<ISoundEngine>	mSoundEngine;
 	shared_ptr<ISound>			mSound;
 	shared_ptr<ISound>			mMusic;
 
-	//
+	// music player
 	bool						mPlayMusic;
 	fs::path					mMusicPath;
 	std::vector<fs::path>		mMusicExtensions;
@@ -148,43 +144,21 @@ void StarsApp::prepareSettings(Settings *settings)
 
 void StarsApp::setup()
 {
-	//Conversions::mergeNames( loadAsset("hygxyz.csv"), loadAsset("StarsNames.txt") );
-
 	// create the spherical grid mesh
 	mGrid.setup();
 
 	// load the star database and create the VBO mesh
 	if( fs::exists( getAssetPath("") / "stars.cdb" ) )
 		mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
-	else
-	{
-		//mStars.load( loadAsset("hygxyz.csv") );
-		//mStars.write( writeFile( getAssetPath("") / "stars.cdb" ) );	
-	}
 
 	if( fs::exists( getAssetPath("") / "labels.cdb" ) )
 		mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
-	else
-	{
-		//mLabels.load( loadAsset("hygxyz.csv") );
-		//mLabels.write( writeFile( getAssetPath("") / "labels.cdb" ) );	
-	}
 
 	if( fs::exists( getAssetPath("") / "constellations.cdb" ) )
 		mConstellations.read( loadFile( getAssetPath("") / "constellations.cdb" ) );
-	else
-	{
-		//mConstellations.load( loadAsset("constellations.cln") );
-		//mConstellations.write( writeFile( getAssetPath("") / "constellations.cdb" ) );	
-	}
 
 	if( fs::exists( getAssetPath("") / "constellationlabels.cdb" ) )
 		mConstellationLabels.read( loadFile( getAssetPath("") / "constellationlabels.cdb" ) );
-	else
-	{
-		//mConstellationLabels.load( loadAsset("constlabel.cla") );
-		//mConstellationLabels.write( writeFile( getAssetPath("") / "constellationlabels.cdb" ) );	
-	}
 
 	// create user interface
 	mUserInterface.setup();
@@ -198,8 +172,6 @@ void StarsApp::setup()
 	CameraPersp cam( mCamera.getCamera() );
 	cam.setNearClip( 0.01f );
 	cam.setFarClip( 5000.0f );
-
-	mHandheldCam.setCurrentCam(cam);
 
 	//
 	mIsGridVisible = false;
@@ -243,9 +215,6 @@ void StarsApp::setup()
 	}
 
 	//
-	mModifiedVS = 0;
-	mModifiedFS = 0;
-	mRefresh = 0;
 	createShader();
 
 	//
@@ -300,9 +269,6 @@ void StarsApp::update()
 			playMusic( getNextFile(mMusicPath) );
 		}
 	}
-
-	//
-	createShader();
 }
 
 void StarsApp::draw()
@@ -481,8 +447,6 @@ void StarsApp::mouseDown( MouseEvent event )
 	// allow user to control camera
 	mCursorPos = mCursorPrevious = event.getPos();
 	mCamera.mouseDown( mCursorPos );
-
-	//mHandheldCam.mouseDown( mCursorPos );
 }
 
 void StarsApp::mouseDrag( MouseEvent event )
@@ -494,8 +458,6 @@ void StarsApp::mouseDrag( MouseEvent event )
 
 	// allow user to control camera
 	mCamera.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
-
-	//mHandheldCam.mouseDrag( mCursorPos, event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void StarsApp::mouseUp( MouseEvent event )
@@ -599,36 +561,12 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_KP_MINUS:
 		mCamera.setFov( mCamera.getFov() - 1.0 );
 		break;
-	/*// 
-	case KeyEvent::KEY_KP7:
-		mBackground.rotateX(-0.05f);
-		break;
-	case KeyEvent::KEY_KP9:
-		mBackground.rotateX(+0.05f);
-		break;
-	case KeyEvent::KEY_KP4:
-		mBackground.rotateY(-0.05f);
-		break;
-	case KeyEvent::KEY_KP6:
-		mBackground.rotateY(+0.05f);
-		break;
-	case KeyEvent::KEY_KP1:
-		mBackground.rotateZ(-0.05f);
-		break;
-	case KeyEvent::KEY_KP3:
-		mBackground.rotateZ(+0.05f);
-		break;
-	//*/
 	}
 }
 
 void StarsApp::resize()
 {
 	mCamera.resize();
-	
-	CameraPersp cam = mHandheldCam.getCamera();
-	cam.setAspectRatio( getWindowAspectRatio() );
-	mHandheldCam.setCurrentCam( cam );
 		
 	// adjust line width if necessary
 	glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
@@ -692,30 +630,12 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 
 void StarsApp::createShader()
 {
-	if( mRefresh == static_cast<uint32_t>( getElapsedSeconds() ) )
-		return;
-
-	mRefresh = static_cast<uint32_t>( getElapsedSeconds() );
-
 	fs::path vs = getAssetPath("") / "shaders/cylindrical_vert.glsl";
 	fs::path fs = getAssetPath("") / "shaders/cylindrical_frag.glsl";
-
-	bool updated = false;
-	if(fs::exists(vs) && fs::last_write_time(vs) != mModifiedVS)
-		updated = true;
-	else if(fs::exists(fs) && fs::last_write_time(fs) != mModifiedFS)
-		updated = true;
-
-	if(!updated)
-		return;
-
-	console() << "Loading shader" << std::endl;
 
 	//
 	try {
 		mShader = gl::GlslProg( loadFile(vs), loadFile(fs) );
-		mModifiedVS = fs::last_write_time(vs);
-		mModifiedFS = fs::last_write_time(fs);
 	}
 	catch( const std::exception &e ) {
 		console() << e.what() << std::endl;
