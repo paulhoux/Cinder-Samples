@@ -20,10 +20,13 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "cinder/MayaCamUI.h"
 #include "cinder/Utilities.h"
 #include "cinder/Timer.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Fbo.h"
+#include "cinder/gl/GlslProg.h"
 
 #include "Background.h"
 #include "Cam.h"
@@ -38,6 +41,8 @@
 #include <irrKlang.h>
 
 #pragma comment(lib, "irrKlang.lib")
+
+#define NUM_PANORAMA_SIDES 3
 
 using namespace ci;
 using namespace ci::app;
@@ -71,6 +76,11 @@ protected:
 	void	forceShowCursor();
 	void	constrainCursor( const Vec2i &pos );
 
+	void	render();
+
+	void	createShader();
+	void	createFbo();
+
 	fs::path	getFirstFile( const fs::path &path );	
 	fs::path	getNextFile( const fs::path &current );
 	fs::path	getPrevFile( const fs::path &current );
@@ -96,19 +106,24 @@ protected:
 	// animation timer
 	Timer			mTimer;
 
-	// 
+	// toggles
 	bool			mIsGridVisible;
 	bool			mIsLabelsVisible;
 	bool			mIsConstellationsVisible;
 	bool			mIsCursorVisible;
 	bool			mIsStereoscopic;
+	bool			mIsCylindrical;
 
-	//
+	// frame buffer and shader used for cylindrical projection
+	gl::Fbo			mFbo;
+	gl::GlslProg	mShader;
+
+	// sound
 	shared_ptr<ISoundEngine>	mSoundEngine;
 	shared_ptr<ISound>			mSound;
 	shared_ptr<ISound>			mMusic;
 
-	//
+	// music player
 	bool						mPlayMusic;
 	fs::path					mMusicPath;
 	std::vector<fs::path>		mMusicExtensions;
@@ -129,43 +144,21 @@ void StarsApp::prepareSettings(Settings *settings)
 
 void StarsApp::setup()
 {
-	//Conversions::mergeNames( loadAsset("hygxyz.csv"), loadAsset("StarsNames.txt") );
-
 	// create the spherical grid mesh
 	mGrid.setup();
 
 	// load the star database and create the VBO mesh
 	if( fs::exists( getAssetPath("") / "stars.cdb" ) )
 		mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
-	else
-	{
-		//mStars.load( loadAsset("hygxyz.csv") );
-		//mStars.write( writeFile( getAssetPath("") / "stars.cdb" ) );	
-	}
 
 	if( fs::exists( getAssetPath("") / "labels.cdb" ) )
 		mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
-	else
-	{
-		//mLabels.load( loadAsset("hygxyz.csv") );
-		//mLabels.write( writeFile( getAssetPath("") / "labels.cdb" ) );	
-	}
 
 	if( fs::exists( getAssetPath("") / "constellations.cdb" ) )
 		mConstellations.read( loadFile( getAssetPath("") / "constellations.cdb" ) );
-	else
-	{
-		//mConstellations.load( loadAsset("constellations.cln") );
-		//mConstellations.write( writeFile( getAssetPath("") / "constellations.cdb" ) );	
-	}
 
 	if( fs::exists( getAssetPath("") / "constellationlabels.cdb" ) )
 		mConstellationLabels.read( loadFile( getAssetPath("") / "constellationlabels.cdb" ) );
-	else
-	{
-		//mConstellationLabels.load( loadAsset("constlabel.cla") );
-		//mConstellationLabels.write( writeFile( getAssetPath("") / "constellationlabels.cdb" ) );	
-	}
 
 	// create user interface
 	mUserInterface.setup();
@@ -185,6 +178,7 @@ void StarsApp::setup()
 	mIsLabelsVisible = false;
 	mIsConstellationsVisible = false;
 	mIsStereoscopic = false;
+	mIsCylindrical = false;
 
 	// create stars
 	mStars.setup();
@@ -219,6 +213,9 @@ void StarsApp::setup()
 		fs::path path = getFirstFile( getAssetPath("") / "music" );
 		playMusic(path);
 	}
+
+	//
+	createShader();
 
 	//
 	mTimer.start();
@@ -276,107 +273,136 @@ void StarsApp::update()
 
 void StarsApp::draw()
 {		
-	float w = 0.5f * getWindowWidth();
-	float h = 1.0f * getWindowHeight();
+	int w = getWindowWidth();
+	int h = getWindowHeight();
 
 	gl::clear( Color::black() ); 
 
 	if(mIsStereoscopic) {
 		glPushAttrib( GL_VIEWPORT_BIT );
+		gl::pushMatrices();
 
 		// render left eye
-		gl::setViewport( Area(0, 0, w, h) );
 		mCamera.enableStereoLeft();
-		gl::pushMatrices();
+
+		gl::setViewport( Area(0, 0, w / 2, h) );
 		gl::setMatrices( mCamera.getCamera() );
-		{
-			// draw background
-			mBackground.draw();
-
-			// draw grid
-			if(mIsGridVisible) 
-				mGrid.draw();
-
-			// draw stars
-			mStars.draw();
-
-			// draw constellations
-			if(mIsConstellationsVisible) {
-				mConstellations.draw();
-				mConstellationLabels.draw();
-			}
-
-			// draw labels
-			if(mIsLabelsVisible)
-				mLabels.draw();
-		}
-		gl::popMatrices();
+		render();
 	
 		// draw user interface
-		mUserInterface.draw();
+		mUserInterface.draw("Stereoscopic Projection");
 
 		// render right eye
-		gl::setViewport( Area(w, 0, w * 2.0f, h) );
 		mCamera.enableStereoRight();
-		gl::pushMatrices();
+
+		gl::setViewport( Area(w / 2, 0, w, h) );
 		gl::setMatrices( mCamera.getCamera() );
-		{
-			// draw background
-			mBackground.draw();
-
-			// draw grid
-			if(mIsGridVisible) 
-				mGrid.draw();
-
-			// draw stars
-			mStars.draw();
-
-			// draw constellations
-			if(mIsConstellationsVisible) {
-				mConstellations.draw();
-				mConstellationLabels.draw();
-			}
-
-			// draw labels
-			if(mIsLabelsVisible)
-				mLabels.draw();
-		}
-		gl::popMatrices();
+		render();
 	
 		// draw user interface
-		mUserInterface.draw();
-		
+		mUserInterface.draw("Stereoscopic Projection");
+
+		gl::popMatrices();		
 		glPopAttrib();
+	}
+	else if(mIsCylindrical) {
+		// render to the frame buffer object, which has the same size as the window
+		createFbo();
+		mFbo.bindFramebuffer();	
+
+		w = mFbo.getWidth();
+		h = mFbo.getHeight();
+
+		// store viewport, camera and matrices, so we can restore later
+		glPushAttrib( GL_VIEWPORT_BIT );
+		CameraStereo original = mCamera.getCamera();
+		gl::pushMatrices();
+
+		// setup camera
+		CameraStereo cam = mCamera.getCamera();
+		cam.disableStereo();
+		cam.setAspectRatio( 1.0f );
+		cam.setFov( 90.0f );
+
+		Vec3f right, up;	
+		cam.getBillboardVectors(&right, &up);
+		Vec3f forward = up.cross(right);
+
+		// render left side
+		gl::setViewport( Area(0, 0, w / NUM_PANORAMA_SIDES, h) );
+
+		cam.setViewDirection( -right );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();
+		
+		// render front side
+		gl::setViewport( Area(w / NUM_PANORAMA_SIDES, 0, (w * 2) / NUM_PANORAMA_SIDES, h) );
+
+		cam.setViewDirection( forward );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();	
+	
+		// draw user interface
+		mUserInterface.draw("Cylindrical Projection");
+
+#if (NUM_PANORAMA_SIDES > 2)
+		// render right side
+		gl::setViewport( Area((w * 2) / NUM_PANORAMA_SIDES, 0, (w * 3) / NUM_PANORAMA_SIDES, h) );
+
+		cam.setViewDirection( right );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();
+#endif
+
+#if (NUM_PANORAMA_SIDES > 3)
+		// render back side
+		gl::setViewport( Area((w * 3) / NUM_PANORAMA_SIDES, 0, (w * 4) / NUM_PANORAMA_SIDES, h) );
+
+		cam.setViewDirection( -forward );
+		cam.setWorldUp( up );
+		gl::setMatrices( cam );
+		render();
+#endif
+		
+		// unbind the frame buffer object
+		mFbo.unbindFramebuffer();
+
+		// restore states
+		gl::popMatrices();		
+		mCamera.setCurrentCam(original);
+		glPopAttrib();
+
+		// draw frame buffer and perform cylindrical projection using a fragment shader
+		if(mShader) {
+			float sides = NUM_PANORAMA_SIDES;
+			float radians = NUM_PANORAMA_SIDES * float( M_PI / 2.0 );
+			float reciprocal = 0.5f / NUM_PANORAMA_SIDES;
+
+			mShader.bind();
+			mShader.uniform("texture", 0);
+			mShader.uniform("sides", sides);
+			mShader.uniform("radians", radians );
+			mShader.uniform("reciprocal", reciprocal );
+		}
+
+		Rectf centered = Rectf(mFbo.getBounds()).getCenteredFit( getWindowBounds(), false );
+		gl::draw( mFbo.getTexture(), centered );
+
+		if(mShader) mShader.unbind();
 	}
 	else {
 		mCamera.disableStereo();
+
 		gl::pushMatrices();
 		gl::setMatrices( mCamera.getCamera() );
-		{
-			// draw background
-			mBackground.draw();
-
-			// draw grid
-			if(mIsGridVisible) 
-				mGrid.draw();
-
-			// draw stars
-			mStars.draw();
-
-			// draw constellations
-			if(mIsConstellationsVisible) {
-				mConstellations.draw();
-				mConstellationLabels.draw();
-			}
-
-			// draw labels
-			if(mIsLabelsVisible)
-				mLabels.draw();
-		}
+		render();
 		gl::popMatrices();
 	
 		// draw user interface
-		mUserInterface.draw();
+		mUserInterface.draw("Perspective Projection");
 	}
 
 	// fade in at start of application
@@ -389,6 +415,31 @@ void StarsApp::draw()
 		gl::drawSolidRect( getWindowBounds() );
 	}
 	gl::disableAlphaBlending();
+}
+
+void StarsApp::render()
+{
+	// draw background
+	mBackground.draw();
+
+	// draw grid
+	if(mIsGridVisible) 
+		mGrid.draw();
+
+	// draw stars
+	mStars.draw();
+
+	// draw constellations
+	if(mIsConstellationsVisible) 
+		mConstellations.draw();
+
+	// draw labels (for now, labels don't behave well in cylindrical view)
+	if(mIsLabelsVisible && !mIsCylindrical) {
+		mLabels.draw();
+
+		if(mIsConstellationsVisible) 
+			mConstellationLabels.draw();
+	}
 }
 
 void StarsApp::mouseDown( MouseEvent event )
@@ -485,7 +536,20 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_s:
 		// toggle stereoscopic view
 		mIsStereoscopic = !mIsStereoscopic;
+		mIsCylindrical = false;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		// adjust line width if necessary
+		glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
+		break;
+	case KeyEvent::KEY_d:
+		// cylindrical panorama
+		mIsCylindrical = !mIsCylindrical;
+		mIsStereoscopic = false;
+		// adjust line width if necessary
+		glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
+		break;
+	case KeyEvent::KEY_RETURN:
+		createShader();
 		break;
 	case KeyEvent::KEY_PLUS:
 	case KeyEvent::KEY_EQUALS:
@@ -497,32 +561,15 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_KP_MINUS:
 		mCamera.setFov( mCamera.getFov() - 1.0 );
 		break;
-	/*// 
-	case KeyEvent::KEY_KP7:
-		mBackground.rotateX(-0.05f);
-		break;
-	case KeyEvent::KEY_KP9:
-		mBackground.rotateX(+0.05f);
-		break;
-	case KeyEvent::KEY_KP4:
-		mBackground.rotateY(-0.05f);
-		break;
-	case KeyEvent::KEY_KP6:
-		mBackground.rotateY(+0.05f);
-		break;
-	case KeyEvent::KEY_KP1:
-		mBackground.rotateZ(-0.05f);
-		break;
-	case KeyEvent::KEY_KP3:
-		mBackground.rotateZ(+0.05f);
-		break;
-	//*/
 	}
 }
 
 void StarsApp::resize()
 {
 	mCamera.resize();
+		
+	// adjust line width if necessary
+	glLineWidth( mIsCylindrical ? 3.0f : 2.0f );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )
@@ -579,6 +626,48 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 	}
 
 	return sound;
+}
+
+void StarsApp::createShader()
+{
+	fs::path vs = getAssetPath("") / "shaders/cylindrical_vert.glsl";
+	fs::path fs = getAssetPath("") / "shaders/cylindrical_frag.glsl";
+
+	//
+	try {
+		mShader = gl::GlslProg( loadFile(vs), loadFile(fs) );
+	}
+	catch( const std::exception &e ) {
+		console() << e.what() << std::endl;
+		mShader = gl::GlslProg();
+	}
+}
+
+void StarsApp::createFbo()
+{
+	// we create an FBO that is twice the size of the window, for improved shader texture look-up
+	int w = getWindowWidth() * 2;
+	int h = getWindowWidth() * 2 / NUM_PANORAMA_SIDES; 
+
+	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
+		return;
+
+	// use the same anti-aliasing as the main buffer (note: this is no longer necessary, due to double sized FBO)
+	//RendererGlRef renderer = static_pointer_cast<RendererGl>( this->getRenderer() );
+	//int aa = math<int>::max( 0, renderer->getAntiAliasing() );
+	//int samples = RendererGl::sAntiAliasingSamples[aa];
+
+	//
+	gl::Fbo::Format fmt;
+	fmt.setWrap( GL_REPEAT, GL_CLAMP_TO_BORDER );
+	//fmt.setSamples(samples);
+	//fmt.setCoverageSamples(samples);
+	
+	mFbo = gl::Fbo( w, h, fmt );
+
+	// work-around for the flipped texture issue
+	mFbo.getTexture().setFlipped();
+	mFbo.getDepthTexture().setFlipped();
 }
 
 void StarsApp::forceHideCursor()

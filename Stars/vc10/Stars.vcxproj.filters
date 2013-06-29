@@ -69,6 +69,9 @@
     <ClCompile Include="..\src\ConstellationLabels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\CubeMap.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -116,6 +119,9 @@
     <ClInclude Include="..\src\ConstellationLabels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\CubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">
@@ -127,6 +133,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="..\assets\shaders\stars_vert.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\shaders\cylindrical_vert.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\shaders\cylindrical_frag.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

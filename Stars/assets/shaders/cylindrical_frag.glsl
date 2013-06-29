@@ -1,6 +1,8 @@
 /*
- Copyright (c) 2010-2012, Paul Houx - All rights reserved.
+ Copyright (c) 2013, Paul Houx - All rights reserved.
  This code is intended for use with the Cinder C++ library: http://libcinder.org
+
+ Portions of this code (C) Robert Hodgin.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
@@ -20,28 +22,29 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#version 120
 
-#include "cinder/gl/gl.h"
-#include "text/TextBox.h"
+uniform sampler2D texture;
 
-#include <boost/format.hpp>
+uniform float sides = 4.0;				// = number of 90-degree FOV render views
+uniform float radians = 6.28318530;		// = 0.5 * sides * PI
+uniform float reciprocal = 0.125;		// = 0.5 / sides
 
-class UserInterface
+void main()
 {
-public:
-	UserInterface(void);
-	~UserInterface(void);
+	//	Official method to perform cylindrical projection
+	//	based on code by Robert Hodgin.
 
-	void	setup();
-	void	draw( const std::string &text );
+	float s			= gl_TexCoord[0].s;
+	float t			= gl_TexCoord[0].t;
 
-	//! set distance of camera to Sun in parsecs, then convert to lightyears
-	void	setCameraDistance( float distance ) { mDistance = distance * 3.261631f; }
-private:
-	float				mDistance;
+	float offset	= floor( s * sides ) / sides;
+	float azimuth	= (s - offset) - reciprocal;
+	float tangent	= tan( radians * azimuth );
+	float distance	= sqrt( tangent * tangent + 1.0 ); 
+	         
+	s				= reciprocal * ( tangent + 1.0 ) + offset;
+	t				= distance * ( t - 0.5 ) + 0.5;
 
-	ph::text::TextBox	mBox;
-	std::string			mText;
-};
-
+	gl_FragColor	= texture2D( texture, vec2( s, t ) );
+}

@@ -51,21 +51,37 @@ void UserInterface::setup()
 	mText = std::string("%.0f lightyears from the Sun");
 }
 
-void UserInterface::draw()
+void UserInterface::draw( const std::string &text )
 {
-	Vec2f position = Vec2f(0.5f, 0.92f) * Vec2f(getWindowSize());
-
-	gl::drawLine( position + Vec2f(-400, 0.5f), position + Vec2f(400, 0.5f) );
-
-	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+	glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+	gl::disableDepthRead();
+	gl::disableDepthWrite();
 	gl::enableAlphaBlending();
-	gl::pushModelView();
-
-	gl::translate( position + Vec2f(-400, 5) );
 	gl::color( Color::white() );
 
-	mBox.draw();
+	Area viewport = gl::getViewport();
+	Vec2i position = Vec2i( 0.5f * viewport.getWidth(), 0.92f * viewport.getHeight() );	
 
-	gl::popModelView();
+	gl::pushMatrices();
+	{
+		gl::setMatricesWindow( gl::getViewport().getSize(), true );
+
+		gl::translate( position );
+
+		float s = math<float>::min(1000.0f, viewport.getWidth()) / 1000.0f;
+		gl::scale( s, s );
+
+		gl::drawLine( Vec2f(-400, 0.5f), Vec2f(400, 0.5f) );
+
+		gl::translate( Vec2i(-400, -29) );
+		mBox.setText( text );
+		mBox.draw();
+
+		gl::translate( Vec2i(0, 34) );
+		mBox.setText( (boost::format(mText) % mDistance).str() );
+		mBox.draw();
+	}
+	gl::popMatrices();
+
 	glPopAttrib();
 }

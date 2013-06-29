@@ -150,6 +150,8 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\assets\shaders\cylindrical_frag.glsl" />
+    <None Include="..\assets\shaders\cylindrical_vert.glsl" />
     <None Include="..\assets\shaders\stars_frag.glsl" />
     <None Include="..\assets\shaders\stars_vert.glsl" />
   </ItemGroup>
