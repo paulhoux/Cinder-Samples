@@ -21,6 +21,7 @@ Note: for the sample to play music, add MP3, WAV, OGG and/or FLAC files to the <
 * use the <b>mouse</b> to control the camera
 * press <b>SPACE</b> to enable automatic camera animation
 * press <b>S</b> to toggle stereoscopic (side-by-side) 3D
+* press <b>D</b> to toggle cylindrical projection (270 degrees view)
 * press <b>G</b> to toggle the celestial grid
 * press <b>L</b> to toggle name labels
 * press <b>C</b> to toggle constellations
