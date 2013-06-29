@@ -42,8 +42,6 @@
 
 #pragma comment(lib, "irrKlang.lib")
 
-#define NUM_PANORAMA_SIDES 3
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -85,14 +83,14 @@ protected:
 	fs::path	getNextFile( const fs::path &current );
 	fs::path	getPrevFile( const fs::path &current );
 protected:
-	double			mTime;
+	double				mTime;
 
 	// cursor position
-	Vec2i			mCursorPos;
-	Vec2i			mCursorPrevious;
+	Vec2i				mCursorPos;
+	Vec2i				mCursorPrevious;
 
 	// camera
-	Cam				mCamera;
+	Cam					mCamera;
 
 	// graphical elements
 	Stars				mStars;
@@ -104,19 +102,19 @@ protected:
 	UserInterface		mUserInterface;
 
 	// animation timer
-	Timer			mTimer;
+	Timer				mTimer;
 
 	// toggles
-	bool			mIsGridVisible;
-	bool			mIsLabelsVisible;
-	bool			mIsConstellationsVisible;
-	bool			mIsCursorVisible;
-	bool			mIsStereoscopic;
-	bool			mIsCylindrical;
+	bool				mIsGridVisible;
+	bool				mIsLabelsVisible;
+	bool				mIsConstellationsVisible;
+	bool				mIsCursorVisible;
+	bool				mIsStereoscopic;
+	bool				mIsCylindrical;
 
 	// frame buffer and shader used for cylindrical projection
-	gl::Fbo			mFbo;
-	gl::GlslProg	mShader;
+	gl::Fbo				mFbo;
+	gl::GlslProg		mShader;
 
 	// sound
 	shared_ptr<ISoundEngine>	mSoundEngine;
@@ -306,30 +304,34 @@ void StarsApp::draw()
 		glPopAttrib();
 	}
 	else if(mIsCylindrical) {
-		// render to the frame buffer object, which has the same size as the window
+		// create and bind the frame buffer object
 		createFbo();
-		mFbo.bindFramebuffer();	
-
-		w = mFbo.getWidth();
-		h = mFbo.getHeight();
+		mFbo.bindFramebuffer();
 
 		// store viewport, camera and matrices, so we can restore later
 		glPushAttrib( GL_VIEWPORT_BIT );
 		CameraStereo original = mCamera.getCamera();
 		gl::pushMatrices();
 
-		// setup camera
+		// determine correct aspect ratio and vertical field of view
+		//   vFoV = 2 * atan( tan( hFoV / 2 ) * height / width ), hFoV = 90 degrees
+		w = mFbo.getWidth() / 3;
+		h = mFbo.getHeight();
+		float aspect = float(w) / float(h);		
+		float fov = toDegrees( 2.0f * math<float>::atan( float(h) / float(w) ) );
+
+		// setup camera	
 		CameraStereo cam = mCamera.getCamera();
 		cam.disableStereo();
-		cam.setAspectRatio( 1.0f );
-		cam.setFov( 90.0f );
+		cam.setAspectRatio(aspect);
+		cam.setFov(fov);
 
 		Vec3f right, up;	
 		cam.getBillboardVectors(&right, &up);
 		Vec3f forward = up.cross(right);
 
 		// render left side
-		gl::setViewport( Area(0, 0, w / NUM_PANORAMA_SIDES, h) );
+		gl::setViewport( Area(0, 0, w, h) );
 
 		cam.setViewDirection( -right );
 		cam.setWorldUp( up );
@@ -337,7 +339,7 @@ void StarsApp::draw()
 		render();
 		
 		// render front side
-		gl::setViewport( Area(w / NUM_PANORAMA_SIDES, 0, (w * 2) / NUM_PANORAMA_SIDES, h) );
+		gl::setViewport( Area(w, 0, w*2, h) );
 
 		cam.setViewDirection( forward );
 		cam.setWorldUp( up );
@@ -345,27 +347,15 @@ void StarsApp::draw()
 		render();	
 	
 		// draw user interface
-		mUserInterface.draw("Cylindrical Projection");
+		mUserInterface.draw("Cylindrical Projection (3x 90 degrees)");
 
-#if (NUM_PANORAMA_SIDES > 2)
 		// render right side
-		gl::setViewport( Area((w * 2) / NUM_PANORAMA_SIDES, 0, (w * 3) / NUM_PANORAMA_SIDES, h) );
+		gl::setViewport( Area(w*2, 0, w*3, h) );
 
 		cam.setViewDirection( right );
 		cam.setWorldUp( up );
 		gl::setMatrices( cam );
 		render();
-#endif
-
-#if (NUM_PANORAMA_SIDES > 3)
-		// render back side
-		gl::setViewport( Area((w * 3) / NUM_PANORAMA_SIDES, 0, (w * 4) / NUM_PANORAMA_SIDES, h) );
-
-		cam.setViewDirection( -forward );
-		cam.setWorldUp( up );
-		gl::setMatrices( cam );
-		render();
-#endif
 		
 		// unbind the frame buffer object
 		mFbo.unbindFramebuffer();
@@ -377,9 +367,9 @@ void StarsApp::draw()
 
 		// draw frame buffer and perform cylindrical projection using a fragment shader
 		if(mShader) {
-			float sides = NUM_PANORAMA_SIDES;
-			float radians = NUM_PANORAMA_SIDES * float( M_PI / 2.0 );
-			float reciprocal = 0.5f / NUM_PANORAMA_SIDES;
+			float sides = 3;
+			float radians = sides * float( M_PI / 2.0 );
+			float reciprocal = 0.5f / sides;
 
 			mShader.bind();
 			mShader.uniform("texture", 0);
@@ -554,12 +544,12 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_PLUS:
 	case KeyEvent::KEY_EQUALS:
 	case KeyEvent::KEY_KP_PLUS:
-		mCamera.setFov( mCamera.getFov() + 1.0 );
+		mCamera.setFov( mCamera.getFov() + 0.1 );
 		break;
 	case KeyEvent::KEY_MINUS:
 	case KeyEvent::KEY_UNDERSCORE:
 	case KeyEvent::KEY_KP_MINUS:
-		mCamera.setFov( mCamera.getFov() - 1.0 );
+		mCamera.setFov( mCamera.getFov() - 0.1 );
 		break;
 	}
 }
@@ -645,23 +635,17 @@ void StarsApp::createShader()
 
 void StarsApp::createFbo()
 {
-	// we create an FBO that is twice the size of the window, for improved shader texture look-up
+	// we create an FBO that is twice the size of the window, 
+	// for improved rendering quality
 	int w = getWindowWidth() * 2;
-	int h = getWindowWidth() * 2 / NUM_PANORAMA_SIDES; 
+	int h = getWindowHeight() * 2; 
 
 	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
 		return;
 
-	// use the same anti-aliasing as the main buffer (note: this is no longer necessary, due to double sized FBO)
-	//RendererGlRef renderer = static_pointer_cast<RendererGl>( this->getRenderer() );
-	//int aa = math<int>::max( 0, renderer->getAntiAliasing() );
-	//int samples = RendererGl::sAntiAliasingSamples[aa];
-
-	//
+	// create the FBO
 	gl::Fbo::Format fmt;
 	fmt.setWrap( GL_REPEAT, GL_CLAMP_TO_BORDER );
-	//fmt.setSamples(samples);
-	//fmt.setCoverageSamples(samples);
 	
 	mFbo = gl::Fbo( w, h, fmt );
 

@@ -107,7 +107,7 @@ void Grid::draw()
 
 	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT );
 	
-	gl::color( Color(0.5f, 0.6f, 0.8f) * 0.15f );
+	gl::color( Color(0.5f, 0.6f, 0.8f) * 0.2f );
 
 	gl::enableAdditiveBlending();
 	gl::draw( mVboMesh );
