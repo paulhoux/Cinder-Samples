@@ -174,9 +174,9 @@ void StarsApp::setup()
 	cam.setFarClip( 5000.0f );
 
 	//
-	mIsGridVisible = false;
-	mIsLabelsVisible = false;
-	mIsConstellationsVisible = false;
+	mIsGridVisible = true;
+	mIsLabelsVisible = true;
+	mIsConstellationsVisible = true;
 	mIsStereoscopic = false;
 	mIsCylindrical = false;
 
