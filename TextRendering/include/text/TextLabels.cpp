@@ -142,16 +142,17 @@ std::string TextLabels::getVertexShader() const
 	const char *vs = 
 		"#version 120\n"
 		"\n"
-		"uniform vec2 viewport_size;\n"
+		"// viewport parameters (x, y, width, height)\n"
+		"uniform vec4 viewport;\n"
 		"\n"
-		"vec3 toClipSpace(vec4 vertex)\n"
+		"vec3 toNDC(vec4 vertex)\n"
 		"{\n"
 		"	return vec3( vertex.xyz / vertex.w );\n"
 		"}\n"
 		"\n"
 		"vec2 toScreenSpace(vec4 vertex)\n"
 		"{\n"
-		"	return vec2( vertex.xy / vertex.w ) * viewport_size;\n"
+		"	return vec2( vertex.xy / vertex.w ) * viewport.zw;\n"
 		"}\n"
 		"\n"
 		"void main()\n"
@@ -159,21 +160,17 @@ std::string TextLabels::getVertexShader() const
 		"	// pass font texture coordinate to fragment shader\n"
 		"	gl_TexCoord[0] = gl_MultiTexCoord0;\n"
 		"\n"
-		"	// retrieve label position\n"
-		"	vec4 position = ( gl_ModelViewProjectionMatrix * gl_MultiTexCoord1 );\n"
+		"	// set the color\n"
+		"	gl_FrontColor = gl_Color;\n"
 		"\n"
-		"	// convert position to clip space to find the 2D offset\n"
-		"	vec3 offset = toClipSpace( position );\n"
+		"	// convert label position to normalized device coordinates to find the 2D offset\n"
+		"	vec3 offset = toNDC( gl_ModelViewProjectionMatrix * gl_MultiTexCoord1 );\n"
 		"\n"
-		"	// if the label is behind us, then don't draw the label (set alpha to zero)\n"
-		"	float a = (position.w < 0) ? 0.0 : gl_Color.a;\n"
-		"	// only draw labels close to the camera\n"
-		"	//a *= clamp( pow(1.0 - position.w * 0.01, 3.0), 0.0, 1.0 );\n"
+		"	// convert vertex from screen space to normalized device coordinates\n"
+		"	vec3 vertex = vec3( gl_Vertex.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"
 		"\n"
-		"	gl_FrontColor = vec4( gl_Color.rgb, a );\n"
-		"\n"
-		"	// calculate vertex position by offsetting it\n"
-		"	gl_Position = vec4( (gl_Vertex.xy * vec2(1.0, -1.0)) / viewport_size * 2.0 + offset.xy, 0.0, 1.0 );\n"
+		"	// calculate final vertex position by offsetting it\n"
+		"	gl_Position = vec4( vertex + offset, 1.0 );\n"
 		"}";
 
 	return std::string(vs);
@@ -183,7 +180,8 @@ bool TextLabels::bindShader()
 {
 	if( Text::bindShader() )
 	{
-		mShader.uniform( "viewport_size", Vec2f( app::getWindowSize() ) );
+		Area viewport = gl::getViewport();
+		mShader.uniform( "viewport", Vec4f( viewport.getX1(), viewport.getY1(), viewport.getWidth(), viewport.getHeight() ) );
 		return true;
 	}
 

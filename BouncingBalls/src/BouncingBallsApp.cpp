@@ -295,8 +295,9 @@ void BouncingBallsApp::setup()
 	mStepsPerSecond = 60;
 	mStepsPerformed = 0;
 
-	// create a single ball
-	mBalls.push_back( BallRef( new Ball() ) );
+	// create a few balls
+	for(size_t i=0;i<25;++i)
+		mBalls.push_back( BallRef( new Ball() ) );
 
 	// create ball mesh ( much faster than using gl::drawSolidCircle() )
 	size_t slices = 20;
