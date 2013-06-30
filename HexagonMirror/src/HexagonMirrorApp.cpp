@@ -84,8 +84,8 @@ private:
 	// a vertex array object that encapsulates our buffer
 	GLuint			mVAO;
 
-	Capture			mWebcam;
-	gl::Texture		mWebcamTexture;
+	CaptureRef		mCapture;
+	gl::Texture		mCaptureTexture;
 };
 
 void HexagonMirrorApp::prepareSettings(Settings *settings)
@@ -115,11 +115,14 @@ void HexagonMirrorApp::setup()
 	loadMesh();
 
 	// connect to a webcam
-	try { mWebcam = Capture( 160, 120 ); }
+	try { 
+		mCapture = Capture::create( 160, 120 ); 
+		mCapture->start();
+	}
 	catch( const std::exception &e ) { 
 		console() << "Could not connect to webcam: " << e.what() << std::endl;
 
-		try { mWebcamTexture = loadImage( loadAsset("placeholder.png") ); }
+		try { mCaptureTexture = loadImage( loadAsset("placeholder.png") ); }
 		catch( const std::exception &e ) { }
 	}
 }
@@ -127,8 +130,8 @@ void HexagonMirrorApp::setup()
 void HexagonMirrorApp::update()
 {
 	// update webcam image
-	if( mWebcam && mWebcam.checkNewFrame() )
-		mWebcamTexture = gl::Texture( mWebcam.getSurface() );
+	if( mCapture && mCapture->checkNewFrame() )
+		mCaptureTexture = gl::Texture( mCapture->getSurface() );
 }
 
 void HexagonMirrorApp::draw()
@@ -149,8 +152,8 @@ void HexagonMirrorApp::draw()
 	if( mVboMesh && mShaderInstanced && mBuffer ) 
 	{
 		// bind webcam image
-		if( mWebcamTexture )
-			mWebcamTexture.bind(0);
+		if( mCaptureTexture )
+			mCaptureTexture.bind(0);
 
 		// bind the shader, which will do all the hard work for us
 		mShaderInstanced.bind();
@@ -175,8 +178,8 @@ void HexagonMirrorApp::draw()
 		// unbind shader
 		mShaderInstanced.unbind();
 
-		if( mWebcamTexture )
-			mWebcamTexture.unbind();
+		if( mCaptureTexture )
+			mCaptureTexture.unbind();
 	}			
 	
 	// reset render states
