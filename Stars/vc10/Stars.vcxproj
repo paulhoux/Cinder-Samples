@@ -121,7 +121,6 @@
     <ClCompile Include="..\src\ConstellationLabels.cpp" />
     <ClCompile Include="..\src\Constellations.cpp" />
     <ClCompile Include="..\src\Conversions.cpp" />
-    <ClCompile Include="..\src\CubeMap.cpp" />
     <ClCompile Include="..\src\Grid.cpp" />
     <ClCompile Include="..\src\Labels.cpp" />
     <ClCompile Include="..\src\Stars.cpp" />
@@ -140,7 +139,6 @@
     <ClInclude Include="..\src\ConstellationLabels.h" />
     <ClInclude Include="..\src\Constellations.h" />
     <ClInclude Include="..\src\Conversions.h" />
-    <ClInclude Include="..\src\CubeMap.h" />
     <ClInclude Include="..\src\Grid.h" />
     <ClInclude Include="..\src\Labels.h" />
     <ClInclude Include="..\src\Stars.h" />
