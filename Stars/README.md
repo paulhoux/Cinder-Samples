@@ -8,7 +8,8 @@ This very elaborate sample will show you how to:
 * render advanced, animated point sprites using shaders
 * construct VBO meshes that are not GL_TRIANGLES like TriMesh
 * use the IrrKlang sound engine to play sound effects and music
-* use the new CameraStereo class to render in stereoscopic 3D (side-by-side)
+* use the CameraStereo class to render in stereoscopic 3D (side-by-side)
+* perform cylindrical projection using a frame buffer and a special fragment shader
 * create your own camera class that can be animated or controlled by the user
 * read and parse a text file containing data
 * read and write a binary data file for faster loading
@@ -21,7 +22,7 @@ Note: for the sample to play music, add MP3, WAV, OGG and/or FLAC files to the <
 * use the <b>mouse</b> to control the camera
 * press <b>SPACE</b> to enable automatic camera animation
 * press <b>S</b> to toggle stereoscopic (side-by-side) 3D
-* press <b>D</b> to toggle cylindrical projection (270 degrees view)
+* press <b>D</b> to toggle cylindrical projection (3x 60 degrees view)
 * press <b>G</b> to toggle the celestial grid
 * press <b>L</b> to toggle name labels
 * press <b>C</b> to toggle constellations
