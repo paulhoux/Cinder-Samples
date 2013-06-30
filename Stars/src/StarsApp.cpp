@@ -315,7 +315,7 @@ void StarsApp::draw()
 		h = mFbo.getHeight();
 
 		const float aspect = float(w) / float(h);
-		const float hFoV = 90.0f;
+		const float hFoV = 60.0f;
 		const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
 
 		// for values smaller than 1.0, this will cause each view to overlap the other ones
@@ -639,7 +639,7 @@ void StarsApp::createFbo()
 {
 	// determine the size of the frame buffer
 	int w = getWindowWidth() * 2;
-	int h = getWindowHeight(); 
+	int h = getWindowHeight() * 2;
 
 	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
 		return;
