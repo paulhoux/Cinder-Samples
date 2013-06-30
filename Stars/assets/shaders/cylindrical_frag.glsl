@@ -26,9 +26,9 @@
 
 uniform sampler2D texture;
 
-uniform float sides = 4.0;				// = number of 90-degree FOV render views
-uniform float radians = 6.28318530;		// = 0.5 * sides * PI
+uniform float sides = 4.0;				// = number of render views
 uniform float reciprocal = 0.125;		// = 0.5 / sides
+uniform float radians = 6.28318530;		// = sides * horizontal FOV per view in radians
 
 void main()
 {
