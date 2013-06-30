@@ -307,8 +307,21 @@ void StarsApp::draw()
 		glPopAttrib();
 	}
 	else if(mIsCylindrical) {
-		// create and bind the frame buffer object
+		// make sure we have a frame buffer to render to
 		createFbo();
+
+		// determine correct aspect ratio and vertical field of view for each of the 3 views
+		w = mFbo.getWidth() / 3;
+		h = mFbo.getHeight();
+
+		const float aspect = float(w) / float(h);
+		const float hFoV = 90.0f;
+		const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
+
+		// for values smaller than 1.0, this will cause each view to overlap the other ones
+		const float overlap = 1.0f;	
+
+		// bind the frame buffer object
 		mFbo.bindFramebuffer();
 
 		// store viewport, camera and matrices, so we can restore later
@@ -316,18 +329,11 @@ void StarsApp::draw()
 		CameraStereo original = mCamera.getCamera();
 		gl::pushMatrices();
 
-		// determine correct aspect ratio and vertical field of view
-		//   vFoV = 2 * atan( tan( hFoV / 2 ) * height / width ), hFoV = 90 degrees
-		w = mFbo.getWidth() / 3;
-		h = mFbo.getHeight();
-		float aspect = float(w) / float(h);		
-		float fov = toDegrees( 2.0f * math<float>::atan( float(h) / float(w) ) );
-
 		// setup camera	
 		CameraStereo cam = mCamera.getCamera();
 		cam.disableStereo();
 		cam.setAspectRatio(aspect);
-		cam.setFov(fov);
+		cam.setFov( vFoV );
 
 		Vec3f right, up;	
 		cam.getBillboardVectors(&right, &up);
@@ -336,7 +342,7 @@ void StarsApp::draw()
 		// render left side
 		gl::setViewport( Area(0, 0, w, h) );
 
-		cam.setViewDirection( -right );
+		cam.setViewDirection( Quatf(up, overlap * toRadians(hFoV)) * forward );
 		cam.setWorldUp( up );
 		gl::setMatrices( cam );
 		render();
@@ -350,12 +356,12 @@ void StarsApp::draw()
 		render();	
 	
 		// draw user interface
-		mUserInterface.draw("Cylindrical Projection (3x 90 degrees)");
+		mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( (1.0f + 2.0f * overlap) * hFoV ) ).str() );
 
 		// render right side
 		gl::setViewport( Area(w*2, 0, w*3, h) );
 
-		cam.setViewDirection( right );
+		cam.setViewDirection( Quatf(up, -overlap * toRadians(hFoV)) * forward );
 		cam.setWorldUp( up );
 		gl::setMatrices( cam );
 		render();
@@ -371,7 +377,7 @@ void StarsApp::draw()
 		// draw frame buffer and perform cylindrical projection using a fragment shader
 		if(mShader) {
 			float sides = 3;
-			float radians = sides * float( M_PI / 2.0 );
+			float radians = sides * toRadians( hFoV );
 			float reciprocal = 0.5f / sides;
 
 			mShader.bind();
@@ -631,10 +637,9 @@ void StarsApp::createShader()
 
 void StarsApp::createFbo()
 {
-	// we create an FBO that is twice the size of the window, 
-	// for improved rendering quality
+	// determine the size of the frame buffer
 	int w = getWindowWidth() * 2;
-	int h = getWindowHeight() * 2; 
+	int h = getWindowHeight(); 
 
 	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
 		return;

@@ -43,7 +43,7 @@ void main()
 	float tangent	= tan( radians * azimuth );
 	float distance	= sqrt( tangent * tangent + 1.0 ); 
 	         
-	s				= reciprocal * ( tangent + 1.0 ) + offset;
+	s				= reciprocal * ( tangent / tan(radians * reciprocal) + 1.0 ) + offset;
 	t				= distance * ( t - 0.5 ) + 0.5;
 
 	gl_FragColor	= texture2D( texture, vec2( s, t ) );
