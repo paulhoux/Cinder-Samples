@@ -32,7 +32,11 @@ public:
 
 	void setup();
 	void draw();
+
+	void setLineWidth( float width ) { mLineWidth = width; }
 private:
 	ci::gl::VboMesh		mVboMesh;
+
+	float				mLineWidth;
 };
 

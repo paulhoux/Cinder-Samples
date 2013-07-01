@@ -542,6 +542,9 @@ void StarsApp::keyDown( KeyEvent event )
 		// cylindrical panorama
 		mIsCylindrical = !mIsCylindrical;
 		mIsStereoscopic = false;
+		// adjust line width
+		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
+		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
 	case KeyEvent::KEY_RETURN:
 		createShader();

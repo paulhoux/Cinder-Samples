@@ -41,6 +41,7 @@ public:
 	void	clear();
 
 	void	setCameraDistance( float distance );
+	void	setLineWidth( float width ) { mLineWidth = width; }
 
 	//! load a comma separated file containing the HYG star database
 	void	load( ci::DataSourceRef source );
@@ -61,5 +62,6 @@ private:
 	std::vector< uint32_t >		mIndices;
 
 	float						mAttenuation;
+	float						mLineWidth;
 };
 

@@ -26,6 +26,7 @@ using namespace ci;
 using namespace std;
 
 Grid::Grid(void)
+	: mLineWidth(1.5f)
 {
 }
 
@@ -107,7 +108,7 @@ void Grid::draw()
 
 	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT | GL_ENABLE_BIT );
 	
-	glLineWidth( 2.0f );
+	glLineWidth( mLineWidth );
 	gl::color( Color(0.5f, 0.6f, 0.8f) * 0.25f );
 
 	gl::enableAdditiveBlending();

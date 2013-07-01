@@ -33,6 +33,7 @@ using namespace ci;
 using namespace ci::app;
 
 Constellations::Constellations(void)
+	: mLineWidth(1.0f)
 {
 }
 
@@ -46,7 +47,7 @@ void Constellations::draw()
 
 	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT );
 
-	glLineWidth( 1.0f );
+	glLineWidth( mLineWidth );
 	gl::color( Color(0.5f, 0.6f, 0.8f) * mAttenuation );
 	gl::enableAdditiveBlending();
 
