@@ -118,6 +118,9 @@ protected:
 	// frame buffer and shader used for cylindrical projection
 	gl::Fbo				mFbo;
 	gl::GlslProg		mShader;
+	unsigned			mSectionCount;
+	float				mSectionFovDegrees;
+	float				mSectionOverlap;
 
 	// sound
 	shared_ptr<ISoundEngine>	mSoundEngine;
@@ -180,6 +183,13 @@ void StarsApp::setup()
 	mIsConstellationsVisible = true;
 	mIsStereoscopic = false;
 	mIsCylindrical = false;
+
+	// cylindrical projection settings
+	mSectionCount = 3;
+	mSectionFovDegrees = 60.0f;
+	// for values smaller than 1.0, this will cause each view to overlap the other ones
+	//  (angle of overlap: (1 - mSectionOverlap) * mSectionFovDegrees)
+	mSectionOverlap = 1.0f;
 
 	// create stars
 	mStars.setup();
@@ -311,22 +321,18 @@ void StarsApp::draw()
 		createFbo();
 
 		// determine correct aspect ratio and vertical field of view for each of the 3 views
-		w = mFbo.getWidth() / 3;
+		w = mFbo.getWidth() / mSectionCount;
 		h = mFbo.getHeight();
 
 		const float aspect = float(w) / float(h);
-		const float hFoV = 60.0f;
+		const float hFoV = mSectionFovDegrees;
 		const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
-
-		// for values smaller than 1.0, this will cause each view to overlap the other ones
-		const float overlap = 1.0f;	
 
 		// bind the frame buffer object
 		mFbo.bindFramebuffer();
 
-		// store viewport, camera and matrices, so we can restore later
+		// store viewport and matrices, so we can restore later
 		glPushAttrib( GL_VIEWPORT_BIT );
-		CameraStereo original = mCamera.getCamera();
 		gl::pushMatrices();
 
 		// setup camera	
@@ -335,56 +341,40 @@ void StarsApp::draw()
 		cam.setAspectRatio(aspect);
 		cam.setFov( vFoV );
 
-		Vec3f right, up;	
-		cam.getBillboardVectors(&right, &up);
+		Vec3f right, up; cam.getBillboardVectors(&right, &up);
 		Vec3f forward = up.cross(right);
 
-		// render left side
-		gl::setViewport( Area(0, 0, w, h) );
+		// render sections
+		float offset = 0.5f * (mSectionCount - 1);
+		for(unsigned i=0;i<mSectionCount;++i)
+		{
+			gl::setViewport( Area(i * w, 0, (i+1) * w, h) );
 
-		cam.setViewDirection( Quatf(up, overlap * toRadians(hFoV)) * forward );
-		cam.setWorldUp( up );
-		gl::setMatrices( cam );
-		render();
-		
-		// render front side
-		gl::setViewport( Area(w, 0, w*2, h) );
-
-		cam.setViewDirection( forward );
-		cam.setWorldUp( up );
-		gl::setMatrices( cam );
-		render();	
+			cam.setViewDirection( Quatf(up, mSectionOverlap * toRadians((i - offset) * -hFoV)) * forward );
+			cam.setWorldUp( up );
+			gl::setMatrices( cam );
+			render();
+		}
 	
 		// draw user interface
-		mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( (1.0f + 2.0f * overlap) * hFoV ) ).str() );
-
-		// render right side
-		gl::setViewport( Area(w*2, 0, w*3, h) );
-
-		cam.setViewDirection( Quatf(up, -overlap * toRadians(hFoV)) * forward );
-		cam.setWorldUp( up );
-		gl::setMatrices( cam );
-		render();
+		gl::setViewport(mFbo.getBounds() );
+		gl::setMatrices( mCamera.getCamera() );
+		mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( hFoV + ((mSectionCount-1) * mSectionOverlap) * hFoV ) ).str() );
 		
 		// unbind the frame buffer object
 		mFbo.unbindFramebuffer();
 
 		// restore states
 		gl::popMatrices();		
-		mCamera.setCurrentCam(original);
 		glPopAttrib();
 
 		// draw frame buffer and perform cylindrical projection using a fragment shader
 		if(mShader) {
-			float sides = 3;
-			float radians = sides * toRadians( hFoV );
-			float reciprocal = 0.5f / sides;
-
 			mShader.bind();
 			mShader.uniform("texture", 0);
-			mShader.uniform("sides", sides);
-			mShader.uniform("radians", radians );
-			mShader.uniform("reciprocal", reciprocal );
+			mShader.uniform("sides", (float) mSectionCount);
+			mShader.uniform("radians", mSectionCount * toRadians( hFoV ) );
+			mShader.uniform("reciprocal", 0.5f / mSectionCount );
 		}
 
 		Rectf centered = Rectf(mFbo.getBounds()).getCenteredFit( getWindowBounds(), false );
