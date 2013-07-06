@@ -69,8 +69,8 @@
     <ClCompile Include="..\src\ConstellationLabels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\CubeMap.cpp">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="..\src\ConstellationArt.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,7 +119,7 @@
     <ClInclude Include="..\src\ConstellationLabels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\CubeMap.h">
+    <ClInclude Include="..\src\ConstellationArt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

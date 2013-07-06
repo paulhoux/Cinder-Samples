@@ -31,6 +31,7 @@
 #include "Background.h"
 #include "Cam.h"
 #include "Constellations.h"
+#include "ConstellationArt.h"
 #include "ConstellationLabels.h"
 #include "Conversions.h"
 #include "Grid.h"
@@ -99,6 +100,7 @@ protected:
 	Stars				mStars;
 	Labels				mLabels;
 	Constellations		mConstellations;
+	ConstellationArt	mConstellationArt;
 	ConstellationLabels	mConstellationLabels;
 	Background			mBackground;
 	Grid				mGrid;
@@ -197,6 +199,7 @@ void StarsApp::setup()
 
 	// create labels
 	mLabels.setup();
+	mConstellationArt.setup();
 	mConstellationLabels.setup();
 
 	//
@@ -262,6 +265,7 @@ void StarsApp::update()
 	mBackground.setCameraDistance( distance );
 	mLabels.setCameraDistance( distance );
 	mConstellations.setCameraDistance( distance );
+	mConstellationArt.setCameraDistance( distance );
 	mConstellationLabels.setCameraDistance( distance );
 	mUserInterface.setCameraDistance( distance );
 
@@ -419,8 +423,10 @@ void StarsApp::render()
 	mStars.draw();
 
 	// draw constellations
-	if(mIsConstellationsVisible) 
+	if(mIsConstellationsVisible) {
+		mConstellationArt.draw();
 		mConstellations.draw();
+	}
 
 	// draw labels (for now, labels don't behave well in cylindrical view)
 	if(mIsLabelsVisible && !mIsCylindrical) {
@@ -527,6 +533,9 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mIsCylindrical = false;
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		// adjust line width
+		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
+		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
 	case KeyEvent::KEY_d:
 		// cylindrical panorama
