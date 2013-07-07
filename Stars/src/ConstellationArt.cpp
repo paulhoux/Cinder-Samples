@@ -69,8 +69,6 @@ void ConstellationArt::draw()
 		gl::enableAdditiveBlending();
 		gl::color( mAttenuation * Color(0.4f, 0.6f, 0.8f) );
 
-		gl::disable( GL_CULL_FACE );
-
 		//mShader.bind();
 		//mShader.uniform("map", 0);
 		//mShader.uniform("smoothness", 1.0f);
@@ -168,7 +166,7 @@ void ConstellationArt::create()
 void ConstellationArt::setCameraDistance( float distance )
 {
 	static const float minimum = 0.01f;
-	static const float maximum = 1.0f;
+	static const float maximum = 0.7f;
 
 	mAttenuation = math<float>::clamp( 1.0f - (distance / 12.0f), minimum, maximum );
 }

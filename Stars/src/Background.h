@@ -39,10 +39,6 @@ public:
 	void	create();
 
 	void	setCameraDistance( float distance );
-
-	void	rotateX( float degrees ) { mRotation.x += degrees; ci::app::console() << mRotation << std::endl; }
-	void	rotateY( float degrees ) { mRotation.y += degrees; ci::app::console() << mRotation << std::endl; }
-	void	rotateZ( float degrees ) { mRotation.z += degrees; ci::app::console() << mRotation << std::endl; }
 private:
 	//! converts galactic coordinates (longitude, latitude) to equatorial coordinates (J2000: ra, dec)
 	ci::Vec2d	toEquatorial( const ci::Vec2d &radians );
@@ -56,7 +52,7 @@ public:
 private:
 	//
 	float				mAttenuation;
-	ci::Vec3f			mRotation;
+	ci::Matrix44f		mTransform;
 
 	ci::gl::Texture		mTexture;
 	ci::gl::VboMesh		mVboMesh;

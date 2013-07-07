@@ -37,10 +37,12 @@ const Vec2d	Background::GALACTIC_NORTHPOLE_EQUATORIAL = Vec2d(toRadians(192.8595
 Background::Background(void)
 	: mAttenuation(1.0f)
 {
-	// roughly convert galactic coordinates of map to equatorial coordinates of stars
-	// by rotating the sphere on which the map is projected. The rotation angles were
-	// found using a celestial reference map.
-	mRotation = Vec3f(-60.2f, 83.7f, 23.5f);
+	// Transform the map from galactic coordinates to equatorial coordinates. 
+	// OpenGL matrix derived from http://arxiv.org/pdf/1010.3773.pdf
+	mTransform = Matrix44f( +0.444829594298f, -0.746982248696f, -0.494109453633f, 0.0f,
+							-0.198076389622f, +0.455983794523f, -0.867666135681f, 0.0f,
+							+0.873437104725f, +0.483834991775f, +0.054875539390f, 0.0f,
+							0.0f, 0.0f, 0.0f, 1.0f );
 }
 
 Background::~Background(void)
@@ -64,14 +66,9 @@ void Background::draw()
 	mTexture.enableAndBind();
 
 	gl::pushModelView();
-	{
-		gl::rotate( mRotation * Vec3f::zAxis() ); // rotate z-axis
-		gl::rotate( mRotation * Vec3f::xAxis() ); // rotate x-axis
-		gl::rotate( mRotation * Vec3f::yAxis() ); // rotate y-axis
-
-		gl::color( mAttenuation * Color::white() );
-		gl::draw( mVboMesh );
-	}
+	gl::multModelView( mTransform );
+	gl::color( mAttenuation * Color::white() );
+	gl::draw( mVboMesh );
 	gl::popModelView();
 
 	glPopAttrib();

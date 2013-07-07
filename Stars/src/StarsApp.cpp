@@ -113,6 +113,7 @@ protected:
 	bool				mIsGridVisible;
 	bool				mIsLabelsVisible;
 	bool				mIsConstellationsVisible;
+	bool				mIsConstellationArtVisible;
 	bool				mIsCursorVisible;
 	bool				mIsStereoscopic;
 	bool				mIsCylindrical;
@@ -183,12 +184,13 @@ void StarsApp::setup()
 	mIsGridVisible = true;
 	mIsLabelsVisible = true;
 	mIsConstellationsVisible = true;
+	mIsConstellationArtVisible = true;
 	mIsStereoscopic = false;
 	mIsCylindrical = false;
 
 	// cylindrical projection settings
 	mSectionCount = 3;
-	mSectionFovDegrees = 60.0f;
+	mSectionFovDegrees = 72.0f;
 	// for values smaller than 1.0, this will cause each view to overlap the other ones
 	//  (angle of overlap: (1 - mSectionOverlap) * mSectionFovDegrees)
 	mSectionOverlap = 1.0f;
@@ -329,8 +331,10 @@ void StarsApp::draw()
 		h = mFbo.getHeight();
 
 		const float aspect = float(w) / float(h);
-		const float hFoV = mSectionFovDegrees;
-		const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
+		//const float hFoV = mSectionFovDegrees;
+		//const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
+		const float vFoV = mCamera.getFov();
+		const float hFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(vFoV) * 0.5f ) * aspect ) );
 
 		// bind the frame buffer object
 		mFbo.bindFramebuffer();
@@ -423,16 +427,17 @@ void StarsApp::render()
 	mStars.draw();
 
 	// draw constellations
-	if(mIsConstellationsVisible) {
-		mConstellationArt.draw();
+	if(mIsConstellationsVisible) 
 		mConstellations.draw();
-	}
 
-	// draw labels (for now, labels don't behave well in cylindrical view)
-	if(mIsLabelsVisible && !mIsCylindrical) {
+	if(mIsConstellationArtVisible)
+		mConstellationArt.draw();
+
+	// draw labels
+	if(mIsLabelsVisible) {
 		mLabels.draw();
 
-		if(mIsConstellationsVisible) 
+		if(mIsConstellationsVisible || mIsConstellationArtVisible) 
 			mConstellationLabels.draw();
 	}
 }
@@ -518,8 +523,11 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsLabelsVisible = !mIsLabelsVisible;
 		break;
 	case KeyEvent::KEY_c:
-		// toggle constellations
-		mIsConstellationsVisible = !mIsConstellationsVisible;
+		// toggle constellations / art
+		if(event.isShiftDown())
+			mIsConstellationArtVisible = !mIsConstellationArtVisible;
+		else
+			mIsConstellationsVisible = !mIsConstellationsVisible;
 		break;
 	case KeyEvent::KEY_a:
 		// toggle cursor arrow
@@ -532,8 +540,8 @@ void StarsApp::keyDown( KeyEvent event )
 		// toggle stereoscopic view
 		mIsStereoscopic = !mIsStereoscopic;
 		mIsCylindrical = false;
+		// adjust line width and aspect ratio
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
-		// adjust line width
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
@@ -541,7 +549,8 @@ void StarsApp::keyDown( KeyEvent event )
 		// cylindrical panorama
 		mIsCylindrical = !mIsCylindrical;
 		mIsStereoscopic = false;
-		// adjust line width
+		// adjust line width and aspect ratio
+		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
@@ -640,8 +649,8 @@ void StarsApp::createShader()
 void StarsApp::createFbo()
 {
 	// determine the size of the frame buffer
-	int w = getWindowWidth() * 2;
-	int h = getWindowHeight() * 2;
+	int w = getWindowWidth() * mSectionCount;
+	int h = getWindowHeight() * 1;
 
 	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
 		return;
