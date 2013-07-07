@@ -10,3 +10,7 @@
 *.suo
 *.user
 *.gitignore
+/Stars/assets/music/*.mp3
+/Stars/assets/music/*.flac
+/Stars/assets/music/*.ogg
+/Stars/assets/music/*.wav
