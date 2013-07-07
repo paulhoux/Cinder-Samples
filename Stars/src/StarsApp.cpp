@@ -177,6 +177,7 @@ void StarsApp::setup()
 	mCamera.setup();
 
 	CameraPersp cam( mCamera.getCamera() );
+	cam.setFov( 60.0f );
 	cam.setNearClip( 0.01f );
 	cam.setFarClip( 5000.0f );
 
@@ -649,8 +650,8 @@ void StarsApp::createShader()
 void StarsApp::createFbo()
 {
 	// determine the size of the frame buffer
-	int w = getWindowWidth() * mSectionCount;
-	int h = getWindowHeight() * 1;
+	int w = getWindowWidth() * 2;
+	int h = getWindowHeight() * 2;
 
 	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
 		return;
