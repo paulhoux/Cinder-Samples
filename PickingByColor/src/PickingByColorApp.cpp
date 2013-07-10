@@ -147,10 +147,11 @@ void PickingByColorApp::setup()
 	loadMesh( "models/pitcher.obj", "models/pitcher.msh", &mMeshPitcher);
 	loadMesh( "models/watering_can.obj", "models/watering_can.msh", &mMeshCan);
 
-	// each object should have a unique picking color. Alternatively, 
-	//  you can use the intToColor() and colorToInt() functions.
-	mColorPitcher = Color(0, 0, 1);
-	mColorCan = Color(0, 1, 0);
+	// each object should have a unique picking color.  
+	// To make sure the colors are pickable, you should use
+	// the intToColor() and colorToInt() functions.
+	mColorPitcher = intToColor(0x0000FF);	// blue
+	mColorCan = intToColor(0x00FF00);		// green
 
 	// load font
 	mFont = Font(loadAsset("font/b2sq.ttf"), 32);	
@@ -435,7 +436,7 @@ void PickingByColorApp::loadMesh(const std::string &objFile, const std::string &
 
 		mesh->read( file );
 	}
-	catch( const std::exception &e ) {
+	catch( ... ) {
 		// if it failed or didn't exist, load an obj file...
 		DataSourceRef file = loadAsset(objFile);
 		if(file->createStream()) {
