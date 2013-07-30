@@ -120,6 +120,7 @@
     <ClCompile Include="..\..\TextRendering\include\text\TextLabels.cpp" />
     <ClCompile Include="..\src\Background.cpp" />
     <ClCompile Include="..\src\Cam.cpp" />
+    <ClCompile Include="..\src\ConstellationArt.cpp" />
     <ClCompile Include="..\src\ConstellationLabels.cpp" />
     <ClCompile Include="..\src\Constellations.cpp" />
     <ClCompile Include="..\src\Conversions.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\Background.h" />
     <ClInclude Include="..\src\Cam.h" />
+    <ClInclude Include="..\src\ConstellationArt.h" />
     <ClInclude Include="..\src\ConstellationLabels.h" />
     <ClInclude Include="..\src\Constellations.h" />
     <ClInclude Include="..\src\Conversions.h" />
