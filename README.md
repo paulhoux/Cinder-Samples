@@ -1,13 +1,19 @@
 Cinder-Samples
 ==============
 
-Sample applications for the Cinder framework. In order to use these samples, clone this repository next to a clone of the Cinder Github repository like this:
+Sample applications for the Cinder framework. 
 
-![Folders](https://raw.github.com/paulhoux/Cinder-Samples/master/FOLDERS.jpg)
+These code samples are compatible with the Microsoft Visual C++ (Express) 2010 and 2012 compilers. Use the project files inside the ```vc10``` folders for Visual C++ 2010. For Visual C++ 2012 you should use the files inside the ```vc11``` folders. XCode support for MacOS X is not included, because I do not own an Apple and would not be able to update the project files.
+
+The C++ and GLSL source code, however, should run on all platforms without modifications. I assume you run the samples on recent hardware, supporting shader model 4. I have tested the samples on NVIDIA GPU's, it might be possible that ATI GPU's may produce shader compilation errors. If you find an inconsistency or platform related bug, please notify me or create a pull request, so that I can fix the issues and make these samples as cross-platform as possible. 
+
+Find specific, sample related information in the sample's README.md files.
 
 
 #####Downloading and using the samples with Cinder
-These samples are meant to be used with version 0.8.5 (or higher) of Cinder.
+These samples are meant to be used with version 0.8.5 (or higher) of Cinder. Download the samples and place them next to Cinder's master folder:
+
+![Folders](https://raw.github.com/paulhoux/Cinder-Samples/master/FOLDERS.jpg)
 
 It is recommended to download these samples as a Git repository. Install a Git client (see also: http://libcinder.org/docs/welcome/GitSetup.html) and then do the following:
 * Open a command window (or Terminal)
@@ -19,22 +25,12 @@ It is recommended to download these samples as a Git repository. Install a Git c
 Alternatively, you can download the repository as a [ZIP-file](https://github.com/paulhoux/Cinder-Samples/zipball/master) and manually add the files to a "cinder_samples" folder.
 
 
-To learn more about how to create a copy of the Cinder Github repository, visit: http://libcinder.org/docs/welcome/GitSetup.html 
+Make sure the Cinder master folder is called ```cinder_master```, so that the samples can find it automatically. To learn more about how to create a copy of the Cinder Github repository, visit: http://libcinder.org/docs/welcome/GitSetup.html 
 
-
-### Cinder version 0.8.5 is required to use these samples.
-
-
-These code samples are compatible with the Microsoft Visual C++ (Express) 2010 and 2012 compilers. Use the project files inside the ```vc10``` folders for Visual C++ 2010. For Visual C++ 2012 you should use the files inside the ```vc11``` folders. XCode support for MacOS X is not included, because I do not own an Apple and would not be able to update the project files.
-
-The C++ and GLSL source code, however, should run on all platforms without modifications. I assume you run the samples on recent hardware, supporting shader model 4. I have tested the samples on NVIDIA GPU's, it might be possible that ATI GPU's may produce shader compilation errors. If you find an inconsistency or platform related bug, please notify me or create a pull request, so that I can fix the issues and make these samples as cross-platform as possible. 
-
-Find specific, sample related information in the sample's README.md files.
 
 Thanks to all contributors and to the people behind the Cinder framework for doing an excellent job!
 
 -Paul
-
 
 
 Copyright (c) 2012-2013, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
