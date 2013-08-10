@@ -3,16 +3,20 @@ Cinder-Samples
 
 Sample applications for the Cinder framework. In order to use these samples, clone this repository next to a clone of the Cinder Github repository like this:
 
-[cinder_master]
-* [blocks]
-* [boost]
-* [docs]
-* ...
+![Folders](https://raw.github.com/paulhoux/Cinder-Samples/master/FOLDERS.jpg)
 
-[cinder_samples]
-* README.md
-* [BouncingBalls]
-* ...
+
+#####Downloading and using the samples with Cinder
+These samples are meant to be used with version 0.8.5 (or higher) of Cinder.
+
+It is recommended to download these samples as a Git repository. Install a Git client (see also: http://libcinder.org/docs/welcome/GitSetup.html) and then do the following:
+* Open a command window (or Terminal)
+* Switch to the disk containing the Cinder root folder, e.g.: ```d:```
+* Browse to the Cinder root folder: ```cd path\to\cinder_master```
+* The samples must be placed next to the cinder_master folder, so go up one level: ```cd ..```
+* Clone the samples repository: ```git clone https://github.com/paulhoux/Cinder-Samples.git cinder_samples```
+
+Alternatively, you can download the repository as a [ZIP-file](https://github.com/paulhoux/Cinder-Samples/zipball/master) and manually add the files to a "cinder_samples" folder.
 
 
 To learn more about how to create a copy of the Cinder Github repository, visit: http://libcinder.org/docs/welcome/GitSetup.html 
