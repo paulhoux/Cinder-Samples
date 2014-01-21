@@ -117,6 +117,7 @@ protected:
 	bool				mIsCursorVisible;
 	bool				mIsStereoscopic;
 	bool				mIsCylindrical;
+	bool				mDrawUserInterface;
 
 	// frame buffer and shader used for cylindrical projection
 	gl::Fbo				mFbo;
@@ -188,6 +189,7 @@ void StarsApp::setup()
 	mIsConstellationArtVisible = true;
 	mIsStereoscopic = false;
 	mIsCylindrical = false;
+	mDrawUserInterface = true;
 
 	// cylindrical projection settings
 	mSectionCount = 3;
@@ -308,7 +310,8 @@ void StarsApp::draw()
 		render();
 	
 		// draw user interface
-		mUserInterface.draw("Stereoscopic Projection");
+		if(mDrawUserInterface)
+			mUserInterface.draw("Stereoscopic Projection");
 
 		// render right eye
 		mCamera.enableStereoRight();
@@ -318,7 +321,8 @@ void StarsApp::draw()
 		render();
 	
 		// draw user interface
-		mUserInterface.draw("Stereoscopic Projection");
+		if(mDrawUserInterface)
+			mUserInterface.draw("Stereoscopic Projection");
 
 		gl::popMatrices();		
 		glPopAttrib();
@@ -344,6 +348,9 @@ void StarsApp::draw()
 		glPushAttrib( GL_VIEWPORT_BIT );
 		gl::pushMatrices();
 
+		gl::setViewport( mFbo.getBounds() );
+		gl::clear();
+
 		// setup camera	
 		CameraStereo cam = mCamera.getCamera();
 		cam.disableStereo();
@@ -352,7 +359,7 @@ void StarsApp::draw()
 
 		Vec3f right, up; cam.getBillboardVectors(&right, &up);
 		Vec3f forward = up.cross(right);
-
+		
 		// render sections
 		float offset = 0.5f * (mSectionCount - 1);
 		for(unsigned i=0;i<mSectionCount;++i)
@@ -366,15 +373,17 @@ void StarsApp::draw()
 		}
 	
 		// draw user interface
-		gl::setViewport(mFbo.getBounds() );
+		gl::setViewport( mFbo.getBounds() );
 		gl::setMatrices( mCamera.getCamera() );
-		mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( hFoV + ((mSectionCount-1) * mSectionOverlap) * hFoV ) ).str() );
+
+		if(mDrawUserInterface)
+			mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( hFoV + ((mSectionCount-1) * mSectionOverlap) * hFoV ) ).str() );
 		
 		// unbind the frame buffer object
 		mFbo.unbindFramebuffer();
 
 		// restore states
-		gl::popMatrices();		
+		gl::popMatrices();
 		glPopAttrib();
 
 		// draw frame buffer and perform cylindrical projection using a fragment shader
@@ -400,7 +409,8 @@ void StarsApp::draw()
 		gl::popMatrices();
 	
 		// draw user interface
-		mUserInterface.draw("Perspective Projection");
+		if(mDrawUserInterface)
+			mUserInterface.draw("Perspective Projection");
 	}
 
 	// fade in at start of application
@@ -522,6 +532,10 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_l:
 		// toggle labels
 		mIsLabelsVisible = !mIsLabelsVisible;
+		break;
+	case KeyEvent::KEY_u:
+		// toggle user interface
+		mDrawUserInterface = !mDrawUserInterface;
 		break;
 	case KeyEvent::KEY_c:
 		// toggle constellations / art
