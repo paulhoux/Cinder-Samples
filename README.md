@@ -13,6 +13,7 @@ Find specific, sample related information in the sample's README.md files.
 #####Downloading and using the samples with Cinder
 * Make sure you have downloaded the Cinder Framework. It is recommended to use Git, because this will make it easier for you to keep up to date with the latest versions of both Cinder and these samples. To learn more about how to create a copy of the Cinder Github repository, visit: http://libcinder.org/docs/welcome/GitSetup.html
 * Make sure the Cinder master folder is called ```cinder_master```, so that the samples can find it automatically. 
+* Make sure you can successfully compile Cinder yourself. 
 * Download the samples and place them next to Cinder's master folder:
  * Open a command window (or Terminal)
  * Switch to the disk containing the Cinder root folder, e.g.: ```d:```
@@ -24,7 +25,16 @@ Find specific, sample related information in the sample's README.md files.
  ![Folders](https://raw.github.com/paulhoux/Cinder-Samples/master/FOLDERS.jpg)
  * Alternatively, you can download the repository as a [ZIP-file](https://github.com/paulhoux/Cinder-Samples/zipball/master) and manually add the files to a "cinder_samples" folder.
 * To run a sample, browse to the sample's folder and double-click the pre-compiled executable (.exe)
-* To compile the sample yourself, browse to the sample's project folder (e.g. ```vc11```) and double-click the project file (.vcxproj) or solution (.sln) to open it in Visual Studio. Then, press F7 to compile the sample. It should compile without errors, provided you also compiled the Cinder Framework itself. See also: http://libcinder.org/docs/welcome/GitSetup.html
+* To compile the sample yourself, browse to the sample's project folder (e.g. ```vc11```) and double-click the project file (.vcxproj) or solution (.sln) to open it in Visual Studio. Then, press F7 to compile the sample. It should compile without errors, provided you also compiled the Cinder Framework itself.
+* To make sure that both Cinder and the sample code are always up to date, you can add the Cinder Framework project to your solution:
+ * From the ```File``` menu, select ```Add...``` and then ```Existing Project...```
+ * Browse to ```cinder_master\vc11\cinder.vcxproj``` for Visual Studio 2012 or ```cinder_master\vc10\cinder.vcxproj``` for Visual Studio 2010
+ * Click the ```Open``` button
+ * In the Solution Explorer, right-click on the sample project (e.g. ```TcpClientApp```)
+ * Select ```Project Dependencies...```
+ * Make sure the ```cinder``` project is selected by clicking in the check box
+ * Click the ```OK``` button
+ * Compile the solution (both Cinder and the sample) by pressing F7.
 
 
 Thanks to all contributors and to the people behind the Cinder framework for doing an excellent job!
