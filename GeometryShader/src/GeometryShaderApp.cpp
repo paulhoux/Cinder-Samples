@@ -49,6 +49,8 @@ public:
 protected:
 	gl::Texture loadTexture( const std::string &path );
 	void		loadShader( const std::string &path );
+
+	bool		isNVIDIA() const;
 protected:
 	float				mRadius;
 	float				mThickness;
@@ -151,7 +153,7 @@ void GeometryShaderApp::draw()
 {
 	// clear out the window 
 	gl::clear( Color(0.95f, 0.95f, 0.95f) );
-
+	
 	// bind the shader and send the mesh to the GPU
 	if(mShader && mVboMesh) {
 		mShader.bind();
@@ -298,10 +300,10 @@ void GeometryShaderApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_F6:
 		mTexture = loadTexture("textures/pattern2.png");
 		break;
-	case KeyEvent::KEY_F7:		
+	case KeyEvent::KEY_F7:
 		loadShader("shaders/lines_geom1.glsl");
 		break;
-	case KeyEvent::KEY_F8:		
+	case KeyEvent::KEY_F8:
 		loadShader("shaders/lines_geom2.glsl");
 		break;
 	}
@@ -338,15 +340,49 @@ gl::Texture GeometryShaderApp::loadTexture( const std::string &path )
 
 void GeometryShaderApp::loadShader( const std::string &path )
 {
+	// ATI/AMD drivers require layout qualifiers, where NVIDIA drivers specifically do not.
+	std::string header;
+	if( isNVIDIA() ) {
+		DataSourceRef headerFile = loadAsset("shaders/header_nvidia.txt");
+		header = std::string( (char*) headerFile->getBuffer().getData(), headerFile->getBuffer().getDataSize() );
+	}
+	else {
+		DataSourceRef headerFile = loadAsset("shaders/header_ati.txt");
+		header = std::string( (char*) headerFile->getBuffer().getData(), headerFile->getBuffer().getDataSize() );
+	}
+
+	// Load the geometry shader as a text file into memory and prepend the header
+	DataSourceRef geomFile = loadAsset(path);
+	std::string geom( (char*) geomFile->getBuffer().getData(), geomFile->getBuffer().getDataSize() );
+	
+	geom = header + geom;
+
+	// Load vertex and fragments shaders as text files and compile the shader
 	try {
-		mShader = gl::GlslProg( 
-			loadAsset("shaders/lines_vert.glsl"), loadAsset("shaders/lines_frag.glsl"), loadAsset(path),
+		DataSourceRef vertFile = loadAsset("shaders/lines_vert.glsl");
+		std::string vert( (char*) vertFile->getBuffer().getData(), vertFile->getBuffer().getDataSize() );
+		
+		DataSourceRef fragFile = loadAsset("shaders/lines_frag.glsl");
+		std::string frag( (char*) fragFile->getBuffer().getData(), fragFile->getBuffer().getDataSize() );
+
+		mShader = gl::GlslProg(
+			vert.c_str(), frag.c_str(), geom.c_str(),
 			GL_LINES_ADJACENCY_EXT, GL_TRIANGLE_STRIP, 7 
 		);
 	}
 	catch( const std::exception &e ) {
 		console() << "Could not compile shader:" << e.what() << std::endl;
 	}
+}
+
+bool GeometryShaderApp::isNVIDIA() const
+{
+	// get vendor string and convert it to lowercase
+	std::string version( (char*) glGetString(GL_VENDOR) );
+	std::transform(version.begin(), version.end(), version.begin(), ::tolower);
+
+	// return TRUE if it contains 'nvidia'
+	return version.find("nvidia") != std::string::npos;
 }
 
 CINDER_APP_BASIC( GeometryShaderApp, RendererGl )

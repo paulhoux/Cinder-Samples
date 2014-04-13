@@ -32,6 +32,7 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/signals2.hpp>
@@ -100,8 +101,8 @@ protected:
 	//! to be written to server
 	std::deque<std::string>			mMessages;	
 
-	boost::asio::deadline_timer		mHeartBeatTimer;
-	boost::asio::deadline_timer		mReconnectTimer;
+	boost::asio::steady_timer		mHeartBeatTimer;
+	boost::asio::steady_timer		mReconnectTimer;
 
 	std::string						mDelimiter;
 	std::string						mHeartBeat;

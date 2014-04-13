@@ -1,12 +1,4 @@
 // ------------------ Geometry Shader --------------------------------
-#version 120
-#extension GL_EXT_gpu_shader4 : enable
-#extension GL_EXT_geometry_shader4 : enable
-
-// required for ATI GPU's:
-layout( lines_adjacency ) in;
-layout( triangle_strip, max_vertices = 7 ) out;
-
 uniform float	THICKNESS;		// the thickness of the line in pixels
 uniform float	MITER_LIMIT;	// 1.0: always miter, -1.0: never miter, 0.75: default
 uniform vec2	WIN_SCALE;		// the size of the viewport in pixels

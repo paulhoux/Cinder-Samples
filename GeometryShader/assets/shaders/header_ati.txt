@@ -1,0 +1,8 @@
+// ------------------ ATI / AMD header --------------------------------
+#version 120
+#extension GL_ARB_gpu_shader4 : enable
+#extension GL_ARB_geometry_shader4 : enable
+
+layout( lines_adjacency ) in;
+layout( triangle_strip, max_vertices = 7 ) out;
+
