@@ -49,6 +49,8 @@ class BloomingNeonApp : public AppBasic {
 
 	 void drawStrokedRect( const Rectf &rect );
 protected:
+	ci::Font		mFont;
+
 	gl::Fbo			mFboScene;
 	gl::Fbo			mFboBlur1;
 	gl::Fbo			mFboBlur2;
@@ -68,12 +70,14 @@ protected:
 void BloomingNeonApp::prepareSettings( Settings *settings )
 {
 	settings->setResizable(false);
-	settings->setWindowSize(780 + 256, 256);
+	settings->setWindowSize(1606, 400);
 	settings->setTitle("Blurred Neon Effect Using Fbo's and Shaders");
 }
 
 void BloomingNeonApp::setup()
 {
+	mFont = Font("Arial", 24.0f);
+
 	gl::Fbo::Format fmt;
 	fmt.setSamples(8);
 	fmt.setCoverageSamples(8);
@@ -84,6 +88,11 @@ void BloomingNeonApp::setup()
 	// setup our blur Fbo's, smaller ones will generate a bigger blur
 	mFboBlur1 = gl::Fbo(BLUR_SIZE, BLUR_SIZE);
 	mFboBlur2 = gl::Fbo(BLUR_SIZE, BLUR_SIZE);
+
+	// if we don't want to view our FBO's upside-down, we'll have to flip them
+	mFboScene.getTexture(0).setFlipped();
+	mFboBlur1.getTexture(0).setFlipped();
+	mFboBlur2.getTexture(0).setFlipped();
 
 	// load and compile the shaders
 	try { 
@@ -115,6 +124,7 @@ void BloomingNeonApp::setup()
 void BloomingNeonApp::update()
 {
 	mTransform.setToIdentity();
+	mTransform.rotate( Vec3f::xAxis(), (float) getElapsedSeconds() * 0.4f );
 	mTransform.rotate( Vec3f::yAxis(), (float) getElapsedSeconds() * 0.2f );
 }
 
@@ -192,41 +202,35 @@ void BloomingNeonApp::draw()
 	// restore the viewport
 	gl::setViewport( viewport );
 
-	// because the Fbo's have their origin in the LOWER-left corner,
-	// flip the Y-axis before drawing
-	gl::pushModelView();
-	gl::translate( Vec2f(0, 256) );
-	gl::scale( Vec3f(1, -1, 1) );
-
 	// draw the 3 Fbo's 
 	gl::color( Color::white() );
-	gl::draw( mFboScene.getTexture(), Rectf(0, 0, 256, 256) );
-	drawStrokedRect( Rectf(0, 0, 256, 256) );
+	gl::draw( mFboScene.getTexture(), Rectf(0, 0, 400, 400) );
+	drawStrokedRect( Rectf(0, 0, 400, 400) );
 
-	gl::draw( mFboBlur1.getTexture(), Rectf(260, 0, 260 + 256, 256) );
-	drawStrokedRect( Rectf(260, 0, 260 + 256, 256) );
+	gl::draw( mFboBlur1.getTexture(), Rectf(402, 0, 402 + 400, 400) );
+	drawStrokedRect( Rectf(402, 0, 402 + 400, 400) );
 
-	gl::draw( mFboBlur2.getTexture(), Rectf(520, 0, 520 + 256, 256) );
-	drawStrokedRect( Rectf(520, 0, 520 + 256, 256) );
+	gl::draw( mFboBlur2.getTexture(), Rectf(804, 0, 804 + 400, 400) );
+	drawStrokedRect( Rectf(804, 0, 804 + 400, 400) );
 
 	// draw our scene with the blurred version added as a blend
 	gl::color( Color::white() );
-	gl::draw( mFboScene.getTexture(), Rectf(780, 0, 780 + 256, 256) );
+	gl::draw( mFboScene.getTexture(), Rectf(1206, 0, 1206 + 400, 400) );
 
 	gl::enableAdditiveBlending();
-	gl::draw( mFboBlur2.getTexture(), Rectf(780, 0, 780 + 256, 256) );
+	gl::draw( mFboBlur2.getTexture(), Rectf(1206, 0, 1206 + 400, 400) );
 	gl::disableAlphaBlending();
-	drawStrokedRect( Rectf(780, 0, 780 + 256, 256) );
+	drawStrokedRect( Rectf(1206, 0, 1206 + 400, 400) );
 	
 	// restore the modelview matrix
 	gl::popModelView();
 
 	// draw info
 	gl::enableAlphaBlending();
-	gl::drawStringCentered("Basic Scene", Vec2f(128, 236));
-	gl::drawStringCentered("First Blur Pass (Horizontal)", Vec2f(260 + 128, 236));
-	gl::drawStringCentered("Second Blur Pass (Vertical)", Vec2f(520 + 128, 236));
-	gl::drawStringCentered("Final Scene", Vec2f(780 + 128, 236));
+	gl::drawStringCentered("Basic Scene", Vec2f(200, 370), Color::white(), mFont);
+	gl::drawStringCentered("First Blur Pass (Horizontal)", Vec2f(402 + 200, 370), Color::white(), mFont);
+	gl::drawStringCentered("Second Blur Pass (Vertical)", Vec2f(804 + 200, 370), Color::white(), mFont);
+	gl::drawStringCentered("Final Composite", Vec2f(1206 + 200, 370), Color::white(), mFont);
 	gl::disableAlphaBlending();
 }
 
