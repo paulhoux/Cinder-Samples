@@ -37,8 +37,8 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-#define NUM_INSTANCES		2400 
-#define INSTANCES_PER_ROW	30
+#define NUM_INSTANCES		9600 
+#define INSTANCES_PER_ROW	60
 
 class HexagonMirrorApp : public AppBasic {
 public:
@@ -99,8 +99,8 @@ void HexagonMirrorApp::setup()
 {
 	// initialize camera
 	CameraPersp	cam;
-	cam.setEyePoint( Vec3f(44, 34, 57) );
-	cam.setCenterOfInterestPoint( Vec3f(44, 34, 0) );
+	cam.setEyePoint( Vec3f(90, 70, 90) );
+	cam.setCenterOfInterestPoint( Vec3f(90, 70, 0) );
 	cam.setFov( 60.0f );
 	mCamera.setCurrentCam( cam );
 
