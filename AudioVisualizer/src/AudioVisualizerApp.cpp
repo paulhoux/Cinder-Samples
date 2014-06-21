@@ -33,6 +33,10 @@
 
 #include "FMOD.hpp"
 
+// Channel callback function used by FMOD to notify us of channel events
+FMOD_RESULT F_CALLBACK channelCallback(FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2);
+
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -42,6 +46,7 @@ public:
 	void prepareSettings( Settings* settings );
 
 	void setup();
+	void shutdown();
 	void update();
 	void draw();
 
@@ -50,11 +55,22 @@ public:
 	void mouseUp( MouseEvent event );	
 	void keyDown( KeyEvent event );
 	void resize();
-private:
-	fs::path	findMusic( const fs::path &path );
 
-	void		playMusic();
-	void		stopMusic();
+	// lists all audio files in the given directory
+	void		listAudio( const fs::path& directory, vector<fs::path>&	list );
+	// show the open file dialog and let the user select an audio file
+	fs::path	openAudio( const fs::path& directory );
+	// find the first audio file in a given directory
+	fs::path	findAudio( const fs::path& directory );
+	// find the previous audio file relative to the given file
+	fs::path	prevAudio( const fs::path& file );
+	// find the next audio file relative to the given file
+	fs::path	nextAudio( const fs::path& file );
+	// play the audio file
+	void		playAudio( const fs::path& file );
+	// stop playing the current audio file
+	void		stopAudio();
+
 private:
 	// width and height of our mesh
 	static const int kWidth = 512;
@@ -80,9 +96,15 @@ private:
 	FMOD::Channel*		mFMODChannel;
 
 	bool				mIsMouseDown;
+	bool				mIsAudioPlaying;
 	double				mMouseUpTime;
+	double				mMouseUpDelay;
 
-	vector<string>		mMusicExtensions;
+	vector<string>		mAudioExtensions;
+	fs::path			mAudioPath;
+
+public:
+	bool				signalChannelEnd;
 };
 
 void AudioVisualizerApp::prepareSettings(Settings* settings)
@@ -93,8 +115,14 @@ void AudioVisualizerApp::prepareSettings(Settings* settings)
 
 void AudioVisualizerApp::setup()
 {
+	// initialize signals
+	signalChannelEnd = false;
+
+	// make a list of valid audio file extensions and initialize audio variables
 	const char* extensions[] = {"mp3", "wav", "ogg"};
-	mMusicExtensions = vector<string>(extensions, extensions+2);
+	mAudioExtensions = vector<string>(extensions, extensions+2);
+	mAudioPath = getAssetPath("");
+	mIsAudioPlaying = false;
 
 	// setup camera
 	mCamera.setPerspective(50.0f, 1.0f, 1.0f, 10000.0f);
@@ -180,10 +208,11 @@ void AudioVisualizerApp::setup()
 	mFMODSound = nullptr;
 	mFMODChannel = nullptr;
 
-	playMusic();
+	playAudio( findAudio( mAudioPath ) );
 	
 	mIsMouseDown = false;
-	mMouseUpTime = getElapsedSeconds();
+	mMouseUpDelay = 30.0;
+	mMouseUpTime = getElapsedSeconds() - mMouseUpDelay;
 
 	// the texture offset has two purposes:
 	//  1) it tells us where to upload the next spectrum data
@@ -191,8 +220,27 @@ void AudioVisualizerApp::setup()
 	mOffset = 0;
 }
 
+void AudioVisualizerApp::shutdown()
+{
+	// properly shut down FMOD
+	stopAudio();
+
+	if(mFMODSystem)
+		mFMODSystem->release();
+}
+
 void AudioVisualizerApp::update()
 {
+	// update FMOD so it can notify us of events
+	mFMODSystem->update();
+
+	// handle signal: if audio has ended, play next file
+	if(mIsAudioPlaying && signalChannelEnd)
+		playAudio( nextAudio( mAudioPath ) );
+
+	// reset FMOD signals
+	signalChannelEnd= false;
+
 	// get spectrum for left and right channels and copy it into our channels
 	float* pDataLeft = mChannelLeft.getData() + kBands * mOffset;
 	float* pDataRight = mChannelRight.getData() + kBands * mOffset;
@@ -203,8 +251,14 @@ void AudioVisualizerApp::update()
 	// increment texture offset
 	mOffset = (mOffset+1) % kHistory;
 
-	// animate camera
-	if(!mIsMouseDown && (getElapsedSeconds() - mMouseUpTime) > 10.0)
+	// clear the spectrum for this row to avoid old data from showing up
+	pDataLeft = mChannelLeft.getData() + kBands * mOffset;
+	pDataRight = mChannelRight.getData() + kBands * mOffset;
+	memset( pDataLeft, 0, kBands * sizeof(float) );
+	memset( pDataRight, 0, kBands * sizeof(float) );
+
+	// animate camera if mouse has not been down for more than 30 seconds
+	if(!mIsMouseDown && (getElapsedSeconds() - mMouseUpTime) > mMouseUpDelay)
 	{
 		float t = float( getElapsedSeconds() );
 		float x = 0.5f + 0.5f * math<float>::cos( t * 0.07f );
@@ -218,8 +272,8 @@ void AudioVisualizerApp::update()
 		Vec3f interest = Vec3f(kWidth * x, kHeight * y, kHeight * z);
 
 		// gradually move to eye position and center of interest
-		mCamera.setEyePoint( eye.lerp(0.99f, mCamera.getEyePoint()) );
-		mCamera.setCenterOfInterestPoint( interest.lerp(0.99f, mCamera.getCenterOfInterestPoint()) );
+		mCamera.setEyePoint( eye.lerp(0.995f, mCamera.getEyePoint()) );
+		mCamera.setCenterOfInterestPoint( interest.lerp(0.990f, mCamera.getCenterOfInterestPoint()) );
 	}
 }
 
@@ -260,6 +314,7 @@ void AudioVisualizerApp::draw()
 
 void AudioVisualizerApp::mouseDown( MouseEvent event )
 {
+	// handle mouse down
 	mIsMouseDown = true;
 
 	mMayaCam.setCurrentCam(mCamera);
@@ -268,18 +323,21 @@ void AudioVisualizerApp::mouseDown( MouseEvent event )
 
 void AudioVisualizerApp::mouseDrag( MouseEvent event )
 {
+	// handle mouse drag
 	mMayaCam.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 	mCamera = mMayaCam.getCamera();
 }
 
 void AudioVisualizerApp::mouseUp( MouseEvent event )
 {
+	// handle mouse up
 	mMouseUpTime = getElapsedSeconds();
 	mIsMouseDown = false;
 }
 
 void AudioVisualizerApp::keyDown( KeyEvent event )
 {
+	// handle key down
 	switch( event.getCode() )
 	{
 	case KeyEvent::KEY_ESCAPE:
@@ -289,24 +347,44 @@ void AudioVisualizerApp::keyDown( KeyEvent event )
 		if( event.isAltDown() )
 			quit();
 		break;
+	case KeyEvent::KEY_LEFT:
+		playAudio( prevAudio( mAudioPath ) );
+		break;
+	case KeyEvent::KEY_RIGHT:
+		playAudio( nextAudio( mAudioPath ) );
+		break;
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
 		break;
 	case KeyEvent::KEY_o:
-		playMusic();
+		playAudio( openAudio( mAudioPath ) );
+		break;
+	case KeyEvent::KEY_p:
+		playAudio( mAudioPath );
+		break;
+	case KeyEvent::KEY_s:
+		stopAudio();
 		break;
 	}
 }
 
 void AudioVisualizerApp::resize()
 {
+	// handle resize
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
-fs::path AudioVisualizerApp::findMusic( const fs::path &path )
+void AudioVisualizerApp::listAudio(const fs::path& directory, vector<fs::path>& list)
 {
+	// clear the list
+	list.clear();
+
+	if(directory.empty() || !fs::is_directory(directory))
+		return;
+
+	// make a list of all audio files in the directory
 	fs::directory_iterator end_itr;
-	for( fs::directory_iterator i( path ); i != end_itr; ++i )
+	for( fs::directory_iterator i( directory ); i != end_itr; ++i )
 	{
 		// skip if not a file
 		if( !fs::is_regular_file( i->status() ) ) continue;
@@ -314,57 +392,158 @@ fs::path AudioVisualizerApp::findMusic( const fs::path &path )
 		// skip if extension does not match
 		string extension = i->path().extension().string();
 		extension.erase(0, 1);
-		if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), extension ) == mMusicExtensions.end() )
+		if( std::find( mAudioExtensions.begin(), mAudioExtensions.end(), extension ) == mAudioExtensions.end() )
 			continue;
 
-		// file matches, return it
-		return i->path();
-	}	
-
-	// failed, let user select file using dialog (only works if not full screen)	
-	bool wasFullScreen = isFullScreen();
-
-	setFullScreen( false );
-	fs::path result = getOpenFilePath( path, mMusicExtensions );
-	setFullScreen( wasFullScreen );
-
-	return result;
-}
-
-void AudioVisualizerApp::playMusic()
-{
-	// if music is already playing, stop it first
-	stopMusic();
-
-	// find first mp3 file in assets folder
-	fs::path assets = getAssetPath("");
-	fs::path music = findMusic(assets);
-
-	if(!music.empty())
-	{
-		// stream it continuously
-		mFMODSystem->createStream( music.string().c_str(), FMOD_SOFTWARE, NULL, &mFMODSound );
-		mFMODSound->setMode( FMOD_LOOP_NORMAL );
-
-		mFMODSystem->playSound( FMOD_CHANNEL_FREE, mFMODSound, false, &mFMODChannel );
+		// file matches
+		list.push_back(i->path());
 	}
 }
 
-void AudioVisualizerApp::stopMusic()
+fs::path AudioVisualizerApp::openAudio(const fs::path& directory)
 {	
-	bool isPlaying;
+	// only works if not full screen	
+	bool wasFullScreen = isFullScreen();
+	setFullScreen( false );
+
+	fs::path file = getOpenFilePath( directory, mAudioExtensions );
+
+	setFullScreen( wasFullScreen );
+
+	return file;
+}
+
+fs::path AudioVisualizerApp::findAudio( const fs::path& directory )
+{
+	vector<fs::path> files;
+	listAudio(directory, files);
+
+	// if available, return the first audio file
+	if(!files.empty())
+		return files.front();
+
+	// failed, let user select file using dialog
+	return openAudio( directory );
+}
+
+fs::path AudioVisualizerApp::prevAudio(const fs::path& file)
+{
+	if(file.empty() || !fs::is_regular_file(file))
+		return fs::path();
+
+	fs::path& directory = file.parent_path();
+
+	// make a list of all audio files in the directory
+	vector<fs::path> files;
+	listAudio(directory, files);
+
+	// return if there are no audio files in the directory
+	if(files.empty())
+		return fs::path();
+
+	// find current audio file
+	auto itr = std::find( files.begin(), files.end(), file );
+
+	// if not found, or if it is the first audio file, simply return last audio file
+	if(itr == files.end() || itr == files.begin())
+		return files.back();
+
+	// return previous file
+	return *(--itr);
+}
+
+fs::path AudioVisualizerApp::nextAudio(const fs::path& file)
+{
+	if(file.empty() || !fs::is_regular_file(file))
+		return fs::path();
+
+	fs::path& directory = file.parent_path();
+
+	// make a list of all audio files in the directory
+	vector<fs::path> files;
+	listAudio(directory, files);
+
+	// return if there are no audio files in the directory
+	if(files.empty())
+		return fs::path();
+
+	// find current audio file
+	auto itr = std::find( files.begin(), files.end(), file );
+
+	// if not found, or if it is the last audio file, simply return first audio file
+	if(itr == files.end() || *itr == files.back())
+		return files.front();
+
+	// return next file
+	return *(++itr);
+}
+
+void AudioVisualizerApp::playAudio(const fs::path& file)
+{
+	FMOD_RESULT err;
+
+	// ignore if this is not a file
+	if(file.empty() || !fs::is_regular_file( file ))
+		return;
+
+	// if audio is already playing, stop it first
+	stopAudio();
+
+	// stream the audio
+	err = mFMODSystem->createStream( file.string().c_str(), FMOD_SOFTWARE, NULL, &mFMODSound );
+	err = mFMODSystem->playSound( FMOD_CHANNEL_FREE, mFMODSound, false, &mFMODChannel );
+
+	// we want to be notified of channel events
+	err = mFMODChannel->setCallback( channelCallback );
+	
+	// keep track of the audio file
+	mAudioPath = file;
+	mIsAudioPlaying = true;
+
+	// 
+	console() << "Now playing:" << mAudioPath.filename().string() << std::endl;
+}
+
+void AudioVisualizerApp::stopAudio()
+{	
+	FMOD_RESULT err;
+
+	mIsAudioPlaying = false;
 
 	if(!mFMODChannel || !mFMODSound)
 		return;
 
-	mFMODChannel->isPlaying(&isPlaying);
-	if(isPlaying)
-		mFMODChannel->stop();
+	// we don't want to be notified of channel events any longer
+	mFMODChannel->setCallback(0);
 
-	mFMODSound->release();
+	bool isPlaying;
+	err = mFMODChannel->isPlaying(&isPlaying);
+	if(isPlaying)
+		err = mFMODChannel->stop();
+
+	err = mFMODSound->release();
 
 	mFMODSound = nullptr;
 	mFMODChannel = nullptr;
+}
+
+// Channel callback function used by FMOD to notify us of channel events
+FMOD_RESULT F_CALLBACK channelCallback(FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2)
+{
+	// we first need access to the application instance
+	AudioVisualizerApp* pApp = static_cast<AudioVisualizerApp*>( App::get() );
+
+	// now handle the callback
+	switch(type)
+	{
+	case FMOD_CHANNEL_CALLBACKTYPE_END:
+		// we can't call a function directly, because we are inside the FMOD thread,
+		// so let's notify the application instead by setting a boolean (which is thread safe).
+		pApp->signalChannelEnd = true;
+		break;
+	}
+
+	return FMOD_OK;
 }
 
 CINDER_APP_NATIVE( AudioVisualizerApp, RendererGl )
