@@ -51,7 +51,10 @@ public:
 	void keyDown( KeyEvent event );
 	void resize();
 private:
-	fs::path getFirstMusicFile( const fs::path &path );
+	fs::path	findMusic( const fs::path &path );
+
+	void		playMusic();
+	void		stopMusic();
 private:
 	// width and height of our mesh
 	static const int kWidth = 512;
@@ -78,22 +81,25 @@ private:
 
 	bool				mIsMouseDown;
 	double				mMouseUpTime;
+
+	vector<string>		mMusicExtensions;
 };
 
 void AudioVisualizerApp::prepareSettings(Settings* settings)
 {
-	settings->setFullScreen(true);
+	settings->setFullScreen(false);
+	settings->setWindowSize(1280, 720);
 }
 
 void AudioVisualizerApp::setup()
 {
-	mIsMouseDown = false;
-	mMouseUpTime = getElapsedSeconds() - 5.0;
+	const char* extensions[] = {"mp3", "wav", "ogg"};
+	mMusicExtensions = vector<string>(extensions, extensions+2);
 
 	// setup camera
 	mCamera.setPerspective(50.0f, 1.0f, 1.0f, 10000.0f);
-	mCamera.setEyePoint( Vec3f(kWidth/2, 0, 0) );
-	mCamera.setCenterOfInterestPoint( Vec3f(kWidth/2, 0, kHeight/4) );
+	mCamera.setEyePoint( Vec3f(-kWidth/4, kHeight/2, -kWidth/8) );
+	mCamera.setCenterOfInterestPoint( Vec3f(kWidth/4, -kHeight/8, kWidth/4) );
 
 	// create channels from which we can construct our textures
 	mChannelLeft = Channel32f(kBands, kHistory);
@@ -169,27 +175,15 @@ void AudioVisualizerApp::setup()
 	mMesh.bufferTexCoords2d(0, coords);
 
 	// play audio using the Cinder FMOD block
-	{
-		FMOD::System_Create( &mFMODSystem );
-		mFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_ENABLE_PROFILE, NULL );
+	FMOD::System_Create( &mFMODSystem );
+	mFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_ENABLE_PROFILE, NULL );
+	mFMODSound = nullptr;
+	mFMODChannel = nullptr;
 
-		// find first mp3 file in assets folder
-		fs::path assets = getAssetPath("");
-		fs::path music = getFirstMusicFile(assets);
-
-		if(music.empty())
-		{
-			console() << "Copy an MP3 file to the assets folder (" << assets.string() << ")" << std::endl;
-		}
-		else
-		{
-			// stream it continuously
-			mFMODSystem->createStream( music.string().c_str(), FMOD_SOFTWARE, NULL, &mFMODSound );
-			mFMODSound->setMode( FMOD_LOOP_NORMAL );
-
-			mFMODSystem->playSound( FMOD_CHANNEL_FREE, mFMODSound, false, &mFMODChannel );
-		}
-	}
+	playMusic();
+	
+	mIsMouseDown = false;
+	mMouseUpTime = getElapsedSeconds();
 
 	// the texture offset has two purposes:
 	//  1) it tells us where to upload the next spectrum data
@@ -210,17 +204,18 @@ void AudioVisualizerApp::update()
 	mOffset = (mOffset+1) % kHistory;
 
 	// animate camera
-	if(!mIsMouseDown && (getElapsedSeconds() - mMouseUpTime) > 5.0)
+	if(!mIsMouseDown && (getElapsedSeconds() - mMouseUpTime) > 10.0)
 	{
 		float t = float( getElapsedSeconds() );
-		float x = 0.5f + 0.1f * math<float>::cos( t * 0.10f );
-		float y = 0.1f - 0.2f * math<float>::cos( t * 0.11f );
+		float x = 0.5f + 0.5f * math<float>::cos( t * 0.07f );
+		float y = 0.1f - 0.2f * math<float>::sin( t * 0.09f );
 		float z = 0.25f * math<float>::sin( t * 0.05f ) - 0.25f;
 		Vec3f eye = Vec3f(kWidth * x, kHeight * y, kHeight * z);
 
-		x = 0.5f;
-		y = 0.4f + 0.3f *  math<float>::sin( t * 0.12f );
-		Vec3f interest = Vec3f(kWidth * x, 0, kHeight * y);
+		x = 1.0f - x;
+		y = -0.3f;
+		z = 0.6f + 0.2f *  math<float>::sin( t * 0.12f );
+		Vec3f interest = Vec3f(kWidth * x, kHeight * y, kHeight * z);
 
 		// gradually move to eye position and center of interest
 		mCamera.setEyePoint( eye.lerp(0.99f, mCamera.getEyePoint()) );
@@ -297,6 +292,9 @@ void AudioVisualizerApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
 		break;
+	case KeyEvent::KEY_o:
+		playMusic();
+		break;
 	}
 }
 
@@ -305,7 +303,7 @@ void AudioVisualizerApp::resize()
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
-fs::path AudioVisualizerApp::getFirstMusicFile( const fs::path &path )
+fs::path AudioVisualizerApp::findMusic( const fs::path &path )
 {
 	fs::directory_iterator end_itr;
 	for( fs::directory_iterator i( path ); i != end_itr; ++i )
@@ -314,15 +312,59 @@ fs::path AudioVisualizerApp::getFirstMusicFile( const fs::path &path )
 		if( !fs::is_regular_file( i->status() ) ) continue;
 
 		// skip if extension does not match
-		if( i->path().extension() != ".mp3" )
+		string extension = i->path().extension().string();
+		extension.erase(0, 1);
+		if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), extension ) == mMusicExtensions.end() )
 			continue;
 
 		// file matches, return it
 		return i->path();
-	}
+	}	
 
-	// failed, return empty path
-	return fs::path();
+	// failed, let user select file using dialog (only works if not full screen)	
+	bool wasFullScreen = isFullScreen();
+
+	setFullScreen( false );
+	fs::path result = getOpenFilePath( path, mMusicExtensions );
+	setFullScreen( wasFullScreen );
+
+	return result;
+}
+
+void AudioVisualizerApp::playMusic()
+{
+	// if music is already playing, stop it first
+	stopMusic();
+
+	// find first mp3 file in assets folder
+	fs::path assets = getAssetPath("");
+	fs::path music = findMusic(assets);
+
+	if(!music.empty())
+	{
+		// stream it continuously
+		mFMODSystem->createStream( music.string().c_str(), FMOD_SOFTWARE, NULL, &mFMODSound );
+		mFMODSound->setMode( FMOD_LOOP_NORMAL );
+
+		mFMODSystem->playSound( FMOD_CHANNEL_FREE, mFMODSound, false, &mFMODChannel );
+	}
+}
+
+void AudioVisualizerApp::stopMusic()
+{	
+	bool isPlaying;
+
+	if(!mFMODChannel || !mFMODSound)
+		return;
+
+	mFMODChannel->isPlaying(&isPlaying);
+	if(isPlaying)
+		mFMODChannel->stop();
+
+	mFMODSound->release();
+
+	mFMODSound = nullptr;
+	mFMODChannel = nullptr;
 }
 
 CINDER_APP_NATIVE( AudioVisualizerApp, RendererGl )
