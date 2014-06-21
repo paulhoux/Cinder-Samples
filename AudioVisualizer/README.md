@@ -4,6 +4,17 @@ Audio Visualizer
 ![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/AudioVisualizer/PREVIEW.png)
 
 
+This sample shows how to play audio using Cinder's FMOD block. The audio's spectrum is then calculated and rendered as a scrolling height field.
+
+Audio is played using Cinder's own FMOD block. Retrieving the FFT spectrum data is fairly easy with a simple call to ```mFMODSystem->getSpectrum()``` for the left and right audio channel. The data is returned as floats, ranging from 0.0 to 1.0. This data is then stored in a single row of a ```Channel32f```, from which we can easily create an OpenGL texture.
+
+A static mesh is created that will be deformed by the spectrum textures. All the animation is done in shaders. The vertex shader averages the data from the left and right channel and converts it to decibels. The resulting value is then used to push vertices up along the y-axis, effectively creating a height field.
+
+By offsetting the texture coordinates, we can make sure the most recently captured spectrum is always at the edge of the mesh. OpenGL will automatically wrap the texture, because we have set the mode to ```GL_REPEAT```, so it's taking care of the scrolling and we don't need to do the hard work.
+
+Finally, the fragment shader will create rainbow colored line strips, based on the supplied interpolated vertex color and the texture coordinates. Rendering is done using additive blending, for a nice glowing neon effect.
+
+
 Copyright (c) 2014, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
