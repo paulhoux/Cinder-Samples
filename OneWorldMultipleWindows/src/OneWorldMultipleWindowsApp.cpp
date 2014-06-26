@@ -107,20 +107,20 @@ void OneWorldMultipleWindowsApp::draw()
 	// Note: this function is called once per frame for EACH WINDOW
 
 	// We are going to use the whole display to render our scene.
-	Vec2i displaySize = getDisplay()->getSize();
-	Vec2i displayCenter = displaySize / 2;
+	Vec2f displaySize( getDisplay()->getSize() );
+	Vec2f displayCenter = displaySize * 0.5f;
 
 	// Each window will be literally a window into our scene. This is made easy
 	// by the lens shift functions of the camera. We also need to set the correct
 	// vertical field of view and of course the aspect ratio of each window.
-	Vec2i windowPos = getWindow()->getPos();
-	Vec2i windowSize = getWindow()->getSize();
-	Vec2i windowCenter = windowPos + windowSize / 2;
+	Vec2f windowPos( getWindow()->getPos() );
+	Vec2f windowSize( getWindow()->getSize() );
+	Vec2f windowCenter = windowPos + windowSize * 0.5f;
 
-	float lensShiftX = 2.0f * (windowCenter.x - displayCenter.x) / (float) windowSize.x;
-	float lensShiftY = 2.0f * (displayCenter.y - windowCenter.y) / (float) windowSize.y;
-	mCamera.setFov( 60.0f * windowSize.y / (float) displaySize.y );
+	float lensShiftX = 2.0f * (windowCenter.x - displayCenter.x) / windowSize.x;
+	float lensShiftY = 2.0f * (displayCenter.y - windowCenter.y) / windowSize.y;
 	mCamera.setAspectRatio( getWindowAspectRatio() );
+	mCamera.setFov( 60.0f * windowSize.y / displaySize.y );
 	mCamera.setLensShift( lensShiftX, lensShiftY );
 
 	// Draw our scene. Note: if possible, try to only draw what is visible in
