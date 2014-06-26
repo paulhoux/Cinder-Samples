@@ -3,6 +3,10 @@ One World, Multiple Windows
 
 ![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/OneWorldMultipleWindows/PREVIEW.png)
 
+This sample will show you how to render portions of the same scene to multiple windows. The strategy chosen here is to render the scene multiple times, once for each window, and adjust the camera appropriately. Using the lens shift function, we don't have to change the camera position. We do need to adjust the aspect ratio and field of view for each window. 
+
+A better, more efficient strategy would be to simply draw your scene to an FBO, then copy the correct portion to each window. However, this sample's focus is on the camera class.
+
 
 Copyright (c) 2014, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
