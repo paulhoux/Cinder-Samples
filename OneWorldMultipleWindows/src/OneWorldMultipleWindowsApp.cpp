@@ -45,7 +45,7 @@ struct Box
 		float height = 55.0f + 45.0f * math<float>::sin(t);
 
 		gl::color( color );
-		gl::drawCube( position + Vec3f(0, 0.5f * height, 0), Vec3f(5.0f, height, 5.0f) );
+		gl::drawCube( position + Vec3f(0, 0.5f * height, 0), Vec3f(10.0f, height, 10.0f) );
 	}
 
 	float offset;
@@ -77,8 +77,8 @@ void OneWorldMultipleWindowsApp::setup()
 	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
 
 	// Create the boxes
-	for(int x=-50; x<=50; x+=5)
-		for(int z=-50; z<=50; z+=5)
+	for(int x=-50; x<=50; x+=10)
+		for(int z=-50; z<=50; z+=10)
 			mBoxes.push_back( std::make_shared<Box>( float(x), float(z) ) );
 }
 
@@ -161,4 +161,4 @@ void OneWorldMultipleWindowsApp::keyDown( KeyEvent event )
 	}
 }
 
-CINDER_APP_NATIVE( OneWorldMultipleWindowsApp, RendererGl )
+CINDER_APP_NATIVE( OneWorldMultipleWindowsApp, RendererGl( RendererGl::AA_MSAA_4 ) )
