@@ -137,6 +137,7 @@ void FXAAApp::draw()
 
 	// Draw the frame buffer...
 	gl::clear();
+	gl::color( Color::white() );
 
 	mFXAA.bind();
 	mFXAA.uniform("uTexture", 0);
@@ -151,7 +152,6 @@ void FXAAApp::draw()
 	gl::draw( mFbo.getTexture(), Area(mMouseX, 0, mFbo.getWidth(), mFbo.getHeight()), Rectf(mMouseX, 0, getWindowWidth(), getWindowHeight()) );
 
 	// Draw dividing line
-	gl::color( Color::white() );
 	gl::drawLine( Vec2f(mMouseX, 0.0f), Vec2f(mMouseX, getWindowHeight()) );
 
 	Rectf rct = mArrow->getBounds();
