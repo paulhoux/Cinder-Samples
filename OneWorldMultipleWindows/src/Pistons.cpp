@@ -69,7 +69,7 @@ void Pistons::setup()
 
 	// Load and compile our shaders and textures
 	try { 
-		mShader = gl::GlslProg( loadAsset("phong_vert.glsl"), loadAsset("phong_frag.glsl") ); 
+		mShader = gl::GlslProg( loadAsset("pistons_vert.glsl"), loadAsset("pistons_frag.glsl") ); 
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; }
 }

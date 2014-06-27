@@ -45,10 +45,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\phong_frag.glsl">
+    <None Include="..\assets\pistons_frag.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\phong_vert.glsl">
+    <None Include="..\assets\pistons_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
