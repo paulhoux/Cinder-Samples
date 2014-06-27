@@ -1,7 +1,5 @@
 #version 110
 
-uniform bool bLuminanceInAlpha;	
-
 varying vec3 v;
 varying vec3 N;
 
@@ -33,5 +31,5 @@ void main()
 
 	// write luminance in alpha channel (required for optimal FXAA)
 	const vec3 luminance = vec3(0.299, 0.587, 0.114);
-	gl_FragColor.a = bLuminanceInAlpha ? dot( final, luminance ) : 1.0;
+	gl_FragColor.a = dot( final, luminance );
 }

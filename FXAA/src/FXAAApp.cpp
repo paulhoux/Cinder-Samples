@@ -2,7 +2,9 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Texture.h"
 #include "cinder/Camera.h"
+#include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 
 using namespace ci;
@@ -39,7 +41,6 @@ public:
 	void update();
 	void draw();
 
-	void mouseDown( MouseEvent event );	
 	void mouseDrag( MouseEvent event );	
 
 	void keyDown( KeyEvent event );
@@ -50,21 +51,26 @@ private:
 	gl::Fbo				mFbo;
 	gl::GlslProg        mShader;
 	gl::GlslProg        mFXAA;
+	gl::TextureRef		mArrow;
 	std::vector<BoxRef>	mBoxes;
 
 	Timer				mTimer;
 	double				mTime;
 	double				mTimeOffset;
 
-	bool				mEnableFXAA;
+	int					mMouseX;
 };
 
 void FXAAApp::setup()
 {
-	// Load and compile our shader, which makes our boxes look prettier
+	// Set a proper title for our window
+	getWindow()->setTitle("FXAA");
+
+	// Load and compile our shaders and textures
 	try { 
 		mShader = gl::GlslProg( loadAsset("phong_vert.glsl"), loadAsset("phong_frag.glsl") ); 
 		mFXAA = gl::GlslProg( loadAsset("fxaa_vert.glsl"), loadAsset("fxaa_frag.glsl") ); 
+		mArrow = gl::Texture::create( loadImage( loadAsset("arrow.png") ) );
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
 
@@ -73,18 +79,15 @@ void FXAAApp::setup()
 		for(int z=-50; z<=50; z+=10)
 			mBoxes.push_back( std::make_shared<Box>( float(x), float(z) ) );
 
-	//
+	// initialize member variables and start the timer
 	mTimeOffset = 0.0;
 	mTimer.start();
 
-	mEnableFXAA = true;
-	getWindow()->setTitle("FXAA Enabled");
+	mMouseX = getWindowWidth() / 2;
 }
 
 void FXAAApp::update()
 {
-	// Note: this function is only called once per frame
-
 	// Keep track of time
 	mTime = mTimer.getSeconds() + mTimeOffset;
 
@@ -105,10 +108,10 @@ void FXAAApp::update()
 
 void FXAAApp::draw()
 {
-	// enable frame buffer
+	// Enable frame buffer
 	mFbo.bindFramebuffer();
 
-	// draw scene
+	// Draw scene
 	gl::clear();
 
 	gl::enableDepthRead();
@@ -118,7 +121,6 @@ void FXAAApp::draw()
 		gl::setMatrices( mCamera );
 		{
 			mShader.bind();
-			mShader.uniform("bLuminanceInAlpha", mEnableFXAA);
 			{
 				for(auto &box : mBoxes)
 					box->draw((float) mTime);
@@ -130,26 +132,39 @@ void FXAAApp::draw()
 	gl::disableDepthWrite();
 	gl::disableDepthRead();
 
-	// disable frame buffer
+	// Disable frame buffer
 	mFbo.unbindFramebuffer();
 
-	// draw the frame buffer while applying FXAA
+	// Draw the frame buffer...
+	gl::clear();
+
 	mFXAA.bind();
 	mFXAA.uniform("uTexture", 0);
 	mFXAA.uniform("uBufferSize", Vec2f( mFbo.getSize() ));
 	
-	gl::clear();
-	gl::draw( mFbo.getTexture() );
+	// ...while applying FXAA for the left side
+	gl::draw( mFbo.getTexture(), Area(0, 0, mMouseX, mFbo.getHeight()), Rectf(0, 0, mMouseX, getWindowHeight()) );
 
 	mFXAA.unbind();
-}
+	
+	// ...and without FXAA for the right side
+	gl::draw( mFbo.getTexture(), Area(mMouseX, 0, mFbo.getWidth(), mFbo.getHeight()), Rectf(mMouseX, 0, getWindowWidth(), getWindowHeight()) );
 
-void FXAAApp::mouseDown( MouseEvent event )
-{
+	// Draw dividing line
+	gl::color( Color::white() );
+	gl::drawLine( Vec2f(mMouseX, 0.0f), Vec2f(mMouseX, getWindowHeight()) );
+
+	Rectf rct = mArrow->getBounds();
+	rct.offset( Vec2f(mMouseX - rct.getWidth()/2, getWindowHeight() - rct.getHeight()) );
+	gl::enableAlphaBlending();
+	gl::draw( mArrow, rct );
+	gl::disableAlphaBlending();
 }
 
 void FXAAApp::mouseDrag( MouseEvent event )
 {
+	// Adjust the position of the dividing line
+	mMouseX = math<int>::clamp( event.getPos().x, 0, getWindowWidth() );
 }
 
 void FXAAApp::keyDown( KeyEvent event )
@@ -159,14 +174,8 @@ void FXAAApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_ESCAPE:
 		quit();
 		break;
-	case KeyEvent::KEY_f:
-		mEnableFXAA = !mEnableFXAA;
-		if(mEnableFXAA)
-			getWindow()->setTitle("FXAA Enabled");
-		else
-			getWindow()->setTitle("FXAA Disabled");
-		break;
-	case KeyEvent::KEY_t:
+	case KeyEvent::KEY_SPACE:
+		// Start/stop the animation
 		if(mTimer.isStopped())
 		{
 			mTimeOffset += mTimer.getSeconds();
@@ -186,6 +195,8 @@ void FXAAApp::resize()
 
 	mFbo = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
 	mFbo.getTexture().setFlipped(true);
+	
+	mMouseX = getWindowWidth() / 2;
 }
 
 CINDER_APP_NATIVE( FXAAApp, RendererGl( RendererGl::AA_NONE ) )
