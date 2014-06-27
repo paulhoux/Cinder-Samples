@@ -21,7 +21,7 @@ Calculating the warp parameters requires a non-trivial algorithm. Luckily for us
 4. Clone the OpenCV block: ```git clone https://github.com/cinder/Cinder-OpenCV.git opencv```
 
 
-For improved warping (perspective as well as bilinear and a combination of the two), please see the Cinder-Warping block that I created. You can find more information in this post:
+For improved warping (perspective as well as bilinear and a combination of the two), please see the [Cinder-Warping](https://github.com/paulhoux/Cinder-Warping) block that I created. You can find more information in this post:
 https://forum.libcinder.org/#Topic/23286000001617049
 
 
