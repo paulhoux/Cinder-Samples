@@ -26,34 +26,11 @@
 #include "cinder/Camera.h"
 #include "cinder/Rand.h"
 
+#include "Pistons.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-// Create a class that can draw a single box
-struct Box
-{		
-	Box(float x, float z)
-		: offset( Rand::randFloat(0.0f, 10.0f) )
-		, color( CM_HSV, 0.0f, 0.0f, Rand::randFloat() )
-		, position( Vec3f(x, 0.0f, z) )
-	{}
-
-	void draw(float time)
-	{
-		float t = offset + time;
-		float height = 55.0f + 45.0f * math<float>::sin(t);
-
-		gl::color( color );
-		gl::drawCube( position + Vec3f(0, 0.5f * height, 0), Vec3f(10.0f, height, 10.0f) );
-	}
-
-	float offset;
-	Colorf color;
-	Vec3f position;
-};
-
-typedef std::shared_ptr<Box> BoxRef;
 
 // Our application
 class OneWorldMultipleWindowsApp : public AppNative {
@@ -66,20 +43,13 @@ public:
 private:
 	CameraPersp         mCamera;
 	gl::GlslProg        mShader;        
-	std::vector<BoxRef>	mBoxes;
+	Pistons				mPistons;
 	double              mTime;   
 };
 
 void OneWorldMultipleWindowsApp::setup()
 {
-	// Load and compile our shader, which makes our boxes look prettier
-	try { mShader = gl::GlslProg( loadAsset("phong_vert.glsl"), loadAsset("phong_frag.glsl") ); }
-	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
-
-	// Create the boxes
-	for(int x=-50; x<=50; x+=10)
-		for(int z=-50; z<=50; z+=10)
-			mBoxes.push_back( std::make_shared<Box>( float(x), float(z) ) );
+	mPistons.setup();
 }
 
 void OneWorldMultipleWindowsApp::update()
@@ -100,6 +70,9 @@ void OneWorldMultipleWindowsApp::update()
 
 	mCamera.setEyePoint( Vec3f(x, y, z) );
 	mCamera.setCenterOfInterestPoint( Vec3f(1, 50, 0) );
+
+	// Animate our pistons
+	mPistons.update(mCamera);
 }
 
 void OneWorldMultipleWindowsApp::draw()
@@ -130,20 +103,7 @@ void OneWorldMultipleWindowsApp::draw()
 
 	gl::clear(); 
 
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
-	{
-		gl::setMatrices( mCamera );
-
-		mShader.bind();
-		{
-			for(auto &box : mBoxes)
-				box->draw( (float) mTime );
-		}
-		mShader.unbind();
-	}
-	gl::disableDepthWrite();
-	gl::disableDepthRead();
+	mPistons.draw(mCamera, (float)mTime);
 }
 
 void OneWorldMultipleWindowsApp::keyDown( KeyEvent event )

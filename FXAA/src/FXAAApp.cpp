@@ -29,53 +29,11 @@
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 
+#include "Pistons.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-// Create a class that can draw a single box
-struct Box
-{		
-	Box(float x, float z)
-		: offset( Rand::randFloat(0.0f, 10.0f) )
-		, color( CM_HSV, Rand::randFloat(0.0f, 0.1f), Rand::randFloat(0.0f, 1.0f), Rand::randFloat(0.25f, 1.0f) )
-		, position( Vec3f(x, 0.0f, z) )
-		, distance(0.0f)
-	{}
-
-	// When drawn, the distance to the camera is also calculated,
-	// so we can later use it to sort the boxes from front to back.
-	// Rendering from front to back is more efficient, as fragments
-	// that are behind other fragments will be culled early.
-	void draw(float time, const ci::CameraPersp& camera)
-	{
-		float t = offset + time;
-		float height = 55.0f + 45.0f * math<float>::sin(t);
-
-		position.y = 0.5f * height;
-		distance = position.distanceSquared( camera.getEyePoint() );
-
-		gl::color( color );
-		gl::drawCube( position, Vec3f(10.0f, height, 10.0f) );
-	}
-
-	// Our custom sorting comparator
-	static int CompareByDistanceToCamera(const void* a, const void* b)
-	{
-		const Box* pA = reinterpret_cast<const Box*>(a);
-		const Box* pB = reinterpret_cast<const Box*>(b);
-		if(pA->distance < pB->distance)
-			return -1;
-		if(pA->distance > pB->distance)
-			return 1;
-		return 0;
-	}
-
-	float offset;
-	Colorf color;
-	Vec3f position;
-	float distance;
-};
 
 // Our application class
 class FXAAApp : public AppNative {
@@ -91,17 +49,16 @@ public:
 	void resize();
 private:
 	CameraPersp         mCamera;
-	gl::Fbo				mFbo;
-	gl::GlslProg        mShader;
+	gl::Fbo             mFbo;
 	gl::GlslProg        mFXAA;
-	gl::TextureRef		mArrow;
-	std::vector<Box>	mBoxes;
+	gl::TextureRef      mArrow;
+	Pistons             mPistons;
 
-	Timer				mTimer;
-	double				mTime;
-	double				mTimeOffset;
+	Timer               mTimer;
+	double              mTime;
+	double              mTimeOffset;
 
-	int					mDividerX;
+	int                 mDividerX;
 };
 
 void FXAAApp::setup()
@@ -111,16 +68,13 @@ void FXAAApp::setup()
 
 	// Load and compile our shaders and textures
 	try { 
-		mShader = gl::GlslProg( loadAsset("phong_vert.glsl"), loadAsset("phong_frag.glsl") ); 
 		mFXAA = gl::GlslProg( loadAsset("fxaa_vert.glsl"), loadAsset("fxaa_frag.glsl") ); 
 		mArrow = gl::Texture::create( loadImage( loadAsset("arrow.png") ) );
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
 
-	// Create the boxes
-	for(int x=-50; x<=50; x+=10)
-		for(int z=-50; z<=50; z+=10)
-			mBoxes.push_back( Box( float(x), float(z) ) );
+	// Setup the pistons
+	mPistons.setup();
 
 	// initialize member variables and start the timer
 	mDividerX = getWindowWidth() / 2;
@@ -147,8 +101,8 @@ void FXAAApp::update()
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 	mCamera.setFov( 40.0f );
 
-	// sort boxes by distance to camera
-	std::qsort( &mBoxes.front(), mBoxes.size(), sizeof(Box), &Box::CompareByDistanceToCamera );
+	// Update the pistons
+	mPistons.update(mCamera);
 }
 
 void FXAAApp::draw()
@@ -159,23 +113,7 @@ void FXAAApp::draw()
 	// Draw scene
 	gl::clear();
 
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
-	{
-		gl::pushMatrices();
-		gl::setMatrices( mCamera );
-		{
-			mShader.bind();
-			{
-				for(auto &box : mBoxes)
-					box.draw((float) mTime, mCamera);
-			}
-			mShader.unbind();
-		}
-		gl::popMatrices();
-	}
-	gl::disableDepthWrite();
-	gl::disableDepthRead();
+	mPistons.draw(mCamera, (float)mTime);
 
 	// Disable frame buffer
 	mFbo.unbindFramebuffer();
