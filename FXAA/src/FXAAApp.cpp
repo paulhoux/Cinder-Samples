@@ -14,7 +14,7 @@ struct Box
 {		
 	Box(float x, float z)
 		: offset( Rand::randFloat(0.0f, 10.0f) )
-		, color( CM_HSV, Rand::randFloat(0.0f, 0.15f), 1.0f, Rand::randFloat(0.5f, 1.0f) )
+		, color( CM_HSV, Rand::randFloat(0.0f, 0.1f), Rand::randFloat(0.0f, 1.0f), Rand::randFloat(0.25f, 1.0f) )
 		, position( Vec3f(x, 0.0f, z) )
 	{}
 
@@ -78,6 +78,7 @@ void FXAAApp::setup()
 	mTimer.start();
 
 	mEnableFXAA = true;
+	getWindow()->setTitle("FXAA Enabled");
 }
 
 void FXAAApp::update()
@@ -99,7 +100,7 @@ void FXAAApp::update()
 	mCamera.setEyePoint( Vec3f(x, y, z) );
 	mCamera.setCenterOfInterestPoint( Vec3f(1, 50, 0) );
 	mCamera.setAspectRatio( getWindowAspectRatio() );
-	mCamera.setFov( 60.0f );
+	mCamera.setFov( 40.0f );
 }
 
 void FXAAApp::draw()
@@ -134,8 +135,8 @@ void FXAAApp::draw()
 
 	// draw the frame buffer while applying FXAA
 	mFXAA.bind();
-	mFXAA.uniform("COLOR", 0);
-	mFXAA.uniform("buffersize", Vec2f( mFbo.getSize() ));
+	mFXAA.uniform("uTexture", 0);
+	mFXAA.uniform("uBufferSize", Vec2f( mFbo.getSize() ));
 	
 	gl::clear();
 	gl::draw( mFbo.getTexture() );
@@ -160,6 +161,10 @@ void FXAAApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_f:
 		mEnableFXAA = !mEnableFXAA;
+		if(mEnableFXAA)
+			getWindow()->setTitle("FXAA Enabled");
+		else
+			getWindow()->setTitle("FXAA Disabled");
 		break;
 	case KeyEvent::KEY_t:
 		if(mTimer.isStopped())
@@ -176,7 +181,9 @@ void FXAAApp::keyDown( KeyEvent event )
 void FXAAApp::resize()
 {
 	gl::Fbo::Format fmt;
-	fmt.setColorInternalFormat( GL_RGBA16F );
+	fmt.setMinFilter( GL_LINEAR );
+	fmt.setMagFilter( GL_LINEAR );
+
 	mFbo = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
 	mFbo.getTexture().setFlipped(true);
 }
