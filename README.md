@@ -3,7 +3,7 @@ Cinder-Samples
 
 Sample applications for the Cinder framework. These samples are meant to be used with the latest release of Cinder. 
 
-These code samples are compatible with the Microsoft Visual C++ (Express) 2010 and 2012 compilers. Use the project files inside the ```vc10``` folders for Visual C++ 2010. For Visual C++ 2012 you should use the files inside the ```vc11``` folders. XCode support for MacOS X is not included, because I do not own an Apple and would not be able to update the project files.
+These code samples are compatible with the Microsoft Visual C++ (Express) 2012 compiler, which is the compiler of choice for the Windows platform. XCode support for MacOS X is not included, because I do not own an Apple and would not be able to update the project files.
 
 The C++ and GLSL source code, however, should run on all platforms without modifications. I assume you run the samples on recent hardware, supporting shader model 4. I have tested the samples on NVIDIA GPU's, it might be possible that ATI GPU's may produce shader compilation errors. If you find an inconsistency or platform related bug, please notify me or create a pull request, so that I can fix the issues and make these samples as cross-platform as possible. 
 
@@ -28,7 +28,7 @@ Find specific, sample related information in the sample's README.md files.
 * To compile the sample yourself, browse to the sample's project folder (e.g. ```vc11```) and double-click the project file (.vcxproj) or solution (.sln) to open it in Visual Studio. Then, press F7 to compile the sample. It should compile without errors, provided you also compiled the Cinder Framework itself.
 * To make sure that both Cinder and the sample code are always up to date, you can add the Cinder Framework project to your solution:
  * From the ```File``` menu, select ```Add...``` and then ```Existing Project...```
- * Browse to ```cinder_master\vc11\cinder.vcxproj``` for Visual Studio 2012 or ```cinder_master\vc10\cinder.vcxproj``` for Visual Studio 2010
+ * Browse to ```cinder_master\vc11\cinder.vcxproj``` for Visual Studio 2012
  * Click the ```Open``` button
  * In the Solution Explorer, right-click on the sample project (e.g. ```TcpClientApp```)
  * Select ```Project Dependencies...```
@@ -42,7 +42,7 @@ Thanks to all contributors and to the people behind the Cinder framework for doi
 -Paul
 
 
-Copyright (c) 2012-2013, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
+Copyright (c) 2012-2014, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

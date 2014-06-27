@@ -88,6 +88,26 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnalogClock", "..\..\Analog
 		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioVisualizer", "..\..\AudioVisualizer\vc11\AudioVisualizer.vcxproj", "{EF3E3C7A-C640-4F1B-94DC-16F5AAE6CE36}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FastTrails", "..\..\FastTrails\vc11\FastTrails.vcxproj", "{23725C8B-8E03-4212-B63A-54AD9EC45F3C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FXAA", "..\..\FXAA\vc11\FXAA.vcxproj", "{E6DFE982-ADED-46AF-8A34-4E4C92E8DBAC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OneWorldMultipleWindows", "..\..\OneWorldMultipleWindows\vc11\OneWorldMultipleWindows.vcxproj", "{FA6FC4CF-B188-4602-8FF5-0AF478C20A00}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE} = {92B5BE70-DCAA-40E4-92D8-CC2B95AA28BE}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -166,6 +186,22 @@ Global
 		{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}.Debug|Win32.Build.0 = Debug|Win32
 		{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}.Release|Win32.ActiveCfg = Release|Win32
 		{A2EB70B5-A1F7-403A-8C19-BCE8AA39CF05}.Release|Win32.Build.0 = Release|Win32
+		{EF3E3C7A-C640-4F1B-94DC-16F5AAE6CE36}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EF3E3C7A-C640-4F1B-94DC-16F5AAE6CE36}.Debug|Win32.Build.0 = Debug|Win32
+		{EF3E3C7A-C640-4F1B-94DC-16F5AAE6CE36}.Release|Win32.ActiveCfg = Release|Win32
+		{EF3E3C7A-C640-4F1B-94DC-16F5AAE6CE36}.Release|Win32.Build.0 = Release|Win32
+		{23725C8B-8E03-4212-B63A-54AD9EC45F3C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{23725C8B-8E03-4212-B63A-54AD9EC45F3C}.Debug|Win32.Build.0 = Debug|Win32
+		{23725C8B-8E03-4212-B63A-54AD9EC45F3C}.Release|Win32.ActiveCfg = Release|Win32
+		{23725C8B-8E03-4212-B63A-54AD9EC45F3C}.Release|Win32.Build.0 = Release|Win32
+		{E6DFE982-ADED-46AF-8A34-4E4C92E8DBAC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E6DFE982-ADED-46AF-8A34-4E4C92E8DBAC}.Debug|Win32.Build.0 = Debug|Win32
+		{E6DFE982-ADED-46AF-8A34-4E4C92E8DBAC}.Release|Win32.ActiveCfg = Release|Win32
+		{E6DFE982-ADED-46AF-8A34-4E4C92E8DBAC}.Release|Win32.Build.0 = Release|Win32
+		{FA6FC4CF-B188-4602-8FF5-0AF478C20A00}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FA6FC4CF-B188-4602-8FF5-0AF478C20A00}.Debug|Win32.Build.0 = Debug|Win32
+		{FA6FC4CF-B188-4602-8FF5-0AF478C20A00}.Release|Win32.ActiveCfg = Release|Win32
+		{FA6FC4CF-B188-4602-8FF5-0AF478C20A00}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
