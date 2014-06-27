@@ -2060,16 +2060,16 @@ half4 FxaaPixelShader(
 
 
 
-uniform vec2		uBufferSize;
 uniform sampler2D	uTexture;
+uniform vec2		uRcpBufferSize;
 
 void main( void )
 {
 	FxaaFloat2 fxaaQualityRcpFrame;
-	fxaaQualityRcpFrame.x = 1.0 / uBufferSize.x;
-	fxaaQualityRcpFrame.y = 1.0 / uBufferSize.y;
+	fxaaQualityRcpFrame.x = uRcpBufferSize.x;
+	fxaaQualityRcpFrame.y = uRcpBufferSize.y;
 
-	FxaaFloat2 pos = gl_FragCoord.xy / uBufferSize.xy;
+	FxaaFloat2 pos = gl_FragCoord.xy * uRcpBufferSize.xy;
 
 	FxaaFloat4 ConsolePosPos = FxaaFloat4(0.0,0.0,0.0,0.0);
 	FxaaFloat4 ConsoleRcpFrameOpt = FxaaFloat4(0.0,0.0,0.0,0.0);

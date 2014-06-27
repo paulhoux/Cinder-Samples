@@ -40,23 +40,44 @@ struct Box
 		: offset( Rand::randFloat(0.0f, 10.0f) )
 		, color( CM_HSV, Rand::randFloat(0.0f, 0.1f), Rand::randFloat(0.0f, 1.0f), Rand::randFloat(0.25f, 1.0f) )
 		, position( Vec3f(x, 0.0f, z) )
+		, distance(0.0f)
 	{}
 
-	void draw(float time)
+	// When drawn, the distance to the camera is also calculated,
+	// so we can later use it to sort the boxes from front to back.
+	// Rendering from front to back is more efficient, as fragments
+	// that are behind other fragments will be culled early.
+	void draw(float time, const ci::CameraPersp& camera)
 	{
 		float t = offset + time;
 		float height = 55.0f + 45.0f * math<float>::sin(t);
 
+		position.y = 0.5f * height;
+		distance = position.distanceSquared( camera.getEyePoint() );
+
 		gl::color( color );
-		gl::drawCube( position + Vec3f(0, 0.5f * height, 0), Vec3f(10.0f, height, 10.0f) );
+		gl::drawCube( position, Vec3f(10.0f, height, 10.0f) );
+	}
+
+	// Our custom sorting comparator
+	static int CompareByDistanceToCamera(const void* a, const void* b)
+	{
+		const Box* pA = reinterpret_cast<const Box*>(a);
+		const Box* pB = reinterpret_cast<const Box*>(b);
+		if(pA->distance < pB->distance)
+			return -1;
+		if(pA->distance > pB->distance)
+			return 1;
+		return 0;
 	}
 
 	float offset;
 	Colorf color;
 	Vec3f position;
+	float distance;
 };
-typedef std::shared_ptr<Box> BoxRef;
 
+// Our application class
 class FXAAApp : public AppNative {
 public:
 	void setup();
@@ -74,13 +95,13 @@ private:
 	gl::GlslProg        mShader;
 	gl::GlslProg        mFXAA;
 	gl::TextureRef		mArrow;
-	std::vector<BoxRef>	mBoxes;
+	std::vector<Box>	mBoxes;
 
 	Timer				mTimer;
 	double				mTime;
 	double				mTimeOffset;
 
-	int					mMouseX;
+	int					mDividerX;
 };
 
 void FXAAApp::setup()
@@ -99,13 +120,12 @@ void FXAAApp::setup()
 	// Create the boxes
 	for(int x=-50; x<=50; x+=10)
 		for(int z=-50; z<=50; z+=10)
-			mBoxes.push_back( std::make_shared<Box>( float(x), float(z) ) );
+			mBoxes.push_back( Box( float(x), float(z) ) );
 
 	// initialize member variables and start the timer
+	mDividerX = getWindowWidth() / 2;
 	mTimeOffset = 0.0;
 	mTimer.start();
-
-	mMouseX = getWindowWidth() / 2;
 }
 
 void FXAAApp::update()
@@ -126,6 +146,9 @@ void FXAAApp::update()
 	mCamera.setCenterOfInterestPoint( Vec3f(1, 50, 0) );
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 	mCamera.setFov( 40.0f );
+
+	// sort boxes by distance to camera
+	std::qsort( &mBoxes.front(), mBoxes.size(), sizeof(Box), &Box::CompareByDistanceToCamera );
 }
 
 void FXAAApp::draw()
@@ -145,7 +168,7 @@ void FXAAApp::draw()
 			mShader.bind();
 			{
 				for(auto &box : mBoxes)
-					box->draw((float) mTime);
+					box.draw((float) mTime, mCamera);
 			}
 			mShader.unbind();
 		}
@@ -161,23 +184,29 @@ void FXAAApp::draw()
 	gl::clear();
 	gl::color( Color::white() );
 
+	int w = getWindowWidth();
+	int h = getWindowHeight();
+
+	// ...while applying FXAA for the left side
 	mFXAA.bind();
 	mFXAA.uniform("uTexture", 0);
-	mFXAA.uniform("uBufferSize", Vec2f( mFbo.getSize() ));
-	
-	// ...while applying FXAA for the left side
-	gl::draw( mFbo.getTexture(), Area(0, 0, mMouseX, mFbo.getHeight()), Rectf(0, 0, mMouseX, getWindowHeight()) );
-
+	mFXAA.uniform("uRcpBufferSize", Vec2f::one() / Vec2f( mFbo.getSize() ));
+	{
+		gl::draw( mFbo.getTexture(), 
+			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
+	}
 	mFXAA.unbind();
 	
 	// ...and without FXAA for the right side
-	gl::draw( mFbo.getTexture(), Area(mMouseX, 0, mFbo.getWidth(), mFbo.getHeight()), Rectf(mMouseX, 0, getWindowWidth(), getWindowHeight()) );
+	gl::draw( mFbo.getTexture(), 
+		Area(mDividerX, 0, w, h), Rectf((float)mDividerX, 0, (float)w, (float)h) );
 
-	// Draw dividing line
-	gl::drawLine( Vec2f(mMouseX, 0.0f), Vec2f(mMouseX, getWindowHeight()) );
+	// Draw divider
+	gl::drawLine( Vec2f((float)mDividerX, 0.0f), Vec2f((float)mDividerX, (float)h) );
 
 	Rectf rct = mArrow->getBounds();
-	rct.offset( Vec2f(mMouseX - rct.getWidth()/2, getWindowHeight() - rct.getHeight()) );
+	rct.offset( Vec2f(mDividerX - rct.getWidth()/2, h - rct.getHeight()) );
+
 	gl::enableAlphaBlending();
 	gl::draw( mArrow, rct );
 	gl::disableAlphaBlending();
@@ -186,7 +215,7 @@ void FXAAApp::draw()
 void FXAAApp::mouseDrag( MouseEvent event )
 {
 	// Adjust the position of the dividing line
-	mMouseX = math<int>::clamp( event.getPos().x, 0, getWindowWidth() );
+	mDividerX = math<int>::clamp( event.getPos().x, 0, getWindowWidth() );
 }
 
 void FXAAApp::keyDown( KeyEvent event )
@@ -211,6 +240,7 @@ void FXAAApp::keyDown( KeyEvent event )
 
 void FXAAApp::resize()
 {
+	// Do not enable multisampling and make sure the texture is interpolated bilinearly
 	gl::Fbo::Format fmt;
 	fmt.setMinFilter( GL_LINEAR );
 	fmt.setMagFilter( GL_LINEAR );
@@ -218,7 +248,8 @@ void FXAAApp::resize()
 	mFbo = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
 	mFbo.getTexture().setFlipped(true);
 	
-	mMouseX = getWindowWidth() / 2;
+	// Reset divider
+	mDividerX = getWindowWidth() / 2;
 }
 
 CINDER_APP_NATIVE( FXAAApp, RendererGl( RendererGl::AA_NONE ) )
