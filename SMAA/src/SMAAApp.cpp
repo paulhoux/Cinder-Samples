@@ -23,11 +23,9 @@
 #include "cinder/app/AppNative.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
-#include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Camera.h"
 #include "cinder/ImageIo.h"
-#include "cinder/Rand.h"
 
 #include "Pistons.h"
 #include "SMAA.h"
