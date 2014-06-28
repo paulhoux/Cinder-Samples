@@ -13,8 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Shader Files">
-      <UniqueIdentifier>{08934f72-9ce2-4f0e-a2ca-b84a96a1b63b}</UniqueIdentifier>
+    <Filter Include="Common Files">
+      <UniqueIdentifier>{c5bf9d27-c485-4630-8ea1-27f26fd43c78}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,29 +27,21 @@
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClCompile Include="..\src\Pistons.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\All\common\Pistons.cpp">
+      <Filter>Common Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Pistons.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\All\common\Pistons.h">
+      <Filter>Common Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\assets\pistons_frag.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\assets\pistons_vert.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

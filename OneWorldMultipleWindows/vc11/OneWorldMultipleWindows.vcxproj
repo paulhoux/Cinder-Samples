@@ -50,7 +50,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;"..\..\..\cinder_master\include";"..\..\..\cinder_master\boost"</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\All\common;..\include;..\..\..\cinder_master\include;..\..\..\cinder_master\boost</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;_WIN32_WINNT=0x0502;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -76,7 +76,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;"..\..\..\cinder_master\include";"..\..\..\cinder_master\boost"</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\All\common;..\include;..\..\..\cinder_master\include;..\..\..\cinder_master\boost</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;NOMINMAX;_WIN32_WINNT=0x0502;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
@@ -107,16 +107,12 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\All\common\Pistons.cpp" />
     <ClCompile Include="..\src\OneWorldMultipleWindowsApp.cpp" />
-    <ClCompile Include="..\src\Pistons.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Pistons.h" />
+    <ClInclude Include="..\..\All\common\Pistons.h" />
     <ClInclude Include="..\include\Resources.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\assets\pistons_frag.glsl" />
-    <None Include="..\assets\pistons_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

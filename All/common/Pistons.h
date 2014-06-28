@@ -72,6 +72,8 @@ public:
 	void update(const ci::Camera& camera);
 	void draw(const ci::Camera& camera, float time);
 
+	static const char* vs;
+	static const char* fs;
 private:
 	std::vector<Piston> mPistons;
 	ci::gl::GlslProg    mShader;
