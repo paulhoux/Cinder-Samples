@@ -27,6 +27,7 @@
 #include <regex>
 
 #if defined( CINDER_MSW )
+// As long as we don't care about the return value, this is safe
 #define snprintf sprintf_s
 #endif
 
@@ -97,7 +98,7 @@ void Shader::load()
 		}
 	}
 	catch( const std::exception& e ) {
-		char msg[64*1024]; snprintf(msg, 64*1024, "Could not compile shader '%s':\n%s", mName.c_str(), e.what());
+		char msg[64*1024]; snprintf(msg, 64*1024, "Failed to compile shader '%s':\n%s", mName.c_str(), e.what());
 		throw std::exception(msg);
 	}
 }
@@ -143,10 +144,14 @@ std::string Shader::parseShader( const fs::path& path, bool optional, int level 
 		if( optional )
 			return std::string();
 
-		if( level == 0 )
-			throw std::exception("Failed to open shader file.");
-		else
-			throw std::exception("Failed to open shader include file.");
+		if( level == 0 ) {
+			char msg[512]; snprintf(msg, 512, "Failed to open shader file '%s'.", path.c_str());
+			throw std::exception(msg);
+		}
+		else {
+			char msg[512]; snprintf(msg, 512, "Failed to open shader include file '%s'.", path.c_str());
+			throw std::exception(msg);
+		}
 
 		return std::string();
 	}
@@ -176,33 +181,33 @@ std::string Shader::parseShader( const fs::path& path, bool optional, int level 
 
 std::string Shader::parseVersion( const std::string& code )
 {
-    static const std::regex versionRegexp( "^[ ]*#[ ]*version[ ]+([123456789][0123456789][0123456789]).*$" );
+	static const std::regex versionRegexp( "^[ ]*#[ ]*version[ ]+([123456789][0123456789][0123456789]).*$" );
 
 	if(code.empty())
 		return std::string();
-       
-    mGlslVersion = 120;  
 
-    std::stringstream completeCode( code );
-    std::ostringstream cleanedCode;
+	mGlslVersion = 120;
 
-    std::string line;
-    std::smatch matches; 
-    while( std::getline( completeCode, line ) )
-    {
-        if( std::regex_match( line, matches, versionRegexp ) ) 
-        {
+	std::stringstream completeCode( code );
+	std::ostringstream cleanedCode;
+
+	std::string line;
+	std::smatch matches; 
+	while( std::getline( completeCode, line ) )
+	{
+		if( std::regex_match( line, matches, versionRegexp ) ) 
+		{
 			unsigned int versionNum = ci::fromString< unsigned int >( matches[1] );	
-            mGlslVersion = std::max( versionNum, mGlslVersion );
+			mGlslVersion = std::max( versionNum, mGlslVersion );
 
-            continue;
-        }
+			continue;
+		}
 
-        cleanedCode << line << std::endl;
-    }
+		cleanedCode << line << std::endl;
+	}
 	
-    std::stringstream vs;
-    vs << "#version " << mGlslVersion << std::endl << cleanedCode.str();
+	std::stringstream vs;
+	vs << "#version " << mGlslVersion << std::endl << cleanedCode.str();
 
-    return vs.str();
+	return vs.str();
 }

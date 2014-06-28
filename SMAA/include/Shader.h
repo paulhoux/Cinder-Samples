@@ -61,30 +61,3 @@ private:
 	unsigned int			mGlslVersion;
 	ci::gl::GlslProg		mGlslProg;
 };
-
-class ShaderNotFoundException : public std::exception
-{
-public:
-	ShaderNotFoundException(const std::string& name)
-		: std::exception( (std::string("Could not find shader: ") + name).c_str() )
-	{
-	}
-};
-
-class ShaderIncompleteException : public std::exception
-{
-public:
-	ShaderIncompleteException(const std::string& name)
-		: std::exception( (std::string("Shader is not complete: ") + name).c_str() )
-	{
-	}
-};
-
-class ShaderCompileException : public std::exception
-{
-public:
-	ShaderCompileException(const std::string& name, const std::string& error)
-		: std::exception( (std::string("Could not compile ") + name + ":\n" + error).c_str() )
-	{
-	}
-};
