@@ -8,6 +8,7 @@
 /*/vc2012/Debug
 /*/vc2012/ipch
 /*/vc2012/Release
+/Stars/
 *.opensdf
 *.sdf
 *.suo
@@ -17,3 +18,4 @@
 *.flac
 *.ogg
 *.wav
+*.sdff
