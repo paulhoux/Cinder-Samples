@@ -49,13 +49,13 @@ void main()
 	pixcoord = texcoord * uRenderTargetMetrics.zw;
 
 	// We will use these offsets for the searches later on:
-	offset[0] = (uRenderTargetMetrics.xyxy * float4(-0.25, -0.125,  1.25, -0.125)) + texcoord.xyxy;
-	offset[1] = (uRenderTargetMetrics.xyxy, float4(-0.125, -0.25, -0.125,  1.25)) + texcoord.xyxy;
+	offset[0] = (uRenderTargetMetrics.xyxy * vec4(-0.25, -0.125,  1.25, -0.125)) + texcoord.xyxy;
+	offset[1] = (uRenderTargetMetrics.xyxy, vec4(-0.125, -0.25, -0.125,  1.25)) + texcoord.xyxy;
 
 	// And these for the searches, they indicate the ends of the loops:
 	offset[2] = (uRenderTargetMetrics.xxyy,
-					float4(-2.0, 2.0, -2.0, 2.0) * float(SMAA_MAX_SEARCH_STEPS)) +
-					float4(offset[0].xz, offset[1].yw);
+					vec4(-2.0, 2.0, -2.0, 2.0) * float(SMAA_MAX_SEARCH_STEPS)) +
+					vec4(offset[0].xz, offset[1].yw);
 
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 	gl_Position = ftransform();

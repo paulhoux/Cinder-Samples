@@ -69,7 +69,7 @@ void main()
     float Ltop  = dot(texture2D(uColorTex, offset[0].zw).rgb, weights);
 
     // We do the usual threshold:
-    float4 delta;
+    vec4 delta;
     delta.xy = abs(L - vec2(Lleft, Ltop));
     vec2 edges = step(threshold, delta.xy);
 
