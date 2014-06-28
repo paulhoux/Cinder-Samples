@@ -9,6 +9,8 @@ When running the sample, you can drag the divider to examine the effect of SMAA.
 
 The SMAA post-processing is done in 3 steps (edge detection, calculate blend weights, neighborhood blending), which you can view by pressing keys '1', '2' and '3'.
 
+See also the FXAA sample for an alternative approach to the same problem.
+
 
 Copyright (c) 2014, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 

@@ -59,6 +59,8 @@ private:
 	void smaaSecondPass();
 	void smaaThirdPass();
 private:
+	enum Mode { EDGE_DETECTION, BLEND_WEIGHTS, BLEND_NEIGHBORS };
+
 	CameraPersp         mCamera;
 	Pistons             mPistons;
 
@@ -81,11 +83,14 @@ private:
 	double              mTimeOffset;
 
 	int                 mDividerX;
-	int                 mPass;
+	Mode                mMode;
 };
 
 void SMAAApp::setup()
 {
+	// Disable frame rate limiter for profiling
+	disableFrameRate();
+
 	// Set a proper title for our window
 	getWindow()->setTitle("SMAA");
 
@@ -105,7 +110,8 @@ void SMAAApp::setup()
 
 	// initialize member variables and start the timer
 	mDividerX = getWindowWidth() / 2;
-	mPass = 3;
+	mMode = Mode::BLEND_NEIGHBORS;
+
 	mTimeOffset = 0.0;
 	mTimer.start();
 }
@@ -151,24 +157,24 @@ void SMAAApp::draw()
 	int h = getWindowHeight();
 
 	// ...with SMAA for the left side
-	switch(mPass)
+	switch(mMode)
 	{
-	case 1:
+	case EDGE_DETECTION:
 		gl::draw( mFboFirstPass.getTexture(),
 			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
 		break;
-	case 2:
+	case BLEND_WEIGHTS:
 		gl::draw( mFboSecondPass.getTexture(),
 			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
 		break;
-	case 3:
+	case BLEND_NEIGHBORS:
 		gl::draw( mFboThirdPass.getTexture(),
 			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
 		break;
 	}
 	
 	// ...and without SMAA for the right side
-	gl::draw( mFboScene.getTexture(), 
+	gl::draw( mFboScene.getTexture(),
 		Area(mDividerX, 0, w, h), Rectf((float)mDividerX, 0, (float)w, (float)h) );
 
 	// Draw divider
@@ -206,13 +212,19 @@ void SMAAApp::keyDown( KeyEvent event )
 			mTimer.stop();
 		break;
 	case KeyEvent::KEY_1:
-		mPass = 1;
+		mMode = Mode::EDGE_DETECTION;
 		break;
 	case KeyEvent::KEY_2:
-		mPass = 2;
+		mMode = Mode::BLEND_WEIGHTS;
 		break;
 	case KeyEvent::KEY_3:
-		mPass = 3;
+		mMode = Mode::BLEND_NEIGHBORS;
+		break;
+	case KeyEvent::KEY_v:
+		if( gl::isVerticalSyncEnabled() )
+			gl::disableVerticalSync();
+		else
+			gl::enableVerticalSync();
 		break;
 	}
 }

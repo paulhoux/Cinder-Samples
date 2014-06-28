@@ -36,18 +36,17 @@ public:
 	Shader(const std::string& name);
 	~Shader(void);
 
-	static ShaderRef		create();
-	static ShaderRef		create( const std::string& name );
+	static ShaderRef   create();
+	static ShaderRef   create( const std::string& name );
 
-	const ci::fs::path&		getPath() const;
-
-	void					load();
-
-	ci::gl::GlslProg&		prog() { return mGlslProg; }
+	ci::gl::GlslProg&  prog() { return mGlslProg; }
 
 protected:
-	std::string parseShader( const ci::fs::path& path, bool optional = true, int level = 0 );
-	std::string parseVersion( const std::string& code );
+	const ci::fs::path&  getPath() const;
+
+	void                 load();
+	std::string          parseShader( const ci::fs::path& path, bool optional = true, int level = 0 );
+	std::string          parseVersion( const std::string& code );
 
 private:
 	std::string		mName;

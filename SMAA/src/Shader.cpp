@@ -24,10 +24,11 @@
 
 #include "cinder/Utilities.h"
 #include "cinder/app/AppBasic.h"
+#include <regex>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-#include <boost/tokenizer.hpp>
+#if defined( CINDER_MSW )
+#define snprintf sprintf_s
+#endif
 
 using namespace ci;
 
@@ -66,10 +67,16 @@ void Shader::load()
 {
 	// get a reference to our path (and create it in the process)
 	const fs::path& path = getPath();
-	if(path.empty()) throw ShaderNotFoundException(mName);
+	if(path.empty()) {
+		char msg[512]; snprintf(msg, 512, "Could not find shader '%s'.", mName.c_str());
+		throw std::exception(msg);
+	}
 
 	// check if all files are present
-	if(!fs::exists(path / mFragmentFile)) throw ShaderIncompleteException(mName);
+	if(!fs::exists(path / mFragmentFile)) {
+		char msg[512]; snprintf(msg, 512, "Shader '%s' is not complete. Make sure you have both a vertex and fragment shader file.", mName.c_str());
+		throw std::exception(msg);
+	}
 	
 	bHasGeometryShader = fs::exists(path / mGeometryFile);
 	//if(bHasGeometryShader) TODO: check if geometry settings are defined
@@ -90,7 +97,8 @@ void Shader::load()
 		}
 	}
 	catch( const std::exception& e ) {
-		throw ShaderCompileException(mName, std::string(e.what()));
+		char msg[64*1024]; snprintf(msg, 64*1024, "Could not compile shader '%s':\n%s", mName.c_str(), e.what());
+		throw std::exception(msg);
 	}
 }
 
@@ -127,7 +135,7 @@ std::string Shader::parseShader( const fs::path& path, bool optional, int level 
 		return std::string();
 	}
 
-	static const boost::regex includeRegexp( "^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*" );
+	static const std::regex includeRegexp( "^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*" );
 
 	std::ifstream input( path.c_str() );
 	if( !input.is_open() )
@@ -145,11 +153,11 @@ std::string Shader::parseShader( const fs::path& path, bool optional, int level 
 
 	// go through each line and process includes
 	std::string		line;
-	boost::smatch	matches;
+	std::smatch	matches;
 
 	while( std::getline( input, line ) )
 	{
-		if( boost::regex_search( line, matches, includeRegexp ) )
+		if( std::regex_search( line, matches, includeRegexp ) )
 			output << parseShader( path.parent_path() / matches[1].str(), false, level + 1 );
 		else
 			output << line;
@@ -168,7 +176,7 @@ std::string Shader::parseShader( const fs::path& path, bool optional, int level 
 
 std::string Shader::parseVersion( const std::string& code )
 {
-    static const boost::regex versionRegexp( "^[ ]*#[ ]*version[ ]+([123456789][0123456789][0123456789]).*$" );
+    static const std::regex versionRegexp( "^[ ]*#[ ]*version[ ]+([123456789][0123456789][0123456789]).*$" );
 
 	if(code.empty())
 		return std::string();
@@ -179,10 +187,10 @@ std::string Shader::parseVersion( const std::string& code )
     std::ostringstream cleanedCode;
 
     std::string line;
-    boost::smatch matches; 
+    std::smatch matches; 
     while( std::getline( completeCode, line ) )
     {
-        if( boost::regex_match( line, matches, versionRegexp ) ) 
+        if( std::regex_match( line, matches, versionRegexp ) ) 
         {
 			unsigned int versionNum = ci::fromString< unsigned int >( matches[1] );	
             mGlslVersion = std::max( versionNum, mGlslVersion );

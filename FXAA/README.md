@@ -9,6 +9,8 @@ In order for this to work, FXAA should be applied after rendering and tone mappi
 
 When running the sample, you can drag the divider to examine the effect of FXAA. Notice how sharp edges become noticeably smoother. You can freeze time by pressing the space key.
 
+See also the SMAA sample for an alternative approach to the same problem.
+
 
 Copyright (c) 2014, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 

@@ -65,7 +65,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\All\lib\msw\x86;..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -92,7 +92,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\All\lib\msw\x86;..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
