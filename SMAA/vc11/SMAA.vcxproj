@@ -65,7 +65,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>"..\..\..\cinder_master\lib";"..\..\..\cinder_master\lib\msw"</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\All\lib\msw\x86;..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -92,7 +92,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>"..\..\..\cinder_master\lib";"..\..\..\cinder_master\lib\msw"</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\All\lib\msw\x86;..\..\..\cinder_master\lib;..\..\..\cinder_master\lib\msw</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\All\common\Pistons.cpp" />
+    <ClCompile Include="..\src\Shader.cpp" />
     <ClCompile Include="..\src\SMAAApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +116,7 @@
     <ClInclude Include="..\include\AreaTex.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\SearchTex.h" />
+    <ClInclude Include="..\include\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\smaa_1st_frag.glsl" />
