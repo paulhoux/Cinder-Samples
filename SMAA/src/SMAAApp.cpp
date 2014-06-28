@@ -29,11 +29,8 @@
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 
-#include "AreaTex.h"
-#include "SearchTex.h"
-
 #include "Pistons.h"
-#include "Shader.h"
+#include "SMAA.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -52,31 +49,19 @@ public:
 
 	void resize();
 private:
-	void createTextures();
-
-	void renderScene();
-	void smaaFirstPass();
-	void smaaSecondPass();
-	void smaaThirdPass();
+	void render();
 private:
 	enum Mode { EDGE_DETECTION, BLEND_WEIGHTS, BLEND_NEIGHBORS };
 
 	CameraPersp         mCamera;
-	Pistons             mPistons;
 
-	gl::Fbo             mFboScene;
-	gl::Fbo             mFboFirstPass;
-	gl::Fbo             mFboSecondPass;
-	gl::Fbo             mFboThirdPass;
+	Pistons             mPistons;
+	SMAA                mSMAA;
+
+	gl::Fbo             mFboOriginal;
+	gl::Fbo             mFboResult;
 
 	gl::TextureRef      mArrow;
-	gl::TextureRef      mAreaTex;
-	gl::TextureRef      mSearchTex;
-
-	// The Shader class allows us to write and use shaders with support for #include
-	ShaderRef           mSMAAFirstPass;		// edge detection
-	ShaderRef           mSMAASecondPass;	// blending weight calculation
-	ShaderRef           mSMAAThirdPass;		// neighborhood blending
 
 	Timer               mTimer;
 	double              mTime;
@@ -96,14 +81,11 @@ void SMAAApp::setup()
 
 	// Load and compile our shaders and textures
 	try { 
-		mSMAAFirstPass = Shader::create("smaa_1st");
-		mSMAASecondPass = Shader::create("smaa_2nd");
-		mSMAAThirdPass = Shader::create("smaa_3rd");
 		mArrow = gl::Texture::create( loadImage( loadAsset("arrow.png") ) );
+
+		mSMAA.setup();
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
-
-	createTextures();
 
 	// Setup the pistons
 	mPistons.setup();
@@ -142,12 +124,10 @@ void SMAAApp::update()
 void SMAAApp::draw()
 {
 	// Render our scene to the frame buffer
-	renderScene();
+	render();
 
 	// Perform SMAA
-	smaaFirstPass();
-	smaaSecondPass();
-	smaaThirdPass();
+	mSMAA.apply(mFboResult, mFboOriginal);
 
 	// Draw the scene...
 	gl::clear();
@@ -160,21 +140,21 @@ void SMAAApp::draw()
 	switch(mMode)
 	{
 	case EDGE_DETECTION:
-		gl::draw( mFboFirstPass.getTexture(),
+		gl::draw( mSMAA.getEdgePass(),
 			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
 		break;
 	case BLEND_WEIGHTS:
-		gl::draw( mFboSecondPass.getTexture(),
+		gl::draw( mSMAA.getBlendPass(),
 			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
 		break;
 	case BLEND_NEIGHBORS:
-		gl::draw( mFboThirdPass.getTexture(),
+		gl::draw( mFboResult.getTexture(),
 			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
 		break;
 	}
 	
 	// ...and without SMAA for the right side
-	gl::draw( mFboScene.getTexture(),
+	gl::draw( mFboOriginal.getTexture(),
 		Area(mDividerX, 0, w, h), Rectf((float)mDividerX, 0, (float)w, (float)h) );
 
 	// Draw divider
@@ -235,46 +215,22 @@ void SMAAApp::resize()
 	gl::Fbo::Format fmt;
 	fmt.setMinFilter( GL_LINEAR );
 	fmt.setMagFilter( GL_LINEAR );
-	fmt.setColorInternalFormat( GL_RG );
+	fmt.setColorInternalFormat( GL_RGB );
 
-	mFboFirstPass = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
-	mFboFirstPass.getTexture().setFlipped(true);
+	mFboOriginal = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
+	mFboOriginal.getTexture().setFlipped(true);
 
-	fmt.setColorInternalFormat( GL_RGBA );
-
-	mFboSecondPass = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
-	mFboSecondPass.getTexture().setFlipped(true);
-
-	mFboThirdPass = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
-	mFboThirdPass.getTexture().setFlipped(true);
-
-	mFboScene = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
-	mFboScene.getTexture().setFlipped(true);
+	mFboResult = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
+	mFboResult.getTexture().setFlipped(true);
 	
 	// Reset divider
 	mDividerX = getWindowWidth() / 2;
 }
 
-void SMAAApp::createTextures()
-{
-	gl::Texture::Format fmt;
-	fmt.setMinFilter( GL_LINEAR );
-	fmt.setMagFilter( GL_LINEAR );
-	fmt.setWrap( GL_CLAMP, GL_CLAMP );
-
-	// Search Texture (Grayscale, 8 bits unsigned)
-	fmt.setInternalFormat( GL_LUMINANCE );
-	mSearchTex = gl::Texture::create(searchTexBytes, GL_LUMINANCE, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, fmt);
-
-	// Area Texture (Red+Green Channels, 8 bits unsigned)
-	fmt.setInternalFormat( GL_RG );
-	mAreaTex = gl::Texture::create(areaTexBytes, GL_RG, AREATEX_WIDTH, AREATEX_HEIGHT, fmt);
-}
-
-void SMAAApp::renderScene()
+void SMAAApp::render()
 {
 	// Enable frame buffer
-	mFboScene.bindFramebuffer();
+	mFboOriginal.bindFramebuffer();
 
 	// Draw scene
 	gl::clear();
@@ -283,89 +239,7 @@ void SMAAApp::renderScene()
 	mPistons.draw(mCamera, (float)mTime);
 
 	// Disable frame buffer
-	mFboScene.unbindFramebuffer();
-}
-
-void SMAAApp::smaaFirstPass()
-{
-	// Enable frame buffer
-	mFboFirstPass.bindFramebuffer();
-
-	int w = getWindowWidth();
-	int h = getWindowHeight();
-
-	mSMAAFirstPass->prog().bind();
-	mSMAAFirstPass->prog().uniform("uColorTex", 0);
-	mSMAAFirstPass->prog().uniform("SMAA_RT_METRICS", Vec4f(1.0f/w, 1.0f/h, (float)w, (float)h));
-	{
-		gl::clear();
-		gl::color( Color::white() );
-
-		gl::draw( mFboScene.getTexture(), mFboFirstPass.getBounds() );
-	}
-	mSMAAFirstPass->prog().unbind();
-
-	// Disable frame buffer
-	mFboFirstPass.unbindFramebuffer();
-}
-
-void SMAAApp::smaaSecondPass()
-{
-	// Enable frame buffer
-	mFboSecondPass.bindFramebuffer();
-
-	mAreaTex->bind(1);
-	mSearchTex->bind(2);
-
-	int w = getWindowWidth();
-	int h = getWindowHeight();
-
-	mSMAASecondPass->prog().bind();
-	mSMAASecondPass->prog().uniform("uEdgesTex", 0);
-	mSMAASecondPass->prog().uniform("uAreaTex", 1);
-	mSMAASecondPass->prog().uniform("uSearchTex", 2);
-	mSMAASecondPass->prog().uniform("SMAA_RT_METRICS", Vec4f(1.0f/w, 1.0f/h, (float)w, (float)h));
-	{
-		gl::clear();
-		gl::color( Color::white() );
-
-		gl::draw( mFboFirstPass.getTexture(), mFboSecondPass.getBounds() );
-	}
-	mSMAASecondPass->prog().unbind();
-
-	mSearchTex->unbind();
-	mAreaTex->unbind();
-
-	// Disable frame buffer
-	mFboSecondPass.unbindFramebuffer();
-}
-
-void SMAAApp::smaaThirdPass()
-{
-	// Enable frame buffer
-	mFboThirdPass.bindFramebuffer();
-
-	mFboSecondPass.getTexture().bind(1);
-
-	int w = getWindowWidth();
-	int h = getWindowHeight();
-
-	mSMAAThirdPass->prog().bind();
-	mSMAAThirdPass->prog().uniform("uColorTex", 0);
-	mSMAAThirdPass->prog().uniform("uBlendTex", 1);
-	mSMAAThirdPass->prog().uniform("SMAA_RT_METRICS", Vec4f(1.0f/w, 1.0f/h, (float)w, (float)h));
-	{
-		gl::clear();
-		gl::color( Color::white() );
-
-		gl::draw( mFboScene.getTexture(), mFboThirdPass.getBounds() );
-	}
-	mSMAAThirdPass->prog().unbind();
-
-	mFboSecondPass.getTexture().unbind();
-
-	// Disable frame buffer
-	mFboThirdPass.unbindFramebuffer();
+	mFboOriginal.unbindFramebuffer();
 }
 
 CINDER_APP_NATIVE( SMAAApp, RendererGl( RendererGl::AA_NONE ) )

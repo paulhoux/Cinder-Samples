@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\All\common\Pistons.cpp" />
     <ClCompile Include="..\src\Shader.cpp" />
+    <ClCompile Include="..\src\SMAA.cpp" />
     <ClCompile Include="..\src\SMAAApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +118,7 @@
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\SearchTex.h" />
     <ClInclude Include="..\include\Shader.h" />
+    <ClInclude Include="..\include\SMAA.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\smaa_1st_frag.glsl" />
