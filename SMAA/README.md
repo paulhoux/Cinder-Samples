@@ -1,13 +1,13 @@
-FXAA
+SMAA
 ====
 
-![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/FXAA/PREVIEW.png)
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/SMAA/PREVIEW.png)
 
-This sample implements FXAA, a technique to reduce aliasing effects using a post-processing step. Normally, we render to a multi-sampled buffer to reduce jagged edges, but this can be very costly in terms of memory and performance. Sometimes (e.g. when doing deferred shading) it isn't even possible. For those cases, FXAA can be applied to anti-alias the final image using a post-process filter.
+This sample implements SMAA, an advanced technique to reduce aliasing effects using a post-processing step. Normally, we render to a multi-sampled buffer to reduce jagged edges, but this can be very costly in terms of memory and performance. Sometimes (e.g. when doing deferred shading) it isn't even possible. For those cases, SMAA can be applied to anti-alias the final image using a post-process filter.
 
-In order for this to work, FXAA should be applied after rendering and tone mapping. The input color should be non-linear (e.g. gamma corrected) and for best results the luminance of the pixel should be stored in the alpha channel. 
+When running the sample, you can drag the divider to examine the effect of SMAA. Notice how sharp edges become noticeably smoother. You can freeze time by pressing the space key.
 
-When running the sample, you can drag the divider to examine the effect of FXAA. Notice how sharp edges become noticeably smoother. You can freeze time by pressing the space key.
+The SMAA post-processing is done in 3 steps (edge detection, calculate blend weights, neighborhood blending), which you can view by pressing keys '1', '2' and '3'.
 
 
 Copyright (c) 2014, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org

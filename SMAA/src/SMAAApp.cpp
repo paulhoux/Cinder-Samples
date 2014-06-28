@@ -67,7 +67,6 @@ private:
 	gl::Fbo             mFboSecondPass;
 	gl::Fbo             mFboThirdPass;
 
-	gl::TextureRef      mImage;
 	gl::TextureRef      mArrow;
 	gl::TextureRef      mAreaTex;
 	gl::TextureRef      mSearchTex;
@@ -89,15 +88,13 @@ void SMAAApp::setup()
 {
 	// Set a proper title for our window
 	getWindow()->setTitle("SMAA");
-	//getWindow()->setSize(1280,720);
 
 	// Load and compile our shaders and textures
 	try { 
-		mSMAAFirstPass = Shader::create("smaa_1st"); // gl::GlslProg( loadAsset("smaa_1st_vert.glsl"), loadAsset("smaa_1st_frag.glsl") );
-		mSMAASecondPass = Shader::create("smaa_2nd"); // gl::GlslProg( loadAsset("smaa_2nd_vert.glsl"), loadAsset("smaa_2nd_frag.glsl") );
-		mSMAAThirdPass = Shader::create("smaa_3rd"); // gl::GlslProg( loadAsset("smaa_3rd_vert.glsl"), loadAsset("smaa_3rd_frag.glsl") );
+		mSMAAFirstPass = Shader::create("smaa_1st");
+		mSMAASecondPass = Shader::create("smaa_2nd");
+		mSMAAThirdPass = Shader::create("smaa_3rd");
 		mArrow = gl::Texture::create( loadImage( loadAsset("arrow.png") ) );
-		mImage = gl::Texture::create( loadImage( loadAsset("unigine.png") ) );
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
 
@@ -272,7 +269,6 @@ void SMAAApp::renderScene()
 	gl::color( Color::white() );
 
 	mPistons.draw(mCamera, (float)mTime);
-	//gl::draw( mImage );
 
 	// Disable frame buffer
 	mFboScene.unbindFramebuffer();
