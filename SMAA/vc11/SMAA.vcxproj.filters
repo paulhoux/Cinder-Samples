@@ -54,16 +54,22 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\fxaa_frag.glsl">
+    <None Include="..\assets\smaa_1st_frag.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\fxaa_vert.glsl">
+    <None Include="..\assets\smaa_1st_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\smaa_edge_frag.glsl">
+    <None Include="..\assets\smaa_2nd_frag.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\smaa_edge_vert.glsl">
+    <None Include="..\assets\smaa_2nd_vert.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\smaa_3rd_frag.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\smaa_3rd_vert.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
