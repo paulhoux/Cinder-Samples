@@ -108,10 +108,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\All\common\Pistons.cpp" />
+    <ClCompile Include="..\src\FXAA.cpp" />
     <ClCompile Include="..\src\FXAAApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\All\common\Pistons.h" />
+    <ClInclude Include="..\include\FXAA.h" />
     <ClInclude Include="..\include\Resources.h" />
   </ItemGroup>
   <ItemGroup>

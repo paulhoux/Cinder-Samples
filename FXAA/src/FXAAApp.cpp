@@ -29,6 +29,7 @@
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 
+#include "FXAA.h"
 #include "Pistons.h"
 
 using namespace ci;
@@ -49,10 +50,14 @@ public:
 	void resize();
 private:
 	CameraPersp         mCamera;
-	gl::Fbo             mFbo;
-	gl::GlslProg        mFXAA;
+
+	gl::Fbo             mFboOriginal;
+	gl::Fbo             mFboResult;
+
 	gl::TextureRef      mArrow;
+
 	Pistons             mPistons;
+	FXAA                mFXAA;
 
 	Timer               mTimer;
 	double              mTime;
@@ -68,7 +73,7 @@ void FXAAApp::setup()
 
 	// Load and compile our shaders and textures
 	try { 
-		mFXAA = gl::GlslProg( loadAsset("fxaa_vert.glsl"), loadAsset("fxaa_frag.glsl") ); 
+		mFXAA.setup();
 		mArrow = gl::Texture::create( loadImage( loadAsset("arrow.png") ) );
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
@@ -108,7 +113,7 @@ void FXAAApp::update()
 void FXAAApp::draw()
 {
 	// Enable frame buffer
-	mFbo.bindFramebuffer();
+	mFboOriginal.bindFramebuffer();
 
 	// Draw scene
 	gl::clear();
@@ -116,7 +121,10 @@ void FXAAApp::draw()
 	mPistons.draw(mCamera, (float)mTime);
 
 	// Disable frame buffer
-	mFbo.unbindFramebuffer();
+	mFboOriginal.unbindFramebuffer();
+	
+	// Perform FXAA
+	mFXAA.apply(mFboResult, mFboOriginal);
 
 	// Draw the frame buffer...
 	gl::clear();
@@ -126,17 +134,11 @@ void FXAAApp::draw()
 	int h = getWindowHeight();
 
 	// ...while applying FXAA for the left side
-	mFXAA.bind();
-	mFXAA.uniform("uTexture", 0);
-	mFXAA.uniform("uRcpBufferSize", Vec2f::one() / Vec2f( mFbo.getSize() ));
-	{
-		gl::draw( mFbo.getTexture(), 
-			Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
-	}
-	mFXAA.unbind();
+	gl::draw( mFboResult.getTexture(), 
+		Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
 	
 	// ...and without FXAA for the right side
-	gl::draw( mFbo.getTexture(), 
+	gl::draw( mFboOriginal.getTexture(), 
 		Area(mDividerX, 0, w, h), Rectf((float)mDividerX, 0, (float)w, (float)h) );
 
 	// Draw divider
@@ -182,9 +184,13 @@ void FXAAApp::resize()
 	gl::Fbo::Format fmt;
 	fmt.setMinFilter( GL_LINEAR );
 	fmt.setMagFilter( GL_LINEAR );
+	fmt.setColorInternalFormat( GL_RGBA );
 
-	mFbo = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
-	mFbo.getTexture().setFlipped(true);
+	mFboOriginal = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
+	mFboOriginal.getTexture().setFlipped(true);
+
+	mFboResult = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
+	mFboResult.getTexture().setFlipped(true);
 	
 	// Reset divider
 	mDividerX = getWindowWidth() / 2;

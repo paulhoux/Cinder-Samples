@@ -33,6 +33,9 @@
     <ClCompile Include="..\..\All\common\Pistons.cpp">
       <Filter>Common Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\FXAA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="..\..\All\common\Pistons.h">
       <Filter>Common Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\FXAA.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
