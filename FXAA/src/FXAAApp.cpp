@@ -49,6 +49,8 @@ public:
 
 	void resize();
 private:
+	void render();
+private:
 	CameraPersp         mCamera;
 
 	gl::Fbo             mFboOriginal;
@@ -68,6 +70,9 @@ private:
 
 void FXAAApp::setup()
 {
+	// Disable frame rate limiter for profiling
+	disableFrameRate();
+
 	// Set a proper title for our window
 	getWindow()->setTitle("FXAA");
 
@@ -112,16 +117,8 @@ void FXAAApp::update()
 
 void FXAAApp::draw()
 {
-	// Enable frame buffer
-	mFboOriginal.bindFramebuffer();
-
-	// Draw scene
-	gl::clear();
-
-	mPistons.draw(mCamera, (float)mTime);
-
-	// Disable frame buffer
-	mFboOriginal.unbindFramebuffer();
+	// Render our scene to the frame buffer
+	render();
 	
 	// Perform FXAA
 	mFXAA.apply(mFboResult, mFboOriginal);
@@ -175,6 +172,12 @@ void FXAAApp::keyDown( KeyEvent event )
 		else
 			mTimer.stop();
 		break;
+	case KeyEvent::KEY_v:
+		if( gl::isVerticalSyncEnabled() )
+			gl::disableVerticalSync();
+		else
+			gl::enableVerticalSync();
+		break;
 	}
 }
 
@@ -194,6 +197,21 @@ void FXAAApp::resize()
 	
 	// Reset divider
 	mDividerX = getWindowWidth() / 2;
+}
+
+void FXAAApp::render()
+{
+	// Enable frame buffer
+	mFboOriginal.bindFramebuffer();
+
+	// Draw scene
+	gl::clear();
+	gl::color( Color::white() );
+
+	mPistons.draw(mCamera, (float)mTime);
+
+	// Disable frame buffer
+	mFboOriginal.unbindFramebuffer();
 }
 
 CINDER_APP_NATIVE( FXAAApp, RendererGl( RendererGl::AA_NONE ) )
