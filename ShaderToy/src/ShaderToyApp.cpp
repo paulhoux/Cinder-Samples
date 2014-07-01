@@ -90,6 +90,8 @@ private:
 	gl::TextureRef  mChannel3;
 	//! Our mouse position: xy = current position while mouse down, zw = last click position.
 	Vec4f           mMouse;
+	//! Keep track of the current path.
+	fs::path        mPath;
 
 	//! We will use this structure to pass data from one thread to another.
 	struct LoaderData
@@ -105,9 +107,9 @@ private:
 		fs::path path;
 		gl::GlslProgRef shader;
 	};
-	//! The main thread will push a file path to this buffer, to be picked up by the loading thread.
+	//! The main thread will push data to this buffer, to be picked up by the loading thread.
 	ConcurrentCircularBuffer<LoaderData>* mRequests;
-	//! The loading thread will push a shader to this buffer, to be picked up by the main thread.
+	//! The loading thread will push data to this buffer, to be picked up by the main thread.
 	ConcurrentCircularBuffer<LoaderData>* mResponses;
 	//! Our loading thread, sharing a OpenGL context with the main thread.
 	std::shared_ptr<std::thread>          mThread;
@@ -119,10 +121,14 @@ void ShaderToyApp::prepareSettings(Settings* settings)
 {
 	// Do not allow resizing our window. Feel free to remove this limitation.
 	settings->setResizable(false);
+	settings->disableFrameRate();
 }
 
 void ShaderToyApp::setup()
 {
+	// Disable vertical sync.
+	gl::disableVerticalSync();
+
 	// Create our thread communication buffers.
 	mRequests = new ConcurrentCircularBuffer<LoaderData>(10);
 	mResponses = new ConcurrentCircularBuffer<LoaderData>(10);
@@ -167,6 +173,8 @@ void ShaderToyApp::update()
 		mResponses->popBack(&data);
 
 		getWindow()->setTitle( std::string("ShaderToyApp: ") + data.path.filename().string() );
+
+		mPath = data.path;
 		mShaderNext = data.shader;
 
 		mTransitionTime = getElapsedSeconds() + 0.5;
@@ -365,8 +373,11 @@ void ShaderToyApp::random()
 	if(shaders.empty())
 		return;
 
-	// Load random *.frag file.
-	const size_t idx = getElapsedFrames() % shaders.size();
+	// Load random *.frag file, but make sure it is different from the current shader.
+	size_t idx = getElapsedFrames() % shaders.size();
+	if( shaders.at(idx) == mPath )
+		idx = (idx + 1) % shaders.size();
+
 	if(mRequests->isNotFull())
 		mRequests->pushFront( shaders.at(idx) );
 }
