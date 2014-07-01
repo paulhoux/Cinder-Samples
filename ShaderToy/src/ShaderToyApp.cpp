@@ -90,14 +90,29 @@ private:
 	gl::TextureRef  mChannel3;
 	//! Our mouse position: xy = current position while mouse down, zw = last click position.
 	Vec4f           mMouse;
+
+	//! We will use this structure to pass data from one thread to another.
+	struct LoaderData
+	{
+		LoaderData() {}
+		LoaderData(const fs::path& path, gl::GlslProgRef shader)
+			: path(path), shader(shader) {}
+
+		//! This constructor allows implicit conversion from path to LoaderData.
+		LoaderData(const fs::path& path)
+			: path(path) {}
+
+		fs::path path;
+		gl::GlslProgRef shader;
+	};
 	//! The main thread will push a file path to this buffer, to be picked up by the loading thread.
-	ConcurrentCircularBuffer<fs::path>*        mRequests;
+	ConcurrentCircularBuffer<LoaderData>* mRequests;
 	//! The loading thread will push a shader to this buffer, to be picked up by the main thread.
-	ConcurrentCircularBuffer<gl::GlslProgRef>* mResponses;
+	ConcurrentCircularBuffer<LoaderData>* mResponses;
 	//! Our loading thread, sharing a OpenGL context with the main thread.
-	std::shared_ptr<std::thread>               mThread;
+	std::shared_ptr<std::thread>          mThread;
 	//! Signals if the loading thread should abort.
-	bool                                       mThreadAbort;
+	bool                                  mThreadAbort;
 };
 
 void ShaderToyApp::prepareSettings(Settings* settings)
@@ -108,15 +123,12 @@ void ShaderToyApp::prepareSettings(Settings* settings)
 
 void ShaderToyApp::setup()
 {
-	// Create our buffers.
-	mRequests = new ConcurrentCircularBuffer<fs::path>(10);
-	mResponses = new ConcurrentCircularBuffer<gl::GlslProgRef>(10);
+	// Create our thread communication buffers.
+	mRequests = new ConcurrentCircularBuffer<LoaderData>(10);
+	mResponses = new ConcurrentCircularBuffer<LoaderData>(10);
 
 	// Start the loading thread.
 	setupLoader();
-
-	// Tell our loading thread to load the first shader
-	random();
 
 	// Load our textures and transition shader in the main thread.
 	try {
@@ -135,6 +147,9 @@ void ShaderToyApp::setup()
 		console() << e.what() << endl;
 		quit();
 	}
+
+	// Tell our loading thread to load the first shader. The path is converted to LoaderData implicitly.
+	mRequests->pushFront( getAssetPath("hell.frag") );
 }
 
 void ShaderToyApp::shutdown()
@@ -145,11 +160,16 @@ void ShaderToyApp::shutdown()
 
 void ShaderToyApp::update()
 {
+	LoaderData data;
+
 	// If we are ready for the next shader, take it from the buffer.
 	if(!mShaderNext && mResponses->isNotEmpty()) {
-		mResponses->popBack(&mShaderNext);
+		mResponses->popBack(&data);
 
-		mTransitionTime = getElapsedSeconds() + 1.0;
+		getWindow()->setTitle( std::string("ShaderToyApp: ") + data.path.filename().string() );
+		mShaderNext = data.shader;
+
+		mTransitionTime = getElapsedSeconds() + 0.5;
 		mTransitionDuration = 2.5;
 	}
 }
@@ -397,18 +417,18 @@ void ShaderToyApp::loader( HDC hdc, HGLRC renderContext )
 		if(mRequests->isNotEmpty())
 		{
 			// Take the request from the buffer.
-			fs::path path;
-			mRequests->popBack(&path);
+			LoaderData data;
+			mRequests->popBack(&data);
 
 			// Try to load, parse and compile the shader.
 			try {
 				std::string vs = loadString( loadAsset("common/shadertoy.vert") );
-				std::string fs = loadString( loadAsset("common/shadertoy.inc") ) + loadString( loadFile( path ) );
+				std::string fs = loadString( loadAsset("common/shadertoy.inc") ) + loadString( loadFile( data.path ) );
 
-				gl::GlslProgRef shader = gl::GlslProg::create( vs.c_str(), fs.c_str() );
+				data.shader = gl::GlslProg::create( vs.c_str(), fs.c_str() );
 
 				// If the shader compiled successfully, pass it to the main thread.
-				mResponses->pushFront(shader);
+				mResponses->pushFront( data );
 			}
 			catch( const std::exception& e ) {
 				// Uhoh, something went wrong.
