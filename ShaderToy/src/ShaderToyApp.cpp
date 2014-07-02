@@ -60,10 +60,17 @@ public:
 
 	void random();
 private:
-	void setupLoader();
+	//! Shows a message dialog in case of a fatal error.
+	void fatal(const char* format, ...);
+	//! Binds the shader and sets its uniform variables.
+	void bindShader( gl::GlslProgRef shader );
+	//! Initializes the loader thread and the shared OpenGL context.
+	bool setupLoader();
+	//! Shuts down the loader thread and its associated OpenGL context.
 	void shutdownLoader();
 
 #if defined( CINDER_MSW )
+	//! Our loader thread.
 	void loader( HDC hdc, HGLRC renderContext );
 #else
 	#error Not implemented for this platform.
@@ -111,7 +118,7 @@ private:
 	ConcurrentCircularBuffer<LoaderData>* mRequests;
 	//! The loading thread will push data to this buffer, to be picked up by the main thread.
 	ConcurrentCircularBuffer<LoaderData>* mResponses;
-	//! Our loading thread, sharing a OpenGL context with the main thread.
+	//! Our loading thread, sharing an OpenGL context with the main thread.
 	std::shared_ptr<std::thread>          mThread;
 	//! Signals if the loading thread should abort.
 	bool                                  mThreadAbort;
@@ -121,20 +128,18 @@ void ShaderToyApp::prepareSettings(Settings* settings)
 {
 	// Do not allow resizing our window. Feel free to remove this limitation.
 	settings->setResizable(false);
-	settings->disableFrameRate();
 }
 
 void ShaderToyApp::setup()
 {
-	// Disable vertical sync.
-	gl::disableVerticalSync();
-
 	// Create our thread communication buffers.
 	mRequests = new ConcurrentCircularBuffer<LoaderData>(10);
 	mResponses = new ConcurrentCircularBuffer<LoaderData>(10);
 
 	// Start the loading thread.
-	setupLoader();
+	if(!setupLoader()) {
+		fatal("Failed to create the loader thread and context.");
+	}
 
 	// Load our textures and transition shader in the main thread.
 	try {
@@ -150,8 +155,7 @@ void ShaderToyApp::setup()
 	}
 	catch( const std::exception& e ) {
 		// Quit if anything went wrong.
-		console() << e.what() << endl;
-		quit();
+		fatal("Failed to load common textures and shaders:\n%s", e.what());
 	}
 
 	// Tell our loading thread to load the first shader. The path is converted to LoaderData implicitly.
@@ -162,6 +166,12 @@ void ShaderToyApp::shutdown()
 {
 	// Properly shut down the loading thread.
 	shutdownLoader();
+	
+	// Properly destroy the buffers.
+	if(mResponses) delete mResponses;
+	if(mRequests) delete mRequests;
+	mResponses = nullptr;
+	mRequests = nullptr;
 }
 
 void ShaderToyApp::update()
@@ -172,109 +182,56 @@ void ShaderToyApp::update()
 	if(!mShaderNext && mResponses->isNotEmpty()) {
 		mResponses->popBack(&data);
 
-		getWindow()->setTitle( std::string("ShaderToyApp: ") + data.path.filename().string() );
-
 		mPath = data.path;
 		mShaderNext = data.shader;
 
-		mTransitionTime = getElapsedSeconds() + 0.5;
+		// Start the transition.
+		mTransitionTime = getElapsedSeconds();
 		mTransitionDuration = 2.5;
+
+		// Update the window title.
+		getWindow()->setTitle( std::string("ShaderToyApp: ") + data.path.filename().string() );
 	}
 }
 
 void ShaderToyApp::draw()
 {
-	// Calculate shader parameters.
-	Vec3f iResolution( Vec2f( getWindowSize() ), 1.f );
-	float iGlobalTime = (float) getElapsedSeconds();
-	float iChannelTime0 = (float) getElapsedSeconds();
-	float iChannelTime1 = (float) getElapsedSeconds();
-	float iChannelTime2 = (float) getElapsedSeconds();
-	float iChannelTime3 = (float) getElapsedSeconds();
-	Vec3f iChannelResolution0 = mChannel0 ? Vec3f( mChannel0->getSize(), 1.f ) : Vec3f::one();
-	Vec3f iChannelResolution1 = mChannel1 ? Vec3f( mChannel1->getSize(), 1.f ) : Vec3f::one();
-	Vec3f iChannelResolution2 = mChannel2 ? Vec3f( mChannel2->getSize(), 1.f ) : Vec3f::one();
-	Vec3f iChannelResolution3 = mChannel3 ? Vec3f( mChannel3->getSize(), 1.f ) : Vec3f::one();
+	// Bind textures.
+	if(mChannel0) mChannel0->bind(0);
+	if(mChannel1) mChannel1->bind(1);
+	if(mChannel2) mChannel2->bind(2);
+	if(mChannel3) mChannel3->bind(3);
 
-	time_t now = time(0);
-	tm*    t = gmtime(&now);
-	Vec4f iDate( float(t->tm_year + 1900),
-				 float(t->tm_mon + 1),
-				 float(t->tm_mday),
-				 float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec) );
-
-	// Render the current shader.
+	// Render the current shader to a frame buffer.
 	if(mShaderCurrent && mBufferCurrent) {
 		mBufferCurrent.bindFramebuffer();
 
-		mShaderCurrent->bind();
-		mShaderCurrent->uniform("iResolution", iResolution);
-		mShaderCurrent->uniform("iGlobalTime", iGlobalTime);
-		mShaderCurrent->uniform("iChannelTime[0]", iChannelTime0);
-		mShaderCurrent->uniform("iChannelTime[1]", iChannelTime1);
-		mShaderCurrent->uniform("iChannelTime[2]", iChannelTime2);
-		mShaderCurrent->uniform("iChannelTime[3]", iChannelTime3);
-		mShaderCurrent->uniform("iChannelResolution[0]", iChannelResolution0);
-		mShaderCurrent->uniform("iChannelResolution[1]", iChannelResolution1);
-		mShaderCurrent->uniform("iChannelResolution[2]", iChannelResolution2);
-		mShaderCurrent->uniform("iChannelResolution[3]", iChannelResolution3);
-		mShaderCurrent->uniform("iMouse", mMouse);
-		mShaderCurrent->uniform("iChannel0", 0);
-		mShaderCurrent->uniform("iChannel1", 1);
-		mShaderCurrent->uniform("iChannel2", 2);
-		mShaderCurrent->uniform("iChannel3", 3);
-		mShaderCurrent->uniform("iDate", iDate);
+		// Bind shader.
+		bindShader(mShaderCurrent);
 
-		//
-		if(mChannel0) mChannel0->bind(0);
-		if(mChannel1) mChannel1->bind(1);
-		if(mChannel2) mChannel2->bind(2);
-		if(mChannel3) mChannel3->bind(3);
-
-		//
+		// Clear buffer and draw full screen quad (flipped).
 		gl::clear();
-		gl::draw( mChannel0, mBufferCurrent.getBounds() );
+		gl::drawSolidRect( Rectf(0, getWindowHeight(), getWindowWidth(), 0) );
 
-		//
+		// Done.
 		mShaderCurrent->unbind();
 		mBufferCurrent.unbindFramebuffer();
 	}
 	
-	// Render the next shader.
+	// Render the next shader to a frame buffer.
 	if(mShaderNext && mBufferNext) {
 		mBufferNext.bindFramebuffer();
 
-		mShaderNext->bind();
-		mShaderNext->uniform("iResolution", iResolution);
-		mShaderNext->uniform("iGlobalTime", iGlobalTime);
-		mShaderNext->uniform("iChannelTime[0]", iChannelTime0);
-		mShaderNext->uniform("iChannelTime[1]", iChannelTime1);
-		mShaderNext->uniform("iChannelTime[2]", iChannelTime2);
-		mShaderNext->uniform("iChannelTime[3]", iChannelTime3);
-		mShaderNext->uniform("iChannelResolution[0]", iChannelResolution0);
-		mShaderNext->uniform("iChannelResolution[1]", iChannelResolution1);
-		mShaderNext->uniform("iChannelResolution[2]", iChannelResolution2);
-		mShaderNext->uniform("iChannelResolution[3]", iChannelResolution3);
-		mShaderNext->uniform("iMouse", mMouse);
-		mShaderNext->uniform("iChannel0", 0);
-		mShaderNext->uniform("iChannel1", 1);
-		mShaderNext->uniform("iChannel2", 2);
-		mShaderNext->uniform("iChannel3", 3);
-		mShaderNext->uniform("iDate", iDate);
+		// Bind shader.
+		bindShader(mShaderNext);
 
-		//
-		if(mChannel0) mChannel0->bind(0);
-		if(mChannel1) mChannel1->bind(1);
-		if(mChannel2) mChannel2->bind(2);
-		if(mChannel3) mChannel3->bind(3);
-
-		//
+		// Clear buffer and draw full screen quad (flipped).
 		gl::clear();
-		gl::draw( mChannel0, mBufferNext.getBounds() );
+		gl::drawSolidRect( Rectf(0, getWindowHeight(), getWindowWidth(), 0) );
 
-		//
+		// Done.
 		mShaderNext->unbind();
-		mBufferNext.unbindFramebuffer();
+		mBufferCurrent.unbindFramebuffer();
 	}
 
 	// Perform a cross-fade between the two shaders.
@@ -382,26 +339,110 @@ void ShaderToyApp::random()
 		mRequests->pushFront( shaders.at(idx) );
 }
 
-void ShaderToyApp::setupLoader()
+void ShaderToyApp::fatal(const char* format, ...)
+{
+	// We can handle only one fatal error at a time.
+	static bool isInFatal = false;
+
+	if(isInFatal) return;
+	isInFatal = true;
+
+	// Create the error message from the format and the arguments.
+	char buffer[4096];
+	va_list args;
+	va_start (args, format);
+	vsprintf (buffer,format, args);
+	va_end (args);
+
+	// Show the error message and tell the application to quit.
+#if defined( CINDER_MSW )
+	HWND hwnd = (HWND) app::getWindow()->getNative();
+	::MessageBox( hwnd, toUtf16(buffer).c_str(), L"Fatal Error", MB_OK | MB_ICONSTOP );
+	quit();
+#else
+	console() << msg << endl;
+	quit();
+#endif
+
+	// We're done here.
+	isInFatal = false;
+}
+
+void ShaderToyApp::bindShader(gl::GlslProgRef shader)
+{
+	// Nothing to bind if we don't have a shader.
+	if(!shader) return;
+
+	// Bind the shader.
+	shader->bind();
+
+	// Make sure it was successfull by checking for errors.
+	GLenum err = glGetError();
+	if(err != GL_NO_ERROR) 
+		fatal("Failed to bind the shader!\n\nYour driver may not properly support shared contexts. Make sure you use the latest driver version and a proper GPU.");
+
+	// Calculate shader parameters.
+	Vec3f iResolution( Vec2f( getWindowSize() ), 1.f );
+	float iGlobalTime = (float) getElapsedSeconds();
+	float iChannelTime0 = (float) getElapsedSeconds();
+	float iChannelTime1 = (float) getElapsedSeconds();
+	float iChannelTime2 = (float) getElapsedSeconds();
+	float iChannelTime3 = (float) getElapsedSeconds();
+	Vec3f iChannelResolution0 = mChannel0 ? Vec3f( mChannel0->getSize(), 1.f ) : Vec3f::one();
+	Vec3f iChannelResolution1 = mChannel1 ? Vec3f( mChannel1->getSize(), 1.f ) : Vec3f::one();
+	Vec3f iChannelResolution2 = mChannel2 ? Vec3f( mChannel2->getSize(), 1.f ) : Vec3f::one();
+	Vec3f iChannelResolution3 = mChannel3 ? Vec3f( mChannel3->getSize(), 1.f ) : Vec3f::one();
+
+	time_t now = time(0);
+	tm*    t = gmtime(&now);
+	Vec4f  iDate( float(t->tm_year + 1900),
+				  float(t->tm_mon + 1),
+				  float(t->tm_mday),
+				  float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec) );
+
+	// Set shader uniforms.
+	shader->uniform("iResolution", iResolution);
+	shader->uniform("iGlobalTime", iGlobalTime);
+	shader->uniform("iChannelTime[0]", iChannelTime0);
+	shader->uniform("iChannelTime[1]", iChannelTime1);
+	shader->uniform("iChannelTime[2]", iChannelTime2);
+	shader->uniform("iChannelTime[3]", iChannelTime3);
+	shader->uniform("iChannelResolution[0]", iChannelResolution0);
+	shader->uniform("iChannelResolution[1]", iChannelResolution1);
+	shader->uniform("iChannelResolution[2]", iChannelResolution2);
+	shader->uniform("iChannelResolution[3]", iChannelResolution3);
+	shader->uniform("iMouse", mMouse);
+	shader->uniform("iChannel0", 0);
+	shader->uniform("iChannel1", 1);
+	shader->uniform("iChannel2", 2);
+	shader->uniform("iChannel3", 3);
+	shader->uniform("iDate", iDate);
+}
+
+bool ShaderToyApp::setupLoader()
 {
 #if defined( CINDER_MSW )
 	// Check if the device context is available.
 	HDC hdc = ::GetDC( (HWND) app::getWindow()->getNative() );
-	if(!hdc) return;
+	if(!hdc) return false;
 
 	// Create a second OpenGL context and share its lists with the main context.
 	HGLRC renderContext = ::wglCreateContext(hdc);
-	if(!renderContext) return;
+	if(!renderContext) return false;
 
 	HGLRC mainContext = ::wglGetCurrentContext();
-	if(!mainContext) return;
+	if(!mainContext) return false;
 
 	if( SUCCEEDED(::wglShareLists( mainContext, renderContext )) )
 	{
 		// If succeeded, start the loading thread.
 		mThreadAbort = false;
 		mThread = std::make_shared<std::thread>(&ShaderToyApp::loader, this, hdc, renderContext);
+
+		return true;
 	}
+
+	return false;
 #else
 	#error Not implemented for this platform.
 #endif
@@ -411,7 +452,7 @@ void ShaderToyApp::shutdownLoader()
 {
 	// Tell the loading thread to abort, then wait for it to stop.
 	mThreadAbort = true;
-	mThread->join();
+	if(mThread) mThread->join();
 }
 
 #if defined( CINDER_MSW )
@@ -442,8 +483,8 @@ void ShaderToyApp::loader( HDC hdc, HGLRC renderContext )
 				mResponses->pushFront( data );
 			}
 			catch( const std::exception& e ) {
-				// Uhoh, something went wrong.
-				console() << e.what() << endl;
+				// Uhoh, something went wrong, but it's not fatal.
+				console() << "Failed to compile the shader: " << e.what() << endl;
 			}
 		}
 		else {
