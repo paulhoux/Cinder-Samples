@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E6DFE982-ADED-46AF-8A34-4E4C92E8DBAC}</ProjectGuid>
+    <ProjectGuid>{1FB968C3-831B-4753-AE97-2C9772431479}</ProjectGuid>
     <RootNamespace>SMAA</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -121,12 +121,12 @@
     <ClInclude Include="..\include\SMAA.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\smaa_1st_frag.glsl" />
-    <None Include="..\assets\smaa_1st_vert.glsl" />
-    <None Include="..\assets\smaa_2nd_frag.glsl" />
-    <None Include="..\assets\smaa_2nd_vert.glsl" />
-    <None Include="..\assets\smaa_3rd_frag.glsl" />
-    <None Include="..\assets\smaa_3rd_vert.glsl" />
+    <None Include="..\assets\smaa1.frag" />
+    <None Include="..\assets\smaa1.vert" />
+    <None Include="..\assets\smaa2.frag" />
+    <None Include="..\assets\smaa2.vert" />
+    <None Include="..\assets\smaa3.frag" />
+    <None Include="..\assets\smaa3.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

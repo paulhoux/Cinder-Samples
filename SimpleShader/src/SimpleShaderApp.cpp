@@ -50,7 +50,7 @@ void SimpleShaderApp::setup()
 		mTexture1 = gl::Texture( loadImage( loadAsset("top.jpg") ) );
 	
 		// load and compile the shader
-		mShader = gl::GlslProg( loadAsset("shader_vert.glsl"), loadAsset("shader_frag.glsl") );
+		mShader = gl::GlslProg( loadAsset("shader.vert"), loadAsset("shader.frag") );
 	}
 	catch( const std::exception &e ) {
 		// if anything went wrong, show it in the output window
@@ -67,7 +67,7 @@ void SimpleShaderApp::draw()
 	// clear the window
 	gl::clear();
 
-	// bind the shader and tell it which texture units to use (see: shader_frag.glsl)
+	// bind the shader and tell it which texture units to use (see: shader.frag)
 	mShader.bind();
 	mShader.uniform("tex0", 0);	
 	mShader.uniform("tex1", 1);

@@ -144,7 +144,7 @@ void FrustumCullingApp::setup()
 
 	//! load and compile shader
 	try {
-		mShader = gl::GlslProg( loadAsset("shaders/phong_vert.glsl"), loadAsset("shaders/phong_frag.glsl") );
+		mShader = gl::GlslProg( loadAsset("shaders/phong.vert"), loadAsset("shaders/phong.frag") );
 	}
 	catch( const std::exception &e ) {
 		app::console() << "Could not load and compile shader:" << e.what() << std::endl;

@@ -105,7 +105,7 @@ void HexagonMirrorApp::setup()
 	mCamera.setCurrentCam( cam );
 
 	// load shader
-	try { mShaderInstanced = gl::GlslProg( loadAsset("phong_vert.glsl"), loadAsset("phong_frag.glsl") ); }
+	try { mShaderInstanced = gl::GlslProg( loadAsset("phong.vert"), loadAsset("phong.frag") ); }
 	catch( const std::exception &e ) { console() << "Could not load and compile shader: " << e.what() << std::endl; }
 
 	// create a vertex array object, which allows us to efficiently position each instance

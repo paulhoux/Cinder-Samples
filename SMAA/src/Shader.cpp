@@ -41,9 +41,9 @@ Shader::Shader(void) :
 
 Shader::Shader(const std::string& name) :
 	mName(name),
-	mVertexFile(name + "_vert.glsl"),
-	mFragmentFile(name + "_frag.glsl"),
-	mGeometryFile(name + "_geom.glsl"),
+	mVertexFile(name + ".vert"),
+	mFragmentFile(name + ".frag"),
+	mGeometryFile(name + ".geom"),
 	bHasGeometryShader(false),
 	mGlslVersion(0)
 {

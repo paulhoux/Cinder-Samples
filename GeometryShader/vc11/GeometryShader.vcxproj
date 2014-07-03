@@ -116,10 +116,10 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\shaders\lines_frag.glsl" />
-    <None Include="..\assets\shaders\lines_geom1.glsl" />
-    <None Include="..\assets\shaders\lines_geom2.glsl" />
-    <None Include="..\assets\shaders\lines_vert.glsl" />
+    <None Include="..\assets\shaders\lines.frag" />
+    <None Include="..\assets\shaders\lines.vert" />
+    <None Include="..\assets\shaders\lines1.geom" />
+    <None Include="..\assets\shaders\lines2.geom" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -94,7 +94,7 @@ void GeometryShaderApp::setup()
 
 	mWindowSize = getWindowSize();
 
-	loadShader("shaders/lines_geom1.glsl");
+	loadShader("shaders/lines1.geom");
 	mTexture = loadTexture("textures/pattern1.png");
 
 	mHelpTexture = loadTexture("textures/help.png");
@@ -301,10 +301,10 @@ void GeometryShaderApp::keyDown( KeyEvent event )
 		mTexture = loadTexture("textures/pattern2.png");
 		break;
 	case KeyEvent::KEY_F7:
-		loadShader("shaders/lines_geom1.glsl");
+		loadShader("shaders/lines1.geom");
 		break;
 	case KeyEvent::KEY_F8:
-		loadShader("shaders/lines_geom2.glsl");
+		loadShader("shaders/lines2.geom");
 		break;
 	}
 }
@@ -359,10 +359,10 @@ void GeometryShaderApp::loadShader( const std::string &path )
 
 	// Load vertex and fragments shaders as text files and compile the shader
 	try {
-		DataSourceRef vertFile = loadAsset("shaders/lines_vert.glsl");
+		DataSourceRef vertFile = loadAsset("shaders/lines.vert");
 		std::string vert( (char*) vertFile->getBuffer().getData(), vertFile->getBuffer().getDataSize() );
 		
-		DataSourceRef fragFile = loadAsset("shaders/lines_frag.glsl");
+		DataSourceRef fragFile = loadAsset("shaders/lines.frag");
 		std::string frag( (char*) fragFile->getBuffer().getData(), fragFile->getBuffer().getDataSize() );
 
 		mShader = gl::GlslProg(

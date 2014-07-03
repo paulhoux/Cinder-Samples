@@ -648,8 +648,8 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 
 void StarsApp::createShader()
 {
-	fs::path vs = getAssetPath("") / "shaders/cylindrical_vert.glsl";
-	fs::path fs = getAssetPath("") / "shaders/cylindrical_frag.glsl";
+	fs::path vs = getAssetPath("") / "shaders/cylindrical.vert";
+	fs::path fs = getAssetPath("") / "shaders/cylindrical.frag";
 
 	//
 	try {

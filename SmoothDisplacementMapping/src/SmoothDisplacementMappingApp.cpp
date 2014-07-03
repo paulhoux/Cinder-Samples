@@ -290,13 +290,13 @@ bool SmoothDisplacementMappingApp::compileShaders()
 	try 
 	{ 
 		// this shader will render all colors using a change in hue
-		mBackgroundShader = gl::GlslProg( loadAsset("background_vert.glsl"), loadAsset("background_frag.glsl") );
+		mBackgroundShader = gl::GlslProg( loadAsset("background.vert"), loadAsset("background.frag") );
 		// this shader will render a displacement map to a floating point texture, updated every frame
-		mDispMapShader = gl::GlslProg( loadAsset("displacement_map_vert.glsl"), loadAsset("displacement_map_frag.glsl") ); 
+		mDispMapShader = gl::GlslProg( loadAsset("displacement_map.vert"), loadAsset("displacement_map.frag") ); 
 		// this shader will create a normal map based on the displacement map
-		mNormalMapShader = gl::GlslProg( loadAsset("normal_map_vert.glsl"), loadAsset("normal_map_frag.glsl") );
+		mNormalMapShader = gl::GlslProg( loadAsset("normal_map.vert"), loadAsset("normal_map.frag") );
 		// this shader will use the displacement and normal maps to displace vertices of a mesh
-		mMeshShader = gl::GlslProg( loadAsset("mesh_vert.glsl"), loadAsset("mesh_frag.glsl") );
+		mMeshShader = gl::GlslProg( loadAsset("mesh.vert"), loadAsset("mesh.frag") );
 	}
 	catch( const std::exception &e ) 
 	{ 

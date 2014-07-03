@@ -117,8 +117,8 @@
     <ClInclude Include="..\include\Resources.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\fxaa_frag.glsl" />
-    <None Include="..\assets\fxaa_vert.glsl" />
+    <None Include="..\assets\fxaa.frag" />
+    <None Include="..\assets\fxaa.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

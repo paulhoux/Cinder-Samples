@@ -103,8 +103,8 @@
     <ClCompile Include="..\src\PickingByColorApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\shaders\phong_frag.glsl" />
-    <None Include="..\shaders\phong_vert.glsl" />
+    <None Include="..\shaders\phong.frag" />
+    <None Include="..\shaders\phong.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

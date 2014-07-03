@@ -293,7 +293,7 @@ void PickingByColorApp::render()
 	drawGrid();
 
 	// bind phong shader, which renders to both our color targets.
-	//  See 'shaders/phong_frag.glsl'
+	//  See 'shaders/phong.frag'
 	mPhongShader.bind();
 
 	// draw meshes:
@@ -452,7 +452,7 @@ void PickingByColorApp::loadMesh(const std::string &objFile, const std::string &
 void PickingByColorApp::loadShaders()
 {
 	try {
-		mPhongShader = gl::GlslProg( loadAsset("shaders/phong_vert.glsl"), loadAsset("shaders/phong_frag.glsl") );
+		mPhongShader = gl::GlslProg( loadAsset("shaders/phong.vert"), loadAsset("shaders/phong.frag") );
 	}
 	catch( const std::exception &e ) {
 		console() << e.what() << std::endl;

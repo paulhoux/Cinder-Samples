@@ -21,9 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\FXAAApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -66,23 +63,11 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\smaa_1st_frag.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\assets\smaa_1st_vert.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\assets\smaa_2nd_frag.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\assets\smaa_2nd_vert.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\assets\smaa_3rd_frag.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="..\assets\smaa_3rd_vert.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
+    <None Include="..\assets\smaa1.frag" />
+    <None Include="..\assets\smaa1.vert" />
+    <None Include="..\assets\smaa2.frag" />
+    <None Include="..\assets\smaa2.vert" />
+    <None Include="..\assets\smaa3.frag" />
+    <None Include="..\assets\smaa3.vert" />
   </ItemGroup>
 </Project>

@@ -115,10 +115,10 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\blur_frag.glsl" />
-    <None Include="..\assets\blur_vert.glsl" />
-    <None Include="..\assets\phong_frag.glsl" />
-    <None Include="..\assets\phong_vert.glsl" />
+    <None Include="..\assets\blur.frag" />
+    <None Include="..\assets\blur.vert" />
+    <None Include="..\assets\phong.frag" />
+    <None Include="..\assets\phong.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

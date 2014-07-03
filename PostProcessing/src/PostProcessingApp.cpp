@@ -74,7 +74,7 @@ void PostProcessingApp::setup()
 
 	// load post-processing shader
 	//  adapted from a shader by Iñigo Quílez ( http://www.iquilezles.org/ )
-	try { mShader = gl::GlslProg( loadAsset("post_process_vert.glsl"), loadAsset("post_process_frag.glsl") ); }
+	try { mShader = gl::GlslProg( loadAsset("post_process.vert"), loadAsset("post_process.frag") ); }
 	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; quit(); }
 }
 

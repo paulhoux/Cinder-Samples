@@ -54,7 +54,7 @@ void Stars::setup()
 		mScale = 1.0f;
 
 	// load shader and point sprite texture
-	try { mShader = gl::GlslProg( loadAsset("shaders/stars_vert.glsl"), loadAsset("shaders/stars_frag.glsl") ); }
+	try { mShader = gl::GlslProg( loadAsset("shaders/stars.vert"), loadAsset("shaders/stars.frag") ); }
 	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; }	
 
 	try { 

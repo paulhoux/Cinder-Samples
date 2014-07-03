@@ -96,8 +96,8 @@ void BloomingNeonApp::setup()
 
 	// load and compile the shaders
 	try { 
-		mShaderBlur = gl::GlslProg( loadAsset("blur_vert.glsl"), loadAsset("blur_frag.glsl")); 
-		mShaderPhong = gl::GlslProg( loadAsset("phong_vert.glsl"), loadAsset("phong_frag.glsl")); 
+		mShaderBlur = gl::GlslProg( loadAsset("blur.vert"), loadAsset("blur.frag")); 
+		mShaderPhong = gl::GlslProg( loadAsset("phong.vert"), loadAsset("phong.frag")); 
 	} 
 	catch( const std::exception &e ) { 
 		console() << e.what() << endl; 

@@ -31,9 +31,9 @@ using namespace std;
 void SMAA::setup()
 {
 	// Load and compile our shaders
-	mSMAAFirstPass = Shader::create("smaa_1st");
-	mSMAASecondPass = Shader::create("smaa_2nd");
-	mSMAAThirdPass = Shader::create("smaa_3rd");
+	mSMAAFirstPass = Shader::create("smaa1");
+	mSMAASecondPass = Shader::create("smaa2");
+	mSMAAThirdPass = Shader::create("smaa3");
 
 	// Create lookup textures
 	gl::Texture::Format fmt;

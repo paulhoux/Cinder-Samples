@@ -117,8 +117,8 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\shaders\font_sdf_frag.glsl" />
-    <None Include="..\assets\shaders\font_sdf_vert.glsl" />
+    <None Include="..\assets\shaders\font_sdf.frag" />
+    <None Include="..\assets\shaders\font_sdf.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\text\Font.h" />

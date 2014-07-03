@@ -31,7 +31,7 @@ using namespace std;
 void FXAA::setup()
 {
 	// Load and compile our shader
-	mFXAA = gl::GlslProg( loadAsset("fxaa_vert.glsl"), loadAsset("fxaa_frag.glsl") );
+	mFXAA = gl::GlslProg( loadAsset("fxaa.vert"), loadAsset("fxaa.frag") );
 }
 
 void FXAA::apply(ci::gl::Fbo& destination, ci::gl::Fbo& source)
