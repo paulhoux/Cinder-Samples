@@ -98,7 +98,9 @@ private:
 	//! Our mouse position: xy = current position while mouse down, zw = last click position.
 	Vec4f           mMouse;
 	//! Keep track of the current path.
-	fs::path        mPath;
+	fs::path        mPathCurrent;
+	//! Keep track of the next path.
+	fs::path        mPathNext;
 
 	//! We will use this structure to pass data from one thread to another.
 	struct LoaderData
@@ -133,8 +135,8 @@ void ShaderToyApp::prepareSettings(Settings* settings)
 void ShaderToyApp::setup()
 {
 	// Create our thread communication buffers.
-	mRequests = new ConcurrentCircularBuffer<LoaderData>(10);
-	mResponses = new ConcurrentCircularBuffer<LoaderData>(10);
+	mRequests = new ConcurrentCircularBuffer<LoaderData>(100);
+	mResponses = new ConcurrentCircularBuffer<LoaderData>(100);
 
 	// Start the loading thread.
 	if(!setupLoader()) {
@@ -182,15 +184,15 @@ void ShaderToyApp::update()
 	if(!mShaderNext && mResponses->isNotEmpty()) {
 		mResponses->popBack(&data);
 
-		mPath = data.path;
+		mPathNext = data.path;
 		mShaderNext = data.shader;
 
 		// Start the transition.
 		mTransitionTime = getElapsedSeconds();
-		mTransitionDuration = 2.5;
+		mTransitionDuration = 2.0;
 
 		// Update the window title.
-		getWindow()->setTitle( std::string("ShaderToyApp: ") + data.path.filename().string() );
+		getWindow()->setTitle( std::string("ShaderToyApp - Fading from ") + mPathCurrent.filename().string() + " to " + mPathNext.filename().string() );
 	}
 }
 
@@ -262,6 +264,11 @@ void ShaderToyApp::draw()
 
 		mShaderCurrent = mShaderNext;
 		mShaderNext.reset();
+
+		mPathCurrent = mPathNext;
+		mPathNext.clear();
+
+		getWindow()->setTitle( std::string("ShaderToyApp - Showing ") + mPathCurrent.filename().string() );
 	}
 	else {
 		// No transition in progress.
@@ -320,7 +327,7 @@ void ShaderToyApp::random()
 
 	// Find all *.frag files.
 	std::vector<fs::path> shaders;
-	for (fs::directory_iterator it(assets), end; it != end; ++it)
+	for (fs::recursive_directory_iterator it(assets), end; it != end; ++it)
 	{
 		if (fs::is_regular_file(it->path()))
 			if(it->path().extension() == ".frag")
@@ -332,7 +339,7 @@ void ShaderToyApp::random()
 
 	// Load random *.frag file, but make sure it is different from the current shader.
 	size_t idx = getElapsedFrames() % shaders.size();
-	if( shaders.at(idx) == mPath )
+	if( shaders.at(idx) == mPathCurrent )
 		idx = (idx + 1) % shaders.size();
 
 	if(mRequests->isNotFull())
