@@ -25,7 +25,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 
-// this sample needs the Cinder OpenCV block, which comes with the release
+// this sample needs the Cinder-OpenCV block, which comes with the release
 // version of Cinder, but should be installed separately if you use the GitHub version.
 // See the README.md file for more information.
 #include "CinderOpenCV.h"
@@ -34,11 +34,11 @@
 // using the #pragma directive
 #ifdef CINDER_MSW
 #ifndef _DEBUG
-	#pragma comment(lib, "opencv_core243.lib")
-	#pragma comment(lib, "opencv_imgproc243.lib")
+	#pragma comment(lib, "opencv_core249.lib")
+	#pragma comment(lib, "opencv_imgproc249.lib")
 #else
-	#pragma comment(lib, "opencv_core243d.lib")
-	#pragma comment(lib, "opencv_imgproc243d.lib")
+	#pragma comment(lib, "opencv_core249d.lib")
+	#pragma comment(lib, "opencv_imgproc249d.lib")
 #endif
 #endif
 

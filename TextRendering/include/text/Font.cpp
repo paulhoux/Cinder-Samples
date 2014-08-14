@@ -322,12 +322,12 @@ float Font::getAdvance(const Metrics &metrics, float fontSize) const
 	return metrics.d * fontSize / mFontSize;
 }
 
-Rectf Font::measure(const std::wstring &text, float fontSize) const 
+Rectf Font::measure( const std::u16string &text, float fontSize ) const
 {
 	float offset = 0.0f;
 	Rectf result(0.0f, 0.0f, 0.0f, 0.0f);
 
-	std::wstring::const_iterator citr;
+	std::u16string::const_iterator citr;
 	for(citr=text.begin();citr!=text.end();++citr) {
 		uint16_t charcode = (uint16_t) *citr;
 
@@ -347,12 +347,12 @@ Rectf Font::measure(const std::wstring &text, float fontSize) const
 	return result.scaled( fontSize / mFontSize );
 }
 
-float Font::measureWidth(const std::wstring &text, float fontSize, bool precise) const 
+float Font::measureWidth( const std::u16string &text, float fontSize, bool precise ) const
 {
 	float offset = 0.0f;
 	float adjust = 0.0f;
 
-	std::wstring::const_iterator citr;
+	std::u16string::const_iterator citr;
 	for(citr=text.begin();citr!=text.end();++citr) {
 		uint16_t charcode = (uint16_t) *citr;
 

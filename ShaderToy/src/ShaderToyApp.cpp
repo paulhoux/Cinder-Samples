@@ -30,6 +30,7 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/ConcurrentCircularBuffer.h"
 #include "cinder/ImageIo.h"
+#include "cinder/Unicode.h"
 #include "cinder/Utilities.h"
 #include <ctime>
 
@@ -213,7 +214,7 @@ void ShaderToyApp::draw()
 
 		// Clear buffer and draw full screen quad (flipped).
 		gl::clear();
-		gl::drawSolidRect( Rectf(0, getWindowHeight(), getWindowWidth(), 0) );
+		gl::drawSolidRect( Rectf( 0, (float) getWindowHeight(), (float) getWindowWidth(), 0 ) );
 
 		// Done.
 		mShaderCurrent->unbind();
@@ -229,7 +230,7 @@ void ShaderToyApp::draw()
 
 		// Clear buffer and draw full screen quad (flipped).
 		gl::clear();
-		gl::drawSolidRect( Rectf(0, getWindowHeight(), getWindowWidth(), 0) );
+		gl::drawSolidRect( Rectf( 0, (float) getWindowHeight(), (float) getWindowWidth(), 0 ) );
 
 		// Done.
 		mShaderNext->unbind();
@@ -364,7 +365,7 @@ void ShaderToyApp::fatal(const char* format, ...)
 	// Show the error message and tell the application to quit.
 #if defined( CINDER_MSW )
 	HWND hwnd = (HWND) app::getWindow()->getNative();
-	::MessageBox( hwnd, toUtf16(buffer).c_str(), L"Fatal Error", MB_OK | MB_ICONSTOP );
+	::MessageBox( hwnd, (LPWSTR) toUtf16(buffer).c_str(), L"Fatal Error", MB_OK | MB_ICONSTOP );
 	quit();
 #else
 	console() << msg << endl;

@@ -155,7 +155,7 @@ void TcpClient::handle_connect(const boost::system::error_code& error)
 		sConnected(mEndPoint);
 
 		// start heartbeat timer (optional)
-		mHeartBeatTimer.expires_from_now(boost::chrono::seconds(5));
+		mHeartBeatTimer.expires_from_now(std::chrono::seconds(5));
 		mHeartBeatTimer.async_wait(boost::bind(&TcpClient::do_heartbeat, this, boost::asio::placeholders::error));
 
 		// await the first message
@@ -169,7 +169,7 @@ void TcpClient::handle_connect(const boost::system::error_code& error)
 		ci::app::console() << "Server error:" << error.message() << std::endl;
 
 		// schedule a timer to reconnect after 5 seconds		
-		mReconnectTimer.expires_from_now(boost::chrono::seconds(5));
+		mReconnectTimer.expires_from_now(std::chrono::seconds(5));
 		mReconnectTimer.async_wait(boost::bind(&TcpClient::do_reconnect, this, boost::asio::placeholders::error));
 	}
 }
@@ -193,7 +193,7 @@ void TcpClient::handle_read(const boost::system::error_code& error)
 		sMessage(msg);
 
 		// restart heartbeat timer (optional)
-		mHeartBeatTimer.expires_from_now(boost::chrono::seconds(5));
+		mHeartBeatTimer.expires_from_now(std::chrono::seconds(5));
 		mHeartBeatTimer.async_wait(boost::bind(&TcpClient::do_heartbeat, this, boost::asio::placeholders::error));
 
 		// wait for the next message
@@ -213,7 +213,7 @@ void TcpClient::handle_read(const boost::system::error_code& error)
 			mReconnectTimer.cancel();
 			
 			// schedule a timer to reconnect after 5 seconds
-			mReconnectTimer.expires_from_now(boost::chrono::seconds(5));
+			mReconnectTimer.expires_from_now(std::chrono::seconds(5));
 			mReconnectTimer.async_wait(boost::bind(&TcpClient::do_reconnect, this, boost::asio::placeholders::error));
 		}
 		else
@@ -237,7 +237,7 @@ void TcpClient::handle_write(const boost::system::error_code& error)
 		}
 		else {
 			// restart heartbeat timer (optional)
-			mHeartBeatTimer.expires_from_now(boost::chrono::seconds(5));
+			mHeartBeatTimer.expires_from_now(std::chrono::seconds(5));
 			mHeartBeatTimer.async_wait(boost::bind(&TcpClient::do_heartbeat, this, boost::asio::placeholders::error));
 		}
 	}

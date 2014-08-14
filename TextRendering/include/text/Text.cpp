@@ -97,7 +97,7 @@ void Text::renderMesh()
 	const float		height = getHeight() > 0.0f ? (getHeight() - mFont->getDescent(mFontSize)) : 0.0f;
 	float			width, linewidth;
 	size_t			index = 0;
-	std::wstring	trimmed, chunk;
+	std::u16string	trimmed, chunk;
 	
 	// initialize cursor position
 	Vec2f cursor(0.0f, std::floorf(mFont->getAscent(mFontSize) + 0.5f));
@@ -212,9 +212,9 @@ void Text::renderMesh()
 	//app::console() << ( app::getElapsedSeconds() - t ) << std::endl;
 }
 
-void Text::renderString( const std::wstring &str, Vec2f *cursor, float stretch )
+void Text::renderString( const std::u16string &str, Vec2f *cursor, float stretch )
 {
-	std::wstring::const_iterator itr;
+	std::u16string::const_iterator itr;
 	for(itr=str.begin();itr!=str.end();++itr) {
 		// retrieve character code
 		uint16_t id = (uint16_t) *itr;
@@ -394,7 +394,7 @@ void Text::findBreaksUtf8( const std::string &line, std::vector<size_t> *must, s
 	}
 }
 
-void Text::findBreaksUtf16( const std::wstring &line, std::vector<size_t> *must, std::vector<size_t> *allow )
+void Text::findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow )
 {
 	std::vector<uint8_t> resultBreaks;
 	calcLinebreaksUtf16( (uint16_t*) line.c_str(), &resultBreaks );

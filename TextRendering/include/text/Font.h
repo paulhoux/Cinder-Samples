@@ -25,6 +25,7 @@
 #include "cinder/Cinder.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Surface.h"
+#include "cinder/Unicode.h"
 #include "cinder/Utilities.h"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/Texture.h"
@@ -104,12 +105,12 @@ public:
 	//!
 	ci::Rectf	measure( const std::string &text, float fontSize=12.0f ) const { return measure( ci::toUtf16(text), fontSize ); }
 	//!
-	ci::Rectf	measure( const std::wstring &text, float fontSize=12.0f ) const;
+	ci::Rectf	measure( const std::u16string &text, float fontSize=12.0f ) const;
 
 	//!
 	float		measureWidth( const std::string &text, float fontSize=12.0f, bool precise=true ) const { return measureWidth( ci::toUtf16(text), fontSize, precise ); }
 	//!
-	float		measureWidth( const std::wstring &text, float fontSize=12.0f, bool precise=true ) const;
+	float		measureWidth( const std::u16string &text, float fontSize = 12.0f, bool precise = true ) const;
 
 protected:
 	bool				mInvalid;

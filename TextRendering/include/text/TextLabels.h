@@ -41,7 +41,7 @@ public:
     }
 };
 
-typedef std::multimap< ci::Vec3f, std::wstring, TextLabelCompare >	TextLabelList;
+typedef std::multimap< ci::Vec3f, std::u16string, TextLabelCompare >	TextLabelList;
 typedef TextLabelList::iterator			TextLabelListIter;
 typedef TextLabelList::const_iterator	TextLabelListConstIter;
 	
@@ -69,7 +69,7 @@ public:
 
 	//!	add label
 	void	addLabel( const ci::Vec3f &position, const std::string &text ) { addLabel(position, ci::toUtf16(text)); }
-	void	addLabel( const ci::Vec3f &position, const std::wstring &text );
+	void	addLabel( const ci::Vec3f &position, const std::u16string &text );
 protected:
 	//! get the maximum width of the text at the specified vertical position
 	virtual float getWidthAt(float y) const { return 1000.0f; }
@@ -83,7 +83,7 @@ protected:
 	//! renders the current contents of mText
 	virtual void		renderMesh();
 	//! helper to render a non-word-wrapped string
-	virtual void		renderString( const std::wstring &str, ci::Vec2f *cursor, float stretch=1.0f );
+	virtual void		renderString( const std::u16string &str, ci::Vec2f *cursor, float stretch=1.0f );
 	//! creates the VBO from the data in the buffers
 	virtual void		createMesh();
 private:

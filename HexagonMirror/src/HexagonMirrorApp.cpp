@@ -123,7 +123,7 @@ void HexagonMirrorApp::setup()
 		console() << "Could not connect to webcam: " << e.what() << std::endl;
 
 		try { mCaptureTexture = loadImage( loadAsset("placeholder.png") ); }
-		catch( const std::exception &e ) { }
+		catch( const std::exception& ) { }
 	}
 }
 
