@@ -31,11 +31,19 @@ using namespace std;
 void FXAA::setup()
 {
 	// Load and compile our shader
-	mFXAA = gl::GlslProg( loadAsset("fxaa.vert"), loadAsset("fxaa.frag") );
+	try {
+		mFXAA = gl::GlslProg::create( loadAsset( "fxaa.vert" ), loadAsset( "fxaa.frag" ) );
+	}
+	catch( const std::exception& e ) {
+		console() << e.what() << std::endl;
+	}
 }
 
 void FXAA::apply(ci::gl::Fbo& destination, ci::gl::Fbo& source)
 {
+	if( !mFXAA )
+		return;
+
 	// Source and destination should have the same size
 	assert(destination.getWidth() == source.getWidth());
 	assert(destination.getHeight() == source.getHeight());
@@ -43,16 +51,16 @@ void FXAA::apply(ci::gl::Fbo& destination, ci::gl::Fbo& source)
 	// Apply FXAA
 	destination.bindFramebuffer();
 
-	mFXAA.bind();
-	mFXAA.uniform("uTexture", 0);
-	mFXAA.uniform("uRcpBufferSize", Vec2f::one() / Vec2f( destination.getSize() ));
+	mFXAA->bind();
+	mFXAA->uniform("uTexture", 0);
+	mFXAA->uniform("uRcpBufferSize", Vec2f::one() / Vec2f( destination.getSize() ));
 	{
 		gl::clear();
 		gl::color( Color::white() );
 
 		gl::draw( source.getTexture(), destination.getBounds() );
 	}
-	mFXAA.unbind();
+	mFXAA->unbind();
 	
 	destination.unbindFramebuffer();
 }

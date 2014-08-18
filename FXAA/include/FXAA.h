@@ -36,5 +36,5 @@ public:
 	void setup();
 	void apply(ci::gl::Fbo& destination, ci::gl::Fbo& source);
 private:
-	ci::gl::GlslProg    mFXAA;
+	ci::gl::GlslProgRef    mFXAA;
 };

@@ -1,5 +1,5 @@
 #version 120
-#extension GL_EXT_gpu_shader4 : enable
+#extension GL_ARB_gpu_shader5 : enable
 
 #define FXAA_PC 1
 #define FXAA_GLSL_120 1
