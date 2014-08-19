@@ -70,13 +70,13 @@ void Shader::load()
 	const fs::path& path = getPath();
 	if(path.empty()) {
 		char msg[512]; snprintf(msg, 512, "Could not find shader '%s'.", mName.c_str());
-		throw std::exception(msg);
+		throw std::runtime_error(msg);
 	}
 
 	// check if all files are present
 	if(!fs::exists(path / mFragmentFile)) {
 		char msg[512]; snprintf(msg, 512, "Shader '%s' is not complete. Make sure you have both a vertex and fragment shader file.", mName.c_str());
-		throw std::exception(msg);
+		throw std::runtime_error(msg);
 	}
 	
 	bHasGeometryShader = fs::exists(path / mGeometryFile);
@@ -99,7 +99,7 @@ void Shader::load()
 	}
 	catch( const std::exception& e ) {
 		char msg[64*1024]; snprintf(msg, 64*1024, "Failed to compile shader '%s':\n%s", mName.c_str(), e.what());
-		throw std::exception(msg);
+		throw std::runtime_error(msg);
 	}
 }
 
@@ -132,7 +132,7 @@ std::string Shader::parseShader( const fs::path& path, bool optional, int level 
 
 	if( level > 32 )
 	{
-		throw std::exception("Reached the maximum inclusion depth.");
+		throw std::runtime_error("Reached the maximum inclusion depth.");
 		return std::string();
 	}
 
@@ -146,11 +146,11 @@ std::string Shader::parseShader( const fs::path& path, bool optional, int level 
 
 		if( level == 0 ) {
 			char msg[512]; snprintf(msg, 512, "Failed to open shader file '%s'.", path.c_str());
-			throw std::exception(msg);
+			throw std::runtime_error(msg);
 		}
 		else {
 			char msg[512]; snprintf(msg, 512, "Failed to open shader include file '%s'.", path.c_str());
-			throw std::exception(msg);
+			throw std::runtime_error(msg);
 		}
 
 		return std::string();

@@ -26,5 +26,8 @@
 *.map
 *.tlog
 /*/xcode/build
-*.xcodeproj
 *.plist
+*.xcworkspace
+*.xcscheme
+
+
