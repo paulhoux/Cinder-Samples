@@ -79,6 +79,8 @@ public:
 	void	setup();
 	void	draw();
 
+	void	resize( const ci::Vec2i& size );
+
 	void	clear();
 
 	void	enablePointSprites();

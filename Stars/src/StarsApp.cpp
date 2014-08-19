@@ -588,6 +588,7 @@ void StarsApp::keyDown( KeyEvent event )
 void StarsApp::resize()
 {
 	mCamera.resize();
+	mStars.resize( getWindowSize() );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )
