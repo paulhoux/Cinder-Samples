@@ -25,3 +25,6 @@
 *.pdb
 *.map
 *.tlog
+/*/xcode/build
+*.xcodeproj
+*.plist
