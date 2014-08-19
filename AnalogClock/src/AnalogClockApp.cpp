@@ -41,7 +41,7 @@ public:
 	// application events	
 	void keyDown( KeyEvent event );
 protected:
-	float getSecondsSinceMidnight();
+	int getSecondsSinceMidnight();
 protected:
 	// your class members go here
 };
@@ -95,7 +95,7 @@ void AnalogClockApp::draw()
 	}
 
 	// get the number of seconds since midnight
-	float seconds = getSecondsSinceMidnight();
+	int seconds = getSecondsSinceMidnight();
 
 	// draw the long hand for the minutes
 	gl::pushModelView();
@@ -137,19 +137,12 @@ void AnalogClockApp::keyDown( KeyEvent event )
 
 //
 
-float AnalogClockApp::getSecondsSinceMidnight()
+int AnalogClockApp::getSecondsSinceMidnight()
 {
-	float seconds = 0.0f;
-
-	// this code only works on Windows
-#if defined( CINDER_MSW )
-	SYSTEMTIME now;
-	::GetLocalTime(&now);
-
-	seconds = float(now.wHour * 3600.0 + now.wMinute * 60.0 + now.wSecond);
-#endif	
-
-	return seconds;
+    auto t = std::time(nullptr);
+    auto d = std::localtime(&t);
+    
+    return int(d->tm_hour*3600 + d->tm_min*60 + d->tm_sec);
 }
 
 // the following macro will create the application
