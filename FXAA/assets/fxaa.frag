@@ -1,10 +1,11 @@
 #version 120
-#extension GL_ARB_gpu_shader5 : enable
+#extension GL_EXT_gpu_shader4 : enable
 
 #define FXAA_PC 1
 #define FXAA_GLSL_120 1
 #define FXAA_QUALITY__PRESET 39
 #define FXAA_GREEN_AS_LUMA 0
+#define FXAA_FAST_PIXEL_OFFSET 0
 
 
 /*============================================================================

@@ -1,7 +1,7 @@
 #version 110
 
-varying vec4 V;
-varying vec3 N;
+varying vec4 vVertex;
+varying vec3 vNormal;
 
 void main()
 {
@@ -9,9 +9,10 @@ void main()
 	const vec3 light = vec3(0.0, 0.0, 0.0);
 
 	// calculate lighting vectors
-	vec3 L = normalize( light - V.xyz );   
-	vec3 E = normalize( -V.xyz ); 
-	vec3 R = normalize( -reflect(L,N) );   
+    vec3 N = normalize( vNormal );
+	vec3 L = normalize( light - vVertex.xyz );
+	vec3 E = normalize( -vVertex.xyz ); 
+	vec3 R = normalize( -reflect(L,N) );
 
 	// diffuse term
 	vec4 diffuse = gl_Color;

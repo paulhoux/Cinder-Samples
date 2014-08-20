@@ -99,9 +99,9 @@ void HexagonMirrorApp::setup()
 {
 	// initialize camera
 	CameraPersp	cam;
-	cam.setEyePoint( Vec3f(90, 70, 90) );
-	cam.setCenterOfInterestPoint( Vec3f(90, 70, 0) );
-	cam.setFov( 60.0f );
+	cam.setEyePoint( Vec3f(90, 69, -380) );
+	cam.setCenterOfInterestPoint( Vec3f(90, 69, 0) );
+	cam.setFov( 20.0f );
 	mCamera.setCurrentCam( cam );
 
 	// load shader
@@ -115,8 +115,10 @@ void HexagonMirrorApp::setup()
 	loadMesh();
 
 	// connect to a webcam
-	try { 
-		mCapture = Capture::create( 160, 120 ); 
+	try {
+        //throw std::runtime_error("Disabled");
+        
+		mCapture = Capture::create( 320, 240 );
 		mCapture->start();
 	}
 	catch( const std::exception &e ) { 
@@ -138,7 +140,7 @@ void HexagonMirrorApp::draw()
 {
 	// clear the window
 	gl::clear();
-
+    
 	// activate our camera
 	gl::pushMatrices();
 	gl::setMatrices( mCamera.getCamera() );
@@ -163,9 +165,13 @@ void HexagonMirrorApp::draw()
 		// bind the buffer containing the model matrix for each instance,
 		// this will allow us to pass this information as a vertex shader attribute.
 		// See: initializeBuffer()
+#if defined(CINDER_COCOA)
+        glBindVertexArrayAPPLE(mVAO);
+#else
 		glBindVertexArray(mVAO);
+#endif
 
-		// we do all positioning in the shader, and therefor we only need 
+		// we do all positioning in the shader, and therefor we only need
 		// a single draw call to render all instances.
 		drawInstanced( mVboMesh, NUM_INSTANCES );
 
@@ -173,7 +179,11 @@ void HexagonMirrorApp::draw()
 		mVboMesh.unbindBuffers();
 			
 		// unbind vertex array object containing our buffer
+#if defined(CINDER_COCOA)
+        glBindVertexArrayAPPLE(0);
+#else
 		glBindVertexArray(0);
+#endif
 
 		// unbind shader
 		mShaderInstanced.unbind();
@@ -245,8 +255,13 @@ void HexagonMirrorApp::initializeBuffer()
 	{ 
 		// create vertex array object to hold our buffer
 		// (note: this is required for OpenGL 3.1 and above)
-		glGenVertexArrays(1, &mVAO);   
+#if defined(CINDER_COCOA)
+		glGenVertexArraysAPPLE(1, &mVAO);
+		glBindVertexArrayAPPLE(mVAO);
+#else
+		glGenVertexArrays(1, &mVAO);
 		glBindVertexArray(mVAO);
+#endif
 
 		// create array buffer to store model matrices
 		mBuffer = gl::Vbo( GL_ARRAY_BUFFER );
@@ -262,7 +277,11 @@ void HexagonMirrorApp::initializeBuffer()
 			glVertexAttribPointer( ulocation + i, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix44f), (const GLvoid*) (4 * sizeof(GLfloat) * i) );
 
 			// get the next matrix after each instance, instead of each vertex
+#if defined(CINDER_COCOA)
+			glVertexAttribDivisorARB( ulocation + i, 1 );
+#else
 			glVertexAttribDivisor( ulocation + i, 1 );
+#endif
 		}
 
 		// fill the buffer with our data
@@ -270,7 +289,11 @@ void HexagonMirrorApp::initializeBuffer()
 		mBuffer.unbind();
 
 		// unbind the VAO
+#if defined(CINDER_COCOA)
+		glBindVertexArrayAPPLE(0);
+#else
 		glBindVertexArray(0);
+#endif
 	}
 }
 
@@ -345,14 +368,14 @@ void HexagonMirrorApp::drawRangeInstanced( const gl::VboMesh &vbo, size_t startI
 	vbo.enableClientStates();
 	vbo.bindAllData();
 
-#if( defined GLEE_ARB_draw_instanced )
+//#if( defined GLEE_ARB_draw_instanced )
 	glDrawElementsInstancedARB( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*)( sizeof(uint32_t) * startIndex ), instanceCount );
-#elif( defined GLEE_EXT_draw_instanced )
-	glDrawElementsInstancedEXT( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*)( sizeof(uint32_t) * startIndex ), instanceCount );
-#else
+//#elif( defined GLEE_EXT_draw_instanced )
+//	glDrawElementsInstancedEXT( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*)( sizeof(uint32_t) * startIndex ), instanceCount );
+//#else
 	// fall back to rendering a single instance
-	glDrawElements( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*)( sizeof(uint32_t) * startIndex ) );
-#endif
+//	glDrawElements( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*)( sizeof(uint32_t) * startIndex ) );
+//#endif
 
 	gl::VboMesh::unbindBuffers();
 	vbo.disableClientStates();
@@ -363,14 +386,14 @@ void HexagonMirrorApp::drawArraysInstanced( const gl::VboMesh &vbo, GLint first,
 	vbo.enableClientStates();
 	vbo.bindAllData();
 
-#if( defined GLEE_ARB_draw_instanced )
+//#if( defined GLEE_ARB_draw_instanced )
 	glDrawArraysInstancedARB( vbo.getPrimitiveType(), first, count, instanceCount );
-#elif( defined GLEE_EXT_draw_instanced )
-	glDrawArraysInstancedEXT( vbo.getPrimitiveType(), first, count, instanceCount );
-#else
+//#elif( defined GLEE_EXT_draw_instanced )
+//	glDrawArraysInstancedEXT( vbo.getPrimitiveType(), first, count, instanceCount );
+//#else
 	// fall back to rendering a single instance
-	glDrawArrays( vbo.getPrimitiveType(), first, count );
-#endif
+//	glDrawArrays( vbo.getPrimitiveType(), first, count );
+//#endif
 
 	gl::VboMesh::unbindBuffers();
 	vbo.disableClientStates();

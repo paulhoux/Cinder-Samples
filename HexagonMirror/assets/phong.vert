@@ -6,8 +6,8 @@ uniform vec2		scale;
 
 attribute mat4		model_matrix;
 
-varying vec4		V;
-varying vec3		N;
+varying vec4		vVertex;
+varying vec3		vNormal;
 
 void main()
 {
@@ -23,17 +23,17 @@ void main()
 
 	// create a rotation matrix, based on the luminance
 	mat4 m;
-	m[0][0] = 1.0;
-	m[1][1] = cos(angle);	m[2][1] = -sin(angle);
-	m[1][2] = sin(angle);	m[2][2] =  cos(angle);
-	m[3][3] = 1.0;
+    m[0] = vec4(1.0,        0.0,         0.0, 0.0);
+	m[1] = vec4(0.0, cos(angle), -sin(angle), 0.0);
+	m[2] = vec4(0.0, sin(angle),  cos(angle), 0.0);
+    m[3] = vec4(0.0,        0.0,         0.0, 1.0);
 
 	// calculate final vertex position in eye space
-	V = gl_ModelViewMatrix * model_matrix * m * gl_Vertex;
+	vVertex = gl_ModelViewMatrix * model_matrix * m * gl_Vertex;
 
 	// do the same for the normal vector (note: this calculation is only correct if your model is uniformly scaled!)
-	N = normalize( gl_NormalMatrix * vec3( model_matrix * m * vec4( gl_Normal, 0.0 ) ) );
+	vNormal = gl_NormalMatrix * vec3( model_matrix * m * vec4( gl_Normal, 0.0 ) );
 	
-	gl_Position = gl_ProjectionMatrix * V;
+	gl_Position = gl_ProjectionMatrix * vVertex;
 	gl_FrontColor = vec4(1, 1, 1, 1);
 }
