@@ -152,10 +152,10 @@ void AudioVisualizerApp::setup()
 	}
 
 	// create static mesh (all animation is done in the vertex shader)
-	std::vector<Vec3f>	vertices;
-	std::vector<Colorf>	colors;
-	std::vector<Vec2f>	coords;
-	std::vector<size_t>	indices;
+	std::vector<Vec3f>      vertices;
+	std::vector<Colorf>     colors;
+	std::vector<Vec2f>      coords;
+	std::vector<uint32_t>	indices;
 	
 	for(size_t h=0;h<kHeight;++h)
 	{
@@ -431,7 +431,7 @@ fs::path AudioVisualizerApp::prevAudio(const fs::path& file)
 	if(file.empty() || !fs::is_regular_file(file))
 		return fs::path();
 
-	fs::path& directory = file.parent_path();
+	fs::path directory = file.parent_path();
 
 	// make a list of all audio files in the directory
 	vector<fs::path> files;
@@ -457,7 +457,7 @@ fs::path AudioVisualizerApp::nextAudio(const fs::path& file)
 	if(file.empty() || !fs::is_regular_file(file))
 		return fs::path();
 
-	fs::path& directory = file.parent_path();
+	fs::path directory = file.parent_path();
 
 	// make a list of all audio files in the directory
 	vector<fs::path> files;
@@ -541,6 +541,8 @@ FMOD_RESULT F_CALLBACK channelCallback(FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLB
 		// so let's notify the application instead by setting a boolean (which is thread safe).
 		pApp->signalChannelEnd = true;
 		break;
+    default:
+        break;
 	}
 
 	return FMOD_OK;

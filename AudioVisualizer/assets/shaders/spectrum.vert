@@ -13,7 +13,7 @@ void main(void)
 	float fft = max(0.0001, mix( texture2D( uLeftTex, coord ).r, texture2D( uRightTex, coord ).r, 0.5));
 
 	// convert to decibels
-	const float logBase10 = 1.0 / log(10.0);
+	const float logBase10 = 0.30102999566398; // 1.0 / log(10.0);
 	float decibels = 10.0 * log( fft ) * logBase10;
 
 	// offset the vertex based on the decibels
