@@ -69,7 +69,7 @@ protected:
 
 void BloomingNeonApp::prepareSettings( Settings *settings )
 {
-	settings->setResizable(false);
+	//settings->setResizable(false);
 	settings->setWindowSize(1606, 400);
 	settings->setTitle("Blurred Neon Effect Using Fbo's and Shaders");
 }
