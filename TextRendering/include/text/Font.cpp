@@ -55,8 +55,8 @@ void Font::create(const ci::DataSourceRef png, const ci::DataSourceRef txt)
 	// try to load the font texture
 	try { 
 		mSurface = ci::Surface( loadImage( png ) );
-		mTexture = gl::Texture( mSurface ); 
-		mTextureSize = mTexture.getSize();
+		mTexture = gl::Texture2d::create( mSurface ); 
+		mTextureSize = mTexture->getSize();
 	}
 	catch( ... ) { throw FontInvalidSourceExc();	}
 
@@ -202,13 +202,13 @@ void Font::read(const ci::DataSourceRef source)
 		mSurface = Surface( loadImage( DataSourceBuffer::create(buffer), ImageSource::Options(), "png" ) );
 
 		// apply mip-mapping
-		gl::Texture::Format fmt;
+		gl::Texture2d::Format fmt;
 		fmt.enableMipmapping();
 		fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );
 		fmt.setMagFilter( GL_LINEAR );
 
-		mTexture = gl::Texture( mSurface, fmt );
-		mTextureSize = mTexture.getSize();
+		mTexture = gl::Texture2d::create( mSurface, fmt );
+		mTextureSize = mTexture->getSize();
 	}
 	catch( ... ) {
 		throw FontInvalidSourceExc();
@@ -286,8 +286,8 @@ Rectf Font::getBounds(const Metrics &metrics, float fontSize) const
 	float	scale = (fontSize / mFontSize);
 
 	return Rectf( 
-		Vec2f(metrics.dx, -metrics.dy) * scale, 
-		Vec2f(metrics.dx + metrics.w, metrics.h - metrics.dy) * scale 
+		vec2(metrics.dx, -metrics.dy) * scale, 
+		vec2(metrics.dx + metrics.w, metrics.h - metrics.dy) * scale 
 	);
 }
 
@@ -303,8 +303,8 @@ Rectf Font::getTexCoords(uint16_t charcode) const
 Rectf Font::getTexCoords(const Metrics &metrics) const
 {
 	return Rectf( 
-		Vec2f(metrics.x1, metrics.y1) / mTextureSize, 
-		Vec2f(metrics.x2, metrics.y2) / mTextureSize 
+		vec2(metrics.x1, metrics.y1) / mTextureSize, 
+		vec2(metrics.x2, metrics.y2) / mTextureSize 
 	);
 }
 

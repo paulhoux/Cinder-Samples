@@ -21,6 +21,7 @@
 */
 
 #include "cinder/Unicode.h"
+#include "cinder/gl/VboMesh.h"
 
 #include "text/TextLabels.h"
 
@@ -37,9 +38,9 @@ void TextLabels::clear()
 	mInvalid = true;
 }
 
-void TextLabels::addLabel( const Vec3f &position, const std::u16string &text )
+void TextLabels::addLabel( const vec3 &position, const std::u16string &text )
 {
-	mLabels.insert( pair<Vec3f, std::u16string>( position, text ) );
+	mLabels.insert( pair<vec3, std::u16string>( position, text ) );
 	mInvalid = true;
 }
 
@@ -68,7 +69,7 @@ void TextLabels::renderMesh()
 	}
 }
 
-void TextLabels::renderString( const std::u16string &str, Vec2f *cursor, float stretch )
+void TextLabels::renderString( const std::u16string &str, vec2 *cursor, float stretch )
 {
 	std::u16string::const_iterator itr;
 	for(itr=str.begin();itr!=str.end();++itr) {
@@ -84,10 +85,10 @@ void TextLabels::renderString( const std::u16string &str, Vec2f *cursor, float s
 				size_t index = mVertices.size();
 
 				Rectf bounds = mFont->getBounds(m, mFontSize);
-				mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
-				mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
-				mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
-				mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
+				mVertices.push_back( vec3(*cursor + bounds.getUpperLeft(),0) );
+				mVertices.push_back( vec3(*cursor + bounds.getUpperRight(),0) );
+				mVertices.push_back( vec3(*cursor + bounds.getLowerRight(),0) );
+				mVertices.push_back( vec3(*cursor + bounds.getLowerLeft(),0) );
 			
 				bounds = mFont->getTexCoords(m);
 				mTexcoords.push_back( bounds.getUpperLeft() );
@@ -180,8 +181,8 @@ bool TextLabels::bindShader()
 {
 	if( Text::bindShader() )
 	{
-		Area viewport = gl::getViewport();
-		mShader.uniform( "viewport", Vec4i( viewport.getX1(), viewport.getY1(), viewport.getWidth(), viewport.getHeight() ) );
+		auto viewport = gl::getViewport();
+		mShader->uniform( "viewport", vec4( viewport.first.x, viewport.first.y, viewport.second.x, viewport.second.y ) );
 		return true;
 	}
 

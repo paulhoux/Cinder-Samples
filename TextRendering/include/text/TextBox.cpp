@@ -29,12 +29,12 @@ namespace ph { namespace text {
 using namespace ci;
 using namespace std;
 
-void TextBox::drawBounds( const ci::Vec2f &offset )
+void TextBox::drawBounds( const ci::vec2 &offset )
 {
-	glPushAttrib( GL_ENABLE_BIT | GL_CURRENT_BIT );
-	gl::color( ColorA(1, 0, 0, 1.0f) );
-	gl::drawStrokedRoundedRect( Rectf( offset, offset + mSize ), 5.0f );
-	glPopAttrib();
+//	glPushAttrib( GL_ENABLE_BIT | GL_CURRENT_BIT );
+	gl::color( ColorA(1, 0, 0, 1) );
+	gl::drawStrokedRect( Rectf( offset, offset + mSize ), 5.0f );
+//	glPopAttrib();
 }
 
 } } // namespace ph::text

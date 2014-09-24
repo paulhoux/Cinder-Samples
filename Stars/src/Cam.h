@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,7 +18,7 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #pragma once
 
@@ -35,11 +35,11 @@ public:
 	Cam( const ci::CameraStereo &aInitialCam ) { mInitialCam = mCurrentCam = aInitialCam; }
 
 	void		setup();
-	void		update(double elapsed);
+	void		update( double elapsed );
 
-	void		mouseDown( const ci::Vec2i &mousePos );
-	void		mouseDrag( const ci::Vec2i &mousePos, bool leftDown, bool middleDown, bool rightDown );
-	void		mouseUp( const ci::Vec2i &mousePos );
+	void		mouseDown( const ci::ivec2 &mousePos );
+	void		mouseDrag( const ci::ivec2 &mousePos, bool leftDown, bool middleDown, bool rightDown );
+	void		mouseUp( const ci::ivec2 &mousePos );
 
 	void		resize();
 
@@ -50,10 +50,10 @@ public:
 
 	const ci::CameraStereo&	getCamera();
 
-	void		setDistanceTime(double time) { mTimeDistanceTarget = time; }
+	void		setDistanceTime( double time ) { mTimeDistanceTarget = time; }
 
-	void		setEyeSeparation( float distance ) { mCurrentCam.setEyeSeparation(distance); }
-	void		setConvergence( float distance ) { mCurrentCam.setConvergence(distance); }
+	void		setEyeSeparation( float distance ) { mCurrentCam.setEyeSeparation( distance ); }
+	void		setConvergence( float distance ) { mCurrentCam.setConvergence( distance ); }
 
 	void		enableStereoLeft() { mCurrentCam.enableStereoLeft(); }
 	bool		isStereoLeftEnabled() const { return mCurrentCam.isStereoLeftEnabled(); }
@@ -64,24 +64,26 @@ public:
 	void		disableStereo() { mCurrentCam.disableStereo(); }
 
 	//! returns the position of the camera in world space
-	ci::Vec3f	getPosition();
+	ci::vec3	getPosition();
 private:
 	//!
-	double		average(const std::deque<double> &v){
+	double		average( const std::deque<double> &v )
+	{
 		double avg = 0.0;
 
-		for(std::deque<double>::const_iterator itr=v.begin();itr!=v.end();++itr) 
-			avg += (*itr / v.size());
+		for( std::deque<double>::const_iterator itr = v.begin(); itr != v.end(); ++itr )
+			avg += ( *itr / v.size() );
 
 		return avg;
 	};
 
 	//!
-	ci::Vec3d	average(const std::deque<ci::Vec3d> &v){
-		ci::Vec3d avg(0.0, 0.0, 0.0);
+	ci::dvec3	average( const std::deque<ci::dvec3> &v )
+	{
+		ci::dvec3 avg( 0.0, 0.0, 0.0 );
 
-		for(std::deque<ci::Vec3d>::const_iterator itr=v.begin();itr!=v.end();++itr) 
-			avg += (*itr / v.size());
+		for( std::deque<ci::dvec3>::const_iterator itr = v.begin(); itr != v.end(); ++itr )
+			avg += ( *itr / (double) v.size() );
 
 		return avg;
 	};
@@ -93,13 +95,13 @@ private:
 
 	ci::CameraStereo		mCurrentCam;
 
-	ci::Vec2i				mInitialMousePos;
+	ci::ivec2				mInitialMousePos;
 	ci::CameraStereo		mInitialCam;
 
 	double					mDeltaX;
 	double					mDeltaY;
 	double					mDeltaD;
-	std::deque<ci::Vec3d>	mDeltas;
+	std::deque<ci::dvec3>	mDeltas;
 
 	bool					mIsMouseDown;
 
@@ -111,6 +113,6 @@ private:
 
 	ci::Anim<double>		mLatitude;
 	ci::Anim<double>		mLongitude;
-	ci::Anim<double>		mDistance;
-	ci::Anim<double>		mFov;
+	ci::Anim<float>			mDistance;
+	ci::Anim<float>			mFov;
 };

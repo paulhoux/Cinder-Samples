@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,20 +18,19 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #pragma once
 
 #include "cinder/Vector.h"
 #include "cinder/app/AppBasic.h"
+#include "cinder/gl/Batch.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/gl/Vbo.h"
 
-class Background
-{
+class Background {
 public:
-	Background(void);
-	~Background(void);
+	Background( void );
+	~Background( void );
 
 	void	setup();
 	void	draw();
@@ -41,20 +40,20 @@ public:
 	void	setCameraDistance( float distance );
 private:
 	//! converts galactic coordinates (longitude, latitude) to equatorial coordinates (J2000: ra, dec)
-	ci::Vec2d	toEquatorial( const ci::Vec2d &radians );
+	ci::dvec2	toEquatorial( const ci::dvec2 &radians );
 	//! converts equatorial coordinates (J2000: ra, dec) to galactic coordinates (longitude, latitude)
-	ci::Vec2d	toGalactic( const ci::Vec2d &radians );
+	ci::dvec2	toGalactic( const ci::dvec2 &radians );
 
 public:
-	static const ci::Vec3d	GALACTIC_CENTER_EQUATORIAL;
-	static const ci::Vec2d	GALACTIC_NORTHPOLE_EQUATORIAL;
+	static const ci::dvec3	GALACTIC_CENTER_EQUATORIAL;
+	static const ci::dvec2	GALACTIC_NORTHPOLE_EQUATORIAL;
 
 private:
 	//
-	float				mAttenuation;
-	ci::Matrix44f		mTransform;
+	float					mAttenuation;
+	ci::mat4				mTransform;
 
-	ci::gl::Texture		mTexture;
-	ci::gl::VboMesh		mVboMesh;
+	ci::gl::Texture2dRef	mTexture;
+	ci::gl::BatchRef		mBatch;
 };
 

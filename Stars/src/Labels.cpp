@@ -52,21 +52,21 @@ void Labels::setup()
 
 	double alpha = toRadians( 17.76112222 * 15.0 );
 	double delta = toRadians( -29.00780555 );
-	Vec3f position = 8330.0 * Vec3f((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta)));
+	vec3 position = 8330.0f * vec3((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta)));
 
 	mLabels.addLabel( position, "Center of the Galaxy" );
 }
 
 void Labels::draw()
 {
-	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+	//glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
 
 	gl::enableAdditiveBlending();
 	gl::color( Color::white() * mAttenuation );
 
 	mLabels.draw();
 
-	glPopAttrib();
+	//glPopAttrib();
 }
 
 void Labels::setCameraDistance( float distance )
@@ -123,7 +123,7 @@ void Labels::load( DataSourceRef source )
 			double alpha = toRadians( ra * 15.0 );
 			double delta = toRadians( dec );
 
-			Vec3f position = distance * Vec3f((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta)));
+			vec3 position = distance * vec3((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta)));
 
 			mLabels.addLabel( position, name );
 		}
@@ -147,7 +147,7 @@ void Labels::read(DataSourceRef source)
 	in->readLittle( &numLabels );
 	
 	for( size_t idx = 0; idx < numLabels; ++idx ) {
-		Vec3f position;
+		vec3 position;
 		in->readLittle( &position.x ); in->readLittle( &position.y ); in->readLittle( &position.z );
 		std::string name;
 		in->read( &name );
@@ -166,7 +166,7 @@ void Labels::write(DataTargetRef target)
 	out->writeLittle( static_cast<uint32_t>( mLabels.size() ) );
 	
 	for( text::TextLabelListConstIter it = mLabels.begin(); it != mLabels.end(); ++it ) {
-		Vec3f position = it->first;
+		vec3 position = it->first;
 		out->writeLittle( position.x ); out->writeLittle( position.y ); out->writeLittle( position.z );
 		std::string name = toUtf8( it->second );
 		out->write( name );

@@ -24,6 +24,8 @@
 #include "Conversions.h"
 
 #include "cinder/app/AppBasic.h"
+#include "cinder/gl/Context.h"
+#include "cinder/gl/VboMesh.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -43,24 +45,20 @@ Constellations::~Constellations(void)
 
 void Constellations::draw()
 {
-	if(!mMesh) return;
-
-	glPushAttrib( GL_CURRENT_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT );
+	if(!mBatch) return;
 
 	glLineWidth( mLineWidth );
-	gl::color( Color(0.5f, 0.6f, 0.8f) * mAttenuation );
-	gl::enableAdditiveBlending();
 
-	gl::draw( mMesh );
+	gl::ScopedColor color( Color( 0.5f, 0.6f, 0.8f ) * mAttenuation );
+	gl::ScopedAdditiveBlend blend;
 
-	glPopAttrib();
+	mBatch->draw();
 }
 
 void Constellations::clear()
 {
-	mMesh = gl::VboMesh();
+	mBatch.reset();
 	mVertices.clear();
-	mIndices.clear();
 }
 
 void Constellations::setCameraDistance( float distance )
@@ -83,7 +81,7 @@ void Constellations::load( DataSourceRef source )
 	console() << "Loading constellation database from CSV, please wait..." << std::endl;
 
 	// prepare star database in case this is needed
-	std::vector<Vec3d> stars;
+	std::vector<dvec3> stars;
 
 	// load the database
 	std::string	constellations = loadString( source );
@@ -115,14 +113,14 @@ void Constellations::load( DataSourceRef source )
 				double	ra = Conversions::toDouble( tokens[0+2*j] );
 				double	dec = Conversions::toDouble( tokens[1+2*j] );
 				double	distance = 2000.0;
-				Vec3d	s = getStarCoordinate( ra, dec, 2000.0 );
+				dvec3	s = getStarCoordinate( ra, dec, 2000.0 );
 
 				// find adjusted star position and distance
 				double d = 2000.0;
-				std::vector<Vec3d>::const_iterator i;
+				std::vector<dvec3>::const_iterator i;
 				for(i=stars.begin();i<stars.end();++i) {
-					Vec3d c = getStarCoordinate( i->x, i->y, 2000.0 );
-					double dist = s.distance( c );
+					dvec3 c = getStarCoordinate( i->x, i->y, 2000.0 );
+					double dist = glm::distance( s, c );
 					if (dist < d) {
 						ra = i->x;
 						dec = i->y;
@@ -131,8 +129,7 @@ void Constellations::load( DataSourceRef source )
 					}
 				}
 
-				mIndices.push_back( mVertices.size() );
-				mVertices.push_back( getStarCoordinate( ra, dec, distance ) );
+				mVertices.push_back( (vec3) getStarCoordinate( ra, dec, distance ) );
 
 				adjusted.append( (boost::format("%.7d;%.7d;%.7d;") % ra % dec % distance).str() );
 			}
@@ -147,10 +144,8 @@ void Constellations::load( DataSourceRef source )
 			double	dec2 = Conversions::toDouble( tokens[4] );
 			double	distance2 = Conversions::toDouble( tokens[5] );
 
-			mIndices.push_back( mVertices.size() );
-			mVertices.push_back( getStarCoordinate( ra1, dec1, distance1 ) );
-			mIndices.push_back( mVertices.size() );
-			mVertices.push_back( getStarCoordinate( ra2, dec2, distance2 ) );
+			mVertices.push_back( (vec3) getStarCoordinate( ra1, dec1, distance1 ) );
+			mVertices.push_back( (vec3) getStarCoordinate( ra2, dec2, distance2 ) );
 
 			adjusted.append( (boost::format("%.7d;%.7d;%.7d;") % ra1 % dec1 % distance1).str() );
 			adjusted.append( (boost::format("%.7d;%.7d;%.7d\r\n") % ra2 % dec2 % distance2).str() );
@@ -176,23 +171,16 @@ void Constellations::read(DataSourceRef source)
 	uint8_t versionNumber;
 	in->read( &versionNumber );
 	
-	uint32_t numVertices, numIndices;
+	uint32_t numVertices;
 	in->readLittle( &numVertices );
-	in->readLittle( &numIndices );
 	
 	for( size_t idx = 0; idx < numVertices; ++idx ) {
-		Vec3f v;
+		vec3 v;
 		in->readLittle( &v.x ); in->readLittle( &v.y ); in->readLittle( &v.z );
 		mVertices.push_back( v );
 	}
 
-	for( size_t idx = 0; idx < numIndices; ++idx ) {
-		uint32_t v;
-		in->readLittle( &v );
-		mIndices.push_back( v );
-	}
-
-	// create VboMesh
+	// create mesh
 	createMesh();
 }
 
@@ -204,38 +192,32 @@ void Constellations::write(DataTargetRef target)
 	out->write( versionNumber );
 	
 	out->writeLittle( static_cast<uint32_t>( mVertices.size() ) );
-	out->writeLittle( static_cast<uint32_t>( mIndices.size() ) );
 	
-	for( std::vector<Vec3f>::const_iterator it = mVertices.begin(); it != mVertices.end(); ++it ) {
+	for( std::vector<vec3>::const_iterator it = mVertices.begin(); it != mVertices.end(); ++it ) {
 		out->writeLittle( it->x ); out->writeLittle( it->y ); out->writeLittle( it->z );
-	}
-
-	for( std::vector<uint32_t>::const_iterator it = mIndices.begin(); it != mIndices.end(); ++it ) {
-		out->writeLittle( *it ); 
 	}
 }
 
 void Constellations::createMesh()
 {
-	gl::VboMesh::Layout layout;
-	layout.setStaticPositions();
-	layout.setStaticIndices();
+	auto vboMesh = gl::VboMesh::create( mVertices.size(), GL_LINES, { gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::POSITION, 3 ) } );
+	vboMesh->bufferAttrib( geom::POSITION, mVertices );
 
-	mMesh = gl::VboMesh(mVertices.size(), 0, layout, GL_LINES);
-	mMesh.bufferPositions( &(mVertices.front()), mVertices.size() );
-	mMesh.bufferIndices( mIndices );
+	auto shader = gl::context()->getStockShader( gl::ShaderDef().color() );
+
+	mBatch = gl::Batch::create( vboMesh, shader );
 }
 
-Vec3d Constellations::getStarCoordinate( double ra, double dec, double distance )
+dvec3 Constellations::getStarCoordinate( double ra, double dec, double distance )
 {
 	double alpha = toRadians( ra * 15.0 );
 	double delta = toRadians( dec );
-	return distance * Vec3d( sin(alpha) * cos(delta), sin(delta), cos(alpha) * cos(delta) );
+	return distance * dvec3( sin(alpha) * cos(delta), sin(delta), cos(alpha) * cos(delta) );
 }
 
-std::vector<Vec3d> Constellations::getStarCoordinates( DataSourceRef source )
+std::vector<dvec3> Constellations::getStarCoordinates( DataSourceRef source )
 {
-	std::vector<Vec3d> result;
+	std::vector<dvec3> result;
 
 	// load the star database
 	std::string	stars = loadString( source );
@@ -261,7 +243,7 @@ std::vector<Vec3d> Constellations::getStarCoordinates( DataSourceRef source )
 			double dec = Conversions::toDouble(tokens[8]);
 			double distance = Conversions::toDouble(tokens[9]);
 
-			result.push_back( Vec3d(ra, dec, distance) );
+			result.push_back( dvec3(ra, dec, distance) );
 		}
 		catch(...) {}
 	}

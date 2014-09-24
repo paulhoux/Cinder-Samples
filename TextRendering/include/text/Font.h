@@ -96,11 +96,11 @@ public:
 	inline float getAdvance(const Metrics &metrics, float fontSize=12.0f) const;
 
 	//!
-	void		enableAndBind() const { if(mTexture) mTexture.enableAndBind(); }
+	void		enableAndBind() const { if(mTexture) mTexture->bind(); }
 	//!
-	void		bind(GLuint textureUnit=0) const { if(mTexture) mTexture.bind(textureUnit); }
+	void		bind(GLuint textureUnit=0) const { if(mTexture) mTexture->bind(textureUnit); }
 	//!
-	void		unbind(GLuint textureUnit=0) const  { if(mTexture) mTexture.unbind(textureUnit); }
+	void		unbind(GLuint textureUnit=0) const  { if(mTexture) mTexture->unbind(textureUnit); }
 
 	//!
 	ci::Rectf	measure( const std::string &text, float fontSize=12.0f ) const { return measure( ci::toUtf16(text), fontSize ); }
@@ -124,9 +124,9 @@ protected:
 	float				mDescent;
 	float				mSpaceWidth;
 
-	ci::Surface			mSurface;
-	ci::gl::Texture		mTexture;
-	ci::Vec2f			mTextureSize;
+	ci::Surface				mSurface;
+	ci::gl::Texture2dRef	mTexture;
+	ci::vec2				mTextureSize;
 
 	MetricsData			mMetrics;
 };

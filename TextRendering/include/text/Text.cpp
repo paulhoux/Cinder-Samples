@@ -22,6 +22,7 @@
 
 #include "cinder/Rand.h"
 #include "cinder/Unicode.h"
+#include "cinder/gl/VboMesh.h"
 
 #include "text/Text.h"
 
@@ -42,13 +43,13 @@ void Text::draw()
 	}
 
 	if( mVboMesh && mFont && bindShader() ) {
-		glPushAttrib( GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
+		//glPushAttrib( GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
 
 		mFont->enableAndBind();
 		gl::draw(mVboMesh);
 		mFont->unbind();
 
-		glPopAttrib();
+		//glPopAttrib();
 
 		unbindShader();
 	}
@@ -64,14 +65,14 @@ void Text::drawWireframe()
  
 	if(!mVboMesh) return;
 
-	glPushAttrib( GL_POLYGON_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
+	//glPushAttrib( GL_POLYGON_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT );
 
 	gl::enableWireframe();
 	gl::disable( GL_TEXTURE_2D );
 
 	gl::draw(mVboMesh);
 
-	glPopAttrib();
+	//glPopAttrib();
 }
 
 void Text::clearMesh()
@@ -100,7 +101,7 @@ void Text::renderMesh()
 	std::u16string	trimmed, chunk;
 	
 	// initialize cursor position
-	Vec2f cursor(0.0f, std::floorf(mFont->getAscent(mFontSize) + 0.5f));
+	vec2 cursor(0.0f, std::floorf(mFont->getAscent(mFontSize) + 0.5f));
 
 	// get word/line break information from Cinder's Unicode class if not available
 	if( mMust.empty() || mAllow.empty() )
@@ -212,7 +213,7 @@ void Text::renderMesh()
 	//app::console() << ( app::getElapsedSeconds() - t ) << std::endl;
 }
 
-void Text::renderString( const std::u16string &str, Vec2f *cursor, float stretch )
+void Text::renderString( const std::u16string &str, vec2 *cursor, float stretch )
 {
 	std::u16string::const_iterator itr;
 	for(itr=str.begin();itr!=str.end();++itr) {
@@ -227,12 +228,11 @@ void Text::renderString( const std::u16string &str, Vec2f *cursor, float stretch
 			if( ! isWhitespaceUtf16(id) ) {
 				size_t index = mVertices.size();
 
-
 				Rectf bounds = mFont->getBounds(m, mFontSize);
-				mVertices.push_back( Vec3f(*cursor + bounds.getUpperLeft()) );
-				mVertices.push_back( Vec3f(*cursor + bounds.getUpperRight()) );
-				mVertices.push_back( Vec3f(*cursor + bounds.getLowerRight()) );
-				mVertices.push_back( Vec3f(*cursor + bounds.getLowerLeft()) );
+				mVertices.push_back( vec3(*cursor + bounds.getUpperLeft(),0) );
+				mVertices.push_back( vec3( *cursor + bounds.getUpperRight(), 0 ) );
+				mVertices.push_back( vec3( *cursor + bounds.getLowerRight(), 0 ) );
+				mVertices.push_back( vec3( *cursor + bounds.getLowerLeft(), 0 ) );
 			
 				bounds = mFont->getTexCoords(m);
 				mTexcoords.push_back( bounds.getUpperLeft() );
@@ -283,7 +283,7 @@ Rectf Text::getBounds() const
 	{
 		mBounds = Rectf(0.0f, 0.0f, 0.0f, 0.0f);
 
-		vector< Vec3f >::const_iterator itr = mVertices.begin();
+		vector< vec3 >::const_iterator itr = mVertices.begin();
 		while( itr != mVertices.end() ) {
 			mBounds.x1 = ci::math<float>::min( itr->x, mBounds.x1 );
 			mBounds.y1 = ci::math<float>::min( itr->y, mBounds.y1 );
@@ -351,25 +351,25 @@ bool Text::bindShader()
 	if( ! mShader ) 
 	{
 		try { 
-			mShader = gl::GlslProg( getVertexShader().c_str(), getFragmentShader().c_str() ); 
+			mShader = gl::GlslProg::create( getVertexShader().c_str(), getFragmentShader().c_str() ); 
 		}
 		catch( const std::exception &e ) { 
 			app::console() << "Could not load&compile shader: " << e.what() << std::endl;
-			mShader = gl::GlslProg(); return false; 
+			mShader = gl::GlslProgRef(); return false; 
 		}
 	}
 
-	mShader.bind();
-	mShader.uniform( "font_map", 0 );
-	mShader.uniform( "smoothness", 64.0f );
+	mShader->bind();
+	mShader->uniform( "font_map", 0 );
+	mShader->uniform( "smoothness", 64.0f );
 
 	return true;
 }
 
 bool Text::unbindShader()
 {
-	if( mShader ) 
-		mShader.unbind();
+	//if( mShader ) 
+	//	mShader.unbind();
 	
 	return true;
 }

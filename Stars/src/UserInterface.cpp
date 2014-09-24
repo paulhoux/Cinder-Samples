@@ -53,36 +53,36 @@ void UserInterface::setup()
 
 void UserInterface::draw( const std::string &text )
 {
-	glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+	//glPushAttrib(GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
 	{
 		gl::disableDepthRead();
 		gl::disableDepthWrite();
 		gl::enableAlphaBlending();
 		gl::color( Color::white() );
 
-		Area viewport = gl::getViewport();
-		Vec2i position = Vec2i( 0.5f * viewport.getWidth(), 0.92f * viewport.getHeight() );	
+		auto viewport = gl::getViewport();
+		vec2 position = vec2( 0.5f * viewport.second.x, 0.92f * viewport.second.y );	
 
 		gl::pushMatrices();
 		{
-			gl::setMatricesWindow( gl::getViewport().getSize(), true );
+			gl::setMatricesWindow( viewport.second, true );
 
 			gl::translate( position );
 
-			float s = math<float>::min(1000.0f, viewport.getWidth()) / 1000.0f;
+			float s = math<float>::min(1000.0f, viewport.second.x) / 1000.0f;
 			gl::scale( s, s );
 
-			gl::drawLine( Vec2f(-400, 0.5f), Vec2f(400, 0.5f) );
+			gl::drawLine( vec2(-400, 0.5f), vec2(400, 0.5f) );
 
-			gl::translate( Vec2i(-400, -29) );
+			gl::translate( ivec2(-400, -29) );
 			mBox.setText( text );
 			mBox.draw();
 
-			gl::translate( Vec2i(0, 34) );
+			gl::translate( ivec2(0, 34) );
 			mBox.setText( (boost::format(mText) % mDistance).str() );
 			mBox.draw();
 		}
 		gl::popMatrices();
 	}
-	glPopAttrib();
+	//glPopAttrib();
 }

@@ -35,28 +35,28 @@ class TextBox
 {
 public:
 	TextBox(void)
-		: mSize( ci::Vec2f::zero() ) {};
+		: mSize( ci::vec2(0) ) {};
 	TextBox(float width, float height) 
-		: mSize( ci::Vec2f(width, height) ) {};
-	TextBox(const ci::Vec2f &size) 
+		: mSize( ci::vec2(width, height) ) {};
+	TextBox(const ci::vec2 &size) 
 		: mSize(size) {};
 	virtual ~TextBox(void) {};
 
 	//!
-	void		drawBounds( const ci::Vec2f &offset = ci::Vec2f::zero() );
+	void		drawBounds( const ci::vec2 &offset = ci::vec2(0) );
 
 	//!
-	ci::Vec2f	getSize() const { return mSize; }
+	ci::vec2	getSize() const { return mSize; }
 	//!
-	void		setSize(float width, float height) { mSize = ci::Vec2f(width, height); mInvalid = true; mBoundsInvalid = true; }
-	void		setSize(const ci::Vec2f &size) { mSize = size; mInvalid = true; mBoundsInvalid = true; }
+	void		setSize(float width, float height) { mSize = ci::vec2(width, height); mInvalid = true; mBoundsInvalid = true; }
+	void		setSize(const ci::vec2 &size) { mSize = size; mInvalid = true; mBoundsInvalid = true; }
 protected:
 	//! get the maximum width of the text at the specified vertical position
 	virtual float getWidthAt(float y) { return mSize.x; }
 	//! get the maximum height of the text
 	virtual float	getHeight() { return mSize.y; }
 	//! function to move the cursor to the next line
-	virtual	bool	newLine( ci::Vec2f *cursor ) {
+	virtual	bool	newLine( ci::vec2 *cursor ) {
 		cursor->x = 0.0f; 
 		cursor->y += std::floorf(getLeading() + 0.5f); 
 
@@ -64,7 +64,7 @@ protected:
 		return (h == 0.0f || cursor->y < h); 
 	}
 protected:
-	ci::Vec2f		mSize;
+	ci::vec2		mSize;
 };
 
 } } // namespace ph::text

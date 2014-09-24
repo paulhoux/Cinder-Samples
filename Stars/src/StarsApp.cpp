@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,12 +18,13 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "cinder/MayaCamUI.h"
 #include "cinder/Utilities.h"
 #include "cinder/Timer.h"
 #include "cinder/app/AppBasic.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
@@ -51,14 +52,14 @@ using namespace irrklang;
 
 class StarsApp : public AppBasic {
 public:
-	void	prepareSettings(Settings *settings);
+	void	prepareSettings( Settings *settings );
 	void	setup();
 	void	shutdown();
 	void	update();
 	void	draw();
 
-	void	mouseDown( MouseEvent event );	
-	void	mouseDrag( MouseEvent event );	
+	void	mouseDown( MouseEvent event );
+	void	mouseDrag( MouseEvent event );
 	void	mouseUp( MouseEvent event );
 
 	void	keyDown( KeyEvent event );
@@ -68,43 +69,43 @@ public:
 	bool	isStereoscopic() const { return mIsStereoscopic; }
 	bool	isCylindrical() const { return mIsCylindrical; }
 protected:
-	void	playMusic( const fs::path &path, bool loop=false );
+	void	playMusic( const fs::path &path, bool loop = false );
 	void	stopMusic();
-	void	playSound( const fs::path &path, bool loop=false );
+	void	playSound( const fs::path &path, bool loop = false );
 
 	shared_ptr<ISound>	createSound( const fs::path &path );
 
 	void	forceHideCursor();
 	void	forceShowCursor();
-	void	constrainCursor( const Vec2i &pos );
+	void	constrainCursor( const ivec2 &pos );
 
 	void	render();
 
 	void	createShader();
 	void	createFbo();
 
-	fs::path	getFirstFile( const fs::path &path );	
+	fs::path	getFirstFile( const fs::path &path );
 	fs::path	getNextFile( const fs::path &current );
 	fs::path	getPrevFile( const fs::path &current );
 protected:
 	double				mTime;
 
 	// cursor position
-	Vec2i				mCursorPos;
-	Vec2i				mCursorPrevious;
+	ivec2				mCursorPos;
+	ivec2				mCursorPrevious;
 
 	// camera
 	Cam					mCamera;
 
 	// graphical elements
-	Stars				mStars;
-	Labels				mLabels;
+	//Stars				mStars;
+	//Labels				mLabels;
 	Constellations		mConstellations;
-	ConstellationArt	mConstellationArt;
-	ConstellationLabels	mConstellationLabels;
+	//ConstellationArt	mConstellationArt;
+	//ConstellationLabels	mConstellationLabels;
 	Background			mBackground;
 	Grid				mGrid;
-	UserInterface		mUserInterface;
+	//UserInterface		mUserInterface;
 
 	// animation timer
 	Timer				mTimer;
@@ -120,8 +121,8 @@ protected:
 	bool				mDrawUserInterface;
 
 	// frame buffer and shader used for cylindrical projection
-	gl::Fbo				mFbo;
-	gl::GlslProg		mShader;
+	gl::FboRef			mFbo;
+	gl::GlslProgRef		mShader;
 	unsigned			mSectionCount;
 	float				mSectionFovDegrees;
 	float				mSectionOverlap;
@@ -137,16 +138,16 @@ protected:
 	std::vector<fs::path>		mMusicExtensions;
 };
 
-void StarsApp::prepareSettings(Settings *settings)
+void StarsApp::prepareSettings( Settings *settings )
 {
-	settings->setFrameRate(200.0f);
-	settings->setWindowSize(1280,720);
+	settings->setFrameRate( 200.0f );
+	settings->setWindowSize( 1280, 720 );
 
 #if (defined WIN32 && defined NDEBUG)
 	settings->setFullScreen(true);
 #else
 	// never start in full screen on MacOS or in debug mode
-	settings->setFullScreen(false);
+	settings->setFullScreen( false );
 #endif
 }
 
@@ -156,20 +157,20 @@ void StarsApp::setup()
 	mGrid.setup();
 
 	// load the star database and create the VBO mesh
-	if( fs::exists( getAssetPath("") / "stars.cdb" ) )
-		mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
+	//if( fs::exists( getAssetPath("") / "stars.cdb" ) )
+	//	mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
 
-	if( fs::exists( getAssetPath("") / "labels.cdb" ) )
-		mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
+	//if( fs::exists( getAssetPath("") / "labels.cdb" ) )
+	//	mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
 
-	if( fs::exists( getAssetPath("") / "constellations.cdb" ) )
-		mConstellations.read( loadFile( getAssetPath("") / "constellations.cdb" ) );
+	if( fs::exists( getAssetPath( "" ) / "constellations.cdb" ) )
+		mConstellations.read( loadFile( getAssetPath( "" ) / "constellations.cdb" ) );
 
-	if( fs::exists( getAssetPath("") / "constellationlabels.cdb" ) )
-		mConstellationLabels.read( loadFile( getAssetPath("") / "constellationlabels.cdb" ) );
+	//if( fs::exists( getAssetPath("") / "constellationlabels.cdb" ) )
+	//	mConstellationLabels.read( loadFile( getAssetPath("") / "constellationlabels.cdb" ) );
 
 	// create user interface
-	mUserInterface.setup();
+	//mUserInterface.setup();
 
 	// initialize background image
 	mBackground.setup();
@@ -198,7 +199,7 @@ void StarsApp::setup()
 	//  (angle of overlap: (1 - mSectionOverlap) * mSectionFovDegrees)
 	mSectionOverlap = 1.0f;
 
-	// create stars
+	/*// create stars
 	mStars.setup();
 	mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 
@@ -206,7 +207,7 @@ void StarsApp::setup()
 	mLabels.setup();
 	mConstellationArt.setup();
 	mConstellationLabels.setup();
-
+	//*/
 	//
 	mMusicExtensions.push_back( ".flac" );
 	mMusicExtensions.push_back( ".ogg" );
@@ -216,21 +217,21 @@ void StarsApp::setup()
 	mPlayMusic = true;
 
 	// initialize the IrrKlang Sound Engine in a very safe way
-	mSoundEngine = shared_ptr<ISoundEngine>( createIrrKlangDevice(), std::mem_fun(&ISoundEngine::drop) );
+	mSoundEngine = shared_ptr<ISoundEngine>( createIrrKlangDevice(), std::mem_fun( &ISoundEngine::drop ) );
 
-	if(mSoundEngine) {
+	if( mSoundEngine ) {
 		// play 3D Sun rumble
-		mSound = createSound( getAssetPath("") / "sound/low_rumble_loop.mp3" );
-		if(mSound) {
-			mSound->setIsLooped(true);
-			mSound->setMinDistance(2.5f);
-			mSound->setMaxDistance(12.5f);
-			mSound->setIsPaused(false);
+		mSound = createSound( getAssetPath( "" ) / "sound/low_rumble_loop.mp3" );
+		if( mSound ) {
+			mSound->setIsLooped( true );
+			mSound->setMinDistance( 2.5f );
+			mSound->setMaxDistance( 12.5f );
+			mSound->setIsPaused( false );
 		}
 
 		// play background music (the first .mp3 file found in ./assets/music)
-		fs::path path = getFirstFile( getAssetPath("") / "music" );
-		playMusic(path);
+		fs::path path = getFirstFile( getAssetPath( "" ) / "music" );
+		playMusic( path );
 	}
 
 	//
@@ -250,155 +251,148 @@ void StarsApp::setup()
 
 void StarsApp::shutdown()
 {
-	if(mSoundEngine) mSoundEngine->stopAllSounds();
+	if( mSoundEngine ) mSoundEngine->stopAllSounds();
 }
 
 void StarsApp::update()
-{	
+{
 	double elapsed = getElapsedSeconds() - mTime;
 	mTime += elapsed;
 
 	double time = getElapsedSeconds() / 200.0;
-	if(mSoundEngine && mMusic && mPlayMusic) time = mMusic->getPlayPosition() / (double) mMusic->getPlayLength();
+	if( mSoundEngine && mMusic && mPlayMusic ) time = mMusic->getPlayPosition() / (double) mMusic->getPlayLength();
 
 	// animate camera
-	mCamera.setDistanceTime(time);
-	mCamera.update(elapsed);
+	mCamera.setDistanceTime( time );
+	mCamera.update( elapsed );
 
 	// adjust content based on camera distance
-	float distance = mCamera.getCamera().getEyePoint().length();
+	float distance = length( mCamera.getCamera().getEyePoint() );
 	mBackground.setCameraDistance( distance );
-	mLabels.setCameraDistance( distance );
+	//mLabels.setCameraDistance( distance );
 	mConstellations.setCameraDistance( distance );
-	mConstellationArt.setCameraDistance( distance );
-	mConstellationLabels.setCameraDistance( distance );
-	mUserInterface.setCameraDistance( distance );
+	//mConstellationArt.setCameraDistance( distance );
+	//mConstellationLabels.setCameraDistance( distance );
+	//mUserInterface.setCameraDistance( distance );
 
 	//
-	if(mSoundEngine) {
+	if( mSoundEngine ) {
 		// send camera position to sound engine (for 3D sounds)
-		Vec3f pos = mCamera.getPosition();
-		mSoundEngine->setListenerPosition( 
-			vec3df(pos.x, pos.y, pos.z), 
-			vec3df(-pos.x, -pos.y, -pos.z), 
-			vec3df(0,0,0), 
-			vec3df(0,1,0) );
+		vec3 pos = mCamera.getPosition();
+		mSoundEngine->setListenerPosition(
+			vec3df( pos.x, pos.y, pos.z ),
+			vec3df( -pos.x, -pos.y, -pos.z ),
+			vec3df( 0, 0, 0 ),
+			vec3df( 0, 1, 0 ) );
 
 		// if music has finished, play next track
 		if( mPlayMusic && mMusic && mMusic->isFinished() ) {
-			playMusic( getNextFile(mMusicPath) );
+			playMusic( getNextFile( mMusicPath ) );
 		}
 	}
 }
 
 void StarsApp::draw()
-{		
+{
 	int w = getWindowWidth();
 	int h = getWindowHeight();
 
-	gl::clear( Color::black() ); 
+	gl::clear( Color::black() );
 
-	if(mIsStereoscopic) {
-		glPushAttrib( GL_VIEWPORT_BIT );
+	if( mIsStereoscopic ) {
+		gl::ScopedViewport viewport( 0, 0, w / 2, h );
 		gl::pushMatrices();
 
 		// render left eye
 		mCamera.enableStereoLeft();
 
-		gl::setViewport( Area(0, 0, w / 2, h) );
 		gl::setMatrices( mCamera.getCamera() );
 		render();
-	
+
 		// draw user interface
-		if(mDrawUserInterface)
-			mUserInterface.draw("Stereoscopic Projection");
+		//if(mDrawUserInterface)
+		//	mUserInterface.draw("Stereoscopic Projection");
 
 		// render right eye
 		mCamera.enableStereoRight();
 
-		gl::setViewport( Area(w / 2, 0, w, h) );
+		gl::viewport( w / 2, 0, w / 2, h );
 		gl::setMatrices( mCamera.getCamera() );
 		render();
-	
-		// draw user interface
-		if(mDrawUserInterface)
-			mUserInterface.draw("Stereoscopic Projection");
 
-		gl::popMatrices();		
-		glPopAttrib();
+		// draw user interface
+		//if(mDrawUserInterface)
+		//	mUserInterface.draw("Stereoscopic Projection");
+
+		gl::popMatrices();
 	}
-	else if(mIsCylindrical) {
+	else if( mIsCylindrical ) {
 		// make sure we have a frame buffer to render to
 		createFbo();
 
 		// determine correct aspect ratio and vertical field of view for each of the 3 views
-		w = mFbo.getWidth() / mSectionCount;
-		h = mFbo.getHeight();
+		w = mFbo->getWidth() / mSectionCount;
+		h = mFbo->getHeight();
 
-		const float aspect = float(w) / float(h);
+		const float aspect = float( w ) / float( h );
 		//const float hFoV = mSectionFovDegrees;
 		//const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
 		const float vFoV = mCamera.getFov();
-		const float hFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(vFoV) * 0.5f ) * aspect ) );
+		const float hFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians( vFoV ) * 0.5f ) * aspect ) );
 
 		// bind the frame buffer object
-		mFbo.bindFramebuffer();
-
-		// store viewport and matrices, so we can restore later
-		glPushAttrib( GL_VIEWPORT_BIT );
-		gl::pushMatrices();
-
-		gl::setViewport( mFbo.getBounds() );
-		gl::clear();
-
-		// setup camera	
-		CameraStereo cam = mCamera.getCamera();
-		cam.disableStereo();
-		cam.setAspectRatio(aspect);
-		cam.setFov( vFoV );
-
-		Vec3f right, up; cam.getBillboardVectors(&right, &up);
-		Vec3f forward = up.cross(right);
-		
-		// render sections
-		float offset = 0.5f * (mSectionCount - 1);
-		for(unsigned i=0;i<mSectionCount;++i)
 		{
-			gl::setViewport( Area(i * w, 0, (i+1) * w, h) );
+			gl::ScopedFramebuffer fbo( mFbo );
 
-			cam.setViewDirection( Quatf(up, mSectionOverlap * toRadians((i - offset) * -hFoV)) * forward );
-			cam.setWorldUp( up );
-			gl::setMatrices( cam );
-			render();
+			// store viewport and matrices, so we can restore later
+			gl::ScopedViewport viewport( ivec2( 0 ), mFbo->getSize() );
+			gl::pushMatrices();
+
+			gl::clear();
+
+			// setup camera	
+			CameraStereo cam = mCamera.getCamera();
+			cam.disableStereo();
+			cam.setAspectRatio( aspect );
+			cam.setFov( vFoV );
+
+			vec3 right, up; cam.getBillboardVectors( &right, &up );
+			vec3 forward = cross( up, right );
+
+			// render sections
+			float offset = 0.5f * ( mSectionCount - 1 );
+			for( unsigned i = 0; i < mSectionCount; ++i ) {
+				gl::ScopedViewport viewport( i * w, 0, ( i + 1 ) * w, h );
+
+				cam.setViewDirection( quat( mSectionOverlap * toRadians( ( i - offset ) * -hFoV ), up ) * forward );
+				cam.setWorldUp( up );
+				gl::setMatrices( cam );
+				render();
+			}
+
+			// draw user interface
+			gl::setMatrices( mCamera.getCamera() );
+
+			//if(mDrawUserInterface)
+			//	mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( hFoV + ((mSectionCount-1) * mSectionOverlap) * hFoV ) ).str() );
+
+			// restore states
+			gl::popMatrices();
 		}
-	
-		// draw user interface
-		gl::setViewport( mFbo.getBounds() );
-		gl::setMatrices( mCamera.getCamera() );
-
-		if(mDrawUserInterface)
-			mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( hFoV + ((mSectionCount-1) * mSectionOverlap) * hFoV ) ).str() );
-		
-		// unbind the frame buffer object
-		mFbo.unbindFramebuffer();
-
-		// restore states
-		gl::popMatrices();
-		glPopAttrib();
 
 		// draw frame buffer and perform cylindrical projection using a fragment shader
-		if(mShader) {
-			mShader.bind();
-			mShader.uniform("texture", 0);
-			mShader.uniform("sides", (float) mSectionCount);
-			mShader.uniform("radians", mSectionCount * toRadians( hFoV ) );
-			mShader.uniform("reciprocal", 0.5f / mSectionCount );
+		if( mShader ) {
+			gl::ScopedGlslProg shader( mShader );
+			gl::ScopedTextureBind tex0( mFbo->getColorTexture() );
+
+			mShader->uniform( "texture", 0 );
+			mShader->uniform( "sides", (float) mSectionCount );
+			mShader->uniform( "radians", mSectionCount * toRadians( hFoV ) );
+			mShader->uniform( "reciprocal", 0.5f / mSectionCount );
+
+			Rectf centered = Rectf( mFbo->getBounds() ).getCenteredFit( getWindowBounds(), false );
+			gl::drawSolidRect( centered );
 		}
-
-		Rectf centered = Rectf(mFbo.getBounds()).getCenteredFit( getWindowBounds(), false );
-		gl::draw( mFbo.getTexture(), centered );
-
-		if(mShader) mShader.unbind();
 	}
 	else {
 		mCamera.disableStereo();
@@ -407,22 +401,21 @@ void StarsApp::draw()
 		gl::setMatrices( mCamera.getCamera() );
 		render();
 		gl::popMatrices();
-	
+
 		// draw user interface
-		if(mDrawUserInterface)
-			mUserInterface.draw("Perspective Projection");
+		//if(mDrawUserInterface)
+		//	mUserInterface.draw("Perspective Projection");
 	}
 
 	// fade in at start of application
-	gl::enableAlphaBlending();
+	gl::ScopedAlphaBlend blend(false);
 	double t = math<double>::clamp( mTimer.getSeconds() / 3.0, 0.0, 1.0 );
-	float a = ci::lerp<float>(1.0f, 0.0f, (float) t);
+	float a = ci::lerp<float>( 1.0f, 0.0f, (float) t );
 
 	if( a > 0.0f ) {
-		gl::color( ColorA(0,0,0,a) );
+		gl::color( ColorA( 0, 0, 0, a ) );
 		gl::drawSolidRect( getWindowBounds() );
 	}
-	gl::disableAlphaBlending();
 }
 
 void StarsApp::render()
@@ -431,26 +424,27 @@ void StarsApp::render()
 	mBackground.draw();
 
 	// draw grid
-	if(mIsGridVisible) 
+	if( mIsGridVisible )
 		mGrid.draw();
 
 	// draw stars
-	mStars.draw();
+	//mStars.draw();
 
 	// draw constellations
-	if(mIsConstellationsVisible) 
+	if( mIsConstellationsVisible )
 		mConstellations.draw();
 
-	if(mIsConstellationArtVisible)
-		mConstellationArt.draw();
+	//if(mIsConstellationArtVisible)
+	//	mConstellationArt.draw();
 
-	// draw labels
+	/*// draw labels
 	if(mIsLabelsVisible) {
-		mLabels.draw();
+	mLabels.draw();
 
-		if(mIsConstellationsVisible || mIsConstellationArtVisible) 
-			mConstellationLabels.draw();
+	if(mIsConstellationsVisible || mIsConstellationArtVisible)
+	mConstellationLabels.draw();
 	}
+	//*/
 }
 
 void StarsApp::mouseDown( MouseEvent event )
@@ -482,15 +476,14 @@ void StarsApp::keyDown( KeyEvent event )
 {
 #ifdef WIN32
 	// allows the use of the media buttons on your Windows keyboard to control the music
-	switch( event.getNativeKeyCode() )
-	{
+	switch( event.getNativeKeyCode() ) {
 	case VK_MEDIA_NEXT_TRACK:
 		// play next music file
-		playMusic( getNextFile(mMusicPath) );
+		playMusic( getNextFile( mMusicPath ) );
 		return;
 	case VK_MEDIA_PREV_TRACK:
 		// play next music file
-		playMusic( getPrevFile(mMusicPath) );
+		playMusic( getPrevFile( mMusicPath ) );
 		return;
 	case VK_MEDIA_STOP:
 		stopMusic();
@@ -506,8 +499,7 @@ void StarsApp::keyDown( KeyEvent event )
 	}
 #endif
 
-	switch( event.getCode() )
-	{
+	switch( event.getCode() ) {
 	case KeyEvent::KEY_f:
 		// toggle full screen
 		setFullScreen( !isFullScreen() );
@@ -539,16 +531,16 @@ void StarsApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_c:
 		// toggle constellations / art
-		if(event.isShiftDown())
+		if( event.isShiftDown() )
 			mIsConstellationArtVisible = !mIsConstellationArtVisible;
 		else
 			mIsConstellationsVisible = !mIsConstellationsVisible;
 		break;
 	case KeyEvent::KEY_a:
 		// toggle cursor arrow
-		if(mIsCursorVisible) 
+		if( mIsCursorVisible )
 			forceHideCursor();
-		else 
+		else
 			forceShowCursor();
 		break;
 	case KeyEvent::KEY_s:
@@ -556,7 +548,7 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mIsCylindrical = false;
 		// adjust line width and aspect ratio
-		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		//mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
@@ -565,7 +557,7 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsCylindrical = !mIsCylindrical;
 		mIsStereoscopic = false;
 		// adjust line width and aspect ratio
-		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		//mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
@@ -588,32 +580,32 @@ void StarsApp::keyDown( KeyEvent event )
 void StarsApp::resize()
 {
 	mCamera.resize();
-	mStars.resize( getWindowSize() );
+	//mStars.resize( getWindowSize() );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )
 {
-	for(size_t i=0;i<event.getNumFiles();++i) {
-		fs::path file = event.getFile(i);
+	for( size_t i = 0; i < event.getNumFiles(); ++i ) {
+		fs::path file = event.getFile( i );
 
 		// skip if not a file
 		if( !fs::is_regular_file( file ) ) continue;
 
 		if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), file.extension() ) != mMusicExtensions.end() )
-			playMusic(file);
+			playMusic( file );
 	}
 }
 
 void StarsApp::playMusic( const fs::path &path, bool loop )
 {
-	if(mSoundEngine && !path.empty()) {
+	if( mSoundEngine && !path.empty() ) {
 		// stop current music
-		if(mMusic) 
+		if( mMusic )
 			mMusic->stop();
 
 		// play music in a very safe way
-		mMusic = shared_ptr<ISound>( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun(&ISound::drop) );
-		if(mMusic) mMusic->setIsPaused(false);
+		mMusic = shared_ptr<ISound>( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun( &ISound::drop ) );
+		if( mMusic ) mMusic->setIsPaused( false );
 
 		mMusicPath = path;
 		mPlayMusic = true;
@@ -631,17 +623,17 @@ void StarsApp::stopMusic()
 void StarsApp::playSound( const fs::path &path, bool loop )
 {
 	// play sound in a very safe way
-	shared_ptr<ISound> sound( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun(&ISound::drop) );
-	if(sound) sound->setIsPaused(false);
+	shared_ptr<ISound> sound( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun( &ISound::drop ) );
+	if( sound ) sound->setIsPaused( false );
 }
 
 shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 {
 	shared_ptr<ISound>	sound;
 
-	if(mSoundEngine && !path.empty()) {
+	if( mSoundEngine && !path.empty() ) {
 		// create sound in a very safe way
-		sound = shared_ptr<ISound>( mSoundEngine->play3D( path.string().c_str(), vec3df(0,0,0), false, true ), std::mem_fun(&ISound::drop) );
+		sound = shared_ptr<ISound>( mSoundEngine->play3D( path.string().c_str(), vec3df( 0, 0, 0 ), false, true ), std::mem_fun( &ISound::drop ) );
 	}
 
 	return sound;
@@ -649,16 +641,16 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 
 void StarsApp::createShader()
 {
-	fs::path vs = getAssetPath("") / "shaders/cylindrical.vert";
-	fs::path fs = getAssetPath("") / "shaders/cylindrical.frag";
+	fs::path vs = getAssetPath( "" ) / "shaders/cylindrical.vert";
+	fs::path fs = getAssetPath( "" ) / "shaders/cylindrical.frag";
 
 	//
 	try {
-		mShader = gl::GlslProg( loadFile(vs), loadFile(fs) );
+		mShader = gl::GlslProg::create( loadFile( vs ), loadFile( fs ) );
 	}
 	catch( const std::exception &e ) {
 		console() << e.what() << std::endl;
-		mShader = gl::GlslProg();
+		mShader = gl::GlslProgRef();
 	}
 }
 
@@ -668,25 +660,24 @@ void StarsApp::createFbo()
 	int w = getWindowWidth() * 2;
 	int h = getWindowHeight() * 2;
 
-	if( mFbo && mFbo.getSize() == Vec2i(w, h) )
+	if( mFbo && mFbo->getSize() == ivec2( w, h ) )
 		return;
 
 	// create the FBO
-	gl::Fbo::Format fmt;
-	fmt.setWrap( GL_REPEAT, GL_CLAMP_TO_BORDER );
-	
-	mFbo = gl::Fbo( w, h, fmt );
+	gl::Texture2d::Format tfmt;
+	tfmt.setWrap( GL_REPEAT, GL_CLAMP_TO_BORDER );
 
-	// work-around for the flipped texture issue
-	mFbo.getTexture().setFlipped();
-	mFbo.getDepthTexture().setFlipped();
+	gl::Fbo::Format fmt;
+	fmt.setColorTextureFormat( tfmt );
+
+	mFbo = gl::Fbo::create( w, h, fmt );
 }
 
 void StarsApp::forceHideCursor()
 {
 	// forces the cursor to hide
 #ifdef WIN32
-	while( ::ShowCursor(false) >= 0 );
+	while( ::ShowCursor( false ) >= 0 );
 #else
 	hideCursor();
 #endif
@@ -697,29 +688,28 @@ void StarsApp::forceShowCursor()
 {
 	// forces the cursor to show
 #ifdef WIN32
-	while( ::ShowCursor(true) < 0 );
+	while( ::ShowCursor( true ) < 0 );
 #else
 	showCursor();
 #endif
 	mIsCursorVisible = true;
 }
 
-void StarsApp::constrainCursor( const Vec2i &pos )
+void StarsApp::constrainCursor( const ivec2 &pos )
 {
 	// keeps the cursor well within the window bounds,
 	// so that we can continuously drag the mouse without
 	// ever hitting the sides of the screen
 
-	if( pos.x < 50 || pos.x > getWindowWidth() - 50 || pos.y < 50 || pos.y > getWindowHeight() - 50 )
-	{
+	if( pos.x < 50 || pos.x > getWindowWidth() - 50 || pos.y < 50 || pos.y > getWindowHeight() - 50 ) {
 #ifdef WIN32
 		POINT pt;
 		mCursorPrevious.x = pt.x = getWindowWidth() / 2;
 		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
 
 		HWND hWnd = getRenderer()->getHwnd();
-		::ClientToScreen(hWnd, &pt);
-		::SetCursorPos(pt.x,pt.y);
+		::ClientToScreen( hWnd, &pt );
+		::SetCursorPos( pt.x, pt.y );
 #else
 		// on MacOS, the results seem to be a little choppy,
 		// which might have something to do with the OS
@@ -729,23 +719,22 @@ void StarsApp::constrainCursor( const Vec2i &pos )
 		// might remedy that.
 		// Uncomment the code below to try things out.
 		/*//
-        Vec2i pt;
-        mCursorPrevious.x = pt.x = getWindowWidth() / 2;
+		ivec2 pt;
+		mCursorPrevious.x = pt.x = getWindowWidth() / 2;
 		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
-		
-        CGPoint target = CGPointMake((float) pt.x, (float) pt.y);
+
+		CGPoint target = CGPointMake((float) pt.x, (float) pt.y);
 		// note: target should first be converted to screen position here
-        CGWarpMouseCursorPosition(target);  
+		CGWarpMouseCursorPosition(target);
 		//*/
 #endif
 	}
-}	
+}
 
 fs::path	StarsApp::getFirstFile( const fs::path &path )
 {
 	fs::directory_iterator end_itr;
-	for( fs::directory_iterator i( path ); i != end_itr; ++i )
-	{
+	for( fs::directory_iterator i( path ); i != end_itr; ++i ) {
 		// skip if not a file
 		if( !fs::is_regular_file( i->status() ) ) continue;
 
@@ -767,12 +756,11 @@ fs::path	StarsApp::getNextFile( const fs::path &current )
 		bool useNext = false;
 
 		fs::directory_iterator end_itr;
-		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i )
-		{
+		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i ) {
 			// skip if not a file
 			if( !fs::is_regular_file( i->status() ) ) continue;
 
-			if(useNext) {
+			if( useNext ) {
 				// skip if extension does not match
 				if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), i->path().extension() ) == mMusicExtensions.end() )
 					continue;
@@ -796,8 +784,7 @@ fs::path	StarsApp::getPrevFile( const fs::path &current )
 		fs::path previous;
 
 		fs::directory_iterator end_itr;
-		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i )
-		{
+		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i ) {
 			// skip if not a file
 			if( !fs::is_regular_file( i->status() ) ) continue;
 

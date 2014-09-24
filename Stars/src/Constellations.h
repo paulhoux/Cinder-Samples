@@ -26,7 +26,7 @@
 #include "cinder/DataTarget.h"
 #include "cinder/Utilities.h"
 
-#include "cinder/gl/Vbo.h"
+#include "cinder/gl/Batch.h"
 
 class Constellations
 {
@@ -53,13 +53,12 @@ public:
 private:
 	void						createMesh();
 
-	ci::Vec3d					getStarCoordinate( double ra, double dec, double distance );
-	std::vector< ci::Vec3d >	getStarCoordinates( ci::DataSourceRef source );
+	ci::dvec3					getStarCoordinate( double ra, double dec, double distance );
+	std::vector< ci::dvec3 >	getStarCoordinates( ci::DataSourceRef source );
 private:
-	ci::gl::VboMesh				mMesh;
+	ci::gl::BatchRef			mBatch;
 
-	std::vector< ci::Vec3f >	mVertices;
-	std::vector< uint32_t >		mIndices;
+	std::vector< ci::vec3 >		mVertices;
 
 	float						mAttenuation;
 	float						mLineWidth;

@@ -73,7 +73,7 @@ protected:
 	//! get the maximum height of the text
 	virtual float	getHeight() { return 0.0f; }
 	//! function to move the cursor to the next line
-	virtual	bool	newLine( ci::Vec2f *cursor ) { 
+	virtual	bool	newLine( ci::vec2 *cursor ) { 
 		cursor->x = 0.0f; 
 		cursor->y += getLeading();
 		
@@ -91,7 +91,7 @@ protected:
 	//! renders the current contents of mText
 	virtual void		renderMesh();
 	//! helper to render a non-word-wrapped string
-	virtual void		renderString( const std::u16string &str, ci::Vec2f *cursor, float stretch = 1.0f );
+	virtual void		renderString( const std::u16string &str, ci::vec2 *cursor, float stretch = 1.0f );
 	//! creates the VBO from the data in the buffers
 	virtual void		createMesh();
 public:
@@ -111,8 +111,8 @@ protected:
 
 	std::u16string			mText;
 
-	ci::gl::GlslProg		mShader;
-	ci::gl::VboMesh			mVboMesh;
+	ci::gl::GlslProgRef		mShader;
+	ci::gl::VboMeshRef		mVboMesh;
 
 	FontRef					mFont;
 	float					mFontSize;
@@ -120,9 +120,9 @@ protected:
 	float					mLineSpace;
 
 	std::vector<size_t>		mMust, mAllow;
-	std::vector<ci::Vec3f>	mVertices;
+	std::vector<ci::vec3>	mVertices;
 	std::vector<uint32_t>	mIndices;
-	std::vector<ci::Vec2f>	mTexcoords;
+	std::vector<ci::vec2>	mTexcoords;
 };
 
 } } // namespace ph::text

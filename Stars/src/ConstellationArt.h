@@ -26,7 +26,7 @@
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/GlslProg.h"
-#include "cinder/gl/Vbo.h"
+#include "cinder/gl/VboMesh.h"
 
 class ConstellationArt
 {
@@ -47,8 +47,8 @@ private:
 	//
 	float				mAttenuation;
 
-	ci::gl::Texture		mTexture;
-	ci::gl::GlslProg	mShader;
-	ci::gl::VboMesh		mVboMesh;
+	ci::gl::Texture2dRef		mTexture;
+	ci::gl::GlslProgRef			mShader;
+	ci::gl::VboMeshRef			mVboMesh;
 };
 

@@ -128,7 +128,7 @@ void Cam::update(double elapsed)
 		}
 		else {
 			// add deltas to vector to determine average speed
-			mDeltas.push_back( Vec3d(mDeltaX, mDeltaY, mDeltaD) );
+			mDeltas.push_back( dvec3(mDeltaX, mDeltaY, mDeltaD) );
 
 			// only keep the last 6 deltas
 			while(mDeltas.size() > 6) mDeltas.pop_front();
@@ -144,7 +144,7 @@ void Cam::update(double elapsed)
 	mCurrentCam.setConvergence( math<float>::min( 1.0f, 0.95f * mCurrentCam.getEyePoint().length() ), true );
 }
 
-void Cam::mouseDown( const Vec2i &mousePos )
+void Cam::mouseDown( const ivec2 &mousePos )
 {
 	mInitialMousePos = mousePos;
 	mTimeMouse = getElapsedSeconds();
@@ -157,7 +157,7 @@ void Cam::mouseDown( const Vec2i &mousePos )
 	mIsMouseDown = true;
 }
 
-void Cam::mouseDrag( const Vec2i &mousePos, bool leftDown, bool middleDown, bool rightDown )
+void Cam::mouseDrag( const ivec2 &mousePos, bool leftDown, bool middleDown, bool rightDown )
 {
 	double elapsed = getElapsedSeconds() - mTimeMouse;
 	if(elapsed < (1.0/60.0)) return;
@@ -183,7 +183,7 @@ void Cam::mouseDrag( const Vec2i &mousePos, bool leftDown, bool middleDown, bool
 	mTimeMouse = getElapsedSeconds();
 }
 
-void Cam::mouseUp(  const Vec2i &mousePos  ) 
+void Cam::mouseUp(  const ivec2 &mousePos  ) 
 {	
 	mInitialMousePos = mousePos;
 	mTimeMouse = getElapsedSeconds();
@@ -192,7 +192,7 @@ void Cam::mouseUp(  const Vec2i &mousePos  )
 
 	// calculate average delta (speed) over the last 10 frames 
 	// and use that to rotate the camera after mouseUp
-	Vec3d avg = average(mDeltas);
+	dvec3 avg = average(mDeltas);
 	mDeltaX = avg.x;
 	mDeltaY = avg.y;
 	mDeltaD = avg.z;
@@ -217,18 +217,18 @@ const CameraStereo& Cam::getCamera()
 	// update current camera
 	mCurrentCam.setFov( mFov.value() );
 	mCurrentCam.setEyePoint( getPosition() );
-	mCurrentCam.setCenterOfInterestPoint( Vec3f::zero() );
+	mCurrentCam.setCenterOfInterestPoint( vec3(0) );
 
 	return mCurrentCam;
 }
 
-Vec3f Cam::getPosition()
+vec3 Cam::getPosition()
 {
 	// calculates position based on current distance, longitude and latitude
 	double theta = M_PI - toRadians(mLongitude.value());
 	double phi = 0.5 * M_PI - toRadians(mLatitude.value());
 
-	Vec3f orientation( 
+	vec3 orientation( 
 		static_cast<float>( sin(phi) * cos(theta) ),
 		static_cast<float>( cos(phi) ),
 		static_cast<float>( sin(phi) * sin(theta) ) );
