@@ -1,7 +1,7 @@
 Cinder-Samples
 ==============
 
-Sample applications for the Cinder framework. These samples are meant to be used with the latest official release of Cinder. 
+Sample applications for the Cinder framework. These samples are meant to be used with the latest official release of Cinder. Git users should build against the 'release' branch.
 
 These code samples are compatible with the Microsoft Visual C++ (Express) 2013 compiler, which is the compiler of choice for the Windows platform. XCode support for MacOS X is currently not supported, but the C++ and GLSL source code should run on all platforms without modifications. If you find an inconsistency or platform related bug, please notify me or create a pull request, so that I can fix the issues and make these samples as cross-platform as possible. 
 
