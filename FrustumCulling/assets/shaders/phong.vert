@@ -1,13 +1,19 @@
-#version 110
+#version 150
 
-varying vec3 v;
-varying vec3 N;
+uniform mat4 ciModelViewProjection;
+uniform mat4 ciModelView;
+uniform mat3 ciNormalMatrix;
+
+in vec4 ciPosition;
+in vec3 ciNormal;
+
+out vec4 vViewPosition;
+out vec3 vNormal;
 
 void main()
 {
-	v = vec3(gl_ModelViewMatrix * gl_Vertex);       
-	N = normalize(gl_NormalMatrix * gl_Normal);
+	vViewPosition = ciModelView * ciPosition;
+	vNormal = ciNormalMatrix * ciNormal;
 
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_Position = ftransform();
+	gl_Position = ciModelViewProjection * ciPosition;
 }

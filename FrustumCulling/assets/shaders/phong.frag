@@ -1,44 +1,29 @@
-#version 110
+#version 150
 
-uniform int numLights;
+in vec4 vViewPosition;
+in vec3 vNormal;
 
-varying vec3 v;
-varying vec3 N;
+out vec4 oColor;
 
 void main()
-{		
-	vec2 uv = gl_TexCoord[0].xy;
-	vec4 clr = vec4(0.0, 0.0, 0.0, 1.0);
-	
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
+{
+	oColor = vec4( 0.0, 0.0, 0.0, 1.0 );
 
-	vec3 normal = normalize(N);
-	
-	for(int i=0;i<numLights;++i) {		
-		//
-		vec3 L = normalize(gl_LightSource[i].position.xyz - v);   
-		vec3 E = normalize(-v); 
-		vec3 R = normalize(reflect(-L,normal)); 
-		
-		// ambient term 
-		ambient = gl_FrontLightProduct[i].ambient;
-		clr += ambient;   
+	vec3 diffuse;
+	vec3 specular;
 
-		// diffuse term		
-		diffuse = gl_FrontLightProduct[i].diffuse;
-		diffuse *= max(dot(normal,L), 0.0);
-		diffuse = clamp(diffuse, 0.0, 1.0); 
-		clr += diffuse;  
+	vec3 N = normalize( vNormal );
+	vec3 L = normalize( -vViewPosition.xyz );
+	vec3 E = normalize( -vViewPosition.xyz );
+	vec3 R = normalize( reflect( -L, N ) );
 
-		// specular term
-		specular = gl_FrontLightProduct[i].specular;
-		specular *= pow(max(dot(R,E),0.0), gl_FrontMaterial.shininess);
-		specular = clamp(specular, 0.0, 1.0);
-		clr += specular;
-	}
+	// diffuse term
+	diffuse = vec3( 1.0, 0.0, 0.0 );
+	diffuse *= max( dot( N, L ), 0.0 );
+	oColor.rgb += diffuse;
 
-	// final color
-	gl_FragColor = clr;
+	// specular term
+	specular = vec3( 1.0, 1.0, 1.0 );
+	specular *= pow( max( dot( R, E ), 0.0 ), 25.0 );
+	oColor.rgb += specular;
 }

@@ -25,42 +25,32 @@
 #include "cinder/Matrix.h"
 #include "cinder/Vector.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/gl/Vbo.h"
-
-typedef std::shared_ptr<class CullableObject> CullableObjectRef;
+#include "cinder/gl/Batch.h"
 
 class CullableObject
 {
 public:
-	CullableObject(ci::gl::VboMesh mesh);
+	CullableObject();
 	virtual ~CullableObject(void);
 
 	void setup();
 	void update(double elapsed);
-	void draw();
 
 	void setCulled(bool culled = true){ bIsCulled = culled; };
 	bool isCulled(){ return bIsCulled; };
 
-	const ci::Matrix44f& getTransform() const { return mTransform; };
-	void setTransform(const ci::Vec3f &position, const ci::Vec3f &rotation, const ci::Vec3f &scale);
+	const ci::mat4& getTransform() const { return mTransform; };
+	void setTransform( const ci::vec3 &position, const ci::vec3 &rotation, const ci::vec3 &scale );
 protected:
 	//! keep track of culling state
-	bool			bIsCulled;
+	bool		bIsCulled;
 
 	//! keep track of position, rotation and scale
-	ci::Vec3f		mPosition;
-	ci::Vec3f		mRotation;
-	ci::Vec3f		mScale;
+	ci::vec3	mPosition;
+	ci::vec3	mRotation;
+	ci::vec3	mScale;
 
 	//! this matrix combines all translations, rotations and scaling
 	//! and can be used to easily calculate the world space bounding box
-	ci::Matrix44f	mTransform;
-
-	//! a gl::VboMesh is an implicitly shared pointer,
-	//	so when passing them from FrustumCullingReduxApp to this CullableObject class,
-	//	we are not making a copy, but simply keep a reference to the same mesh
-	//	and textures. In the near future, Texture may be renamed to TextureRef and
-	//	VboMesh may become VboMeshRef for clarity.
-	const ci::gl::VboMesh	mVboMesh;
+	ci::mat4	mTransform;
 };

@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,19 +18,19 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "CullableObject.h"
 
 using namespace ci;
 
-CullableObject::CullableObject(ci::gl::VboMesh mesh)
-	: mVboMesh(mesh), bIsCulled(false)
+CullableObject::CullableObject()
+	: bIsCulled( false )
 {
-	setTransform( Vec3f::zero(), Vec3f::zero(), Vec3f::one() * 0.10f );
+	setTransform( vec3( 0 ), vec3( 0 ), vec3( 0.10f ) );
 }
 
-CullableObject::~CullableObject(void)
+CullableObject::~CullableObject( void )
 {
 }
 
@@ -38,31 +38,14 @@ void CullableObject::setup()
 {
 }
 
-void CullableObject::update(double elapsed)
+void CullableObject::update( double elapsed )
 {
 	//! rotate slowly around the y-axis (independent of frame rate)
 	mRotation.y += (float) elapsed;
 	setTransform( mPosition, mRotation, mScale );
 }
 
-void CullableObject::draw()
-{
-	//! don't draw if culled
-	if(bIsCulled) return;
-
-	//! only draw if mesh is valid
-	if(mVboMesh) {
-		gl::color( Color::white() );
-
-		//! draw the mesh 
-		gl::pushModelView();
-		gl::multModelView(mTransform);
-		gl::draw( mVboMesh );
-		gl::popModelView();
-	}
-}
-
-void CullableObject::setTransform(const ci::Vec3f &position, const ci::Vec3f &rotation, const ci::Vec3f &scale)
+void CullableObject::setTransform( const ci::vec3 &position, const ci::vec3 &rotation, const ci::vec3 &scale )
 {
 	mPosition = position;
 	mRotation = rotation;
@@ -70,8 +53,7 @@ void CullableObject::setTransform(const ci::Vec3f &position, const ci::Vec3f &ro
 
 	//! by creating a single transformation matrix, it will be very easy
 	//! to construct a world space bounding box for this object
-	mTransform = mTransform.identity();
-	mTransform.translate(position);
-	mTransform.rotate(rotation);
-	mTransform.scale(scale);
+	mTransform = glm::translate( mat4(), position );
+	mTransform = glm::scale( mTransform, scale );
+	mTransform *= glm::eulerAngleYXZ( rotation.y, rotation.x, rotation.z );
 }
