@@ -1,13 +1,17 @@
-// ------------------ Fragment Shader --------------------------------
-#version 120
-#extension GL_EXT_gpu_shader4 : enable
+#version 150
 
 uniform sampler2D tex0;
 
-varying vec2 gsTexCoord;
+in VertexData{
+	vec2 mTexCoord;
+	vec3 mColor;
+} VertexIn;
+
+out vec4 oColor;
 
 void main(void)
 {
-	vec4 clr = texture2D(tex0, gsTexCoord.xy);
- 	gl_FragColor = gl_Color * clr;
+	vec4 clr = texture( tex0, VertexIn.mTexCoord.xy );
+	oColor.rgb = VertexIn.mColor * clr.rgb;
+	oColor.a = clr.a;
 }
