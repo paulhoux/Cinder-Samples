@@ -3,15 +3,18 @@
 //       would require branching, which would stall the GPU needlessly.
 //       You will notice incorrect normals at the edges of the normal map.
 
-#version 120
+#version 150
 
-uniform sampler2D texture;
-uniform float amplitude;
+uniform sampler2D uTex0;
+uniform float uAmplitude;
+
+in vec2 vTexCoord0;
+
+out vec4 oColor;
 
 float getDisplacement( float dx, float dy )
 {
-	vec2 uv = gl_TexCoord[0].xy;
-	return texture2D( texture, uv + vec2( dFdx(uv.s) * dx, dFdy(uv.t) * dy ) ).r;
+	return texture( uTex0, vTexCoord0 + vec2( dFdx( vTexCoord0.x ) * dx, dFdy( vTexCoord0.y ) * dy ) ).r;
 }
 
 void main(void)
@@ -20,8 +23,8 @@ void main(void)
 	vec3 normal;
 	normal.x = -0.5 * (getDisplacement(1,0) - getDisplacement(-1,0));
 	normal.z = -0.5 * (getDisplacement(0,1) - getDisplacement(0,-1));
-	normal.y = 1.0 / amplitude;
+	normal.y = 1.0 / uAmplitude;
 	normal = normalize(normal);
 
-	gl_FragColor = vec4( normal, 1.0 );
+	oColor = vec4( normal, 1.0 );
 }
