@@ -21,6 +21,7 @@
 */
 
 #include "cinder/app/AppBasic.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 
@@ -143,7 +144,7 @@ void SimpleSceneGraphApp::draw()
 	// example of coordinate conversion: 
 	// convert big rectangle's origin to screen coordinates and draw a red circle there
 	gl::color( Color(1, 0, 0) );
-	gl::drawSolidCircle( mParent->objectToScreen( Vec2f::zero() ), 5.0f );
+	gl::drawSolidCircle( mParent->objectToScreen( vec2(0) ), 5.0f );
 }
 
 void SimpleSceneGraphApp::mouseMove( MouseEvent event )
