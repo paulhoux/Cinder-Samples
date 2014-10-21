@@ -23,7 +23,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\shaders\phong.frag" />
-    <None Include="..\shaders\phong.vert" />
+    <None Include="..\assets\shaders\phong.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\shaders\phong.vert">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
