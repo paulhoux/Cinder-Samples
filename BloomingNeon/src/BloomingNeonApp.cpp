@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,15 +18,17 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "cinder/Camera.h"
 #include "cinder/ImageIo.h"
 #include "cinder/TriMesh.h"
+#include "cinder/gl/Batch.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/app/AppBasic.h"
+#include "cinder/app/RendererGl.h"
 
 #define SCENE_SIZE 512
 #define BLUR_SIZE 128
@@ -36,96 +38,94 @@ using namespace ci::app;
 using namespace std;
 
 class BloomingNeonApp : public AppBasic {
- public:
-	 void prepareSettings( Settings *settings );
+public:
+	void prepareSettings( Settings *settings );
 
-	 void setup();
-	 void update();
-	 void draw();
+	void setup();
+	void update();
+	void draw();
 
-	 void render();
+	void render();
 
-	 void keyDown( KeyEvent event );
+	void keyDown( KeyEvent event );
 
-	 void drawStrokedRect( const Rectf &rect );
+	void drawStrokedRect( const Rectf &rect );
 protected:
 	ci::Font		mFont;
 
-	gl::Fbo			mFboScene;
-	gl::Fbo			mFboBlur1;
-	gl::Fbo			mFboBlur2;
+	gl::FboRef		mFboScene;
+	gl::FboRef		mFboBlur1;
+	gl::FboRef		mFboBlur2;
 
-	gl::GlslProg	mShaderBlur;
-	gl::GlslProg	mShaderPhong;
-	
-	gl::Texture		mTextureColor;
-	gl::Texture		mTextureIllumination;
-	gl::Texture		mTextureSpecular;
+	gl::GlslProgRef	mShaderBlur;
+	gl::GlslProgRef	mShaderPhong;
 
-	TriMesh			mMesh;
-	Matrix44f		mTransform;
+	gl::TextureRef	mTextureColor;
+	gl::TextureRef	mTextureIllumination;
+	gl::TextureRef	mTextureSpecular;
+	gl::TextureRef	mTextureArrows;
+
+	gl::BatchRef	mBatch;
 	CameraPersp		mCamera;
+
+	mat4			mTransform;
 };
 
 void BloomingNeonApp::prepareSettings( Settings *settings )
 {
-	settings->setResizable(false);
-	settings->setWindowSize(1606, 400);
-	settings->setTitle("Blurred Neon Effect Using Fbo's and Shaders");
+	settings->setResizable( false );
+	settings->setWindowSize( 800, 800 );
+	settings->setTitle( "Blurred Neon Effect Using Fbo's and Shaders" );
 }
 
 void BloomingNeonApp::setup()
 {
-	mFont = Font("Arial", 24.0f);
+	mFont = Font( "Arial", 24.0f );
 
 	gl::Fbo::Format fmt;
-	fmt.setSamples(8);
-	fmt.setCoverageSamples(8);
+	fmt.setSamples( 8 );
+	fmt.setCoverageSamples( 8 );
 
 	// setup our scene Fbo
-	mFboScene = gl::Fbo(SCENE_SIZE, SCENE_SIZE, fmt);
+	mFboScene = gl::Fbo::create( SCENE_SIZE, SCENE_SIZE, fmt );
 
 	// setup our blur Fbo's, smaller ones will generate a bigger blur
-	mFboBlur1 = gl::Fbo(BLUR_SIZE, BLUR_SIZE);
-	mFboBlur2 = gl::Fbo(BLUR_SIZE, BLUR_SIZE);
-
-	// if we don't want to view our FBO's upside-down, we'll have to flip them
-	mFboScene.getTexture(0).setFlipped();
-	mFboBlur1.getTexture(0).setFlipped();
-	mFboBlur2.getTexture(0).setFlipped();
+	mFboBlur1 = gl::Fbo::create( BLUR_SIZE, BLUR_SIZE );
+	mFboBlur2 = gl::Fbo::create( BLUR_SIZE, BLUR_SIZE );
 
 	// load and compile the shaders
-	try { 
-		mShaderBlur = gl::GlslProg( loadAsset("blur.vert"), loadAsset("blur.frag")); 
-		mShaderPhong = gl::GlslProg( loadAsset("phong.vert"), loadAsset("phong.frag")); 
-	} 
-	catch( const std::exception &e ) { 
-		console() << e.what() << endl; 
+	try {
+		mShaderBlur = gl::GlslProg::create( loadAsset( "blur.vert" ), loadAsset( "blur.frag" ) );
+		mShaderPhong = gl::GlslProg::create( loadAsset( "phong.vert" ), loadAsset( "phong.frag" ) );
+	}
+	catch( const std::exception &e ) {
+		console() << e.what() << endl;
 		quit();
 	}
 
-	// setup the stuff to render our ducky
-	mTransform.setToIdentity();	
-
+	// setup the stuff to render our ducky:
 	// model and textures generously provided by AngryFly: 
 	//   http://www.turbosquid.com/3d-models/free-3ds-mode-space/588767
-	mMesh.read( loadAsset("space_frigate.msh") );
+	TriMeshRef mesh = TriMesh::create();
+	mesh->read( loadAsset( "space_frigate.msh" ) );
+	mBatch = gl::Batch::create( mesh, mShaderPhong );
 
-	mTextureIllumination = gl::Texture( loadImage( loadAsset("space_frigate_illumination.jpg") ) );
-	mTextureColor = gl::Texture( loadImage( loadAsset("space_frigate_color.jpg") ) );
-	mTextureSpecular = gl::Texture( loadImage( loadAsset("space_frigate_specular.jpg") ) );
+	mTextureIllumination = gl::Texture::create( loadImage( loadAsset( "space_frigate_illumination.jpg" ) ) );
+	mTextureColor = gl::Texture::create( loadImage( loadAsset( "space_frigate_color.jpg" ) ) );
+	mTextureSpecular = gl::Texture::create( loadImage( loadAsset( "space_frigate_specular.jpg" ) ) );
+	mTextureArrows = gl::Texture::create( loadImage( loadAsset( "arrows.png" ) ) );
 
 	//
-	mCamera.setEyePoint( Vec3f(0.0f, 8.0f, 25.0f) );
-	mCamera.setCenterOfInterestPoint( Vec3f(0.0f, -1.0f, 0.0f) );
+	mCamera.setEyePoint( vec3( 0.0f, 8.0f, 25.0f ) );
+	mCamera.setCenterOfInterestPoint( vec3( 0.0f, -1.0f, 0.0f ) );
 	mCamera.setPerspective( 60.0f, getWindowAspectRatio(), 1.0f, 1000.0f );
 }
 
 void BloomingNeonApp::update()
 {
-	mTransform.setToIdentity();
-	mTransform.rotate( Vec3f::xAxis(), (float) getElapsedSeconds() * 0.4f );
-	mTransform.rotate( Vec3f::yAxis(), (float) getElapsedSeconds() * 0.2f );
+	mTransform = mat4();
+	mTransform *= glm::toMat4( glm::angleAxis( (float) getElapsedSeconds() * 0.2f, vec3( 1, 0, 0 ) ) );
+	mTransform *= glm::toMat4( glm::angleAxis( (float) getElapsedSeconds() * 0.1f, vec3( 0, 1, 0 ) ) );
 }
 
 void BloomingNeonApp::draw()
@@ -133,142 +133,141 @@ void BloomingNeonApp::draw()
 	// clear our window
 	gl::clear( Color::black() );
 
-	// store our viewport, so we can restore it later
-	Area viewport = gl::getViewport();
+	gl::pushMatrices();
 
 	// render scene into mFboScene using illumination texture
-	mTextureIllumination.enableAndBind();
-	mTextureSpecular.bind(1);
-	gl::setViewport( mFboScene.getBounds() );
-	mFboScene.bindFramebuffer();
-		gl::pushMatrices();
-			gl::setMatricesWindow(SCENE_SIZE, SCENE_SIZE, false);
-			gl::clear( Color::black() );
-			render();
-		gl::popMatrices();
-	mFboScene.unbindFramebuffer();
+	{
+		gl::ScopedFramebuffer fbo( mFboScene );
+		gl::ScopedViewport viewport(0,0,mFboScene->getWidth(), mFboScene->getHeight());
+
+		gl::ScopedTextureBind tex0( mTextureIllumination, (uint8_t) 0 );
+		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t) 1 );
+
+		gl::setMatricesWindow( SCENE_SIZE, SCENE_SIZE );
+		gl::clear( Color::black() );
+
+		render();
+	}
 
 	// bind the blur shader
-	mShaderBlur.bind();
-	mShaderBlur.uniform("tex0", 0); // use texture unit 0
- 
-	// tell the shader to blur horizontally and the size of 1 pixel
-	mShaderBlur.uniform("sample_offset", Vec2f(1.0f/mFboBlur1.getWidth(), 0.0f));
-	mShaderBlur.uniform("attenuation", 2.5f);
+	{
+		gl::ScopedGlslProg shader( mShaderBlur );
+		mShaderBlur->uniform( "tex0", 0 ); // use texture unit 0
 
-	// copy a horizontally blurred version of our scene into the first blur Fbo
-	gl::setViewport( mFboBlur1.getBounds() );
-	mFboBlur1.bindFramebuffer();
-		mFboScene.bindTexture(0);
-		gl::pushMatrices();
-			gl::setMatricesWindow(BLUR_SIZE, BLUR_SIZE, false);
+		// tell the shader to blur horizontally and the size of 1 pixel
+		mShaderBlur->uniform( "sample_offset", vec2( 1.0f / mFboBlur1->getWidth(), 0.0f ) );
+		mShaderBlur->uniform( "attenuation", 2.5f );
+
+		// copy a horizontally blurred version of our scene into the first blur Fbo
+		{
+			gl::ScopedFramebuffer fbo( mFboBlur1 );
+			gl::ScopedViewport viewport( 0, 0, mFboBlur1->getWidth(), mFboBlur1->getHeight() );
+
+			gl::ScopedTextureBind tex0( mFboScene->getColorTexture(), (uint8_t) 0 );
+
+			gl::setMatricesWindow( BLUR_SIZE, BLUR_SIZE );
 			gl::clear( Color::black() );
-			gl::drawSolidRect( mFboBlur1.getBounds() );
-		gl::popMatrices();
-		mFboScene.unbindTexture();
-	mFboBlur1.unbindFramebuffer();	
- 
-	// tell the shader to blur vertically and the size of 1 pixel
-	mShaderBlur.uniform("sample_offset", Vec2f(0.0f, 1.0f/mFboBlur2.getHeight()));
-	mShaderBlur.uniform("attenuation", 2.5f);
 
-	// copy a vertically blurred version of our blurred scene into the second blur Fbo
-	gl::setViewport( mFboBlur2.getBounds() );
-	mFboBlur2.bindFramebuffer();
-		mFboBlur1.bindTexture(0);
-		gl::pushMatrices();
-			gl::setMatricesWindow(BLUR_SIZE, BLUR_SIZE, false);
+			gl::drawSolidRect( mFboBlur1->getBounds() );
+		}
+
+		// tell the shader to blur vertically and the size of 1 pixel
+		mShaderBlur->uniform( "sample_offset", vec2( 0.0f, 1.0f / mFboBlur2->getHeight() ) );
+		mShaderBlur->uniform( "attenuation", 2.5f );
+
+		// copy a vertically blurred version of our blurred scene into the second blur Fbo
+		{
+			gl::ScopedFramebuffer fbo( mFboBlur2 );
+			gl::ScopedViewport viewport( 0, 0, mFboBlur2->getWidth(), mFboBlur2->getHeight() );
+
+			gl::ScopedTextureBind tex0( mFboBlur1->getColorTexture(), (uint8_t) 0 );
+
+			gl::setMatricesWindow( BLUR_SIZE, BLUR_SIZE );
 			gl::clear( Color::black() );
-			gl::drawSolidRect( mFboBlur2.getBounds() );
-		gl::popMatrices();
-		mFboBlur1.unbindTexture();
-	mFboBlur2.unbindFramebuffer();
 
-	// unbind the shader
-	mShaderBlur.unbind();
+			gl::drawSolidRect( mFboBlur2->getBounds() );
+		}
+	}
 
 	// render scene into mFboScene using color texture
-	mTextureColor.enableAndBind();
-	mTextureSpecular.bind(1);
-	gl::setViewport( mFboScene.getBounds() );
-	mFboScene.bindFramebuffer();
-		gl::pushMatrices();
-			gl::setMatricesWindow(SCENE_SIZE, SCENE_SIZE, false);
-			gl::clear( Color::black() );
-			render();
-		gl::popMatrices();
-	mFboScene.unbindFramebuffer();
+	{
+		gl::ScopedFramebuffer fbo( mFboScene );
+		gl::ScopedViewport viewport( 0, 0, mFboScene->getWidth(), mFboScene->getHeight() );
 
-	// restore the viewport
-	gl::setViewport( viewport );
+		gl::ScopedTextureBind tex0( mTextureColor, (uint8_t) 0 );
+		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t) 1 );
 
-	// draw the 3 Fbo's 
+		gl::setMatricesWindow( SCENE_SIZE, SCENE_SIZE );
+		gl::clear( Color::black() );
+
+		render();
+	}
+
+	gl::popMatrices();
+
+	// draw the 3 Fbo's
 	gl::color( Color::white() );
-	gl::draw( mFboScene.getTexture(), Rectf(0, 0, 400, 400) );
-	drawStrokedRect( Rectf(0, 0, 400, 400) );
+	gl::draw( mFboScene->getColorTexture(), Rectf( 0, 0, 400, 400 ) );
+	drawStrokedRect( Rectf( 0, 0, 400, 400 ) );
 
-	gl::draw( mFboBlur1.getTexture(), Rectf(402, 0, 402 + 400, 400) );
-	drawStrokedRect( Rectf(402, 0, 402 + 400, 400) );
+	gl::draw( mFboBlur1->getColorTexture(), Rectf( 0, 400, 0 + 400, 400 + 400 ) );
+	drawStrokedRect( Rectf( 0, 400, 0 + 400, 400 + 400 ) );
 
-	gl::draw( mFboBlur2.getTexture(), Rectf(804, 0, 804 + 400, 400) );
-	drawStrokedRect( Rectf(804, 0, 804 + 400, 400) );
+	gl::draw( mFboBlur2->getColorTexture(), Rectf( 400, 400, 400 + 400, 400 + 400 ) );
+	drawStrokedRect( Rectf( 400, 400, 400 + 400, 400 + 400 ) );
 
 	// draw our scene with the blurred version added as a blend
 	gl::color( Color::white() );
-	gl::draw( mFboScene.getTexture(), Rectf(1206, 0, 1206 + 400, 400) );
+	gl::draw( mFboScene->getColorTexture(), Rectf( 400, 0, 400 + 400, 0 + 400 ) );
 
 	gl::enableAdditiveBlending();
-	gl::draw( mFboBlur2.getTexture(), Rectf(1206, 0, 1206 + 400, 400) );
+	gl::draw( mFboBlur2->getColorTexture(), Rectf( 400, 0, 400 + 400, 0 + 400 ) );
 	gl::disableAlphaBlending();
-	drawStrokedRect( Rectf(1206, 0, 1206 + 400, 400) );
-	
-	// restore the modelview matrix
-	gl::popModelView();
+	drawStrokedRect( Rectf( 400, 0, 400 + 400, 0 + 400 ) );
 
 	// draw info
 	gl::enableAlphaBlending();
-	gl::drawStringCentered("Basic Scene", Vec2f(200, 370), Color::white(), mFont);
-	gl::drawStringCentered("First Blur Pass (Horizontal)", Vec2f(402 + 200, 370), Color::white(), mFont);
-	gl::drawStringCentered("Second Blur Pass (Vertical)", Vec2f(804 + 200, 370), Color::white(), mFont);
-	gl::drawStringCentered("Final Composite", Vec2f(1206 + 200, 370), Color::white(), mFont);
+	gl::draw( mTextureArrows, vec2( 300, 300 ) );
+	gl::drawStringCentered( "Basic Scene", vec2( 200, 370 ), Color::white(), mFont );
+	gl::drawStringCentered( "First Blur Pass (Horizontal)", vec2( 200, 400 + 370 ), Color::white(), mFont );
+	gl::drawStringCentered( "Second Blur Pass (Vertical)", vec2( 400 + 200, 400 + 370 ), Color::white(), mFont );
+	gl::drawStringCentered( "Final Composite", vec2( 400 + 200, 0 + 370 ), Color::white(), mFont );
 	gl::disableAlphaBlending();
 }
 
 void BloomingNeonApp::render()
 {
 	// get the current viewport
-	Area viewport = gl::getViewport();
+	auto viewport = gl::getViewport();
 
 	// adjust the aspect ratio of the camera
-	mCamera.setAspectRatio( viewport.getWidth() / (float) viewport.getHeight() );
-	
+	mCamera.setAspectRatio( viewport.second.x / (float) viewport.second.y );
+
 	// render our scene (see the Picking3D sample for more info)
 	gl::pushMatrices();
 
-		gl::setMatrices( mCamera );
-		gl::enableDepthRead();
-		gl::enableDepthWrite();
-		
-			mShaderPhong.bind();
-			mShaderPhong.uniform("tex_diffuse", 0);
-			mShaderPhong.uniform("tex_specular", 1);
-				gl::pushModelView();
-				gl::multModelView( mTransform );
-					gl::color( Color::white() );
-					gl::draw( mMesh );
-				gl::popModelView();		
-			mShaderPhong.unbind();
+	gl::setMatrices( mCamera );
+	gl::enableDepthRead();
+	gl::enableDepthWrite();
 
-		gl::disableDepthWrite();
-		gl::disableDepthRead();
+	gl::ScopedGlslProg shader( mShaderPhong );
+	mShaderPhong->uniform( "tex_diffuse", 0 );
+	mShaderPhong->uniform( "tex_specular", 1 );
+
+	gl::multModelMatrix( mTransform );
+	gl::color( Color::white() );
+
+	mBatch->draw();
+
+	gl::disableDepthWrite();
+	gl::disableDepthRead();
 
 	gl::popMatrices();
 }
 
 void BloomingNeonApp::keyDown( KeyEvent event )
 {
-	switch( event.getCode() )
-	{
+	switch( event.getCode() ) {
 	case KeyEvent::KEY_ESCAPE:
 		quit();
 		break;
@@ -278,12 +277,12 @@ void BloomingNeonApp::keyDown( KeyEvent event )
 void BloomingNeonApp::drawStrokedRect( const Rectf &rect )
 {
 	// we don't want any texture on our lines
-	glDisable(GL_TEXTURE_2D);
+	glDisable( GL_TEXTURE_2D );
 
-	gl::drawLine(rect.getUpperLeft(), rect.getUpperRight());
-	gl::drawLine(rect.getUpperRight(), rect.getLowerRight());
-	gl::drawLine(rect.getLowerRight(), rect.getLowerLeft());
-	gl::drawLine(rect.getLowerLeft(), rect.getUpperLeft());
+	gl::drawLine( rect.getUpperLeft(), rect.getUpperRight() );
+	gl::drawLine( rect.getUpperRight(), rect.getLowerRight() );
+	gl::drawLine( rect.getLowerRight(), rect.getLowerLeft() );
+	gl::drawLine( rect.getLowerLeft(), rect.getUpperLeft() );
 }
 
 CINDER_APP_BASIC( BloomingNeonApp, RendererGl )
