@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,26 +18,26 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "cinder/app/AppBasic.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class AnalogClockApp : public AppBasic
-{
+class AnalogClockApp : public AppBasic {
 public:
 	// setting up and shutting down
 	void prepareSettings( Settings *settings );
 	void setup();
-	
+
 	// game loop
 	void update();
 	void draw();
-	
+
 	// application events	
 	void keyDown( KeyEvent event );
 protected:
@@ -50,8 +50,8 @@ protected:
 
 void AnalogClockApp::prepareSettings( Settings *settings )
 {
-	settings->setTitle("Analog Clock");
-	settings->setWindowSize(300, 300);
+	settings->setTitle( "Analog Clock" );
+	settings->setWindowSize( 300, 300 );
 }
 
 void AnalogClockApp::setup()
@@ -69,17 +69,16 @@ void AnalogClockApp::update()
 void AnalogClockApp::draw()
 {
 	// clear the window with a black background
-	gl::clear( Color::black() ); 
+	gl::clear( Color::black() );
 
 	// get the center of the window
-	Vec2f center = 0.5f * Vec2f( getWindowSize() );
+	vec2 center = 0.5f * vec2( getWindowSize() );
 
 	// set current drawing color to white
 	gl::color( Color::white() );
 
 	// draw the 12 hour digits
-	for(int h=0;h<12;++h)
-	{
+	for( int h = 0; h < 12; ++h ) {
 		// store the current transformation,
 		// so we can 'undo' the translation and rotation
 		// to get ready for the next digit
@@ -87,8 +86,8 @@ void AnalogClockApp::draw()
 
 		// draw a rectangle, rotated around the clock's center
 		gl::translate( center );
-		gl::rotate( h * 30.0f ); // 30 degrees per hour
-		gl::drawSolidRect( Rectf(-3, -110, 3, -90) );
+		gl::rotate( h * glm::radians( 30.0f ) ); // 30 degrees per hour
+		gl::drawSolidRect( Rectf( -3, -110, 3, -90 ) );
 
 		// restore the transformations
 		gl::popModelView();
@@ -99,27 +98,27 @@ void AnalogClockApp::draw()
 
 	// draw the long hand for the minutes
 	gl::pushModelView();
-		gl::translate( center );
-		gl::rotate( seconds * (360.0f / 3600.0f) ); // 360 degrees per 3600 seconds
-		gl::drawSolidRect( Rectf(-2, -100, 2, 15) );
+	gl::translate( center );
+	gl::rotate( seconds * glm::radians( 360.0f / 3600.0f ) ); // 360 degrees per 3600 seconds
+	gl::drawSolidRect( Rectf( -2, -100, 2, 15 ) );
 	gl::popModelView();
 
 	// draw the short hand for the hours
 	gl::pushModelView();
-		gl::translate( center );
-		gl::rotate( seconds * (30.0f / 3600.0f) ); // 30 degrees per 3600 seconds
-		gl::drawSolidRect( Rectf(-2, -60, 2, 15) );
+	gl::translate( center );
+	gl::rotate( seconds * glm::radians( 30.0f / 3600.0f ) ); // 30 degrees per 3600 seconds
+	gl::drawSolidRect( Rectf( -2, -60, 2, 15 ) );
 	gl::popModelView();
 
 	// set the current drawing color to red
-	gl::color( Color(1, 0, 0) );
+	gl::color( Color( 1, 0, 0 ) );
 
 	// draw the hand for the seconds
 	gl::pushModelView();
-		gl::translate( center );
-		gl::rotate( seconds * (360.0f / 60.0f) ); // 360 degrees per 60 seconds
-		gl::drawSolidRect( Rectf(-1, -100, 1, 15) );
-		gl::drawSolidCircle( Vec2f::zero(), 6, 24 );
+	gl::translate( center );
+	gl::rotate( seconds * glm::radians( 360.0f / 60.0f ) ); // 360 degrees per 60 seconds
+	gl::drawSolidRect( Rectf( -1, -100, 1, 15 ) );
+	gl::drawSolidCircle( vec2( 0 ), 6, 24 );
 	gl::popModelView();
 }
 
@@ -127,22 +126,19 @@ void AnalogClockApp::draw()
 
 void AnalogClockApp::keyDown( KeyEvent event )
 {
-	switch( event.getCode() )
-	{
+	switch( event.getCode() ) {
 	case KeyEvent::KEY_ESCAPE:
 		quit();
 		break;
 	}
 }
 
-//
-
 int AnalogClockApp::getSecondsSinceMidnight()
 {
-    auto t = std::time(nullptr);
-    auto d = std::localtime(&t);
-    
-    return int(d->tm_hour*3600 + d->tm_min*60 + d->tm_sec);
+	auto t = std::time( nullptr );
+	auto d = std::localtime( &t );
+
+	return int( d->tm_hour * 3600 + d->tm_min * 60 + d->tm_sec );
 }
 
 // the following macro will create the application
