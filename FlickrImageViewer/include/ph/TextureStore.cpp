@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,7 +18,7 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 // get rid of a very annoying warning caused by boost::thread::sleep()
 #pragma warning(push)
@@ -26,6 +26,8 @@
 
 #include "cinder/app/App.h"
 #include "cinder/ip/Resize.h"
+#include "cinder/Log.h"
+
 #include "ph/TextureStore.h"
 
 namespace ph {
@@ -34,7 +36,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-TextureStore::TextureStore(void)
+TextureStore::TextureStore( void )
 {
 	// initialize buffers
 	mTextures.clear();
@@ -62,107 +64,86 @@ TextureStore::~TextureStore(void)
 	mTextures.clear();
 }
 
-gl::Texture TextureStore::load(const string &url, gl::Texture::Format fmt)
+gl::TextureRef TextureStore::load( const string &url, gl::Texture::Format fmt )
 {
 	// if texture already exists, return it immediately
-	if (mTextures.find( url ) != mTextures.end())
-		return mTextures[ url ];
+	auto itr = mTextures.find( url );
+	if( itr != mTextures.end() ) {
+		if( !itr->second.expired() )
+			return itr->second.lock();
+	}
 
 	// otherwise, check if the image has loaded and create a texture for it
 	ci::Surface surface;
-	if( mSurfaces.try_pop(url, surface) ) {
+	if( mSurfaces.try_pop( url, surface ) ) {
 		// done loading
-		mLoadingQueue.erase(url);
+		mLoadingQueue.erase( url );
 
-		// perform garbage collection to make room for new textures
-		garbageCollect();
-		
-#ifdef _DEBUG 
-		console() << getElapsedSeconds() << ": creating Texture for '" << url << "'." << endl;
-#endif
-		ph::Texture tex( surface, fmt );
-		if(tex) {
-			mTextures[ url ] = tex;
-			return tex;
-		}
+		CI_LOG_V( "Creating texture for '" << url << "'." );
+		fmt.setDeleter( CustomDeleter() );
+		ci::gl::TextureRef tex = gl::Texture::create( surface, fmt );
+		return storeTexture( url, tex );
 	}
-
-	// perform garbage collection to make room for new textures
-	garbageCollect();
 
 	// load texture and add to TextureList
-#ifdef _DEBUG 
-	console() << "Loading Texture '" << url << "'." << endl;
-#endif
-	try
-	{
-		ImageSourceRef img = loadImage(url);
-		ph::Texture texture = ph::Texture( img, fmt );
-		mTextures[ url ] = texture;
-
-		return texture;
+	CI_LOG_V( "Loading Texture '" << url << "'." );
+	try {
+		ImageSourceRef img = loadImage( url );
+		fmt.setDeleter( CustomDeleter() );
+		ci::gl::TextureRef tex = ci::gl::Texture::create( img, fmt );
+		return storeTexture( url, tex );
 	}
-	catch(...){}
+	catch( ... ) {}
 
-	try
-	{
-		ImageSourceRef img = loadImage( loadUrl( Url(url) ) );
-		ph::Texture texture = ph::Texture( img, fmt );
-		mTextures[ url ] = texture;
-
-		return texture;
+	try {
+		ImageSourceRef img = loadImage( loadUrl( Url( url ) ) );
+		fmt.setDeleter( CustomDeleter() );
+		ci::gl::TextureRef tex = ci::gl::Texture::create( img, fmt );
+		return storeTexture( url, tex );
 	}
-	catch(...){}
+	catch( ... ) {}
 
 	// did not succeed
-#ifdef _DEBUG 
-	console() << getElapsedSeconds() << ": error loading texture '" << url << "'!" << endl;
-#endif
-	return gl::Texture();
+	CI_LOG_V( "Error loading texture '" << url << "'!" );
+	return empty();
 }
 
-gl::Texture TextureStore::fetch(const string &url, gl::Texture::Format fmt)
+gl::TextureRef TextureStore::fetch( const string &url, gl::Texture::Format fmt )
 {
 	// if texture already exists, return it immediately
-	if (mTextures.find( url ) != mTextures.end())
-		return mTextures[ url ];
+	auto itr = mTextures.find( url );
+	if( itr != mTextures.end() ) {
+		if( !itr->second.expired() )
+			return itr->second.lock();
+	}
 
 	// otherwise, check if the image has loaded and create a texture for it
 	ci::Surface surface;
-	if( mSurfaces.try_pop(url, surface) ) {
+	if( mSurfaces.try_pop( url, surface ) ) {
 		// done loading
-		mLoadingQueue.erase(url);
+		mLoadingQueue.erase( url );
 
-		// perform garbage collection to make room for new textures
-		garbageCollect();
-		
-#ifdef _DEBUG 
-		console() << getElapsedSeconds() << ": creating Texture for '" << url << "'." << endl;
-#endif
-		ph::Texture tex( surface, fmt );
-		if(tex) {
-			mTextures[ url ] = tex;
-			return tex;
-		}
+		CI_LOG_V( "Creating Texture for '" << url << "'." );
+		fmt.setDeleter( CustomDeleter() );
+		ci::gl::TextureRef tex = gl::Texture::create( surface, fmt );
+		return storeTexture( url, tex );
 	}
 
 	// add to list of currently loading/scheduled files 
-	if( mLoadingQueue.push_back(url, true) ) {	
+	if( mLoadingQueue.push_back( url, true ) ) {
 		// hand over to threaded loader
-		if( mQueue.push_back(url, true) ) {
-#ifdef _DEBUG 
-	console() << getElapsedSeconds() << ": queueing Texture '" << url << "' for loading." << endl;
-#endif
+		if( mQueue.push_back( url, true ) ) {
+			CI_LOG_V( "Queueing Texture '" << url << "' for loading." );
 		}
 	}
 
 	return empty();
 }
 
-bool TextureStore::abort(const string &url)
+bool TextureStore::abort( const string &url )
 {
-	mLoadingQueue.erase_all(url);
-	return mQueue.erase_all(url);
+	mLoadingQueue.erase_all( url );
+	return mQueue.erase_all( url );
 }
 
 vector<string> TextureStore::getLoadExtensions()
@@ -170,38 +151,20 @@ vector<string> TextureStore::getLoadExtensions()
 	// TODO: ImageIO::getLoadExtensions() doesn't work, but use that instead once it does
 
 	vector<string> result;
-	result.push_back(".jpg");
-	result.push_back(".png");
+	result.push_back( ".jpg" );
+	result.push_back( ".png" );
 
 	return result;
 }
 
-bool TextureStore::isLoading(const string &url)
+bool TextureStore::isLoading( const string &url )
 {
-	return mLoadingQueue.contains(url);
+	return mLoadingQueue.contains( url );
 }
 
-bool TextureStore::isLoaded(const string &url)
+bool TextureStore::isLoaded( const string &url )
 {
-	return (mTextures.find( url ) != mTextures.end());
-}
-
-void TextureStore::garbageCollect()
-{
-	for(std::map<std::string, ph::Texture>::iterator itr=mTextures.begin();itr!=mTextures.end();)
-	{
-		if(itr->second.getUseCount() < 2)
-		{
-#ifdef _DEBUG 
-			console() << getElapsedSeconds() << ": removing texture '" << itr->first << "' because it is no longer in use." << endl;
-#endif
-			//itr = mTextures.erase(itr); //no return type for std::map erase();
-            //this should work
-            mTextures.erase(itr++);
-		}
-		else
-			++itr;
-	}
+	return ( mTextures.find( url ) != mTextures.end() );
 }
 
 //
@@ -269,7 +232,34 @@ void TextureStore::threadLoad()
 	}
 }
 
-} // namespace ph
+ci::gl::TextureRef TextureStore::storeTexture( const std::string& url, const ci::gl::TextureRef& src )
+{
+	mTextures[url] = std::weak_ptr<ci::gl::Texture>( src );
 
+	CI_LOG_V( "Texture stored! " << mTextures.size() << " textures in total." );
+
+	return src;
+}
+
+void TextureStore::CustomDeleter::operator()( ci::gl::TextureBase* ptr )
+{
+	// We know one of our textures has just been deleted. Find it in the map and remove it.
+	if( ptr ) {
+		auto& map = TextureStore::getInstance().mTextures;
+		for( auto itr = map.begin(); itr != map.end(); ++itr ) {
+			if( itr->second.expired() ) {
+				map.erase( itr );
+				break;
+			}
+		}
+
+		CI_LOG_V( "Texture Deleted! " << map.size() << " textures remaining." );
+
+		delete ptr;
+	}
+}
+
+
+} // namespace ph
 //
 #pragma warning(pop)
