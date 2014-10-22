@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,10 +18,11 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "cinder/ImageIo.h"
 #include "cinder/app/AppBasic.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 
@@ -34,11 +35,11 @@
 // using the #pragma directive
 #ifdef CINDER_MSW
 #ifndef _DEBUG
-	#pragma comment(lib, "opencv_core249.lib")
-	#pragma comment(lib, "opencv_imgproc249.lib")
+#pragma comment(lib, "opencv_core249.lib")
+#pragma comment(lib, "opencv_imgproc249.lib")
 #else
-	#pragma comment(lib, "opencv_core249d.lib")
-	#pragma comment(lib, "opencv_imgproc249d.lib")
+#pragma comment(lib, "opencv_core249d.lib")
+#pragma comment(lib, "opencv_imgproc249d.lib")
 #endif
 #endif
 
@@ -49,18 +50,18 @@ using namespace std;
 class PerspectiveWarpingApp : public AppBasic {
 public:
 	void prepareSettings( Settings *settings );
-	
+
 	void setup();
 	void update();
 	void draw();
-	
+
 	void resize();
-	
-	void mouseMove( MouseEvent event );	
-	void mouseDown( MouseEvent event );	
-	void mouseDrag( MouseEvent event );	
-	void mouseUp( MouseEvent event );	
-	
+
+	void mouseMove( MouseEvent event );
+	void mouseDown( MouseEvent event );
+	void mouseDrag( MouseEvent event );
+	void mouseUp( MouseEvent event );
+
 	void keyDown( KeyEvent event );
 	void keyUp( KeyEvent event );
 public:
@@ -68,49 +69,49 @@ public:
 	void	setContentSize( float width, float height );
 
 	//! find the index of the nearest corner
-	size_t	getNearestIndex( const Vec2i &pt );
+	size_t	getNearestIndex( const ivec2 &pt );
 private:
 	//! TRUE if the transform matrix needs to be recalculated
-	bool		mIsInvalid;
+	bool			mIsInvalid;
 
 	//! size in pixels of the actual content
-	float		mWidth;
-	float		mHeight;
+	float			mWidth;
+	float			mHeight;
 
 	//! corners expressed in content coordinates
-	cv::Point2f	mSource[4];
+	cv::Point2f		mSource[4];
 	//! corners expressed in window coordinates
-	cv::Point2f	mDestination[4];
+	cv::Point2f		mDestination[4];
 	//! corners expressed in normalized window coordinates
-	Vec2f		mDestinationNormalized[4];
+	vec2			mDestinationNormalized[4];
 
 	//! warp transform matrix
-	Matrix44d	mTransform;
+	mat4			mTransform;
 
 	//! content image
-	gl::Texture	mImage;
+	gl::TextureRef	mImage;
 
 	//! edit variables
-	bool		mIsMouseDown;
+	bool			mIsMouseDown;
 
-	size_t		mSelected;
+	size_t			mSelected;
 
-	Vec2i		mInitialMouse;
-	Vec2i		mCurrentMouse;
+	ivec2			mInitialMouse;
+	ivec2			mCurrentMouse;
 
-	cv::Point2f	mInitialPosition;
+	cv::Point2f		mInitialPosition;
 };
 
-void PerspectiveWarpingApp::prepareSettings(Settings *settings)
+void PerspectiveWarpingApp::prepareSettings( Settings *settings )
 {
-	settings->setTitle("Perspective Warping Sample");
+	settings->setTitle( "Perspective Warping Sample" );
 }
 
 void PerspectiveWarpingApp::setup()
 {
 	// initialize transform
-	mTransform.setToIdentity();
-	
+	mTransform = mat4();
+
 	// set the size of the content (desired resolution)
 	setContentSize( 1440, 1080 );
 
@@ -125,14 +126,13 @@ void PerspectiveWarpingApp::setup()
 	mIsMouseDown = false;
 
 	// load image
-	try {	mImage = gl::Texture( loadImage( loadAsset("USS Enterprise D TNG Season 1-2.jpg") ) );	}
+	try { mImage = gl::Texture::create( loadImage( loadAsset( "USS Enterprise D TNG Season 1-2.jpg" ) ) ); }
 	catch( const std::exception &e ) { console() << e.what() << std::endl; }
 }
 
 void PerspectiveWarpingApp::update()
 {
-	if( mIsInvalid )
-	{
+	if( mIsInvalid ) {
 		// calculate the actual four corners of the warp,
 		// expressed as window coordinates
 		int w = getWindowWidth();
@@ -147,17 +147,17 @@ void PerspectiveWarpingApp::update()
 		cv::Mat	warp = cv::getPerspectiveTransform( mSource, mDestination );
 
 		// convert to OpenGL matrix
-		mTransform[0]	= warp.ptr<double>(0)[0]; 
-		mTransform[4]	= warp.ptr<double>(0)[1]; 
-		mTransform[12]	= warp.ptr<double>(0)[2]; 
+		mTransform[0][0] = warp.ptr<double>( 0 )[0];
+		mTransform[0][1] = warp.ptr<double>( 1 )[0];
+		mTransform[0][3] = warp.ptr<double>( 2 )[0];
 
-		mTransform[1]	= warp.ptr<double>(1)[0]; 
-		mTransform[5]	= warp.ptr<double>(1)[1]; 
-		mTransform[13]	= warp.ptr<double>(1)[2]; 
+		mTransform[1][0] = warp.ptr<double>( 0 )[1];
+		mTransform[1][1] = warp.ptr<double>( 1 )[1];
+		mTransform[1][3] = warp.ptr<double>( 2 )[1];
 
-		mTransform[3]	= warp.ptr<double>(2)[0]; 
-		mTransform[7]	= warp.ptr<double>(2)[1]; 
-		mTransform[15]	= warp.ptr<double>(2)[2]; 
+		mTransform[3][0] = warp.ptr<double>( 0 )[2];
+		mTransform[3][1] = warp.ptr<double>( 1 )[2];
+		mTransform[3][3] = warp.ptr<double>( 2 )[2];
 
 		mIsInvalid = false;
 	}
@@ -165,26 +165,26 @@ void PerspectiveWarpingApp::update()
 
 void PerspectiveWarpingApp::draw()
 {
-	gl::clear( Color(0.5f, 0.5f, 0.5f) ); 
+	gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
 	// enable warp
-	gl::pushModelView();
-	gl::multModelView( mTransform );
+	gl::pushModelMatrix();
+	gl::multModelMatrix( mTransform );
 
 	// draw content
 	gl::color( Color::white() );
 	if( mImage ) gl::draw( mImage );
 
-	gl::drawStrokedRect( Rectf(0, 0, mWidth, mHeight) );
-	gl::drawLine( Vec2f( 0, 0 ), Vec2f( mWidth, mHeight ) );
-	gl::drawLine( Vec2f( 0, mHeight ), Vec2f( mWidth, 0 ) );
+	gl::drawStrokedRect( Rectf( 0, 0, mWidth, mHeight ) );
+	gl::drawLine( vec2( 0, 0 ), vec2( mWidth, mHeight ) );
+	gl::drawLine( vec2( 0, mHeight ), vec2( mWidth, 0 ) );
 
 	// disable warp
-	gl::popModelView();
+	gl::popModelMatrix();
 
 	// draw currently dragged corner (if any)
 	if( mIsMouseDown )
-		gl::drawSolidCircle( Vec2f( mDestination[mSelected].x, mDestination[mSelected].y ), 3.0f );
+		gl::drawSolidCircle( vec2( mDestination[mSelected].x, mDestination[mSelected].y ), 3.0f );
 }
 
 void PerspectiveWarpingApp::resize()
@@ -202,7 +202,7 @@ void PerspectiveWarpingApp::mouseDown( MouseEvent event )
 	// start dragging the nearest corner
 	mIsMouseDown = true;
 	mInitialMouse = mCurrentMouse = event.getPos();
-	
+
 	mSelected = getNearestIndex( mInitialMouse );
 	mInitialPosition = mDestination[mSelected];
 }
@@ -212,7 +212,7 @@ void PerspectiveWarpingApp::mouseDrag( MouseEvent event )
 	// drag the nearest corner
 	mCurrentMouse = event.getPos();
 
-	Vec2i d = mCurrentMouse - mInitialMouse;
+	ivec2 d = mCurrentMouse - mInitialMouse;
 	mDestination[mSelected].x = mInitialPosition.x + d.x;
 	mDestination[mSelected].y = mInitialPosition.y + d.y;
 
@@ -245,29 +245,27 @@ void PerspectiveWarpingApp::setContentSize( float width, float height )
 	mHeight = height;
 
 	//! set the four corners of the CONTENT
-	mSource[0].x = 0.0f;		
-	mSource[0].y = 0.0f;		
-	mSource[1].x = mWidth;		
-	mSource[1].y = 0.0f;		
-	mSource[2].x = mWidth;		
-	mSource[2].y = mHeight;		
-	mSource[3].x = 0.0f;		
-	mSource[3].y = mHeight;	
+	mSource[0].x = 0.0f;
+	mSource[0].y = 0.0f;
+	mSource[1].x = mWidth;
+	mSource[1].y = 0.0f;
+	mSource[2].x = mWidth;
+	mSource[2].y = mHeight;
+	mSource[3].x = 0.0f;
+	mSource[3].y = mHeight;
 
 	//! we need to recalculate the warp transform
 	mIsInvalid = true;
 }
 
-size_t PerspectiveWarpingApp::getNearestIndex( const Vec2i &pt )
+size_t PerspectiveWarpingApp::getNearestIndex( const ivec2 &pt )
 {
 	uint8_t	index = 0;
 	float	distance = 10.0e6f;
 
-	for(size_t i=0;i<4;++i)
-	{
-		float d = Vec2f( mDestination[i].x, mDestination[i].y ).distance( Vec2f(pt) );
-		if( d < distance ) 
-		{
+	for( size_t i = 0; i < 4; ++i ) {
+		float d = glm::distance( vec2( mDestination[i].x, mDestination[i].y ), vec2( pt ) );
+		if( d < distance ) {
 			distance = d;
 			index = i;
 		}
