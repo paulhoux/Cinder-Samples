@@ -47,6 +47,10 @@ class FileDropEvent;
 #include <deque>
 #include <map>
 
+// we don't want these, defined in <minwindef.h>
+#undef near
+#undef far
+
 namespace ph {
 namespace nodes {
 
@@ -239,15 +243,6 @@ protected:
 	mutable ci::mat4		mTransform;
 	mutable ci::mat4		mWorldTransform;
 protected:
-	//! helper function for coordinate transformations
-	ci::vec2	project( float x, float y ) const;
-	ci::vec2	project( const ci::vec2 &pt ) const { return project( pt.x, pt.y ); }
-	ci::vec2	project( const ci::vec3 &pt ) const { return project( pt.x, pt.y ); }
-
-	ci::vec3	unproject( float x, float y, float z ) const;
-	ci::vec3	unproject( const ci::vec2 &pt ) const { return unproject( pt.x, pt.y, 0.0f ); }
-	ci::vec3	unproject( const ci::vec3 &pt ) const { return unproject( pt.x, pt.y, pt.z ); }
-
 	//! function that is called right before drawing this node
 	virtual void predraw() {}
 	//! function that is called right after drawing this node
@@ -341,7 +336,7 @@ public:
 
 	// conversions from screen to world to object coordinates and vice versa
 	virtual ci::vec2 screenToParent( const ci::vec2 &pt ) const;
-	virtual ci::vec2 screenToObject( const ci::vec2 &pt ) const;
+	virtual ci::vec2 screenToObject( const ci::vec2 &pt, float z = 0 ) const;
 	virtual ci::vec2 parentToScreen( const ci::vec2 &pt ) const;
 	virtual ci::vec2 parentToObject( const ci::vec2 &pt ) const;
 	virtual ci::vec2 objectToParent( const ci::vec2 &pt ) const;

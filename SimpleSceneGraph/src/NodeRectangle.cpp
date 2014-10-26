@@ -99,9 +99,9 @@ bool NodeRectangle::mouseDown( MouseEvent event )
 	mInitialScale = getScale();
 
 	// drag if clicked with left, scale and rotate if clicked with right
-	if( event.isLeftDown() )
+	if( event.isLeftDown() && !event.isShiftDown() )
 		mTouchMode = DRAGGING;
-	else if( event.isRightDown() )
+	else if( event.isRightDown() || ( event.isLeftDown() && event.isShiftDown() ) )
 		mTouchMode = RESIZING;
 
 	return true;

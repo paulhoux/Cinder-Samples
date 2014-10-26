@@ -403,66 +403,6 @@ bool Node::resize()
 	return false;
 }
 
-vec2 Node::project( float x, float y ) const
-{
-	// get viewport and projection matrix
-	auto	viewport = gl::getViewport();
-	mat4	projection = gl::getProjectionMatrix();
-
-	// find the modelview-projection-matrix
-	mat4 mvp = projection * mWorldTransform;
-
-	//
-	vec4 in( x, y, 0.0f, 1.0f );
-
-	vec4 out = mvp * in;
-	if( out.w != 0.0f ) out.w = 1.0f / out.w;
-
-	out.x *= out.w;
-	out.y *= out.w;
-	out.z *= out.w;
-
-	// map to window coordinates
-	vec2 result;
-	result.x = viewport.first.x + viewport.second.x * ( out.x + 1.0f ) / 2.0f;
-	result.y = viewport.first.y + viewport.second.y * ( 1.0f - ( out.y + 1.0f ) / 2.0f );
-
-	return result;
-}
-
-/* transforms clip-space coordinates to object-space coordinates,
-	where z is within range [0.0 - 1.0] from near-plane to far-plane */
-vec3 Node::unproject( float x, float y, float z ) const
-{
-	// get viewport and projection matrix
-	auto viewport = gl::getViewport();
-	mat4 projection = gl::getProjectionMatrix();
-
-	// find the inverse modelview-projection-matrix
-	mat4 mvp = glm::inverse( projection * mWorldTransform );
-
-	// map x and y from window coordinates
-	vec4 in( x, float( viewport.second.y ) - y - 1.0f, z, 1.0f );
-	in.x = ( in.x - viewport.first.x ) / float( viewport.second.x );
-	in.y = ( in.y - viewport.first.y ) / float( viewport.second.y );
-
-	// map to range [-1..1]
-	in.x = 2.0f * in.x - 1.0f;
-	in.y = 2.0f * in.y - 1.0f;
-	in.z = 2.0f * in.z - 1.0f;
-
-	//
-	vec4 out = mvp * in;
-	if( out.w != 0.0f ) out.w = 1.0f / out.w;
-
-	vec3 result;
-	result.x = out.x * out.w;
-	result.y = out.y * out.w;
-	result.z = out.z * out.w;
-
-	return result;
-}
-
 ////////////////// Node2D //////////////////
 
 
@@ -485,19 +425,23 @@ vec2 Node2D::screenToParent( const vec2 &pt ) const
 	return p;
 }
 
-vec2 Node2D::screenToObject( const vec2 &pt ) const
+vec2 Node2D::screenToObject( const vec2 &pt, float z ) const
 {
-	// near plane intersection 
-	vec3 p0 = unproject( pt.x, pt.y, 0.0f );
-	// far plane intersection 
-	vec3 p1 = unproject( pt.x, pt.y, 1.0f );
+	// Build the viewport (x, y, width, height).
+	vec2 offset = gl::getViewport().first;
+	vec2 size = gl::getViewport().second;
+	vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
 
-	// find (x, y) coordinates 
-	float t = ( 0.0f - p0.z ) / ( p1.z - p0.z );
-	float x = ( p0.x + t * ( p1.x - p0.x ) );
-	float y = ( p0.y + t * ( p0.y - p1.y ) );
+	// Calculate the view-projection matrix.
+	mat4 model = mWorldTransform;
+	mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
 
-	return vec2( p0.x, p0.y );
+	// Calculate the intersection of the mouse ray with the near (z=0) and far (z=1) planes.
+	vec3 near = glm::unProject( vec3( pt.x, size.y - pt.y - 1, 0 ), model, viewProjection, viewport );
+	vec3 far = glm::unProject( vec3( pt.x, size.y - pt.y - 1, 1 ), model, viewProjection, viewport );
+
+	// Calculate world position.
+	return vec2( ci::lerp( near, far, ( z - near.z ) / ( far.z - near.z ) ) );
 }
 
 vec2 Node2D::parentToScreen( const vec2 &pt ) const
@@ -526,13 +470,25 @@ vec2 Node2D::objectToParent( const vec2 &pt ) const
 
 vec2 Node2D::objectToScreen( const vec2 &pt ) const
 {
-	return project( pt );
+	// Build the viewport (x, y, width, height).
+	vec2 offset = gl::getViewport().first;
+	vec2 size = gl::getViewport().second;
+	vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
+
+	// Calculate the view-projection matrix.
+	mat4 model = mWorldTransform;
+	mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
+
+	vec2 p = vec2( glm::project( vec3( pt, 0 ), model, viewProjection, viewport ) );
+	p.y = size.y - 1 - p.y;
+
+	return p;
 }
 
 ////////////////// Node3D //////////////////
 
 Node3D::Node3D( void )
-	: mScale(1)
+	: mScale( 1 )
 {
 }
 
