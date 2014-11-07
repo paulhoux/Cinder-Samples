@@ -1,4 +1,5 @@
 #include "cinder/app/AppBasic.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
 #include "text/FontStore.h"
@@ -17,8 +18,8 @@ public:
 	void update();
 	void draw();
 
-	void mouseDown( MouseEvent event );	
-	void mouseDrag( MouseEvent event );	
+	void mouseDown( MouseEvent event );
+	void mouseDrag( MouseEvent event );
 	void mouseUp( MouseEvent event );
 	void mouseWheel( MouseEvent event );
 
@@ -28,7 +29,7 @@ public:
 	void resize();
 	void fileDrop( FileDropEvent event );
 protected:
-	Vec3f	constrainAnchor( const Vec3f &pt ) const;
+	vec3	constrainAnchor( const vec3 &pt ) const;
 	void	updateWindowTitle();
 protected:
 	bool			mShowBounds;
@@ -41,48 +42,48 @@ protected:
 	TextBox			mTextBox;
 
 	//! textbox transformation members
-	Vec3f			mAnchor;
-	Quatf			mOrientation;
+	vec3			mAnchor;
+	quat			mOrientation;
 	float			mScale;
-	Matrix44f		mTransform;
+	mat4			mTransform;
 
 	//! textbox animation members
-	Vec3f			mAnchorTarget;
-	Vec3f			mAnchorSpeed;
+	vec3			mAnchorTarget;
+	vec3			mAnchorSpeed;
 	float			mScaleSpeed;
 
 	//! interaction members
-	Vec3f			mInitialAnchor;
-	Quatf			mInitialOrientation;
+	vec3			mInitialAnchor;
+	quat			mInitialOrientation;
 	float			mInitialScale;
 
-	Vec2f			mInitialMouse;
-	Vec2f			mCurrentMouse;
+	vec2			mInitialMouse;
+	vec2			mCurrentMouse;
 
 	uint32_t		mMouseDownFrame;
 	uint32_t		mMouseDragFrame;
 
 };
 
-void TextRenderingApp::prepareSettings(Settings *settings)
+void TextRenderingApp::prepareSettings( Settings *settings )
 {
 	// set maximum frame rate quite high, so we can measure performance if vertical sync is disabled
-	settings->setFrameRate(500.0f);
+	settings->setFrameRate( 500.0f );
 
 	// set initial window size
-	settings->setWindowSize(550, 750);
+	settings->setWindowSize( 550, 750 );
 }
 
 void TextRenderingApp::setup()
 {
-	try { 
+	try {
 		// load fonts using the FontStore
-		fonts().loadFont( loadAsset("fonts/Walter Turncoat Regular.sdff") ); 
+		fonts().loadFont( loadAsset( "fonts/Walter Turncoat Regular.sdff" ) );
 
 		// create a text box (rectangular text area)
 		mTextBox = TextBox( 400, 500 );
 		// set font and font size
-		mTextBox.setFont( fonts().getFont("Walter Turncoat Regular") );
+		mTextBox.setFont( fonts().getFont( "Walter Turncoat Regular" ) );
 		mTextBox.setFontSize( 14.0f );
 		// break lines between words
 		mTextBox.setBoundary( Text::WORD );
@@ -90,18 +91,18 @@ void TextRenderingApp::setup()
 		mTextBox.setLineSpace( 1.5f );
 
 		// load a text and hand it to the text box
-		mTextBox.setText( loadString( loadAsset("fonts/readme.txt") ) );
+		mTextBox.setText( loadString( loadAsset( "fonts/readme.txt" ) ) );
 	}
-	catch( const std::exception & e ) { 
-		console() << e.what() << std::endl; 
+	catch( const std::exception & e ) {
+		console() << e.what() << std::endl;
 	}
-	
+
 	// initialize member variables
 	mShowBounds = false;
-	mShowWireframe= false;
+	mShowWireframe = false;
 
-	mFrontColor = Color(0.1f, 0.1f, 0.1f);
-	mBackColor = Color(0.9f, 0.9f, 0.9f);
+	mFrontColor = Color( 0.1f, 0.1f, 0.1f );
+	mBackColor = Color( 0.9f, 0.9f, 0.9f );
 
 	// set initial text position and scale
 	mScale = 1.0f;
@@ -109,7 +110,7 @@ void TextRenderingApp::setup()
 	mAnchor.x = 0.0f;
 	mAnchor.y = 0.0f;
 	mAnchorTarget = mAnchor = constrainAnchor( mAnchor );
-	mAnchorSpeed = Vec3f::zero();
+	mAnchorSpeed = vec3( 0 );
 
 	// update the window title
 	updateWindowTitle();
@@ -121,7 +122,7 @@ void TextRenderingApp::shutdown()
 }
 
 void TextRenderingApp::update()
-{	
+{
 	// adjust scale
 	mScale *= mScaleSpeed;
 
@@ -131,14 +132,13 @@ void TextRenderingApp::update()
 	mAnchorTarget = constrainAnchor( mAnchorTarget );
 
 	// adjust anchor accordingly
-	mAnchor += 0.2f * (mAnchorTarget - mAnchor);
+	mAnchor += 0.2f * ( mAnchorTarget - mAnchor );
 
 	// calculate transformation matrix
-	mTransform.setToIdentity();
-	mTransform.translate( Vec3f( 0.5f * Vec2f( getWindowSize() ), 0.0f ) );	// position
-	mTransform *= mOrientation.toMatrix44();		// orientation
-	mTransform.scale( Vec3f(mScale, mScale, mScale) );						// scale
-	mTransform.translate( -mAnchor );				// anchor
+	mTransform = glm::translate( vec3( 0.5f * vec2( getWindowSize() ), 0.0f ) );	// position
+	mTransform *= glm::toMat4( mOrientation );										// orientation
+	mTransform *= glm::scale( vec3( mScale, mScale, mScale ) );						// scale
+	mTransform *= glm::translate( -mAnchor );										// anchor
 }
 
 void TextRenderingApp::draw()
@@ -154,18 +154,18 @@ void TextRenderingApp::draw()
 	gl::enableAlphaBlending();
 
 	// apply transformations
-	gl::pushModelView();
-	gl::multModelView( mTransform );
+	gl::pushModelMatrix();
+	gl::multModelMatrix( mTransform );
 
 	// draw the text
 	mTextBox.draw();
 
 	// draw mesh as wireframes if enabled
-	if(mShowWireframe) 
+	if( mShowWireframe )
 		mTextBox.drawWireframe();
-	
+
 	// restore render states
-	gl::popModelView();
+	gl::popModelMatrix();
 	gl::disableAlphaBlending();
 }
 
@@ -180,8 +180,8 @@ void TextRenderingApp::mouseDown( MouseEvent event )
 	mInitialScale = mScale;
 
 	// make sure auto-scrolling is disabled
-	mAnchorTarget = mAnchor;	
-	mAnchorSpeed = Vec3f::zero();
+	mAnchorTarget = mAnchor;
+	mAnchorSpeed = vec3( 0 );
 	mScaleSpeed = 1.0f;
 
 	// keep track of current frame, so we can calculate average drag speed in mouseUp()
@@ -192,10 +192,9 @@ void TextRenderingApp::mouseDrag( MouseEvent event )
 {
 	mCurrentMouse = event.getPos();
 
-	if( event.isLeftDown() )
-	{
+	if( event.isLeftDown() ) {
 		// drag text up and down, limited by the window dimensions
-		Vec2f d( (mCurrentMouse.x - mInitialMouse.x) / mScale, (mCurrentMouse.y - mInitialMouse.y) / mScale );
+		vec2 d( ( mCurrentMouse.x - mInitialMouse.x ) / mScale, ( mCurrentMouse.y - mInitialMouse.y ) / mScale );
 		mAnchor.x = mInitialAnchor.x - d.x;
 		mAnchor.y = mInitialAnchor.y - d.y;
 		mAnchorTarget = mAnchor = constrainAnchor( mAnchor );
@@ -203,56 +202,54 @@ void TextRenderingApp::mouseDrag( MouseEvent event )
 		// if anchor was limited, adjust initial anchor for better mouse response
 		mInitialAnchor.x = mAnchor.x + d.x;
 		mInitialAnchor.y = mAnchor.y + d.y;
-	
+
 		// keep track of current frame, so we can calculate average drag speed in mouseUp()
 		mMouseDragFrame = getElapsedFrames();
 	}
-	else if( event.isRightDown() )
-	{
+	else if( event.isRightDown() ) {
 		// scale text
-		float d0 = mInitialMouse.length();
-		float d1 = mCurrentMouse.length();
-		mScale = mInitialScale * (d1 / d0);
+		float d0 = glm::length(mInitialMouse);
+		float d1 = glm::length(mCurrentMouse);
+		mScale = mInitialScale * ( d1 / d0 );
 
 		// make sure auto-scrolling is disabled
 		mAnchorTarget = mAnchor = constrainAnchor( mAnchorTarget );
-		mAnchorSpeed = Vec3f::zero();
+		mAnchorSpeed = vec3( 0 );
 	}
 }
 
 void TextRenderingApp::mouseUp( MouseEvent event )
 {
 	// don't calculate average speed if not dragged since more than 5 frames, or not dragged at all
-	if( (getElapsedFrames() - mMouseDragFrame) > 5 || mMouseDragFrame <= mMouseDownFrame )
-		mAnchorSpeed = Vec3f::zero();
-	else
-	{
+	if( ( getElapsedFrames() - mMouseDragFrame ) > 5 || mMouseDragFrame <= mMouseDownFrame )
+		mAnchorSpeed = vec3( 0 );
+	else {
 		mCurrentMouse = event.getPos();
 
 		// calculate average drag distance per frame
-		Vec2f d( (mCurrentMouse.x - mInitialMouse.x) / mScale, (mCurrentMouse.y - mInitialMouse.y) / mScale );
-		Vec2f avg = d / float( mMouseDragFrame - mMouseDownFrame );
+		vec2 d( ( mCurrentMouse.x - mInitialMouse.x ) / mScale, ( mCurrentMouse.y - mInitialMouse.y ) / mScale );
+		vec2 avg = d / float( mMouseDragFrame - mMouseDownFrame );
 
-		mAnchorSpeed = Vec3f( avg, 0.0f );
+		mAnchorSpeed = vec3( avg, 0.0f );
 	}
 }
 
 void TextRenderingApp::mouseWheel( MouseEvent event )
-{		
+{
 	// use the scroll wheel to scroll the text, two lines per event
 	mAnchorTarget.y -= event.getWheelIncrement() * mTextBox.getLeading() * 2.0f;
-	mAnchorSpeed = Vec3f::zero();
+	mAnchorSpeed = vec3( 0 );
 }
 
 void TextRenderingApp::keyDown( KeyEvent event )
 {
-	switch(event.getCode()) {
+	switch( event.getCode() ) {
 	case KeyEvent::KEY_ESCAPE:
 		quit();
 		break;
 	case KeyEvent::KEY_d:
 		// load a very long text and hand it to the text box
-		mTextBox.setText( loadString( loadAsset("text/345.txt") ) );
+		mTextBox.setText( loadString( loadAsset( "text/345.txt" ) ) );
 		break;
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
@@ -267,10 +264,10 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		mScale = 1.0f;
 		break;
 	case KeyEvent::KEY_SPACE:
-		{ Color temp = mFrontColor; mFrontColor = mBackColor; mBackColor = temp; }
+	{ Color temp = mFrontColor; mFrontColor = mBackColor; mBackColor = temp; }
 		break;
 	case KeyEvent::KEY_LEFTBRACKET:
-		if(mTextBox.getFontSize() > 0.5f)
+		if( mTextBox.getFontSize() > 0.5f )
 			mTextBox.setFontSize( mTextBox.getFontSize() - 0.5f );
 		break;
 	case KeyEvent::KEY_RIGHTBRACKET:
@@ -279,10 +276,10 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_LEFT:
 		/*if( mTextBox.getAlignment() == TextBox::JUSTIFIED )
 			mTextBox.setAlignment( TextBox::RIGHT );
-		else*/ if( mTextBox.getAlignment() == TextBox::RIGHT )
-			mTextBox.setAlignment( TextBox::CENTER );
-		else if( mTextBox.getAlignment() == TextBox::CENTER )
-			mTextBox.setAlignment( TextBox::LEFT );
+			else*/ if( mTextBox.getAlignment() == TextBox::RIGHT )
+	mTextBox.setAlignment( TextBox::CENTER );
+			else if( mTextBox.getAlignment() == TextBox::CENTER )
+				mTextBox.setAlignment( TextBox::LEFT );
 		break;
 	case KeyEvent::KEY_RIGHT:
 		if( mTextBox.getAlignment() == TextBox::LEFT )
@@ -302,23 +299,23 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_PAGEDOWN:
 		// TODO: don't scroll if mouse down
-		mAnchorTarget.y += (getWindowHeight() / mScale) - mTextBox.getLeading();
-		mAnchorSpeed = Vec3f::zero();
+		mAnchorTarget.y += ( getWindowHeight() / mScale ) - mTextBox.getLeading();
+		mAnchorSpeed = vec3( 0 );
 		break;
 	case KeyEvent::KEY_PAGEUP:
 		// TODO: don't scroll if mouse down
-		mAnchorTarget.y -= (getWindowHeight() / mScale) - mTextBox.getLeading();
-		mAnchorSpeed = Vec3f::zero();
+		mAnchorTarget.y -= ( getWindowHeight() / mScale ) - mTextBox.getLeading();
+		mAnchorSpeed = vec3( 0 );
 		break;
 	case KeyEvent::KEY_HOME:
 		mAnchorTarget.x = 0.0f;
 		mAnchorTarget.y = 0.0f;
-		mAnchorSpeed = Vec3f::zero();
+		mAnchorSpeed = vec3( 0 );
 		break;
 	case KeyEvent::KEY_END:
 		mAnchorTarget.x = mTextBox.getBounds().getWidth();
 		mAnchorTarget.y = mTextBox.getBounds().getHeight();
-		mAnchorSpeed = Vec3f::zero();
+		mAnchorSpeed = vec3( 0 );
 		break;
 	case KeyEvent::KEY_KP_MINUS:
 		mScaleSpeed = 0.995f;
@@ -333,8 +330,8 @@ void TextRenderingApp::keyDown( KeyEvent event )
 }
 
 void TextRenderingApp::keyUp( KeyEvent event )
-{	
-	switch(event.getCode()) {
+{
+	switch( event.getCode() ) {
 	case KeyEvent::KEY_KP_MINUS:
 	case KeyEvent::KEY_KP_PLUS:
 		mScaleSpeed = 1.0f;
@@ -350,15 +347,15 @@ void TextRenderingApp::resize()
 
 void TextRenderingApp::fileDrop( FileDropEvent event )
 {
-	if( event.getNumFiles() == 1) {
+	if( event.getNumFiles() == 1 ) {
 		// you dropped 1 file, let's try to load it as a SDFF font file
-		fs::path file = event.getFile(0);
+		fs::path file = event.getFile( 0 );
 
-		if(file.extension() == ".sdff") {
+		if( file.extension() == ".sdff" ) {
 			try {
 				// create a new font and read the file
 				ph::text::FontRef font( new ph::text::Font() );
-				font->read( loadFile(file) );
+				font->read( loadFile( file ) );
 				// add font to font manager
 				fonts().addFont( font );
 				// set the text font
@@ -370,21 +367,21 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 		}
 		else {
 			// try to render the file as a text
-			mTextBox.setText( loadString( loadFile(file) ) );
+			mTextBox.setText( loadString( loadFile( file ) ) );
 		}
 	}
 	else if( event.getNumFiles() == 2 ) {
 		// you dropped 2 files, let's try to create a new SDFF font file
-		fs::path fileA = event.getFile(0);
-		fs::path fileB = event.getFile(1);
+		fs::path fileA = event.getFile( 0 );
+		fs::path fileB = event.getFile( 1 );
 
-		if(fileA.extension() == ".txt" && fileB.extension() == ".png") {
+		if( fileA.extension() == ".txt" && fileB.extension() == ".png" ) {
 			try {
 				// create a new font from an image and a metrics file
 				ph::text::FontRef font( new ph::text::Font() );
-				font->create( loadFile(fileB), loadFile(fileA) );
+				font->create( loadFile( fileB ), loadFile( fileA ) );
 				// create a compact SDFF file
-				font->write( writeFile( fileB.parent_path() / (font->getFamily() + ".sdff") ) );
+				font->write( writeFile( fileB.parent_path() / ( font->getFamily() + ".sdff" ) ) );
 				// add font to font manager
 				fonts().addFont( font );
 				// set the text font
@@ -394,13 +391,13 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 				console() << e.what() << std::endl;
 			}
 		}
-		else if(fileB.extension() == ".txt" && fileA.extension() == ".png") {
+		else if( fileB.extension() == ".txt" && fileA.extension() == ".png" ) {
 			try {
 				// create a new font from an image and a metrics file
 				ph::text::FontRef font( new ph::text::Font() );
-				font->create( loadFile(fileA), loadFile(fileB) );
+				font->create( loadFile( fileA ), loadFile( fileB ) );
 				// create a compact SDFF file
-				font->write( writeFile( fileA.parent_path() / (font->getFamily() + ".sdff") ) );
+				font->write( writeFile( fileA.parent_path() / ( font->getFamily() + ".sdff" ) ) );
 				// add font to font manager
 				fonts().addFont( font );
 				// set the text font
@@ -415,11 +412,11 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 	updateWindowTitle();
 }
 
-Vec3f TextRenderingApp::constrainAnchor( const Vec3f &pt ) const
+vec3 TextRenderingApp::constrainAnchor( const vec3 &pt ) const
 {
-	Vec2f	margin = Vec2f(20, 20) / mScale;
-	Vec2f	size = mTextBox.getBounds().getSize();
-	Vec2f	center = 0.5f / mScale * Vec2f(getWindowSize());
+	vec2	margin = vec2( 20, 20 ) / mScale;
+	vec2	size = mTextBox.getBounds().getSize();
+	vec2	center = 0.5f / mScale * vec2( getWindowSize() );
 
 	float x = math<float>::min( center.x - margin.x, 0.5f * size.x );
 	float y = math<float>::min( center.y - margin.y, 0.5f * size.y );
@@ -429,11 +426,11 @@ Vec3f TextRenderingApp::constrainAnchor( const Vec3f &pt ) const
 	float miny = math<float>::min( size.y - y, y );
 	float maxy = math<float>::max( size.y - y, y );
 
-	Vec3f result;
+	vec3 result;
 	result.x = math<float>::clamp( pt.x, minx, maxx );
 	result.y = math<float>::clamp( pt.y, miny, maxy );
 	result.z = pt.z;
-	
+
 	return result;
 }
 
@@ -443,7 +440,7 @@ void TextRenderingApp::updateWindowTitle()
 	str << "TextRenderingApp -";
 	str << " Font family: " << mTextBox.getFontFamily();
 	str << " (" << mTextBox.getFontSize() << ")";
-	
+
 	getWindow()->setTitle( str.str() );
 }
 

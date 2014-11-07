@@ -121,18 +121,15 @@ void TextLabels::createMesh()
 
 	//
 	gl::VboMesh::Layout layout;
-	layout.setStaticPositions();
-	layout.setStaticIndices();
-	layout.setStaticTexCoords2d(0);
-	//layout.setStaticColorsRGBA();
-	layout.setStaticTexCoords3d(1);
+	layout.attrib( geom::POSITION, 3 );
+	layout.attrib( geom::TEX_COORD_0, 2 );
+	layout.attrib( geom::TEX_COORD_1, 3 );
 
-	mVboMesh = gl::VboMesh( mVertices.size(), mIndices.size(), layout, GL_TRIANGLES );
-	mVboMesh.bufferPositions( &mVertices.front(), mVertices.size() );
-	mVboMesh.bufferIndices( mIndices );
-	mVboMesh.bufferTexCoords2d( 0, mTexcoords );
-	//mVboMesh.bufferColorsRGBA( colors );
-	mVboMesh.bufferTexCoords3d( 1, mOffsets );
+	mVboMesh = gl::VboMesh::create( mVertices.size(), GL_TRIANGLES, { layout }, mIndices.size(), GL_UNSIGNED_SHORT );
+	mVboMesh->bufferAttrib( geom::POSITION, mVertices.size() * sizeof( vec3 ), mVertices.data() );
+	mVboMesh->bufferAttrib( geom::TEX_COORD_0, mTexcoords.size() * sizeof( vec2 ), mTexcoords.data() );
+	mVboMesh->bufferAttrib( geom::TEX_COORD_1, mOffsets.size() * sizeof( vec3 ), mOffsets.data() );
+	mVboMesh->bufferIndices( mIndices.size() * sizeof( uint16_t ), mIndices.data() );
 
 	mInvalid = false;
 }
@@ -140,36 +137,46 @@ void TextLabels::createMesh()
 std::string TextLabels::getVertexShader() const
 {
 	// vertex shader
-	const char *vs = 
-		"#version 120\n"
-		"\n"
+	const char *vs =
+		"#version 150\n"
+		""
+		"uniform mat4 ciModelViewProject;\n"
+		""
+		"in vec4 ciPosition;\n"
+		"in vec4 ciColor;\n"
+		"in vec2 ciTexCoord0;\n"
+		"in vec3 ciTexCoord1;\n"
+		""
+		"out vec4 vColor;\n"
+		"out vec2 vTexCoord0;\n"
+		""
 		"// viewport parameters (x, y, width, height)\n"
 		"uniform vec4 viewport;\n"
-		"\n"
+		""
 		"vec3 toNDC(vec4 vertex)\n"
 		"{\n"
 		"	return vec3( vertex.xyz / vertex.w );\n"
 		"}\n"
-		"\n"
+		""
 		"vec2 toScreenSpace(vec4 vertex)\n"
 		"{\n"
 		"	return vec2( vertex.xy / vertex.w ) * viewport.zw;\n"
 		"}\n"
-		"\n"
+		""
 		"void main()\n"
 		"{\n"
 		"	// pass font texture coordinate to fragment shader\n"
-		"	gl_TexCoord[0] = gl_MultiTexCoord0;\n"
-		"\n"
+		"	vTexCoord0 = ciTexCoord0;\n"
+		""
 		"	// set the color\n"
-		"	gl_FrontColor = gl_Color;\n"
-		"\n"
+		"	vColor = ciColor;\n"
+		""
 		"	// convert label position to normalized device coordinates to find the 2D offset\n"
-		"	vec3 offset = toNDC( gl_ModelViewProjectionMatrix * gl_MultiTexCoord1 );\n"
-		"\n"
+		"	vec3 offset = toNDC( ciModelViewProject * ciTexCoord1 );\n"
+		""
 		"	// convert vertex from screen space to normalized device coordinates\n"
-		"	vec3 vertex = vec3( gl_Vertex.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"
-		"\n"
+		"	vec3 vertex = vec3( ciPosition.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"
+		""
 		"	// calculate final vertex position by offsetting it\n"
 		"	gl_Position = vec4( vertex + offset, 1.0 );\n"
 		"}";

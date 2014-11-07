@@ -201,11 +201,12 @@ void Font::read(const ci::DataSourceRef source)
 		// load image
 		mSurface = Surface( loadImage( DataSourceBuffer::create(buffer), ImageSource::Options(), "png" ) );
 
-		// apply mip-mapping
+		// apply mip-mapping and load top-down
 		gl::Texture2d::Format fmt;
 		fmt.enableMipmapping();
 		fmt.setMinFilter( GL_LINEAR_MIPMAP_LINEAR );
 		fmt.setMagFilter( GL_LINEAR );
+		fmt.loadTopDown( true );
 
 		mTexture = gl::Texture2d::create( mSurface, fmt );
 		mTextureSize = mTexture->getSize();

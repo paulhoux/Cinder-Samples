@@ -121,7 +121,7 @@ protected:
 
 	std::vector<size_t>		mMust, mAllow;
 	std::vector<ci::vec3>	mVertices;
-	std::vector<uint32_t>	mIndices;
+	std::vector<uint16_t>	mIndices;
 	std::vector<ci::vec2>	mTexcoords;
 };
 

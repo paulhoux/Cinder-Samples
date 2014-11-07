@@ -33,8 +33,8 @@ void main()
 	specular = clamp( specular, 0.0, 1.0 );
 
 	// write final color in first color target 
-	oColor[0].rgb = ambient + diffuse + specular;
-	oColor[0].a = 1.0;
+	//oColor[0].rgb = ambient + diffuse + specular;
+	//oColor[0].a = 1.0;
 
 	// write color code in second color target
 	//  note:  use texture2D(tex0, uv).a for the alpha value if you use textures
