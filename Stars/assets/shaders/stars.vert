@@ -1,4 +1,13 @@
-#version 120
+#version 150
+
+uniform mat4 ciModelViewProjection;
+uniform mat4 ciModelView;
+
+in vec4 ciPosition;
+in vec2 ciTexCoord0;
+in vec4 ciColor;
+
+out vec4 vColor;
 
 // point sprite sizes differ between ATI/AMD and NVIDIA GPU's,
 // ATI's are twice as large and have to be scaled down
@@ -21,11 +30,11 @@ float log10( float n ) {
 void main() { 
 	// calculate distance of star (in parsecs) to camera
 	// see: http://www.opengl.org/discussion_boards/showthread.php/166796-GLSL-PointSprites-different-sizes?p=1178125&viewfull=1#post1178125
-	vec3	vertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+	vec3	vertex = vec3( ciModelView * ciPosition );
 	float	distance = length(vertex);
 
 	// retrieve absolute magnitude from texture coordinates
-	float magnitude = gl_MultiTexCoord0.x;
+	float magnitude = ciTexCoord0.x;
 
 	// calculate apparent magnitude based on distance	
 	float apparent = magnitude - 5.0 * (1.0 - log10(distance));
@@ -35,8 +44,8 @@ void main() {
 
 	// determine color
 	float brightness = clamp((MAG_LOWER_BOUND + (1.0 - apparent)) / MAG_RANGE, 0.0, 1.0);
-	gl_FrontColor = gl_Color * pow(brightness, 1.5);
+	vColor = ciColor * pow(brightness, 1.5);
 	
 	// set position
-    gl_Position = ftransform(); 
+    gl_Position = ciModelViewProjection * ciPosition; 
 }
