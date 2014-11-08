@@ -41,7 +41,6 @@
 #include "UserInterface.h"
 
 #include <irrKlang.h>
-
 #pragma comment(lib, "irrKlang.lib")
 
 using namespace ci;
@@ -98,14 +97,14 @@ protected:
 	Cam					mCamera;
 
 	// graphical elements
-	//Stars				mStars;
-	//Labels				mLabels;
+	Stars				mStars;
+	Labels				mLabels;
 	Constellations		mConstellations;
-	//ConstellationArt	mConstellationArt;
-	//ConstellationLabels	mConstellationLabels;
+	ConstellationArt	mConstellationArt;
+	ConstellationLabels	mConstellationLabels;
 	Background			mBackground;
 	Grid				mGrid;
-	//UserInterface		mUserInterface;
+	UserInterface		mUserInterface;
 
 	// animation timer
 	Timer				mTimer;
@@ -116,6 +115,7 @@ protected:
 	bool				mIsConstellationsVisible;
 	bool				mIsConstellationArtVisible;
 	bool				mIsCursorVisible;
+	bool				mIsOculus;
 	bool				mIsStereoscopic;
 	bool				mIsCylindrical;
 	bool				mDrawUserInterface;
@@ -140,54 +140,24 @@ protected:
 
 void StarsApp::prepareSettings( Settings *settings )
 {
-	settings->setFrameRate( 200.0f );
-	settings->setWindowSize( 1280, 720 );
+	auto displays = Display::getDisplays();
 
-#if (defined WIN32 && defined NDEBUG)
-	settings->setFullScreen(true);
-#else
-	// never start in full screen on MacOS or in debug mode
-	settings->setFullScreen( false );
+	settings->disableFrameRate();
+	settings->setWindowSize( 1920, 1080 );
+
+#if !_DEBUG
+	settings->setFullScreen( true );
 #endif
 }
 
 void StarsApp::setup()
 {
-	// create the spherical grid mesh
-	mGrid.setup();
-
-	// load the star database and create the VBO mesh
-	//if( fs::exists( getAssetPath("") / "stars.cdb" ) )
-	//	mStars.read( loadFile( getAssetPath("") / "stars.cdb" ) );
-
-	//if( fs::exists( getAssetPath("") / "labels.cdb" ) )
-	//	mLabels.read( loadFile( getAssetPath("") / "labels.cdb" ) );
-
-	if( fs::exists( getAssetPath( "" ) / "constellations.cdb" ) )
-		mConstellations.read( loadFile( getAssetPath( "" ) / "constellations.cdb" ) );
-
-	//if( fs::exists( getAssetPath("") / "constellationlabels.cdb" ) )
-	//	mConstellationLabels.read( loadFile( getAssetPath("") / "constellationlabels.cdb" ) );
-
-	// create user interface
-	//mUserInterface.setup();
-
-	// initialize background image
-	mBackground.setup();
-
-	// initialize camera
-	mCamera.setup();
-
-	CameraPersp cam( mCamera.getCamera() );
-	cam.setFov( 60.0f );
-	cam.setNearClip( 0.01f );
-	cam.setFarClip( 5000.0f );
-
-	//
-	mIsGridVisible = true;
+	// Initialize member variables.
+	mIsGridVisible = false;
 	mIsLabelsVisible = true;
 	mIsConstellationsVisible = true;
 	mIsConstellationArtVisible = true;
+	mIsOculus = true;
 	mIsStereoscopic = false;
 	mIsCylindrical = false;
 	mDrawUserInterface = true;
@@ -199,22 +169,47 @@ void StarsApp::setup()
 	//  (angle of overlap: (1 - mSectionOverlap) * mSectionFovDegrees)
 	mSectionOverlap = 1.0f;
 
-	/*// create stars
+	// create the spherical grid mesh
+	mGrid.setup();
+
+	// create stars
 	mStars.setup();
 	mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+
+	// load the star database and create the VBO mesh
+	if( fs::exists( getAssetPath( "" ) / "stars.cdb" ) )
+		mStars.read( loadFile( getAssetPath( "" ) / "stars.cdb" ) );
+
+	if( fs::exists( getAssetPath( "" ) / "labels.cdb" ) )
+		mLabels.read( loadFile( getAssetPath( "" ) / "labels.cdb" ) );
+
+	if( fs::exists( getAssetPath( "" ) / "constellations.cdb" ) )
+		mConstellations.read( loadFile( getAssetPath( "" ) / "constellations.cdb" ) );
+
+	if( fs::exists( getAssetPath( "" ) / "constellationlabels.cdb" ) )
+		mConstellationLabels.read( loadFile( getAssetPath( "" ) / "constellationlabels.cdb" ) );
+
+	// create user interface
+	mUserInterface.setup();
+
+	// initialize background image
+	mBackground.setup();
+
+	// initialize camera
+	mCamera.setup();
 
 	// create labels
 	mLabels.setup();
 	mConstellationArt.setup();
 	mConstellationLabels.setup();
-	//*/
+
 	//
 	mMusicExtensions.push_back( ".flac" );
 	mMusicExtensions.push_back( ".ogg" );
 	mMusicExtensions.push_back( ".wav" );
 	mMusicExtensions.push_back( ".mp3" );
 
-	mPlayMusic = true;
+	mPlayMusic = false;
 
 	// initialize the IrrKlang Sound Engine in a very safe way
 	mSoundEngine = shared_ptr<ISoundEngine>( createIrrKlangDevice(), std::mem_fun( &ISoundEngine::drop ) );
@@ -271,9 +266,9 @@ void StarsApp::update()
 	mBackground.setCameraDistance( distance );
 	//mLabels.setCameraDistance( distance );
 	mConstellations.setCameraDistance( distance );
-	//mConstellationArt.setCameraDistance( distance );
+	mConstellationArt.setCameraDistance( distance );
 	//mConstellationLabels.setCameraDistance( distance );
-	//mUserInterface.setCameraDistance( distance );
+	mUserInterface.setCameraDistance( distance );
 
 	//
 	if( mSoundEngine ) {
@@ -310,8 +305,8 @@ void StarsApp::draw()
 		render();
 
 		// draw user interface
-		//if(mDrawUserInterface)
-		//	mUserInterface.draw("Stereoscopic Projection");
+		if( mDrawUserInterface )
+			mUserInterface.draw( "Stereoscopic Projection" );
 
 		// render right eye
 		mCamera.enableStereoRight();
@@ -321,8 +316,8 @@ void StarsApp::draw()
 		render();
 
 		// draw user interface
-		//if(mDrawUserInterface)
-		//	mUserInterface.draw("Stereoscopic Projection");
+		if( mDrawUserInterface )
+			mUserInterface.draw( "Stereoscopic Projection" );
 
 		gl::popMatrices();
 	}
@@ -337,8 +332,10 @@ void StarsApp::draw()
 		const float aspect = float( w ) / float( h );
 		//const float hFoV = mSectionFovDegrees;
 		//const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
-		const float vFoV = mCamera.getFov();
-		const float hFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians( vFoV ) * 0.5f ) * aspect ) );
+		const float vFoVDegrees = (float) mCamera.getFov();
+		const float vFovRadians = glm::radians( vFoVDegrees );
+		const float hFoVRadians = 2.0f * math<float>::atan( math<float>::tan( vFovRadians * 0.5f ) * aspect );
+		const float hFovDegrees = glm::degrees( hFoVRadians );
 
 		// bind the frame buffer object
 		{
@@ -354,7 +351,7 @@ void StarsApp::draw()
 			CameraStereo cam = mCamera.getCamera();
 			cam.disableStereo();
 			cam.setAspectRatio( aspect );
-			cam.setFov( vFoV );
+			cam.setFov( vFoVDegrees );
 
 			vec3 right, up; cam.getBillboardVectors( &right, &up );
 			vec3 forward = cross( up, right );
@@ -362,9 +359,9 @@ void StarsApp::draw()
 			// render sections
 			float offset = 0.5f * ( mSectionCount - 1 );
 			for( unsigned i = 0; i < mSectionCount; ++i ) {
-				gl::ScopedViewport viewport( i * w, 0, ( i + 1 ) * w, h );
+				gl::ScopedViewport viewport( i * w, 0, w, h );
 
-				cam.setViewDirection( quat( mSectionOverlap * toRadians( ( i - offset ) * -hFoV ), up ) * forward );
+				cam.setViewDirection( glm::angleAxis( -mSectionOverlap * hFoVRadians * ( i - offset ), up ) * forward );
 				cam.setWorldUp( up );
 				gl::setMatrices( cam );
 				render();
@@ -373,8 +370,8 @@ void StarsApp::draw()
 			// draw user interface
 			gl::setMatrices( mCamera.getCamera() );
 
-			//if(mDrawUserInterface)
-			//	mUserInterface.draw( (boost::format("Cylindrical Projection (%d degrees)") % int( hFoV + ((mSectionCount-1) * mSectionOverlap) * hFoV ) ).str() );
+			if( mDrawUserInterface )
+				mUserInterface.draw( ( boost::format( "Cylindrical Projection (%d degrees)" ) % int( hFovDegrees + ( ( mSectionCount - 1 ) * mSectionOverlap ) * hFovDegrees ) ).str() );
 
 			// restore states
 			gl::popMatrices();
@@ -382,16 +379,17 @@ void StarsApp::draw()
 
 		// draw frame buffer and perform cylindrical projection using a fragment shader
 		if( mShader ) {
-			gl::ScopedGlslProg shader( mShader );
 			gl::ScopedTextureBind tex0( mFbo->getColorTexture() );
 
-			mShader->uniform( "texture", 0 );
+			gl::ScopedGlslProg shader( mShader );
+			mShader->uniform( "tex", 0 );
 			mShader->uniform( "sides", (float) mSectionCount );
-			mShader->uniform( "radians", mSectionCount * toRadians( hFoV ) );
+			mShader->uniform( "radians", mSectionCount * hFoVRadians );
 			mShader->uniform( "reciprocal", 0.5f / mSectionCount );
 
 			Rectf centered = Rectf( mFbo->getBounds() ).getCenteredFit( getWindowBounds(), false );
 			gl::drawSolidRect( centered );
+			//gl::draw( mFbo->getColorTexture(), centered );
 		}
 	}
 	else {
@@ -403,19 +401,19 @@ void StarsApp::draw()
 		gl::popMatrices();
 
 		// draw user interface
-		//if(mDrawUserInterface)
-		//	mUserInterface.draw("Perspective Projection");
+		if( mDrawUserInterface )
+			mUserInterface.draw( "Perspective Projection" );
 	}
 
-	// fade in at start of application
+	/*// fade in at start of application
 	gl::ScopedAlphaBlend blend(false);
 	double t = math<double>::clamp( mTimer.getSeconds() / 3.0, 0.0, 1.0 );
 	float a = ci::lerp<float>( 1.0f, 0.0f, (float) t );
 
 	if( a > 0.0f ) {
-		gl::color( ColorA( 0, 0, 0, a ) );
-		gl::drawSolidRect( getWindowBounds() );
-	}
+	gl::color( ColorA( 0, 0, 0, a ) );
+	gl::drawSolidRect( getWindowBounds() );
+	}//*/
 }
 
 void StarsApp::render()
@@ -428,23 +426,22 @@ void StarsApp::render()
 		mGrid.draw();
 
 	// draw stars
-	//mStars.draw();
+	mStars.draw();
 
 	// draw constellations
 	if( mIsConstellationsVisible )
 		mConstellations.draw();
 
-	//if(mIsConstellationArtVisible)
-	//	mConstellationArt.draw();
+	if( mIsConstellationArtVisible )
+		mConstellationArt.draw();
 
-	/*// draw labels
-	if(mIsLabelsVisible) {
-	mLabels.draw();
+	// draw labels
+	if( mIsLabelsVisible ) {
+		mLabels.draw();
 
-	if(mIsConstellationsVisible || mIsConstellationArtVisible)
-	mConstellationLabels.draw();
+		if( mIsConstellationsVisible || mIsConstellationArtVisible )
+			mConstellationLabels.draw();
 	}
-	//*/
 }
 
 void StarsApp::mouseDown( MouseEvent event )
@@ -548,7 +545,7 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsStereoscopic = !mIsStereoscopic;
 		mIsCylindrical = false;
 		// adjust line width and aspect ratio
-		//mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
@@ -557,7 +554,7 @@ void StarsApp::keyDown( KeyEvent event )
 		mIsCylindrical = !mIsCylindrical;
 		mIsStereoscopic = false;
 		// adjust line width and aspect ratio
-		//mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
 		break;
@@ -580,7 +577,7 @@ void StarsApp::keyDown( KeyEvent event )
 void StarsApp::resize()
 {
 	mCamera.resize();
-	//mStars.resize( getWindowSize() );
+	mStars.resize( getWindowSize() );
 }
 
 void StarsApp::fileDrop( FileDropEvent event )

@@ -32,7 +32,7 @@
 class Cam {
 public:
 	Cam();
-	Cam( const ci::CameraStereo &aInitialCam ) { mInitialCam = mCurrentCam = aInitialCam; }
+	Cam( const ci::CameraStereo &aInitialCam ) : Cam() { mInitialCam = mCurrentCam = aInitialCam; }
 
 	void		setup();
 	void		update( double elapsed );
@@ -62,6 +62,8 @@ public:
 	bool		isStereoRightEnabled() const { return mCurrentCam.isStereoRightEnabled(); }
 
 	void		disableStereo() { mCurrentCam.disableStereo(); }
+
+	void		setOrientation( const ci::quat& orientation );
 
 	//! returns the position of the camera in world space
 	ci::vec3	getPosition();
@@ -104,6 +106,7 @@ private:
 	std::deque<ci::dvec3>	mDeltas;
 
 	bool					mIsMouseDown;
+	bool					mIsOriented;
 
 	double					mTimeMouse;
 	double					mTimeOut;
@@ -113,6 +116,6 @@ private:
 
 	ci::Anim<double>		mLatitude;
 	ci::Anim<double>		mLongitude;
-	ci::Anim<float>			mDistance;
-	ci::Anim<float>			mFov;
+	ci::Anim<double>		mDistance;
+	ci::Anim<double>		mFov;
 };

@@ -25,6 +25,7 @@
 
 #include "cinder/ImageIo.h"
 #include "cinder/app/AppBasic.h"
+#include "cinder/gl/Context.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -50,36 +51,22 @@ void ConstellationArt::setup()
 	}
 	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
 
-	try { mShader = gl::GlslProg::create( getVertexShader().c_str(), getFragmentShader().c_str() ); }
-	catch( const std::exception &e ) { console() << "Could not load&compile shader: " << e.what() << std::endl; }
-
 	create();
 }
 
 void ConstellationArt::draw()
 {
-	if( !( mTexture && mShader && mVboMesh ) ) return;
-
-	//glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT );
-
-	mTexture->bind();
+	if( !( mTexture && mBatch ) ) return;
 
 	gl::pushModelView();
 	{
-		gl::enableAdditiveBlending();
-		gl::color( mAttenuation * Color( 0.4f, 0.6f, 0.8f ) );
+		gl::ScopedTextureBind tex0( mTexture );
+		gl::ScopedAdditiveBlend blend;
+		gl::ScopedColor color( mAttenuation * Color( 0.4f, 0.6f, 0.8f ) );
 
-		//mShader.bind();
-		//mShader.uniform("map", 0);
-		//mShader.uniform("smoothness", 1.0f);
-
-		gl::draw( mVboMesh );
-
-		//mShader.unbind();
+		mBatch->draw();
 	}
 	gl::popModelView();
-
-	//glPopAttrib();
 }
 
 
@@ -90,13 +77,13 @@ void ConstellationArt::create()
 
 	const int		SLICES = 30;
 	const int		SEGMENTS = 60;
-	const float		RADIUS = 25;
+	const int		RADIUS = 25;
 
 	// create data buffers
 	vector<vec3>		normals;
 	vector<vec3>		positions;
 	vector<vec2>		texCoords;
-	vector<uint32_t>	indices;
+	vector<uint16_t>	indices;
 
 	//	
 	int x, y;
@@ -111,10 +98,10 @@ void ConstellationArt::create()
 				static_cast<float>( sin( phi ) ),
 				static_cast<float>( cos( phi ) * cos( theta ) ) ) );
 
-			positions.push_back( normals.back() * RADIUS );
+			positions.push_back( normals.back() * (float) RADIUS );
 
 			float tx = 1.0f - static_cast<float>( x ) / SEGMENTS;
-			float ty = static_cast<float>( y ) / SLICES;
+			float ty = 1.0f - static_cast<float>( y ) / SLICES;
 
 			texCoords.push_back( vec2( tx, ty ) );
 		}
@@ -148,19 +135,17 @@ void ConstellationArt::create()
 		forward = !forward;
 	}
 
-	// create the mesh
-	gl::VboMesh::Layout layout;
-	layout.setStaticIndices();
-	layout.setStaticPositions();
-	layout.setStaticTexCoords2d();
-	layout.setStaticNormals();
+	// create the batch
+	auto vboMesh = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, { gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::POSITION, 3 ).attrib( geom::TEX_COORD_0, 2 ).attrib( geom::NORMAL, 3 ) }, indices.size(), GL_UNSIGNED_SHORT );
+	vboMesh->bufferAttrib( geom::POSITION, positions );
+	vboMesh->bufferAttrib( geom::TEX_COORD_0, texCoords );
+	vboMesh->bufferAttrib( geom::NORMAL, normals );
+	vboMesh->bufferIndices( indices.size() * sizeof( uint16_t ), indices.data() );
 
-	mVboMesh = gl::VboMesh( positions.size(), indices.size(), layout, GL_TRIANGLE_STRIP );
+	//auto shader = gl::GlslProg::create( getVertexShader().c_str(), getFragmentShader().c_str() );
+	auto shader = gl::context()->getStockShader( gl::ShaderDef().color().texture() );
 
-	mVboMesh.bufferNormals( normals );
-	mVboMesh.bufferTexCoords2d( 0, texCoords );
-	mVboMesh.bufferPositions( positions );
-	mVboMesh.bufferIndices( indices );
+	mBatch = gl::Batch::create( vboMesh, shader );
 }
 
 void ConstellationArt::setCameraDistance( float distance )
@@ -168,7 +153,7 @@ void ConstellationArt::setCameraDistance( float distance )
 	static const float minimum = 0.01f;
 	static const float maximum = 0.7f;
 
-	mAttenuation = math<float>::clamp( 1.0f - ( distance / 12.0f ), minimum, maximum );
+	mAttenuation = math<float>::clamp( 1.0f - ( distance / 24.0f ), minimum, maximum );
 }
 
 std::string ConstellationArt::getVertexShader() const

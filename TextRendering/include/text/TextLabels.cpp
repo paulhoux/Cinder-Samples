@@ -140,7 +140,7 @@ std::string TextLabels::getVertexShader() const
 	const char *vs =
 		"#version 150\n"
 		""
-		"uniform mat4 ciModelViewProject;\n"
+		"uniform mat4 ciModelViewProjection;\n"
 		""
 		"in vec4 ciPosition;\n"
 		"in vec4 ciColor;\n"
@@ -172,7 +172,7 @@ std::string TextLabels::getVertexShader() const
 		"	vColor = ciColor;\n"
 		""
 		"	// convert label position to normalized device coordinates to find the 2D offset\n"
-		"	vec3 offset = toNDC( ciModelViewProject * ciTexCoord1 );\n"
+		"	vec3 offset = toNDC( ciModelViewProjection * vec4(ciTexCoord1,1) );\n"
 		""
 		"	// convert vertex from screen space to normalized device coordinates\n"
 		"	vec3 vertex = vec3( ciPosition.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"

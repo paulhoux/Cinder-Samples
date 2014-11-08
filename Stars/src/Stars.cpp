@@ -45,36 +45,36 @@ Stars::~Stars( void )
 void Stars::setup()
 {
 	// load shader and point sprite texture
-	try { mShader = gl::GlslProg::create( loadAsset( "shaders/stars.vert" ), loadAsset( "shaders/stars.frag" ) ); }
-	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; }
+	try {
+		mShader = gl::GlslProg::create( loadAsset( "shaders/stars.vert" ), loadAsset( "shaders/stars.frag" ) );
+	}
+	catch( const std::exception &e ) {
+		console() << "Could not load & compile shader: " << e.what() << std::endl;
+	}
 
 	try {
 		mTextureStar = gl::Texture2d::create( loadImage( loadAsset( "textures/particle.png" ) ) );
 		mTextureCorona = gl::Texture2d::create( loadImage( loadAsset( "textures/nova.png" ) ) );
 	}
-	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
+	catch( const std::exception &e ) {
+		console() << "Could not load texture: " << e.what() << std::endl;
+	}
 }
 
 void Stars::draw()
 {
-	if( !( mShader && mTextureStar && mTextureCorona && mVboMesh ) ) return;
+	if( !( mTextureStar && mTextureCorona && mBatch ) ) return;
 
-	gl::enableAdditiveBlending();
 	enablePointSprites();
 
-	// bind textures
-	mTextureStar->bind( 0 );
-	mTextureCorona->bind( 1 );
+	gl::ScopedAdditiveBlend blend;
+	gl::ScopedTextureBind tex0( mTextureStar, (uint8_t) 0 );
+	gl::ScopedTextureBind tex1( mTextureCorona, (uint8_t) 1 );
+	gl::ScopedColor color( Color::white() );
 
-	gl::color( Color::white() );
-	gl::draw( mVboMesh );
-
-	// unbind textures
-	mTextureCorona->unbind();
-	mTextureStar->unbind();
+	mBatch->draw();
 
 	disablePointSprites();
-	gl::disableAlphaBlending();
 }
 
 void Stars::resize( const ivec2& size )
@@ -99,9 +99,6 @@ void Stars::clear()
 
 void Stars::enablePointSprites()
 {
-	// store current OpenGL state
-	//glPushAttrib( GL_POINT_BIT | GL_ENABLE_BIT );
-
 	// enable point sprites and initialize it
 	gl::enable( GL_POINT_SPRITE_ARB );
 	glPointParameterfARB( GL_POINT_FADE_THRESHOLD_SIZE_ARB, 1.0f );
@@ -122,11 +119,8 @@ void Stars::enablePointSprites()
 
 void Stars::disablePointSprites()
 {
-	// unbind shader 
-	//mShader->unbind();
-
-	// restore OpenGL state
-	//glPopAttrib();
+	gl::disable( GL_VERTEX_PROGRAM_POINT_SIZE );
+	gl::disable( GL_POINT_SPRITE_ARB );
 }
 
 void Stars::load( DataSourceRef source )
@@ -311,13 +305,11 @@ void Stars::write( DataTargetRef target )
 
 void Stars::createMesh()
 {
-	gl::VboMesh::Layout layout;
-	layout.setStaticPositions();
-	layout.setStaticTexCoords2d();
-	layout.setStaticColorsRGB();
+	// create the batch
+	auto vboMesh = gl::VboMesh::create( mVertices.size(), GL_POINTS, { gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::POSITION, 3 ).attrib( geom::TEX_COORD_0, 2 ).attrib( geom::COLOR, 3 ) } );
+	vboMesh->bufferAttrib( geom::POSITION, mVertices );
+	vboMesh->bufferAttrib( geom::TEX_COORD_0, mTexcoords );
+	vboMesh->bufferAttrib( geom::COLOR, mColors );
 
-	mVboMesh = gl::VboMesh( mVertices.size(), 0, layout, GL_POINTS );
-	mVboMesh.bufferPositions( &( mVertices.front() ), mVertices.size() );
-	mVboMesh.bufferTexCoords2d( 0, mTexcoords );
-	mVboMesh.bufferColorsRGB( mColors );
+	mBatch = gl::Batch::create( vboMesh, mShader );
 }

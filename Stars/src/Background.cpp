@@ -63,17 +63,13 @@ void Background::draw()
 {
 	if( !( mTexture && mBatch ) ) return;
 
-	//glPushAttrib( GL_TEXTURE_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT );
-
-	mTexture->bind();
+	gl::ScopedTextureBind tex0( mTexture );
+	gl::ScopedColor color( mAttenuation * Color::white() );
 
 	gl::pushModelMatrix();
 	gl::multModelMatrix( mTransform );
-	gl::color( mAttenuation * Color::white() );
 	mBatch->draw();
 	gl::popModelMatrix();
-
-	//glPopAttrib();
 }
 
 
@@ -108,7 +104,7 @@ void Background::create()
 			positions.push_back( normals.back() * RADIUS );
 
 			float tx = 1.0f - static_cast<float>( x ) / SEGMENTS;
-			float ty = static_cast<float>( y ) / SLICES;
+			float ty = 1.0f - static_cast<float>( y ) / SLICES;
 
 			texCoords.push_back( vec2( tx, ty ) );
 		}
@@ -159,8 +155,8 @@ void Background::setCameraDistance( float distance )
 	static const float minimum = 0.5f;
 	static const float maximum = 1.0f;
 
-	if( distance > 300.0f ) {
-		mAttenuation = ci::lerp<float>( minimum, 0.0f, ( distance - 300.0f ) / 200.0f );
+	if( distance > 1000.0f ) {
+		mAttenuation = ci::lerp<float>( minimum, 0.0f, ( distance - 1000.0f ) / 200.0f );
 		mAttenuation = math<float>::clamp( mAttenuation, 0.0f, maximum );
 	}
 	else {

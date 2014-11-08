@@ -25,10 +25,10 @@
 #include "cinder/DataSource.h"
 #include "cinder/DataTarget.h"
 #include "cinder/Utilities.h"
-
+#include "cinder/gl/Batch.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/gl/Vbo.h"
+#include "cinder/gl/VboMesh.h"
 
 class Stars
 {
@@ -100,15 +100,16 @@ public:
 private:
 	void	createMesh();
 private:
-	ci::gl::GlslProgRef		mShader;
-	ci::gl::Texture2dRef	mTextureStar;
-	ci::gl::Texture2dRef	mTextureCorona;
-	ci::gl::VboMeshRef		mVboMesh;
+	ci::gl::Texture2dRef      mTextureStar;
+	ci::gl::Texture2dRef      mTextureCorona;
+	ci::gl::GlslProgRef       mShader;
+	ci::gl::VboMeshRef        mVboMesh;
+	ci::gl::BatchRef          mBatch;
 
-	std::vector< ci::vec3 > mVertices;
-	std::vector< ci::vec2 > mTexcoords;
-	std::vector< ci::Color > mColors;
+	std::vector< ci::vec3 >   mVertices;
+	std::vector< ci::vec2 >   mTexcoords;
+	std::vector< ci::Color >  mColors;
 
-	float				mAspectRatio;
-	float				mScale;
+	float                     mAspectRatio;
+	float                     mScale;
 };

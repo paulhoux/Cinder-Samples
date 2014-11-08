@@ -1,9 +1,4 @@
-#version 150
-
-in vec2 vTexCoord0;
-in vec4 vColor;
-
-out vec4 oColor;
+#version 130
 
 uniform sampler2D tex0;
 uniform sampler2D tex1;
@@ -11,12 +6,16 @@ uniform sampler2D tex1;
 uniform float time;
 uniform float aspect;
 
+in vec4 vColor;
+
+out vec4 oColor;
+
 const vec2 ORIGIN = vec2(0.5, 0.5);
 
 void main() 
 {
 	float c, s;
-	vec2 coord = vTexCoord0.xy - ORIGIN;
+	vec2 coord = gl_PointCoord.xy - ORIGIN;
 
 	coord /= vec2(aspect, 1.0);
 

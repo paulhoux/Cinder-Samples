@@ -21,6 +21,7 @@
  */
 
 #include "Grid.h"
+#include "cinder/gl/Context.h"
 
 using namespace ci;
 using namespace std;
@@ -104,6 +105,8 @@ void Grid::draw()
 
 	gl::ScopedColor color( Color( 0.5f, 0.6f, 0.8f ) * 0.25f );
 	gl::ScopedAdditiveBlend blend;
+	gl::ScopedGlslProg shader( gl::context()->getStockShader( gl::ShaderDef().color() ) );
 
+	gl::setModelMatrix( mat4() );
 	mBatch->draw();
 }
