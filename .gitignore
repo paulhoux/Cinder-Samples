@@ -30,3 +30,4 @@
 *.xcworkspace
 *.xcscheme
 *.xcbkptlist
+/build.log
