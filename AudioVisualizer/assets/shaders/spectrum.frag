@@ -1,20 +1,25 @@
-#version 110
+#version 150
+
+in vec2 vertTexCoord0;
+in vec4 vertColor;
+
+out vec4 fragColor;
 
 void main(void)
 {
 	// calculate glowing line strips based on texture coordinate
-	const float resolution = 256.0;
-	const float center = 0.5;
-	const float width = 0.02;
+	const float kResolution = 256.0;
+	const float kCenter = 0.5;
+	const float kWidth = 0.02;
 
-	float f = fract( resolution * gl_TexCoord[0].s );
-	float d = abs(center - f);
-	float strips = clamp(width / d, 0.0, 1.0);
+	float f = fract( kResolution * vertTexCoord0.x );
+	float d = abs(kCenter - f);
+	float strips = clamp(kWidth / d, 0.0, 1.0);
 
 	// calculate fade based on texture coordinate
-	float fade = gl_TexCoord[0].y;
+	float fade = vertTexCoord0.y;
 
 	// calculate output color
-	gl_FragColor.rgb = gl_Color.rgb * strips * fade;
-	gl_FragColor.a = 1.0;
+	fragColor.rgb = vertColor.rgb * strips * fade;
+	fragColor.a = 1.0;
 }

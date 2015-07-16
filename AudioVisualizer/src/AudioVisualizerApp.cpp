@@ -142,6 +142,7 @@ void AudioVisualizerApp::setup()
 	mTextureFormat.setWrapT( GL_REPEAT );
 	mTextureFormat.setMinFilter( GL_LINEAR );
 	mTextureFormat.setMagFilter( GL_LINEAR );
+	mTextureFormat.loadTopDown( true );
 
 	// compile shader
 	try {
@@ -154,27 +155,27 @@ void AudioVisualizerApp::setup()
 	}
 
 	// create static mesh (all animation is done in the vertex shader)
-	std::vector<vec3>	vertices;
-	std::vector<Colorf>	colors;
-	std::vector<vec2>	coords;
-	std::vector<size_t>	indices;
+	std::vector<vec3>		positions;
+	std::vector<Colorf>		colors;
+	std::vector<vec2>		coords;
+	std::vector<uint32_t>	indices;
 
 	for( size_t h = 0; h < kHeight; ++h ) {
 		for( size_t w = 0; w < kWidth; ++w ) {
 			// add polygon indices
 			if( h < kHeight - 1 && w < kWidth - 1 ) {
-				size_t offset = vertices.size();
+				size_t offset = positions.size();
 
-				indices.push_back( offset );
-				indices.push_back( offset + kWidth );
-				indices.push_back( offset + kWidth + 1 );
-				indices.push_back( offset );
-				indices.push_back( offset + kWidth + 1 );
-				indices.push_back( offset + 1 );
+				indices.emplace_back( offset );
+				indices.emplace_back( offset + kWidth );
+				indices.emplace_back( offset + kWidth + 1 );
+				indices.emplace_back( offset );
+				indices.emplace_back( offset + kWidth + 1 );
+				indices.emplace_back( offset + 1 );
 			}
 
 			// add vertex
-			vertices.push_back( vec3( float( w ), 0, float( h ) ) );
+			positions.emplace_back( vec3( float( w ), 0, float( h ) ) );
 
 			// add texture coordinates
 			// note: we only want to draw the lower part of the frequency bands,
@@ -182,24 +183,24 @@ void AudioVisualizerApp::setup()
 			const float part = 0.5f;
 			float s = w / float( kWidth - 1 );
 			float t = h / float( kHeight - 1 );
-			coords.push_back( vec2( part - part * s, t ) );
+			coords.emplace_back( vec2( part - part * s, t ) );
 
 			// add vertex colors
-			colors.push_back( Color( CM_HSV, s, 0.5f, 0.75f ) );
+			colors.emplace_back( Color( CM_HSV, s, 0.5f, 0.75f ) );
 		}
 	}
 
 	gl::VboMesh::Layout layout;
-	layout.setStaticPositions();
-	layout.setStaticColorsRGB();
-	layout.setStaticIndices();
-	layout.setStaticTexCoords2d();
+	layout.usage( GL_STATIC_DRAW );
+	layout.attrib( geom::Attrib::POSITION, 3 );
+	layout.attrib( geom::Attrib::COLOR, 3 );
+	layout.attrib( geom::Attrib::TEX_COORD_0, 2 );
 
-	mMesh = gl::VboMesh( vertices.size(), indices.size(), layout, GL_TRIANGLES );
-	mMesh.bufferPositions( vertices );
-	mMesh.bufferColorsRGB( colors );
-	mMesh.bufferIndices( indices );
-	mMesh.bufferTexCoords2d( 0, coords );
+	mMesh = gl::VboMesh::create( positions.size(), GL_TRIANGLES, { layout }, indices.size(), GL_UNSIGNED_INT );
+	mMesh->bufferAttrib( geom::POSITION, positions.size() * sizeof( vec3 ), positions.data() );
+	mMesh->bufferAttrib( geom::COLOR, colors.size() * sizeof( vec3 ), colors.data() );
+	mMesh->bufferAttrib( geom::TEX_COORD_0, coords.size() * sizeof( vec2 ), coords.data() );
+	mMesh->bufferIndices( indices.size() * sizeof( uint32_t ), indices.data() );
 
 	// play audio using the Cinder FMOD block
 	FMOD::System_Create( &mFMODSystem );
@@ -293,7 +294,8 @@ void AudioVisualizerApp::draw()
 		mTextureLeft = gl::Texture2d::create( mChannelLeft, mTextureFormat );
 		mTextureRight = gl::Texture2d::create( mChannelRight, mTextureFormat );
 
-		gl::ScopedTextureBind tex1( mTextureLeft, 1 );
+		gl::ScopedTextureBind tex0( mTextureLeft, 0 );
+		gl::ScopedTextureBind tex1( mTextureRight, 1 );
 
 		// draw mesh using additive blending
 		gl::ScopedBlendAdditive blend;
@@ -377,7 +379,7 @@ void AudioVisualizerApp::listAudio( const fs::path& directory, vector<fs::path>&
 		if( !fs::is_regular_file( i->status() ) ) continue;
 
 		// skip if extension does not match
-		string extension = i->path().extension();
+		string extension = i->path().extension().string();
 		extension.erase( 0, 1 );
 		if( std::find( mAudioExtensions.begin(), mAudioExtensions.end(), extension ) == mAudioExtensions.end() )
 			continue;
