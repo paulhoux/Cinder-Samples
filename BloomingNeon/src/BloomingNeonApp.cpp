@@ -21,13 +21,11 @@
  */
 
 #include "cinder/Camera.h"
+#include "cinder/Font.h"
 #include "cinder/ImageIo.h"
 #include "cinder/TriMesh.h"
-#include "cinder/gl/Batch.h"
-#include "cinder/gl/Fbo.h"
-#include "cinder/gl/GlslProg.h"
-#include "cinder/gl/Texture.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/gl/gl.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 
 #define SCENE_SIZE 512
@@ -37,9 +35,9 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class BloomingNeonApp : public AppBasic {
+class BloomingNeonApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
 	void setup();
 	void update();
@@ -71,7 +69,7 @@ protected:
 	mat4			mTransform;
 };
 
-void BloomingNeonApp::prepareSettings( Settings *settings )
+void BloomingNeonApp::prepare( Settings *settings )
 {
 	settings->setResizable( false );
 	settings->setWindowSize( 800, 800 );
@@ -108,7 +106,7 @@ void BloomingNeonApp::setup()
 	//   http://www.turbosquid.com/3d-models/free-3ds-mode-space/588767
 	TriMeshRef mesh = TriMesh::create();
 	mesh->read( loadAsset( "space_frigate.msh" ) );
-	mBatch = gl::Batch::create( mesh, mShaderPhong );
+	mBatch = gl::Batch::create( *mesh, mShaderPhong );
 
 	mTextureIllumination = gl::Texture::create( loadImage( loadAsset( "space_frigate_illumination.jpg" ) ) );
 	mTextureColor = gl::Texture::create( loadImage( loadAsset( "space_frigate_color.jpg" ) ) );
@@ -116,16 +114,15 @@ void BloomingNeonApp::setup()
 	mTextureArrows = gl::Texture::create( loadImage( loadAsset( "arrows.png" ) ) );
 
 	//
-	mCamera.setEyePoint( vec3( 0.0f, 8.0f, 25.0f ) );
-	mCamera.setCenterOfInterestPoint( vec3( 0.0f, -1.0f, 0.0f ) );
 	mCamera.setPerspective( 60.0f, getWindowAspectRatio(), 1.0f, 1000.0f );
+	mCamera.lookAt( vec3( 0.0f, 8.0f, 25.0f ), vec3( 0.0f, -1.0f, 0.0f ) );
 }
 
 void BloomingNeonApp::update()
 {
 	mTransform = mat4();
-	mTransform *= glm::toMat4( glm::angleAxis( (float) getElapsedSeconds() * 0.2f, vec3( 1, 0, 0 ) ) );
-	mTransform *= glm::toMat4( glm::angleAxis( (float) getElapsedSeconds() * 0.1f, vec3( 0, 1, 0 ) ) );
+	mTransform *= glm::toMat4( glm::angleAxis( (float)getElapsedSeconds() * 0.2f, vec3( 1, 0, 0 ) ) );
+	mTransform *= glm::toMat4( glm::angleAxis( (float)getElapsedSeconds() * 0.1f, vec3( 0, 1, 0 ) ) );
 }
 
 void BloomingNeonApp::draw()
@@ -138,10 +135,10 @@ void BloomingNeonApp::draw()
 	// render scene into mFboScene using illumination texture
 	{
 		gl::ScopedFramebuffer fbo( mFboScene );
-		gl::ScopedViewport viewport(0,0,mFboScene->getWidth(), mFboScene->getHeight());
+		gl::ScopedViewport viewport( 0, 0, mFboScene->getWidth(), mFboScene->getHeight() );
 
-		gl::ScopedTextureBind tex0( mTextureIllumination, (uint8_t) 0 );
-		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t) 1 );
+		gl::ScopedTextureBind tex0( mTextureIllumination, (uint8_t)0 );
+		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t)1 );
 
 		gl::setMatricesWindow( SCENE_SIZE, SCENE_SIZE );
 		gl::clear( Color::black() );
@@ -163,7 +160,7 @@ void BloomingNeonApp::draw()
 			gl::ScopedFramebuffer fbo( mFboBlur1 );
 			gl::ScopedViewport viewport( 0, 0, mFboBlur1->getWidth(), mFboBlur1->getHeight() );
 
-			gl::ScopedTextureBind tex0( mFboScene->getColorTexture(), (uint8_t) 0 );
+			gl::ScopedTextureBind tex0( mFboScene->getColorTexture(), (uint8_t)0 );
 
 			gl::setMatricesWindow( BLUR_SIZE, BLUR_SIZE );
 			gl::clear( Color::black() );
@@ -180,7 +177,7 @@ void BloomingNeonApp::draw()
 			gl::ScopedFramebuffer fbo( mFboBlur2 );
 			gl::ScopedViewport viewport( 0, 0, mFboBlur2->getWidth(), mFboBlur2->getHeight() );
 
-			gl::ScopedTextureBind tex0( mFboBlur1->getColorTexture(), (uint8_t) 0 );
+			gl::ScopedTextureBind tex0( mFboBlur1->getColorTexture(), (uint8_t)0 );
 
 			gl::setMatricesWindow( BLUR_SIZE, BLUR_SIZE );
 			gl::clear( Color::black() );
@@ -194,8 +191,8 @@ void BloomingNeonApp::draw()
 		gl::ScopedFramebuffer fbo( mFboScene );
 		gl::ScopedViewport viewport( 0, 0, mFboScene->getWidth(), mFboScene->getHeight() );
 
-		gl::ScopedTextureBind tex0( mTextureColor, (uint8_t) 0 );
-		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t) 1 );
+		gl::ScopedTextureBind tex0( mTextureColor, (uint8_t)0 );
+		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t)1 );
 
 		gl::setMatricesWindow( SCENE_SIZE, SCENE_SIZE );
 		gl::clear( Color::black() );
@@ -241,7 +238,7 @@ void BloomingNeonApp::render()
 	auto viewport = gl::getViewport();
 
 	// adjust the aspect ratio of the camera
-	mCamera.setAspectRatio( viewport.second.x / (float) viewport.second.y );
+	mCamera.setAspectRatio( viewport.second.x / (float)viewport.second.y );
 
 	// render our scene (see the Picking3D sample for more info)
 	gl::pushMatrices();
@@ -268,9 +265,9 @@ void BloomingNeonApp::render()
 void BloomingNeonApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
 	}
 }
 
@@ -285,4 +282,4 @@ void BloomingNeonApp::drawStrokedRect( const Rectf &rect )
 	gl::drawLine( rect.getLowerLeft(), rect.getUpperLeft() );
 }
 
-CINDER_APP_BASIC( BloomingNeonApp, RendererGl )
+CINDER_APP( BloomingNeonApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &BloomingNeonApp::prepare )
