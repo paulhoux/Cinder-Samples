@@ -23,7 +23,7 @@
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
 #include "cinder/Timer.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Batch.h"
@@ -56,7 +56,7 @@ public:
 	bool	isCollidingWithWindow();
 	void	collideWithWindow();
 public:
-	static const int RADIUS = 10;
+	static const int kRadius = 10;
 public:
 	vec2	mPrevPosition;
 	vec2	mPosition;
@@ -71,7 +71,7 @@ public:
 
 Ball::Ball()
 {
-	// pick a random color
+	// Pick a random color.
 	float h = Rand::randFloat( 0.0f, 1.0f );
 	float s = Rand::randFloat( 0.75f, 1.0f );
 	float v = Rand::randFloat( 0.75f, 1.0f );
@@ -82,19 +82,19 @@ Ball::Ball()
 
 void Ball::reset()
 {
-	// pick a random position
+	// Pick a random position.
 	float x = Rand::randFloat() * getWindowWidth();
 	float y = -0.1f * getWindowHeight();
 	mPosition = vec2( x, y );
 	mPrevPosition = mPosition;
 
-	// note: you can use the multiplier to tweak the speed of the system
+	// Note: you can use the multiplier to tweak the speed of the system.
 	float multiplier = 0.5f;
 
-	// note: set gravity to zero for outer space
+	// Note: set gravity to zero for outer space.
 	mGravity = 0.981f * multiplier;
 
-	// pick a random velocity
+	// Pick a random velocity.
 	x = Rand::randFloat( -15.0f, 15.0f ) * multiplier;
 	y = Rand::randFloat( -15.0f, 0.0f ) * multiplier;
 	mVelocity = vec2( x, y );
@@ -105,16 +105,16 @@ void Ball::reset()
 
 void Ball::update()
 {
-	// store current position
+	// Store current position.
 	if( mHasBeenDrawn ) mPrevPosition = mPosition;
 
-	// first, update the ball's velocity
+	// First, update the ball's velocity.
 	if( !isCollidingWithWindow() ) mVelocity.y += mGravity;
 
-	// next, update the ball's position
+	// Next, update the ball's position.
 	mPosition += mVelocity;
 
-	// finally, perform collision detection:
+	// Finally, perform collision detection.
 	collideWithWindow();
 
 	//
@@ -123,16 +123,16 @@ void Ball::update()
 
 void Ball::draw( const gl::BatchRef &batch, bool useMotionBlur )
 {
-	// store the current modelview matrix
-	gl::pushModelView();
+	// Store the current model matrix.
+	gl::pushModelMatrix();
 
 	if( useMotionBlur ) {
-		// determine the number of balls that make up the motion blur trail (minimum of 3, maximum of 30)
+		// Determine the number of balls that make up the motion blur trail (minimum of 3, maximum of 30).
 		float trailsize = math<float>::clamp( math<float>::floor( glm::distance( mPrevPosition, mPosition ) ), 3.0f, 30.0f );
 		float segments = trailsize - 1.0f;
 
-		// draw ball with motion blur (using additive blending)
-		gl::color( mColor / trailsize );
+		// Draw ball with motion blur (using additive blending).
+		gl::ScopedColor color( mColor / trailsize );
 
 		vec2 offset( 0.0f, 0.0f );
 		for( size_t i = 0; i < trailsize; ++i ) {
@@ -144,14 +144,14 @@ void Ball::draw( const gl::BatchRef &batch, bool useMotionBlur )
 		}
 	}
 	else {
-		// draw ball without motion blur
-		gl::color( mColor );
+		// Draw ball without motion blur.
+		gl::ScopedColor color( mColor );
 		gl::translate( mPosition );
 		batch->draw();
 	}
 
-	// restore the modelview matrix
-	gl::popModelView();
+	// Restore the model matrix.
+	gl::popModelMatrix();
 
 	//
 	mHasBeenDrawn = true;
@@ -159,14 +159,13 @@ void Ball::draw( const gl::BatchRef &batch, bool useMotionBlur )
 
 bool Ball::isCollidingWith( BallRef other )
 {
-	// this is a simplification: there is a change we will miss the collision
-	return ( glm::distance( mPosition, other->mPosition ) < ( 2 * RADIUS ) );
+	// This is a simplification: there is a change we will miss the collision.
+	return ( glm::distance( mPosition, other->mPosition ) < ( 2 * kRadius ) );
 }
 
 void Ball::collideWith( BallRef other )
 {
-	// calculate minimal distance between balls
-	static float minimal = 2 * RADIUS;
+	static const float kMinimal = 2.0f * kRadius;
 
 	// 1) we have already established that the two balls are colliding,
 	// let's move back in time to the moment before collision
@@ -184,7 +183,7 @@ void Ball::collideWith( BallRef other )
 	if( velocity_a == velocity_b ) return; // no collision will happen
 
 	// 3) find time of collision
-	float t = ( minimal - distance ) / ( velocity_b - velocity_a );
+	float t = ( kMinimal - distance ) / ( velocity_b - velocity_a );
 
 	// 4) move to that moment in time
 	mPosition += t * mVelocity;
@@ -208,8 +207,8 @@ void Ball::collideWith( BallRef other )
 
 bool Ball::isCollidingWithWindow()
 {
-	if( mPosition.x < ( 0.0f + RADIUS ) || mPosition.x >( getWindowWidth() - RADIUS ) ) return true;
-	if( mPosition.y > ( getWindowHeight() - RADIUS ) ) return true;
+	if( mPosition.x < ( 0.0f + kRadius ) || mPosition.x >( getWindowWidth() - kRadius ) ) return true;
+	if( mPosition.y > ( getWindowHeight() - kRadius ) ) return true;
 
 	return false;
 }
@@ -217,7 +216,7 @@ bool Ball::isCollidingWithWindow()
 void Ball::collideWithWindow()
 {
 	//	1) check if the ball hits the left or right side of the window
-	if( mPosition.x < ( 0.0f + RADIUS ) || mPosition.x >( getWindowWidth() - RADIUS ) ) {
+	if( mPosition.x < ( 0.0f + kRadius ) || mPosition.x >( getWindowWidth() - kRadius ) ) {
 		// to reduce the visual effect of the ball missing the border, 
 		// set the previous position to where we are now
 		mPrevPosition = mPosition;
@@ -228,7 +227,7 @@ void Ball::collideWithWindow()
 		mVelocity.x *= -0.95f;
 	}
 	//	2) check if the ball this the bottom of the window
-	if( mPosition.y > ( getWindowHeight() - RADIUS ) ) {
+	if( mPosition.y > ( getWindowHeight() - kRadius ) ) {
 		// to reduce the visual effect of the ball missing the border, 
 		// set the previous position to where we are now
 		mPrevPosition = mPosition;
@@ -242,16 +241,16 @@ void Ball::collideWithWindow()
 
 	//  3) if ball is still outside window, 
 	//		it was probably moving very slow or fast. Let's reset it then.
-	if( mPosition.x < ( 0.0f + RADIUS ) ) {
-		mPosition.x = 0.0f + (float) RADIUS;
+	if( mPosition.x < ( 0.0f + kRadius ) ) {
+		mPosition.x = 0.0f + (float)kRadius;
 		mVelocity.x = 0.0f;
 	}
-	else if( mPosition.x > ( getWindowWidth() - RADIUS ) ) {
-		mPosition.x = getWindowWidth() - (float) RADIUS;
+	else if( mPosition.x >( getWindowWidth() - kRadius ) ) {
+		mPosition.x = getWindowWidth() - (float)kRadius;
 		mVelocity.x = 0.0f;
 	}
-	if( mPosition.y > ( getWindowHeight() - RADIUS ) ) {
-		mPosition.y = getWindowHeight() - (float) RADIUS;
+	if( mPosition.y > ( getWindowHeight() - kRadius ) ) {
+		mPosition.y = getWindowHeight() - (float)kRadius;
 		mVelocity.y = 0.0f;
 	}
 }
@@ -259,7 +258,7 @@ void Ball::collideWithWindow()
 
 //////////////////////////////////////////
 
-class BouncingBallsApp : public AppBasic {
+class BouncingBallsApp : public App {
 public:
 	void setup();
 	void update();
@@ -270,11 +269,7 @@ private:
 	void performCollisions();
 private:
 	bool		mUseMotionBlur;
-
-	// simulation timer
-	uint32_t	mStepsPerSecond;
-	uint32_t	mStepsPerformed;
-	Timer		mTimer;
+	bool		mIsPaused;
 
 	// our list of balls 
 	std::vector<BallRef> mBalls;
@@ -295,13 +290,11 @@ void BouncingBallsApp::setup()
 
 	//
 	mUseMotionBlur = true;
+	mIsPaused = false;
 
-	// set some kind of sensible maximum to the frame rate
-	setFrameRate( 100.0f );
-
-	// initialize simulator
-	mStepsPerSecond = 60;
-	mStepsPerformed = 0;
+	// allow maximum frame rate
+	disableFrameRate();
+	gl::enableVerticalSync( false );
 
 	// create a few balls
 	for( size_t i = 0; i < 25; ++i )
@@ -321,11 +314,11 @@ void BouncingBallsApp::setup()
 	positions.push_back( vec3( 0 ) );
 
 	for( size_t i = 0; i <= slices; ++i ) {
-		float angle = i / (float) slices * 2.0f * (float) M_PI;
+		float angle = i / (float)slices * 2.0f * (float)M_PI;
 		vec2 v( sinf( angle ), cosf( angle ) );
 
 		texcoords.push_back( vec2( 0.5f, 0.5f ) + 0.5f * v );
-		positions.push_back( (float) Ball::RADIUS * vec3( v, 0.0f ) );
+		positions.push_back( (float)Ball::kRadius * vec3( v, 0.0f ) );
 	}
 
 	gl::VboMesh::Layout layout;
@@ -342,116 +335,104 @@ void BouncingBallsApp::setup()
 
 	// load texture
 	mTexture = gl::Texture::create( loadImage( loadAsset( "ball.png" ) ) );
-
-	// start simulation
-	mTimer.start();
 }
 
 void BouncingBallsApp::update()
 {
-	// determine how many simulation steps should have been performed until now
-	uint32_t stepsTotal = static_cast<uint32_t>( floor( mTimer.getSeconds() * mStepsPerSecond ) );
+	// Use a fixed time step for a steady 60 updates per second.
+	static const double timestep = 1.0 / 60.0;
 
-	// if too far behind, skip a bit
-	if( ( stepsTotal - mStepsPerformed ) > mStepsPerSecond )
-		mStepsPerformed = stepsTotal - mStepsPerSecond;
+	// Keep track of time.
+	static double time = getElapsedSeconds();
+	static double accumulator = 0.0;
 
-	// kill-switch
-	double t = mTimer.getSeconds() + 1.0;
+	// Calculate elapsed time since last frame.
+	double elapsed = getElapsedSeconds() - time;
+	time += elapsed;
 
-	// perform the remaining steps
-	std::vector<BallRef>::iterator itr;
-	while( mStepsPerformed < stepsTotal && mTimer.getSeconds() < t ) {
-		// move the balls
-		for( itr = mBalls.begin(); itr != mBalls.end(); ++itr )
-			( *itr )->update();
+	// Update the simulation.
+	accumulator += math<double>::min( elapsed, 0.1 ); // prevents 'spiral of death'
+	while( accumulator >= timestep ) {
+		accumulator -= timestep;
 
-		// perform collision detection and response
-		performCollisions();
+		if( !mIsPaused ) {
+			// Move the balls.
+			for( auto &ball : mBalls )
+				ball->update();
 
-		// done
-		mStepsPerformed++;
+			// Perform collision detection and response.
+			performCollisions();
+		}
 	}
-
-	// in case the kill-switch was activated
-	mStepsPerformed = stepsTotal;
 }
 
 void BouncingBallsApp::draw()
 {
 	gl::clear();
-	gl::enableAdditiveBlending();
+
+	gl::ScopedBlendAdditive blend;
 
 	gl::ScopedGlslProg shader( mShader );
-	gl::ScopedTextureBind tex0( mTexture );
-
 	mShader->uniform( "uTex0", 0 );
 
-	std::vector<BallRef>::iterator itr;
-	for( itr = mBalls.begin(); itr != mBalls.end(); ++itr )
-		( *itr )->draw( mBatch, mUseMotionBlur );
+	gl::ScopedTextureBind tex0( mTexture );
 
-	gl::disableAlphaBlending();
+	for( auto &ball : mBalls )
+		ball->draw( mBatch, mUseMotionBlur );
 }
 
 void BouncingBallsApp::keyDown( KeyEvent event )
 {
-	std::vector<BallRef>::iterator itr;
-
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_ESCAPE:
-		// quit the application
-		quit();
-		break;
-	case KeyEvent::KEY_SPACE:
-		// reset all balls
-		for( itr = mBalls.begin(); itr != mBalls.end(); ++itr )
-			( *itr )->reset();
-		break;
-	case KeyEvent::KEY_RETURN:
-		// pause/resume simulation
-		if( mTimer.isStopped() ) {
-			mStepsPerformed = 0;
-			mTimer.start();
-		}
-		else mTimer.stop();
-		break;
-	case KeyEvent::KEY_EQUALS: //For Macs without a keypad or a plus key
-		if( !event.isShiftDown() ) {
+		case KeyEvent::KEY_ESCAPE:
+			// quit the application
+			quit();
 			break;
-		}
-	case KeyEvent::KEY_PLUS:
-	case KeyEvent::KEY_KP_PLUS:
-		// create a new ball
-		mBalls.push_back( BallRef( new Ball() ) );
-		break;
-	case KeyEvent::KEY_MINUS:
-	case KeyEvent::KEY_KP_MINUS:
-		// remove the oldest ball
-		if( !mBalls.empty() )
-			mBalls.erase( mBalls.begin() );
-		break;
-	case KeyEvent::KEY_f:
-		setFullScreen( !isFullScreen() );
-		break;
-	case KeyEvent::KEY_v:
-		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-		break;
-	case KeyEvent::KEY_m:
-		mUseMotionBlur = !mUseMotionBlur;
-		break;
-	case KeyEvent::KEY_1:
-		setFrameRate( 10.0f );
-		break;
-	case KeyEvent::KEY_2:
-		setFrameRate( 20.0f );
-		break;
-	case KeyEvent::KEY_3:
-		setFrameRate( 30.0f );
-		break;
-	case KeyEvent::KEY_4:
-		setFrameRate( 100.0f );
-		break;
+		case KeyEvent::KEY_SPACE:
+			// reset all balls
+			for( auto &ball : mBalls )
+				ball->reset();
+			break;
+		case KeyEvent::KEY_RETURN:
+			// pause/resume simulation
+			mIsPaused = !mIsPaused;
+			break;
+		case KeyEvent::KEY_EQUALS: //For Macs without a keypad or a plus key
+			if( !event.isShiftDown() ) {
+				break;
+			}
+		case KeyEvent::KEY_PLUS:
+		case KeyEvent::KEY_KP_PLUS:
+			// create a new ball
+			mBalls.push_back( BallRef( new Ball() ) );
+			break;
+		case KeyEvent::KEY_MINUS:
+		case KeyEvent::KEY_KP_MINUS:
+			// remove the oldest ball
+			if( !mBalls.empty() )
+				mBalls.erase( mBalls.begin() );
+			break;
+		case KeyEvent::KEY_f:
+			setFullScreen( !isFullScreen() );
+			break;
+		case KeyEvent::KEY_v:
+			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+			break;
+		case KeyEvent::KEY_m:
+			mUseMotionBlur = !mUseMotionBlur;
+			break;
+		case KeyEvent::KEY_1:
+			setFrameRate( 10.0f );
+			break;
+		case KeyEvent::KEY_2:
+			setFrameRate( 20.0f );
+			break;
+		case KeyEvent::KEY_3:
+			setFrameRate( 30.0f );
+			break;
+		case KeyEvent::KEY_4:
+			setFrameRate( 100.0f );
+			break;
 	}
 }
 
@@ -471,4 +452,4 @@ void BouncingBallsApp::performCollisions()
 	}
 }
 
-CINDER_APP_BASIC( BouncingBallsApp, RendererGl )
+CINDER_APP( BouncingBallsApp, RendererGl )
