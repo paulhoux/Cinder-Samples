@@ -20,7 +20,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
@@ -28,10 +28,10 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class AnalogClockApp : public AppBasic {
+class AnalogClockApp : public App {
 public:
 	// setting up and shutting down
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 	void setup();
 
 	// game loop
@@ -48,7 +48,7 @@ protected:
 
 // construction and destruction
 
-void AnalogClockApp::prepareSettings( Settings *settings )
+void AnalogClockApp::prepare( Settings *settings )
 {
 	settings->setTitle( "Analog Clock" );
 	settings->setWindowSize( 300, 300 );
@@ -127,9 +127,9 @@ void AnalogClockApp::draw()
 void AnalogClockApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
 	}
 }
 
@@ -142,4 +142,4 @@ int AnalogClockApp::getSecondsSinceMidnight()
 }
 
 // the following macro will create the application
-CINDER_APP_BASIC( AnalogClockApp, RendererGl )
+CINDER_APP( AnalogClockApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &AnalogClockApp::prepare )
