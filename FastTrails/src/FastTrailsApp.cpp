@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -22,8 +22,9 @@
 
 #include "cinder/Camera.h"
 #include "cinder/ImageIo.h"
-#include "cinder/MayaCamUI.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/CameraUi.h"
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
@@ -37,87 +38,79 @@ using namespace std;
 
 #define TRAIL_LENGTH	16000
 
-class FastTrailsApp : public AppBasic {
+class FastTrailsApp : public App {
 public:
-	void prepareSettings( Settings *settings );
-	
+	static void prepare( Settings *settings );
+
 	void setup();
 	void update();
 	void draw();
-	
+
 	void resize();
-	
-	void mouseDown( MouseEvent event );	
-	void mouseDrag( MouseEvent event );	
-	
+
+	void mouseDown( MouseEvent event );
+	void mouseDrag( MouseEvent event );
+
 	void keyDown( KeyEvent event );
 private:
 private:
-	MayaCamUI			mCamera;
+	CameraPersp         mCam;
+	CameraUi            mCamera;
 
-	gl::Texture			mTexture;
+	gl::Texture2dRef    mTexture;
 
-	//gl::GlslProg		mShader;
+	gl::VboMeshRef      mVboMesh;
 
-	gl::VboMesh			mVboMesh;
+	std::deque<vec3>    mTrail;
 
-	std::deque< Vec3f >	mTrail;
-
-	double				mTime;
-	float				mAngle;
+	double              mTime;
+	float               mAngle;
 };
 
-void FastTrailsApp::prepareSettings(Settings *settings)
+void FastTrailsApp::prepare( Settings *settings )
 {
-	settings->setFrameRate( 500.0f );
-	settings->setTitle("Fast Trails Sample");
+	settings->disableFrameRate();
+	settings->setTitle( "Fast Trails Sample" );
 }
 
 void FastTrailsApp::setup()
 {
 	// initialize camera
-	CameraPersp cam( getWindowWidth(), getWindowHeight(), 60.0f, 0.1f, 500.0f );
-	cam.setEyePoint( Vec3f(0, 0, -100.0f) );
-	cam.setCenterOfInterestPoint( Vec3f::zero() );
+	mCam.setPerspective( 60.0f, getWindowAspectRatio(), 0.1f, 500.0f );
+	mCam.lookAt( vec3( 0, 0, -100.0f ), vec3( 0 ) );
 
-	mCamera.setCurrentCam( cam );
+	mCamera.setCamera( &mCam );
 
 	// load texture
-	try { mTexture = gl::Texture( loadImage( loadAsset("gradient.png") ) ); }
+	try { mTexture = gl::Texture2d::create( loadImage( loadAsset( "gradient.png" ) ) ); }
 	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+
+	// observation: texture coordinates never change
+	std::vector<vec2>     texcoords;	texcoords.reserve( TRAIL_LENGTH );
+	for( size_t i = 0; i < TRAIL_LENGTH; ++i ) {
+		float x = math<float>::floor( i * 0.5f ) / ( TRAIL_LENGTH * 0.5f );
+		float y = float( i % 2 );
+		texcoords.emplace_back( vec2( x, y ) );
+	}
 
 	// create VBO mesh
 	gl::VboMesh::Layout layout;
-	layout.setDynamicPositions();
-	layout.setStaticIndices();
-	layout.setStaticTexCoords2d();
+	layout.usage( GL_STATIC_DRAW );
+	layout.attrib( geom::Attrib::POSITION, 3 );
+	layout.attrib( geom::Attrib::TEX_COORD_0, 2 );
 
-	mVboMesh = gl::VboMesh( TRAIL_LENGTH, TRAIL_LENGTH, layout, GL_TRIANGLE_STRIP );
-
-	// observation: indices and texture coordinates never change
-	std::vector< uint32_t >	indices;	indices.reserve( TRAIL_LENGTH );
-	std::vector< Vec2f >	texcoords;	texcoords.reserve( TRAIL_LENGTH );
-	for( size_t i=0; i<TRAIL_LENGTH; ++i ) {
-		indices.push_back( i );
-
-		float x = math<float>::floor( i * 0.5f ) / ( TRAIL_LENGTH * 0.5f );
-		float y = float( i % 2 );
-		texcoords.push_back( Vec2f( x, y ) );
-	}
-
-	// create index and texture coordinate buffers
-	mVboMesh.bufferIndices( indices );
-	mVboMesh.bufferTexCoords2d( 0, texcoords );
+	mVboMesh = gl::VboMesh::create( TRAIL_LENGTH, GL_TRIANGLE_STRIP, { layout } );
+	mVboMesh->bufferAttrib( geom::Attrib::TEX_COORD_0, texcoords );
 
 	// clear our trail buffer
 	mTrail.clear();
-	
+
 	// initialize time and angle
 	mTime = getElapsedSeconds();
-	mAngle= 0.0f;
+	mAngle = 0.0f;
 
 	// disable vertical sync, so we can see the actual frame rate
-	gl::disableVerticalSync();
+	gl::enableVerticalSync( false );
 }
 
 void FastTrailsApp::update()
@@ -125,22 +118,22 @@ void FastTrailsApp::update()
 	// find out how many trails we should add
 	const double	trails_per_second = 2000.0;
 	double			elapsed = getElapsedSeconds() - mTime;
-	uint32_t		num_trails = uint32_t(elapsed * trails_per_second);
-	
+	uint32_t		num_trails = uint32_t( elapsed * trails_per_second );
+
 	// add this number of trails 
 	// (note: it's an ugly function that draws a swirling trail around a sphere, just for demo purposes)
-	for(size_t i=0; i<num_trails; ++i ) {
+	for( size_t i = 0; i < num_trails; ++i ) {
 		float		phi = mAngle * 0.01f;
 		float		prev_phi = phi - 0.01f;
 		float		theta = phi * 0.03f;
 		float		prev_theta = prev_phi * 0.03f;
 
-		Vec3f		pos = 45.0f * Vec3f( sinf( phi ) * cosf( theta ), sinf( phi ) * sinf( theta ), cosf( phi ) );
-		Vec3f		prev_pos = 45.0f * Vec3f( sinf( prev_phi ) * cosf( prev_theta ), sinf( prev_phi ) * sinf( prev_theta ), cosf( prev_phi ) );
+		vec3		pos = 45.0f * vec3( sinf( phi ) * cosf( theta ), sinf( phi ) * sinf( theta ), cosf( phi ) );
+		vec3		prev_pos = 45.0f * vec3( sinf( prev_phi ) * cosf( prev_theta ), sinf( prev_phi ) * sinf( prev_theta ), cosf( prev_phi ) );
 
-		Vec3f		direction = pos - prev_pos;
-		Vec3f		right = Vec3f( sinf( 20.0f * phi ), 0.0f, cosf( 20.0f * phi ) );
-		Vec3f		normal = direction.cross( right ).normalized();
+		vec3		direction = pos - prev_pos;
+		vec3		right = vec3( sinf( 20.0f * phi ), 0.0f, cosf( 20.0f * phi ) );
+		vec3		normal = glm::normalize( glm::cross( direction, right ) );
 
 		// add two vertices, one at each side of the center line
 		mTrail.push_front( pos - 1.0f * normal );
@@ -153,10 +146,12 @@ void FastTrailsApp::update()
 	while( mTrail.size() > TRAIL_LENGTH )
 		mTrail.pop_back();
 
-	// copy to trail to vbo (there's probably a faster way than this, need to check that out later)
-	gl::VboMesh::VertexIter itr = mVboMesh.mapVertexBuffer();
-	for( size_t i=0; i<mTrail.size(); ++i, ++itr )
-		itr.setPosition( mTrail[i] );
+	// copy to trail to vbo
+	auto mapped = mVboMesh->mapAttrib3f( geom::POSITION, true );
+	for( auto &trail : mTrail ) {
+		*mapped++ = trail;
+	}
+	mapped.unmap();
 
 	// advance time
 	mTime += num_trails / trails_per_second;
@@ -165,40 +160,32 @@ void FastTrailsApp::update()
 void FastTrailsApp::draw()
 {
 	// clear window
-	gl::clear(); 
+	gl::clear();
 
 	// set render states
 	gl::enableWireframe();
-	gl::enableAlphaBlending();
 
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
+	gl::ScopedBlendAlpha blend;
+	gl::ScopedDepth depth( true, true );
 
 	// enable 3D camera
 	gl::pushMatrices();
 	gl::setMatrices( mCamera.getCamera() );
 
 	// draw VBO mesh using texture
-	mTexture.enableAndBind();
-	gl::drawRange( mVboMesh, 0, mTrail.size(), 0, mTrail.size()-1 );
-	mTexture.unbind();
+	gl::ScopedTextureBind tex0( mTexture );
+	gl::ScopedGlslProg shader( gl::getStockShader( gl::ShaderDef().texture() ) );
+	gl::draw( mVboMesh, 0, mTrail.size() );
 
 	// restore camera and render states
 	gl::popMatrices();
-
-	gl::disableDepthWrite();
-	gl::disableDepthRead();
-
-	gl::disableAlphaBlending();
 	gl::disableWireframe();
 }
 
 void FastTrailsApp::resize()
 {
 	// adjust aspect ratio
-	CameraPersp cam = mCamera.getCamera();
-	cam.setAspectRatio( getWindowAspectRatio() );
-	mCamera.setCurrentCam( cam );
+	mCam.setAspectRatio( getWindowAspectRatio() );
 }
 
 void FastTrailsApp::mouseDown( MouseEvent event )
@@ -215,21 +202,17 @@ void FastTrailsApp::keyDown( KeyEvent event )
 {
 	bool isVerticalSyncEnabled;
 
-	switch( event.getCode() )
-	{
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
-	case KeyEvent::KEY_f:
-		// switch to/from full screen while preserving vertical sync state
-		isVerticalSyncEnabled = gl::isVerticalSyncEnabled();
-		setFullScreen( ! isFullScreen() );
-		gl::enableVerticalSync( isVerticalSyncEnabled );
-		break;
-	case KeyEvent::KEY_v:
-		gl::enableVerticalSync( ! gl::isVerticalSyncEnabled() );
-		break;
+	switch( event.getCode() ) {
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
+		case KeyEvent::KEY_f:
+			setFullScreen( !isFullScreen() );
+			break;
+		case KeyEvent::KEY_v:
+			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+			break;
 	}
 }
 
-CINDER_APP_BASIC( FastTrailsApp, RendererGl )
+CINDER_APP( FastTrailsApp, RendererGl, &FastTrailsApp::prepare )
