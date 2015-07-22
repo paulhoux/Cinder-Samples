@@ -22,60 +22,62 @@
 
 #pragma once
 
-#include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Batch.h"
+#include "cinder/gl/Vbo.h"
 #include "cinder/Cinder.h"
 #include "cinder/Color.h"
 #include "cinder/Vector.h"
 #include <vector>
 
 namespace cinder {
-	class Camera;
+class Camera;
 }
 
 typedef std::shared_ptr<class Piston> PistonRef;
 
-class Piston
-{	
+class Piston {
 public:
 	Piston();
-	Piston(float x, float z);
+	Piston( float x, float z );
 
-	void update(const ci::Camera& camera);
-	void draw(float time);
+	void update( const ci::Camera& camera, float time = 0 );
+	void draw( float time );
 
 	// Our custom sorting comparator
-	static int CompareByDistanceToCamera(const void* a, const void* b)
+	static int CompareByDistanceToCamera( const void* a, const void* b )
 	{
-		const Piston* pA = reinterpret_cast<const Piston*>(a);
-		const Piston* pB = reinterpret_cast<const Piston*>(b);
-		if(pA->mDistance < pB->mDistance)
+		const Piston* pA = reinterpret_cast<const Piston*>( a );
+		const Piston* pB = reinterpret_cast<const Piston*>( b );
+		if( pA->mDistance < pB->mDistance )
 			return -1;
-		if(pA->mDistance > pB->mDistance)
+		if( pA->mDistance > pB->mDistance )
 			return 1;
 		return 0;
 	}
 
-private:
+public:
+	ci::vec3   mPosition;
 	float      mDistance;
+	ci::vec3   mColor;
 	float      mOffset;
-	ci::Colorf mColor;
-	ci::Vec3f  mPosition;
 };
 
-class Pistons
-{
+class Pistons {
 public:
 	Pistons()
-	{}
+	{
+	}
 
 	void setup();
-	void update(const ci::Camera& camera);
-	void draw(const ci::Camera& camera, float time);
+	void update( const ci::Camera& camera, float time );
+	void draw( const ci::Camera& camera );
 
 	static const char* vs;
 	static const char* fs;
 private:
-	std::vector<Piston> mPistons;
-	ci::gl::GlslProg    mShader;
+	ci::gl::BatchRef     mBatch;
+
+	std::vector<Piston>  mInstances;
+	ci::gl::VboRef       mInstanceVbo;
 };
 

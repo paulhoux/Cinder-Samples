@@ -1,8 +1,18 @@
-#version 120
+#version 150
+
+uniform mat4 ciModelViewProjection;
+
+in vec4 ciPosition;
+in vec2 ciTexCoord0;
+in vec4 ciColor;
+
+out vec2 vertTexCoord0;
+out vec4 vertColor;
 
 void main()
 {
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_Position = ftransform();
-	gl_FrontColor = gl_Color;
+	vertTexCoord0 = ciTexCoord0;
+	vertColor = ciColor;
+
+	gl_Position = ciModelViewProjection * ciPosition;
 }

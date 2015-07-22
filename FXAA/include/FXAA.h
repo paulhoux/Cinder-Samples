@@ -34,7 +34,7 @@ public:
 	~FXAA() {}
 
 	void setup();
-	void apply(ci::gl::Fbo& destination, ci::gl::Fbo& source);
+	void apply(ci::gl::FboRef &destination, ci::gl::FboRef &source);
 private:
 	ci::gl::GlslProgRef    mFXAA;
 };
