@@ -21,7 +21,7 @@
  */
 
 #include "cinder/ImageIo.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
@@ -32,9 +32,9 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class GeometryShaderApp : public AppBasic {
+class GeometryShaderApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
 	void setup();
 	void update();
@@ -73,7 +73,7 @@ protected:
 	gl::TextureRef		mHelpTexture;
 };
 
-void GeometryShaderApp::prepareSettings( Settings *settings )
+void GeometryShaderApp::prepare( Settings *settings )
 {
 	settings->setTitle( "Drawing smooth lines using a geometry shader" );
 	settings->setWindowSize( 640, 640 );
@@ -257,52 +257,52 @@ void GeometryShaderApp::mouseUp( MouseEvent event )
 void GeometryShaderApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
-	case KeyEvent::KEY_SPACE:
-		mPoints.clear();
-		// invalidate mesh
-		mVboMesh.reset();
-		break;
-	case KeyEvent::KEY_DELETE:
-		mPoints.pop_back();
-		// invalidate mesh
-		mVboMesh.reset();
-		break;
-	case KeyEvent::KEY_LEFTBRACKET:
-		if( mThickness > 1.0f ) mThickness -= 1.0f;
-		break;
-	case KeyEvent::KEY_RIGHTBRACKET:
-		if( mThickness < 100.0f ) mThickness += 1.0f;
-		break;
-	case KeyEvent::KEY_EQUALS: //For Macs without a keypad or a plus key
-		if( !event.isShiftDown() ) {
+		case KeyEvent::KEY_ESCAPE:
+			quit();
 			break;
-		}
-	case KeyEvent::KEY_PLUS:
-	case KeyEvent::KEY_KP_PLUS:
-		if( mLimit < 1.0f ) mLimit += 0.1f;
-		break;
-	case KeyEvent::KEY_MINUS:
-	case KeyEvent::KEY_KP_MINUS:
-		if( mLimit > -1.0f ) mLimit -= 0.1f;
-		break;
-	case KeyEvent::KEY_w:
-		mDrawWireframe = !mDrawWireframe;
-		break;
-	case KeyEvent::KEY_F5:
-		mTexture = loadTexture( "textures/pattern1.png" );
-		break;
-	case KeyEvent::KEY_F6:
-		mTexture = loadTexture( "textures/pattern2.png" );
-		break;
-	case KeyEvent::KEY_F7:
-		loadShader( "shaders/lines1.geom" );
-		break;
-	case KeyEvent::KEY_F8:
-		loadShader( "shaders/lines2.geom" );
-		break;
+		case KeyEvent::KEY_SPACE:
+			mPoints.clear();
+			// invalidate mesh
+			mVboMesh.reset();
+			break;
+		case KeyEvent::KEY_DELETE:
+			mPoints.pop_back();
+			// invalidate mesh
+			mVboMesh.reset();
+			break;
+		case KeyEvent::KEY_LEFTBRACKET:
+			if( mThickness > 1.0f ) mThickness -= 1.0f;
+			break;
+		case KeyEvent::KEY_RIGHTBRACKET:
+			if( mThickness < 100.0f ) mThickness += 1.0f;
+			break;
+		case KeyEvent::KEY_EQUALS: //For Macs without a keypad or a plus key
+			if( !event.isShiftDown() ) {
+				break;
+			}
+		case KeyEvent::KEY_PLUS:
+		case KeyEvent::KEY_KP_PLUS:
+			if( mLimit < 1.0f ) mLimit += 0.1f;
+			break;
+		case KeyEvent::KEY_MINUS:
+		case KeyEvent::KEY_KP_MINUS:
+			if( mLimit > -1.0f ) mLimit -= 0.1f;
+			break;
+		case KeyEvent::KEY_w:
+			mDrawWireframe = !mDrawWireframe;
+			break;
+		case KeyEvent::KEY_F5:
+			mTexture = loadTexture( "textures/pattern1.png" );
+			break;
+		case KeyEvent::KEY_F6:
+			mTexture = loadTexture( "textures/pattern2.png" );
+			break;
+		case KeyEvent::KEY_F7:
+			loadShader( "shaders/lines1.geom" );
+			break;
+		case KeyEvent::KEY_F8:
+			loadShader( "shaders/lines2.geom" );
+			break;
 	}
 }
 
@@ -353,4 +353,4 @@ void GeometryShaderApp::loadShader( const std::string &path )
 	}
 }
 
-CINDER_APP_BASIC( GeometryShaderApp, RendererGl )
+CINDER_APP( GeometryShaderApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &GeometryShaderApp::prepare )
