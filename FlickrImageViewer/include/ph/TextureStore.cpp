@@ -20,13 +20,17 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-// get rid of a very annoying warning caused by boost::thread::sleep()
+ // get rid of a very annoying warning caused by boost::thread::sleep()
 #pragma warning(push)
 #pragma warning(disable: 4244)
 
 #include "cinder/app/App.h"
 #include "cinder/ip/Resize.h"
 #include "cinder/Log.h"
+//#include "cinder/DataSource.h"
+//#include "cinder/ImageIo.h"
+//#include "cinder/Thread.h"
+//#include "cinder/Utilities.h"
 
 #include "ph/TextureStore.h"
 
@@ -37,6 +41,7 @@ using namespace ci::app;
 using namespace std;
 
 TextureStore::TextureStore( void )
+	: mShouldQuit( false )
 {
 	// initialize buffers
 	mTextures.clear();
@@ -44,19 +49,19 @@ TextureStore::TextureStore( void )
 	mThreads.clear();
 
 	// create worker thread for each CPU
-	unsigned int numThreads = boost::thread::hardware_concurrency();
-	for(unsigned int i=0;i<numThreads;++i)
-		mThreads.push_back( boost::shared_ptr<boost::thread>(new boost::thread(&TextureStore::threadLoad, this)) );
+	unsigned int numThreads = std::thread::hardware_concurrency();
+	for( unsigned int i = 0; i < numThreads; ++i )
+		mThreads.push_back( std::shared_ptr<std::thread>( new std::thread( &TextureStore::threadLoad, this ) ) );
 }
 
-TextureStore::~TextureStore(void)
+TextureStore::~TextureStore( void )
 {
 	// stop loader threads and wait for them to finish
+	mShouldQuit = true;
+
 	TextureStoreThreadPool::const_iterator itr;
-	for(itr=mThreads.begin();itr!=mThreads.end();++itr) {
-		(*itr)->interrupt();
-		(*itr)->join();
-	}
+	for( itr = mThreads.begin(); itr != mThreads.end(); ++itr )
+		( *itr )->join();
 
 	// clear buffers
 	mThreads.clear();
@@ -64,7 +69,7 @@ TextureStore::~TextureStore(void)
 	mTextures.clear();
 }
 
-gl::TextureRef TextureStore::load( const string &url, gl::Texture::Format fmt )
+gl::TextureRef TextureStore::load( const string &url, gl::Texture2d::Format fmt )
 {
 	// if texture already exists, return it immediately
 	auto itr = mTextures.find( url );
@@ -74,31 +79,31 @@ gl::TextureRef TextureStore::load( const string &url, gl::Texture::Format fmt )
 	}
 
 	// otherwise, check if the image has loaded and create a texture for it
-	ci::Surface surface;
+	Surface surface;
 	if( mSurfaces.try_pop( url, surface ) ) {
 		// done loading
 		mLoadingQueue.erase( url );
 
 		CI_LOG_V( "Creating texture for '" << url << "'." );
-		fmt.setDeleter( CustomDeleter() );
-		ci::gl::TextureRef tex = gl::Texture::create( surface, fmt );
+		fmt.deleter( CustomDeleter() );
+		gl::TextureRef tex = gl::Texture2d::create( surface, fmt );
 		return storeTexture( url, tex );
 	}
 
 	// load texture and add to TextureList
-	CI_LOG_V( "Loading Texture '" << url << "'." );
+	CI_LOG_V( "Loading Texture2d '" << url << "'." );
 	try {
 		ImageSourceRef img = loadImage( url );
-		fmt.setDeleter( CustomDeleter() );
-		ci::gl::TextureRef tex = ci::gl::Texture::create( img, fmt );
+		fmt.deleter( CustomDeleter() );
+		gl::TextureRef tex = gl::Texture2d::create( img, fmt );
 		return storeTexture( url, tex );
 	}
 	catch( ... ) {}
 
 	try {
 		ImageSourceRef img = loadImage( loadUrl( Url( url ) ) );
-		fmt.setDeleter( CustomDeleter() );
-		ci::gl::TextureRef tex = ci::gl::Texture::create( img, fmt );
+		fmt.deleter( CustomDeleter() );
+		gl::TextureRef tex = gl::Texture2d::create( img, fmt );
 		return storeTexture( url, tex );
 	}
 	catch( ... ) {}
@@ -108,7 +113,7 @@ gl::TextureRef TextureStore::load( const string &url, gl::Texture::Format fmt )
 	return empty();
 }
 
-gl::TextureRef TextureStore::fetch( const string &url, gl::Texture::Format fmt )
+gl::TextureRef TextureStore::fetch( const string &url, gl::Texture2d::Format fmt )
 {
 	// if texture already exists, return it immediately
 	auto itr = mTextures.find( url );
@@ -118,14 +123,14 @@ gl::TextureRef TextureStore::fetch( const string &url, gl::Texture::Format fmt )
 	}
 
 	// otherwise, check if the image has loaded and create a texture for it
-	ci::Surface surface;
+	Surface surface;
 	if( mSurfaces.try_pop( url, surface ) ) {
 		// done loading
 		mLoadingQueue.erase( url );
 
-		CI_LOG_V( "Creating Texture for '" << url << "'." );
-		fmt.setDeleter( CustomDeleter() );
-		ci::gl::TextureRef tex = gl::Texture::create( surface, fmt );
+		CI_LOG_V( "Creating Texture2d for '" << url << "'." );
+		fmt.deleter( CustomDeleter() );
+		gl::TextureRef tex = gl::Texture2d::create( surface, fmt );
 		return storeTexture( url, tex );
 	}
 
@@ -133,7 +138,7 @@ gl::TextureRef TextureStore::fetch( const string &url, gl::Texture::Format fmt )
 	if( mLoadingQueue.push_back( url, true ) ) {
 		// hand over to threaded loader
 		if( mQueue.push_back( url, true ) ) {
-			CI_LOG_V( "Queueing Texture '" << url << "' for loading." );
+			CI_LOG_V( "Queueing Texture2d '" << url << "' for loading." );
 		}
 	}
 
@@ -177,71 +182,62 @@ void TextureStore::threadLoad()
 	string			url;
 
 	// run until interrupted
-	while(true) {
-		mQueue.wait_and_pop_front(url);
+	while( !mShouldQuit ) {
+		mQueue.wait_and_pop_front( url );
 
 		// try to load image
 		succeeded = false;
 
 		// try to load from FILE (fastest)
-		if(!succeeded) try { 
-			image = ci::loadImage( ci::loadFile( url ) ); 
+		if( !succeeded ) try {
+			image = loadImage( loadFile( url ) );
 			succeeded = true;
-		} catch(...) {}
+		}
+		catch( ... ) {}
 
 		// try to load from ASSET (fast)
-		if(!succeeded) try { 
-			image = ci::loadImage( ci::app::loadAsset( url ) ); 
+		if( !succeeded ) try {
+			image = loadImage( loadAsset( url ) );
 			succeeded = true;
-		} catch(...) {}
+		}
+		catch( ... ) {}
 
 		// try to load from URL (slow)
-		if(!succeeded) try { 
-			image = ci::loadImage( ci::loadUrl( Url(url) ) ); 
+		if( !succeeded ) try {
+			image = loadImage( loadUrl( Url( url ) ) );
 			succeeded = true;
-		} catch(...) {}
+		}
+		catch( ... ) {}
 
 		// do NOT continue if not succeeded (yeah, it's confusing, I know)
-		if(!succeeded) continue;
-
-		// succeeded, check if thread was interrupted
-		try { boost::this_thread::interruption_point(); }
-		catch(boost::thread_interrupted) { break; }
+		if( !succeeded ) continue;
 
 		// create Surface from the image
-		surface = Surface(image);
-
-		// check if thread was interrupted
-		try { boost::this_thread::interruption_point(); }
-		catch(boost::thread_interrupted) { break; }
+		surface = Surface( image );
 
 		// resize image if larger than 4096 px
 		Area source = surface.getBounds();
-		Area dest(0, 0, 4096, 4096);
-		Area fit = Area::proportionalFit(source, dest, false, false);
-				
-		if(source.getSize() != fit.getSize()) 
-			surface = ci::ip::resizeCopy(surface, source, fit.getSize());
+		Area dest( 0, 0, 4096, 4096 );
+		Area fit = Area::proportionalFit( source, dest, false, false );
 
-		// check if thread was interrupted
-		try { boost::this_thread::interruption_point(); }
-		catch(boost::thread_interrupted) { break; }
+		if( source.getSize() != fit.getSize() )
+			surface = ip::resizeCopy( surface, source, fit.getSize() );
 
 		// copy to main thread
-		mSurfaces.push(url, surface);
+		mSurfaces.push( url, surface );
 	}
 }
 
-ci::gl::TextureRef TextureStore::storeTexture( const std::string& url, const ci::gl::TextureRef& src )
+gl::TextureRef TextureStore::storeTexture( const std::string& url, const gl::TextureRef& src )
 {
-	mTextures[url] = std::weak_ptr<ci::gl::Texture>( src );
+	mTextures[url] = std::weak_ptr<gl::Texture2d>( src );
 
-	CI_LOG_V( "Texture stored! " << mTextures.size() << " textures in total." );
+	CI_LOG_V( "Texture2d stored! " << mTextures.size() << " textures in total." );
 
 	return src;
 }
 
-void TextureStore::CustomDeleter::operator()( ci::gl::TextureBase* ptr )
+void TextureStore::CustomDeleter::operator()( gl::TextureBase* ptr )
 {
 	// We know one of our textures has just been deleted. Find it in the map and remove it.
 	if( ptr ) {
@@ -253,7 +249,7 @@ void TextureStore::CustomDeleter::operator()( ci::gl::TextureBase* ptr )
 			}
 		}
 
-		CI_LOG_V( "Texture Deleted! " << map.size() << " textures remaining." );
+		CI_LOG_V( "Texture2d Deleted! " << map.size() << " textures remaining." );
 
 		delete ptr;
 	}

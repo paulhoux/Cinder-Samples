@@ -23,21 +23,14 @@
 #pragma once
 
 #include "cinder/Cinder.h"
-#include "cinder/DataSource.h"
-#include "cinder/ImageIo.h"
-#include "cinder/Thread.h"
-#include "cinder/Utilities.h"
-#include "cinder/app/AppBasic.h"
 #include "cinder/gl/Texture.h"
 
 #include "ph/ConcurrentDeque.h"
 #include "ph/ConcurrentMap.h"
 
-#include <boost/thread.hpp>
-
 namespace ph {
 
-typedef std::vector< boost::shared_ptr<boost::thread> > TextureStoreThreadPool;
+typedef std::vector< std::shared_ptr<std::thread> > TextureStoreThreadPool;
 
 class TextureStore {
 private:
@@ -56,27 +49,27 @@ public:
 	};
 
 	//! synchronously loads an image into a texture, stores it and returns it
-	ci::gl::TextureRef	load( const std::string &url, ci::gl::Texture::Format fmt = ci::gl::Texture::Format() );
+	ci::gl::Texture2dRef	load( const std::string &url, ci::gl::Texture2d::Format fmt = ci::gl::Texture2d::Format() );
 	//! asynchronously loads an image into a texture, returns immediately
-	ci::gl::TextureRef	fetch( const std::string &url, ci::gl::Texture::Format fmt = ci::gl::Texture::Format() );
+	ci::gl::Texture2dRef	fetch( const std::string &url, ci::gl::Texture2d::Format fmt = ci::gl::Texture2d::Format() );
 	//! remove url from the queue. Has no effect if image has already been loaded
-	bool				abort( const std::string &url );
+	bool					abort( const std::string &url );
 
 	//! returns a list of valid extensions for image files. ImageIO::getLoadExtensions() does not seem to work.
 	std::vector<std::string>	getLoadExtensions();
 
-	//! returns TRUE if image is scheduled for loading but has not been turned into a Texture yet
+	//! returns TRUE if image is scheduled for loading but has not been turned into a Texture2d yet
 	bool isLoading( const std::string &url );
-	//! returns TRUE if image has been turned into a Texture
+	//! returns TRUE if image has been turned into a Texture2d
 	bool isLoaded( const std::string &url );
 
 	//! returns an empty texture. Override it to supply something else in case a texture was not available.
-	virtual ci::gl::TextureRef	empty() { return ci::gl::TextureRef(); };
+	virtual ci::gl::Texture2dRef	empty() { return ci::gl::Texture2dRef(); };
 protected:
 	volatile bool isInterrupted;
 
 	//! list of created Textures
-	std::map<std::string, std::weak_ptr<ci::gl::Texture>>	mTextures;
+	std::map<std::string, std::weak_ptr<ci::gl::Texture2d>>	mTextures;
 
 	//! queue of textures to load asynchronously
 	ConcurrentDeque<std::string>		mQueue;
@@ -87,21 +80,22 @@ protected:
 
 	//! one or more worker threads
 	TextureStoreThreadPool				mThreads;
+	std::atomic<bool>					mShouldQuit;
 
 private:
 	//! loads files in a separate thread and creates Surfaces. These are then passed to the main thread and turned into Textures.
 	void threadLoad();
 
 	//! Creates the actual texture and defines a custom deleter for it.
-	ci::gl::TextureRef storeTexture( const std::string& url, const ci::gl::TextureRef& src );
+	ci::gl::Texture2dRef storeTexture( const std::string& url, const ci::gl::Texture2dRef& src );
 };
 
 // helper functions for easier access 
 
 //! synchronously loads an image into a texture, stores it and returns it 
-inline ci::gl::TextureRef	loadTexture( const std::string &url, ci::gl::Texture::Format fmt = ci::gl::Texture::Format() ) { return TextureStore::getInstance().load( url, fmt ); };
+inline ci::gl::Texture2dRef	loadTexture( const std::string &url, ci::gl::Texture2d::Format fmt = ci::gl::Texture2d::Format() ) { return TextureStore::getInstance().load( url, fmt ); };
 
 //! asynchronously loads an image into a texture, returns immediately 
-inline ci::gl::TextureRef	fetchTexture( const std::string &url, ci::gl::Texture::Format fmt = ci::gl::Texture::Format() ) { return TextureStore::getInstance().fetch( url, fmt ); };
+inline ci::gl::Texture2dRef	fetchTexture( const std::string &url, ci::gl::Texture2d::Format fmt = ci::gl::Texture2d::Format() ) { return TextureStore::getInstance().fetch( url, fmt ); };
 
 } // namespace ph

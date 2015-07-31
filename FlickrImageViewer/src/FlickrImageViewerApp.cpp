@@ -22,7 +22,7 @@
 
 #include "cinder/CinderMath.h"
 #include "cinder/Xml.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
@@ -33,9 +33,10 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class FlickrImageViewerApp : public AppBasic {
+class FlickrImageViewerApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
+
 	void setup();
 	void update();
 	void draw();
@@ -61,7 +62,7 @@ protected:
 	bool			mAsynchronous;
 };
 
-void FlickrImageViewerApp::prepareSettings( Settings *settings )
+void FlickrImageViewerApp::prepare( Settings *settings )
 {
 	settings->setWindowSize( 600, 600 );
 	settings->setTitle( "Flickr Image Viewer" );
@@ -187,7 +188,7 @@ void FlickrImageViewerApp::draw()
 		float sx = window.getWidth() / image.getWidth();	// scale width to fit window
 		float sy = window.getHeight() / image.getHeight();	// scale height to fit window
 		float s = ci::math<float>::max( sx, sy )
-			+ zoom * (float) ( elapsed + mTimeDuration );	// fit window and zoom over time
+			+ zoom * (float)( elapsed + mTimeDuration );	// fit window and zoom over time
 		float w = image.getWidth() * s;						// resulting width
 		float h = image.getHeight() * s;					// resulting height
 		float ox = -0.5f * ( w - window.getWidth() );			// horizontal position to keep image centered
@@ -204,14 +205,14 @@ void FlickrImageViewerApp::draw()
 		Rectf window = getWindowBounds();
 		float sx = window.getWidth() / image.getWidth();
 		float sy = window.getHeight() / image.getHeight();
-		float s = ci::math<float>::max( sx, sy ) + zoom * (float) elapsed;
+		float s = ci::math<float>::max( sx, sy ) + zoom * (float)elapsed;
 		float w = image.getWidth() * s;
 		float h = image.getHeight() * s;
 		float ox = -0.5f * ( w - window.getWidth() );
 		float oy = -0.5f * ( h - window.getHeight() );
 		image.set( ox, oy, ox + w, oy + h );
 
-		gl::color( ColorA( 1, 1, 1, (float) fade ) );
+		gl::color( ColorA( 1, 1, 1, (float)fade ) );
 		gl::enableAlphaBlending();
 		gl::draw( mFront, image );
 		gl::disableAlphaBlending();
@@ -222,24 +223,24 @@ void FlickrImageViewerApp::draw()
 void FlickrImageViewerApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
-	case KeyEvent::KEY_a:
-		// toggle synchronous and asynchronous loading
-		mAsynchronous = !mAsynchronous;
-		if( mAsynchronous )
-			console() << "Asynchronous loading ENABLED." << std::endl;
-		else console() << "Asynchronous loading DISABLED." << std::endl;
-		break;
-	case KeyEvent::KEY_f:
-		// toggle full screen
-		setFullScreen( !isFullScreen() );
-		break;
-	case KeyEvent::KEY_v:
-		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-		break;
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
+		case KeyEvent::KEY_a:
+			// toggle synchronous and asynchronous loading
+			mAsynchronous = !mAsynchronous;
+			if( mAsynchronous )
+				console() << "Asynchronous loading ENABLED." << std::endl;
+			else console() << "Asynchronous loading DISABLED." << std::endl;
+			break;
+		case KeyEvent::KEY_f:
+			// toggle full screen
+			setFullScreen( !isFullScreen() );
+			break;
+		case KeyEvent::KEY_v:
+			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+			break;
 	}
 }
 
-CINDER_APP_BASIC( FlickrImageViewerApp, RendererGl )
+CINDER_APP( FlickrImageViewerApp, RendererGl, &FlickrImageViewerApp::prepare )
