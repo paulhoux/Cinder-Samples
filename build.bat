@@ -41,8 +41,11 @@ goto samples
 echo.
 echo Compiling samples...
 if exist build.log del /F build.log
-for /R %%f in (*.sln) do msbuild %%f /m /p:Configuration=%config% /fl /flp:logfile=build.log;verbosity=minimal;append=true
-if errorlevel 1 goto error
+for /R %%f in (*.sln) do ( 
+	msbuild %%f /m /p:Configuration=%config% /fl /flp:logfile=build.log;verbosity=minimal;append=true
+	if errorlevel 1 goto error
+)
+rem if errorlevel 1 goto error
 echo Done.
 goto done
 
