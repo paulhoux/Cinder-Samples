@@ -21,13 +21,15 @@
  */
 
 #include "cinder/Capture.h"
+#include "cinder/Camera.h"
+#include "cinder/CameraUi.h"
 #include "cinder/ImageIo.h"
-#include "cinder/MayaCamUI.h"
 #include "cinder/ObjLoader.h"
 #include "cinder/Rand.h"
 #include "cinder/TriMesh.h"
 #include "cinder/Utilities.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
@@ -40,9 +42,9 @@ using namespace std;
 #define NUM_INSTANCES		9600 
 #define INSTANCES_PER_ROW	60
 
-class HexagonMirrorApp : public AppBasic {
+class HexagonMirrorApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
 	void setup();
 	void update();
@@ -70,27 +72,26 @@ private:
 	void initializeBuffer();
 private:
 	// our controlable camera
-	MayaCamUI		mCamera;
+	CameraPersp			mCamera;
+	CameraUi			mCameraUi;
 
 	// our shader with instanced rendering support
-	gl::GlslProg	mShaderInstanced;
-
+	gl::GlslProgRef		mShader;
 	// VBO containing one hexagon mesh
-	gl::VboMesh		mVboMesh;
+	gl::VboMeshRef		mVboMesh;
+	// Batch that combines the mesh and shader
+	gl::BatchRef		mBatch;
 
-	// a VBO containing a list of matrices, 
-	// that we can apply as a vertex shader attribute
-	gl::Vbo			mBuffer;
-	// a vertex array object that encapsulates our buffer
-	GLuint			mVAO;
+	// a VBO containing a list of matrices, one for every instance
+	gl::VboRef			mInstanceDataVbo;
 
-	CaptureRef		mCapture;
-	gl::Texture		mCaptureTexture;
+	CaptureRef			mCapture;
+	gl::Texture2dRef	mCaptureTexture;
 
-	gl::Texture		mDummyTexture;
+	gl::Texture2dRef	mDummyTexture;
 };
 
-void HexagonMirrorApp::prepareSettings( Settings *settings )
+void HexagonMirrorApp::prepare( Settings *settings )
 {
 	settings->setWindowSize( 800, 600 );
 	settings->setTitle( "Hexagon Mirror" );
@@ -100,21 +101,19 @@ void HexagonMirrorApp::prepareSettings( Settings *settings )
 void HexagonMirrorApp::setup()
 {
 	// initialize camera
-	CameraPersp	cam;
-	cam.setEyePoint( Vec3f( 90, 69, -380 ) );
-	cam.setCenterOfInterestPoint( Vec3f( 90, 69, 0 ) );
-	cam.setFov( 20.0f );
-	mCamera.setCurrentCam( cam );
+	mCamera.setPerspective( 20.0f, 1.0f, 1.0f, 5000.0f );
+	mCamera.lookAt( vec3( 90, 69, 380 ), vec3( 90, 69, 0 ) );
+	mCameraUi.setCamera( &mCamera );
 
 	// load shader
-	try { mShaderInstanced = gl::GlslProg( loadAsset( "phong.vert" ), loadAsset( "phong.frag" ) ); }
+	try { mShader = gl::GlslProg::create( loadAsset( "phong.vert" ), loadAsset( "phong.frag" ) ); }
 	catch( const std::exception &e ) { console() << "Could not load and compile shader: " << e.what() << std::endl; }
-
-	// create a vertex array object, which allows us to efficiently position each instance
-	initializeBuffer();
 
 	// load hexagon mesh
 	loadMesh();
+
+	// create a vertex array object, which allows us to efficiently position each instance
+	initializeBuffer();
 
 	// connect to a webcam
 	try {
@@ -126,7 +125,7 @@ void HexagonMirrorApp::setup()
 	}
 
 	// load a dummy texture in case we have no webcam
-	try { mDummyTexture = loadImage( loadAsset( "placeholder.png" ) ); }
+	try { mCaptureTexture = mDummyTexture = gl::Texture2d::create( loadImage( loadAsset( "placeholder.png" ) ) ); }
 	catch( const std::exception& ) {}
 }
 
@@ -134,9 +133,7 @@ void HexagonMirrorApp::update()
 {
 	// update webcam image
 	if( mCapture && mCapture->checkNewFrame() )
-		mCaptureTexture = gl::Texture( mCapture->getSurface() );
-	else
-		mCaptureTexture = mDummyTexture;
+		mCaptureTexture = gl::Texture2d::create( *mCapture->getSurface() );
 }
 
 void HexagonMirrorApp::draw()
@@ -146,59 +143,26 @@ void HexagonMirrorApp::draw()
 
 	// activate our camera
 	gl::pushMatrices();
-	gl::setMatrices( mCamera.getCamera() );
+	gl::setMatrices( mCamera );
 
 	// set render states
-	gl::enable( GL_CULL_FACE );
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
-	gl::color( Color::white() );
+	gl::ScopedFaceCulling cull( true );
+	gl::ScopedDepth depth( true, true );
+	gl::ScopedColor color( 1, 0.8f, 0.6f );
 
-	if( mVboMesh && mShaderInstanced && mBuffer )
-	{
-		// bind webcam image
-		if( mCaptureTexture )
-			mCaptureTexture.bind( 0 );
+	if( mVboMesh && mShader && mInstanceDataVbo && mCaptureTexture ) {
+		// bind webcam image to texture unit 0
+		gl::ScopedTextureBind tex0( mCaptureTexture, 0 );
 
 		// bind the shader, which will do all the hard work for us
-		mShaderInstanced.bind();
-		mShaderInstanced.uniform( "texture", 0 );
-		mShaderInstanced.uniform( "scale", Vec2f( 1.0f / ( 3.0f * INSTANCES_PER_ROW ), 1.0f / ( 2.25f * INSTANCES_PER_ROW ) ) );
-
-		// bind the buffer containing the model matrix for each instance,
-		// this will allow us to pass this information as a vertex shader attribute.
-		// See: initializeBuffer()
-#if defined(CINDER_COCOA)
-		glBindVertexArrayAPPLE(mVAO);
-#else
-		glBindVertexArray( mVAO );
-#endif
+		gl::ScopedGlslProg shader( mShader );
+		mShader->uniform( "uTexture", 0 );
+		mShader->uniform( "uScale", vec2( 1.0f / ( 3.0f * INSTANCES_PER_ROW ), 1.0f / ( 2.25f * INSTANCES_PER_ROW ) ) );
 
 		// we do all positioning in the shader, and therefor we only need
 		// a single draw call to render all instances.
-		drawInstanced( mVboMesh, NUM_INSTANCES );
-
-		// make sure our VBO is no longer bound
-		mVboMesh.unbindBuffers();
-
-		// unbind vertex array object containing our buffer
-#if defined(CINDER_COCOA)
-		glBindVertexArrayAPPLE(0);
-#else
-		glBindVertexArray( 0 );
-#endif
-
-		// unbind shader
-		mShaderInstanced.unbind();
-
-		if( mCaptureTexture )
-			mCaptureTexture.unbind();
+		mBatch->drawInstanced( NUM_INSTANCES );
 	}
-
-	// reset render states
-	gl::disableDepthWrite();
-	gl::disableDepthRead();
-	gl::disable( GL_CULL_FACE );
 
 	// restore 2D drawing
 	gl::popMatrices();
@@ -207,11 +171,10 @@ void HexagonMirrorApp::draw()
 void HexagonMirrorApp::loadMesh()
 {
 	ObjLoader	loader( loadAsset( "hexagon.obj" ) );
-	TriMesh		mesh;
 
 	try {
-		loader.load( &mesh, true, false, false );
-		mVboMesh = gl::VboMesh( mesh );
+		TriMeshRef	mesh = TriMesh::create( loader );
+		mVboMesh = gl::VboMesh::create( *mesh );
 	}
 	catch( const std::exception &e ) {
 		console() << e.what() << std::endl;
@@ -234,78 +197,35 @@ void HexagonMirrorApp::initializeBuffer()
 	// See for more information: http://ogldev.atspace.co.uk/www/tutorial33/tutorial33.html
 
 	// initialize transforms for every instance
-	std::vector< Matrix44f > matrices;
+	std::vector< mat4 > matrices;
 	matrices.reserve( NUM_INSTANCES );
 
-	for( size_t i = 0; i < NUM_INSTANCES; ++i )
-	{
+	for( size_t i = 0; i < NUM_INSTANCES; ++i ) {
 		// determine position for this hexagon
 		float x = math<float>::fmod( float( i ), INSTANCES_PER_ROW );
 		float y = math<float>::floor( float( i ) / INSTANCES_PER_ROW );
 
 		// create transform matrix, then rotate and translate it
-		Matrix44f model;
-		model.translate( Vec3f( 3.0f * x + 1.5f * math<float>::fmod( y, 2.0f ), 0.866025f * y, 0.0f ) );
+		mat4 model = glm::translate( vec3( 3.0f * x + 1.5f * math<float>::fmod( y, 2.0f ), 0.866025f * y, 0.0f ) );
 		matrices.push_back( model );
 	}
 
-	// retrieve attribute location from the shader
-	// (note: make sure the shader is loaded and compiled before calling this function)
-	GLint ulocation = mShaderInstanced.getAttribLocation( "model_matrix" );
+	// create array buffer to store model matrices
+	mInstanceDataVbo = gl::Vbo::create( GL_ARRAY_BUFFER, matrices.size() * sizeof( mat4 ), matrices.data(), GL_STATIC_DRAW );
 
-	// if found...
-	if( ulocation != -1 )
-	{
-		// create vertex array object to hold our buffer
-		// (note: this is required for OpenGL 3.1 and above)
-#if defined(CINDER_COCOA)
-		glGenVertexArraysAPPLE(1, &mVAO);
-		glBindVertexArrayAPPLE(mVAO);
-#else
-		glGenVertexArrays( 1, &mVAO );
-		glBindVertexArray( mVAO );
-#endif
+	// setup the buffer to contain space for all matrices. Each matrix needs 16 floats.
+	geom::BufferLayout instanceDataLayout;
+	instanceDataLayout.append( geom::Attrib::CUSTOM_0, 16, sizeof( mat4 ), 0, 1 /* per instance */ );
 
-		// create array buffer to store model matrices
-		mBuffer = gl::Vbo( GL_ARRAY_BUFFER );
-
-		// setup the buffer to contain space for all matrices.
-		// we need 4 attributes to contain the 16 floats of a single matrix,
-		// because the maximum size of an attribute is 4 floats (16 bytes).
-		// When adding a 'mat4' attribute, OpenGL will make sure that 
-		// the attribute locations are sequential, e.g.: 3, 4, 5 and 6
-		mBuffer.bind();
-		for( unsigned int i = 0; i < 4; i++ ) {
-			glEnableVertexAttribArray( ulocation + i );
-			glVertexAttribPointer( ulocation + i, 4, GL_FLOAT, GL_FALSE, sizeof( Matrix44f ), (const GLvoid*) ( 4 * sizeof( GLfloat ) * i ) );
-
-			// get the next matrix after each instance, instead of each vertex
-#if defined(CINDER_COCOA)
-			glVertexAttribDivisorARB( ulocation + i, 1 );
-#else
-			glVertexAttribDivisor( ulocation + i, 1 );
-#endif
-		}
-
-		// fill the buffer with our data
-		mBuffer.bufferData( matrices.size() * sizeof( Matrix44f ), &matrices.front(), GL_STATIC_READ );
-		mBuffer.unbind();
-
-		// unbind the VAO
-#if defined(CINDER_COCOA)
-		glBindVertexArrayAPPLE(0);
-#else
-		glBindVertexArray( 0 );
-#endif
-	}
+	// add buffer to mesh and create batch
+	mVboMesh->appendVbo( instanceDataLayout, mInstanceDataVbo );
+	mBatch = gl::Batch::create( mVboMesh, mShader, { { geom::CUSTOM_0, "iModelMatrix" } } );
 }
 
 void HexagonMirrorApp::resize()
 {
-	// adjust the camera aspect ratio
-	CameraPersp cam = mCamera.getCamera();
-	cam.setAspectRatio( getWindowAspectRatio() );
-	mCamera.setCurrentCam( cam );
+	// adjust the camera aspect ratio	
+	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
 void HexagonMirrorApp::mouseMove( MouseEvent event )
@@ -314,12 +234,12 @@ void HexagonMirrorApp::mouseMove( MouseEvent event )
 
 void HexagonMirrorApp::mouseDown( MouseEvent event )
 {
-	mCamera.mouseDown( event.getPos() );
+	mCameraUi.mouseDown( event );
 }
 
 void HexagonMirrorApp::mouseDrag( MouseEvent event )
 {
-	mCamera.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	mCameraUi.mouseDrag( event );
 }
 
 void HexagonMirrorApp::mouseUp( MouseEvent event )
@@ -329,23 +249,17 @@ void HexagonMirrorApp::mouseUp( MouseEvent event )
 void HexagonMirrorApp::keyDown( KeyEvent event )
 {
 
-	switch( event.getCode() )
-	{
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
-	case KeyEvent::KEY_f:	{
-		// toggle full screen
-		bool wasVerticalSynced = gl::isVerticalSyncEnabled();
-		setFullScreen( !isFullScreen() );
-		gl::enableVerticalSync( wasVerticalSynced );
-
-		// when switching to/from full screen, the buffer or shader might be lost
-		initializeBuffer();	}
-		break;
-	case KeyEvent::KEY_v:
-		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-		break;
+	switch( event.getCode() ) {
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
+		case KeyEvent::KEY_f:
+			// toggle full screen
+			setFullScreen( !isFullScreen() );
+			break;
+		case KeyEvent::KEY_v:
+			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+			break;
 	}
 }
 
@@ -353,53 +267,4 @@ void HexagonMirrorApp::keyUp( KeyEvent event )
 {
 }
 
-///
-
-void HexagonMirrorApp::drawInstanced( const gl::VboMesh &vbo, size_t instanceCount )
-{
-	if( vbo.getNumIndices() > 0 )
-		drawRangeInstanced( vbo, (size_t) 0, vbo.getNumIndices(), instanceCount );
-	else
-		drawArraysInstanced( vbo, 0, vbo.getNumVertices(), instanceCount );
-}
-
-void HexagonMirrorApp::drawRangeInstanced( const gl::VboMesh &vbo, size_t startIndex, size_t indexCount, size_t instanceCount )
-{
-	if( vbo.getNumIndices() <= 0 )
-		return;
-
-	vbo.enableClientStates();
-	vbo.bindAllData();
-
-	//#if( defined GLEE_ARB_draw_instanced )
-	glDrawElementsInstancedARB( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*) ( sizeof( uint32_t ) * startIndex ), instanceCount );
-	//#elif( defined GLEE_EXT_draw_instanced )
-	//	glDrawElementsInstancedEXT( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*)( sizeof(uint32_t) * startIndex ), instanceCount );
-	//#else
-	// fall back to rendering a single instance
-	//	glDrawElements( vbo.getPrimitiveType(), indexCount, GL_UNSIGNED_INT, (GLvoid*)( sizeof(uint32_t) * startIndex ) );
-	//#endif
-
-	gl::VboMesh::unbindBuffers();
-	vbo.disableClientStates();
-}
-
-void HexagonMirrorApp::drawArraysInstanced( const gl::VboMesh &vbo, GLint first, GLsizei count, size_t instanceCount )
-{
-	vbo.enableClientStates();
-	vbo.bindAllData();
-
-	//#if( defined GLEE_ARB_draw_instanced )
-	glDrawArraysInstancedARB( vbo.getPrimitiveType(), first, count, instanceCount );
-	//#elif( defined GLEE_EXT_draw_instanced )
-	//	glDrawArraysInstancedEXT( vbo.getPrimitiveType(), first, count, instanceCount );
-	//#else
-	// fall back to rendering a single instance
-	//	glDrawArrays( vbo.getPrimitiveType(), first, count );
-	//#endif
-
-	gl::VboMesh::unbindBuffers();
-	vbo.disableClientStates();
-}
-
-CINDER_APP_BASIC( HexagonMirrorApp, RendererGl )
+CINDER_APP( HexagonMirrorApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &HexagonMirrorApp::prepare )
