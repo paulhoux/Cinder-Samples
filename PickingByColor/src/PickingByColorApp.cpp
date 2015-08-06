@@ -20,22 +20,26 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "cinder/CameraUi.h"
+#include "cinder/Font.h"
 #include "cinder/ObjLoader.h"
-#include "cinder/MayaCamUI.h"
 #include "cinder/TriMesh.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/Batch.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Shader.h"
+#include "cinder/gl/draw.h"
+#include "cinder/gl/scoped.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class PickingByColorApp : public AppBasic {
+class PickingByColorApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
 	void setup();
 	void shutdown();
@@ -84,14 +88,15 @@ public:
 
 	static unsigned int colorToInt( const Color &color )
 	{
-		unsigned char r = (unsigned char) ( color.r * 255 );
-		unsigned char g = (unsigned char) ( color.g * 255 );
-		unsigned char b = (unsigned char) ( color.b * 255 );
+		unsigned char r = (unsigned char)( color.r * 255 );
+		unsigned char g = (unsigned char)( color.g * 255 );
+		unsigned char b = (unsigned char)( color.b * 255 );
 		return b + ( g << 8 ) + ( r << 16 );
 	};
 protected:
 	//! our camera
-	MayaCamUI		mCamera;
+	CameraPersp		mCamera;
+	CameraUi		mCameraUi;
 
 	//! mesh and picking color of the pitcher object
 	gl::BatchRef	mMeshPitcher;
@@ -119,7 +124,7 @@ protected:
 	Color			mColorBackground;
 };
 
-void PickingByColorApp::prepareSettings( Settings *settings )
+void PickingByColorApp::prepare( Settings *settings )
 {
 	settings->setWindowSize( 900, 600 );
 	settings->setFrameRate( 100.0f );
@@ -179,24 +184,23 @@ void PickingByColorApp::draw()
 	}
 
 	// draw the scene
-	gl::color( Color::white() );
-	gl::draw( std::static_pointer_cast<gl::Texture2d>( mFbo->getTexture( GL_COLOR_ATTACHMENT0 ) ), getWindowBounds() );
+	gl::ScopedColor color( Color::white() );
+	gl::draw( mFbo->getTexture2d( GL_COLOR_ATTACHMENT0 ), getWindowBounds() );
 
 	// draw the color coded scene in the upper left corner
-	gl::draw( std::static_pointer_cast<gl::Texture2d>( mFbo->getTexture( GL_COLOR_ATTACHMENT1 ) ), Rectf( getWindowBounds() ) * 0.2f );
-
-	// perform picking and display the results
-	//  (alternatively you can do it in the 'mouseMove' or 'mouseDown' function)
-	gl::enableAlphaBlending();
-	gl::drawStringCentered( pick( mMousePos ), vec2( 0.5f * getWindowWidth(), getWindowHeight() - 50.0f ), Color::white(), mFont );
-	gl::disableAlphaBlending();
+	gl::draw( mFbo->getTexture2d( GL_COLOR_ATTACHMENT1 ), Rectf( getWindowBounds() ) * 0.2f );
 
 	// draw the picking framebuffer in the upper right corner
 	if( mPickingFbo ) {
-		Rectf rct = (Rectf) mPickingFbo->getBounds() * 5.0f;
-		rct.offset( vec2( (float) getWindowWidth() - rct.getWidth(), 0 ) );
-		gl::draw( mPickingFbo->getColorTexture(), Rectf( rct.x1, rct.y1, rct.x2, rct.y2 ) );
+		Rectf rct = (Rectf)mPickingFbo->getBounds() * 5.0f;
+		rct.offset( vec2( (float)getWindowWidth() - rct.getWidth(), 0 ) );
+		gl::draw( mPickingFbo->getColorTexture(), rct );
 	}
+
+	// perform picking and display the results
+	//  (alternatively you can do it in the 'mouseMove' or 'mouseDown' function)
+	gl::ScopedBlendAlpha blend;
+	gl::drawStringCentered( pick( mMousePos ), vec2( 0.5f * getWindowWidth(), getWindowHeight() - 50.0f ), Color::white(), mFont );
 }
 
 void PickingByColorApp::mouseMove( MouseEvent event )
@@ -207,7 +211,7 @@ void PickingByColorApp::mouseMove( MouseEvent event )
 void PickingByColorApp::mouseDown( MouseEvent event )
 {
 	// handle the camera
-	mCamera.mouseDown( event.getPos() );
+	mCameraUi.mouseDown( event.getPos() );
 }
 
 void PickingByColorApp::mouseDrag( MouseEvent event )
@@ -215,7 +219,7 @@ void PickingByColorApp::mouseDrag( MouseEvent event )
 	mMousePos = event.getPos();
 
 	// move the camera
-	mCamera.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	mCameraUi.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void PickingByColorApp::mouseUp( MouseEvent event )
@@ -225,12 +229,12 @@ void PickingByColorApp::mouseUp( MouseEvent event )
 void PickingByColorApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
-	case KeyEvent::KEY_f:
-		setFullScreen( !isFullScreen() );
-		break;
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
+		case KeyEvent::KEY_f:
+			setFullScreen( !isFullScreen() );
+			break;
 	}
 }
 
@@ -241,9 +245,8 @@ void PickingByColorApp::keyUp( KeyEvent event )
 void PickingByColorApp::resize()
 {
 	// setup the camera
-	CameraPersp cam = mCamera.getCamera();
-	cam.setPerspective( 60.0f, getWindowAspectRatio(), 0.1f, 1000.0f );
-	mCamera.setCurrentCam( cam );
+	mCamera.setPerspective( 60.0f, getWindowAspectRatio(), 0.1f, 1000.0f );
+	mCameraUi.setCamera( &mCamera );
 
 	// create or resize framebuffer if needed
 	const int w = getWindowWidth();
@@ -256,16 +259,15 @@ void PickingByColorApp::resize()
 		//  -one to contain a color coded version of the scene that we can use for picking
 		//fmt.enableColorBuffer( true, 2 );
 		gl::Texture2d::Format tfmt;
-		//tfmt.setInternalFormat( GL_RGBA );
+		tfmt.setInternalFormat( GL_RGBA );
 
 		gl::Texture2dRef tex0 = gl::Texture2d::create( w, h, tfmt );
 		fmt.attachment( GL_COLOR_ATTACHMENT0, tex0 );
 		gl::Texture2dRef tex1 = gl::Texture2d::create( w, h, tfmt );
 		fmt.attachment( GL_COLOR_ATTACHMENT1, tex1 );
 
-		// enable multi-sampling for better quality 
-		//  (if this sample does not work on your computer, try lowering the number of samples to 2 or 0)
-		fmt.setSamples( 16 );
+		// this sample does not work if the fbo uses multi-sampling
+		fmt.setSamples( 0 );
 
 		// create the buffer
 		mFbo = gl::Fbo::create( w, h, fmt );
@@ -281,18 +283,15 @@ void PickingByColorApp::render()
 
 	// specify the camera matrices
 	gl::pushMatrices();
-	gl::setMatrices( mCamera.getCamera() );
+	gl::setMatrices( mCamera );
 
 	// specify render states
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
+	gl::ScopedDepth depth( true, true );
 
 	// draw a grid on the floor
 	drawGrid();
 
 	// draw meshes:
-	gl::color( Color::white() );
-
 	// -bind phong shader, which renders to both our color targets.
 	//  See 'shaders/phong.frag'
 	gl::ScopedGlslProg shader( mPhongShader );
@@ -303,11 +302,11 @@ void PickingByColorApp::render()
 		//  find out which object is under the cursor. 
 		mPhongShader->uniform( "pickingColor", mColorPitcher );
 
-		gl::color( 0.45f, 0.45f, 0.5f );
-		gl::pushModelView();
+		gl::ScopedColor color( 0.45f, 0.45f, 0.5f );
+		gl::pushModelMatrix();
 		gl::translate( 10.0f, 0.0f, 0.0f );
 		mMeshPitcher->draw();
-		gl::popModelView();
+		gl::popModelMatrix();
 	}
 
 	// -draw can
@@ -315,17 +314,14 @@ void PickingByColorApp::render()
 		mPhongShader->uniform( "pickingColor", mColorCan );
 
 		gl::color( 0.40f, 0.60f, 0.50f );
-		gl::pushModelView();
+		gl::pushModelMatrix();
 		gl::translate( -10.0f, 0.0f, 0.0f );
 		mMeshCan->draw();
-		gl::popModelView();
+		gl::popModelMatrix();
 	}
 
 	// restore matrices
 	gl::popMatrices();
-
-	gl::disableDepthRead();
-	gl::disableDepthWrite();
 }
 
 std::string PickingByColorApp::pick( const ivec2 &position )
@@ -339,9 +335,9 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 		return "Error";
 
 	// first, specify a small region around the current cursor position 
-	float scaleX = mFbo->getWidth() / (float) getWindowWidth();
-	float scaleY = mFbo->getHeight() / (float) getWindowHeight();
-	ivec2	pixel( (int) ( position.x * scaleX ), (int) ( ( getWindowHeight() - position.y ) * scaleY ) );
+	float scaleX = mFbo->getWidth() / (float)getWindowWidth();
+	float scaleY = mFbo->getHeight() / (float)getWindowHeight();
+	ivec2	pixel( (int)( position.x * scaleX ), (int)( ( getWindowHeight() - position.y ) * scaleY ) );
 	Area	area( pixel.x - 5, pixel.y - 5, pixel.x + 5, pixel.y + 5 );
 
 	// next, we need to copy this region to a non-anti-aliased framebuffer
@@ -372,15 +368,16 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 	glReadBuffer( GL_COLOR_ATTACHMENT1_EXT );
 	glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
 
-	mFbo->blitTo( *mPickingFbo.get(), area, mPickingFbo->getBounds() );
+	mFbo->blitTo( mPickingFbo, area, mPickingFbo->getBounds() );
 
 	// bind the picking framebuffer, so we can read its pixels
 	mPickingFbo->bindFramebuffer();
 
 	// read pixel value(s) in the area
 	GLubyte buffer[400]; // make sure this is large enough to hold 4 bytes for every pixel!
+
 	glReadBuffer( GL_COLOR_ATTACHMENT0_EXT );
-	glReadPixels( 0, 0, mPickingFbo->getWidth(), mPickingFbo->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, (void*) buffer );
+	glReadPixels( 0, 0, mPickingFbo->getWidth(), mPickingFbo->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, (void*)buffer );
 
 	// unbind the picking framebuffer
 	mPickingFbo->unbindFramebuffer();
@@ -397,9 +394,15 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 		occurences[color]++;
 	}
 
-	// find the most occuring color
+	// find the most occuring color by calling std::max_element using a custom comparator.
 	unsigned int max = 0;
-	std::map<unsigned int, unsigned int>::const_iterator itr = std::max_element( occurences.begin(), occurences.end() );
+
+	auto itr = std::max_element(
+		occurences.begin(), occurences.end(),
+		[]( const std::pair<unsigned int, unsigned int> &a, const std::pair<unsigned int, unsigned int> &b ) {
+		return a.second < b.second;
+	} );
+
 	if( itr != occurences.end() ) {
 		color = itr->first;
 		max = itr->second;
@@ -451,7 +454,7 @@ void PickingByColorApp::loadMesh( const std::string &objFile, const std::string 
 	}
 
 	if( triMesh ) {
-		mesh = gl::Batch::create( triMesh, mPhongShader );
+		mesh = gl::Batch::create( *triMesh, mPhongShader );
 	}
 }
 
@@ -474,4 +477,4 @@ void PickingByColorApp::drawGrid( float size, float step )
 	}
 }
 
-CINDER_APP_BASIC( PickingByColorApp, RendererGl )
+CINDER_APP( PickingByColorApp, RendererGl )

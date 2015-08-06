@@ -21,7 +21,7 @@
  */
 
 #include "cinder/ImageIo.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
@@ -47,9 +47,9 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class PerspectiveWarpingApp : public AppBasic {
+class PerspectiveWarpingApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
 	void setup();
 	void update();
@@ -72,37 +72,37 @@ public:
 	size_t	getNearestIndex( const ivec2 &pt );
 private:
 	//! TRUE if the transform matrix needs to be recalculated
-	bool			mIsInvalid;
+	bool				mIsInvalid;
 
 	//! size in pixels of the actual content
-	float			mWidth;
-	float			mHeight;
+	float				mWidth;
+	float				mHeight;
 
 	//! corners expressed in content coordinates
-	cv::Point2f		mSource[4];
+	cv::Point2f			mSource[4];
 	//! corners expressed in window coordinates
-	cv::Point2f		mDestination[4];
+	cv::Point2f			mDestination[4];
 	//! corners expressed in normalized window coordinates
-	vec2			mDestinationNormalized[4];
+	vec2				mDestinationNormalized[4];
 
 	//! warp transform matrix
-	mat4			mTransform;
+	mat4				mTransform;
 
 	//! content image
-	gl::TextureRef	mImage;
+	gl::Texture2dRef	mImage;
 
 	//! edit variables
-	bool			mIsMouseDown;
+	bool				mIsMouseDown;
 
-	size_t			mSelected;
+	size_t				mSelected;
 
-	ivec2			mInitialMouse;
-	ivec2			mCurrentMouse;
+	ivec2				mInitialMouse;
+	ivec2				mCurrentMouse;
 
-	cv::Point2f		mInitialPosition;
+	cv::Point2f			mInitialPosition;
 };
 
-void PerspectiveWarpingApp::prepareSettings( Settings *settings )
+void PerspectiveWarpingApp::prepare( Settings *settings )
 {
 	settings->setTitle( "Perspective Warping Sample" );
 }
@@ -274,4 +274,4 @@ size_t PerspectiveWarpingApp::getNearestIndex( const ivec2 &pt )
 	return index;
 }
 
-CINDER_APP_BASIC( PerspectiveWarpingApp, RendererGl )
+CINDER_APP( PerspectiveWarpingApp, RendererGl, &PerspectiveWarpingApp::prepare )
