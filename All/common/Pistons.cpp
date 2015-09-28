@@ -166,7 +166,7 @@ void Pistons::update( const ci::Camera& camera, float time )
 
 	std::qsort( &mInstances.front(), mInstances.size(), sizeof( Piston ), &Piston::CompareByDistanceToCamera );
 
-	Piston *ptr = static_cast<Piston*>( mInstanceVbo->mapWriteOnly( true ) );
+	Piston *ptr = static_cast<Piston*>( mInstanceVbo->mapReplace() );
 	for( size_t i = 0; i < mInstances.size(); ++i ) {
 		*ptr++ = mInstances[i];
 	}
