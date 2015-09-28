@@ -21,7 +21,7 @@
  */
 
 #include "nodes/Node.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 
 using namespace ci;
 using namespace ci::app;

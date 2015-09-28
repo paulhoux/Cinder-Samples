@@ -20,7 +20,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
@@ -32,24 +32,25 @@ using namespace ci::app;
 using namespace std;
 using namespace ph::nodes;
 
-class SimpleSceneGraphApp : public AppBasic {
+class SimpleSceneGraphApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
-	void setup();
-	void shutdown();
-	void update();
-	void draw();
+	void setup() override;
+	void cleanup() override;
 
-	void mouseMove( MouseEvent event );
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void mouseUp( MouseEvent event );
+	void update() override;
+	void draw() override;
 
-	void keyDown( KeyEvent event );
-	void keyUp( KeyEvent event );
+	void mouseMove( MouseEvent event ) override;
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
 
-	void resize();
+	void keyDown( KeyEvent event ) override;
+	void keyUp( KeyEvent event ) override;
+
+	void resize() override;
 protected:
 	//! The root node
 	Node2DRef			mRoot;
@@ -57,7 +58,7 @@ protected:
 	NodeRectangleRef	mParent;
 };
 
-void SimpleSceneGraphApp::prepareSettings( Settings *settings )
+void SimpleSceneGraphApp::prepare( Settings *settings )
 {
 	settings->setWindowSize( 800, 600 );
 }
@@ -122,7 +123,7 @@ void SimpleSceneGraphApp::setup()
 	// they are removed from their parent.
 }
 
-void SimpleSceneGraphApp::shutdown()
+void SimpleSceneGraphApp::cleanup()
 {
 }
 
@@ -202,4 +203,4 @@ void SimpleSceneGraphApp::resize()
 	mRoot->treeResize();
 }
 
-CINDER_APP_BASIC( SimpleSceneGraphApp, RendererGl )
+CINDER_APP( SimpleSceneGraphApp, RendererGl, &SimpleSceneGraphApp::prepare )
