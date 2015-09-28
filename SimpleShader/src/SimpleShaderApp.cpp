@@ -20,22 +20,22 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/ImageIo.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/ImageIo.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class SimpleShaderApp : public AppBasic {
+class SimpleShaderApp : public App {
 public:
-	void setup();
-	void update();
-	void draw();
+	void setup() override;
+	void update() override;
+	void draw() override;
 private:
 	gl::TextureRef	mTexture0;
 	gl::TextureRef	mTexture1;
@@ -84,4 +84,4 @@ void SimpleShaderApp::draw()
 	// the shader and the textures will automatically unbind
 }
 
-CINDER_APP_BASIC( SimpleShaderApp, RendererGl )
+CINDER_APP( SimpleShaderApp, RendererGl )
