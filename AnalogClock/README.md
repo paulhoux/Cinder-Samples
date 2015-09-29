@@ -4,9 +4,9 @@ Analog Clock
 ![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/AnalogClock/PREVIEW.png)
 
 This sample is aimed at beginning Cinder users. It will show you how to:
-* use the ```prepareSettings()``` method to setup your window
+* use a static ```prepare( Settings *settings )``` method to setup your window
 * use Cinder's draw commands to draw an analog clock
-* use ```gl::pushModelView()``` and ```gl::popModelView()``` to store and restore transformations
+* use ```gl::pushModelMatrix()``` and ```gl::popModelMatrix()``` to store and restore transformations
 * use ```gl::color()``` to modify the current drawing color
 
 
