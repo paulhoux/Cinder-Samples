@@ -50,7 +50,7 @@
  *
  * The shader has three passes, chained together as follows:
  *
- *                           |input|------------------?
+ *                           |input|------------------·
  *                              v                     |
  *                    [ SMAA*EdgeDetection ]          |
  *                              v                     |
@@ -60,7 +60,7 @@
  *                              v                     |
  *                          |blendTex|                |
  *                              v                     |
- *                [ SMAANeighborhoodBlending ] <------?
+ *                [ SMAANeighborhoodBlending ] <------·
  *                              v
  *                           |output|
  *
@@ -156,7 +156,7 @@
  *         #define SMAA_RT_METRICS float4(1.0 / 1280.0, 1.0 / 720.0, 1280.0, 720.0)
  *         #define SMAA_HLSL_4
  *         #define SMAA_PRESET_HIGH
- *         #include "SMAA.h"
+ *         # include "SMAA.h"
  *
  *     Note that SMAA_RT_METRICS doesn't need to be a macro, it can be a
  *     uniform variable. The code is designed to minimize the impact of not
@@ -556,24 +556,15 @@ SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; Addres
 #define SMAAGather(tex, coord) tex.Gather(LinearSampler, coord, 0)
 #endif
 #endif
-#if defined(SMAA_GLSL) || defined(SMAA_GLSL_3) || defined(SMAA_GLSL_4)
+#if defined(SMAA_GLSL_3) || defined(SMAA_GLSL_4)
 #define SMAATexture2D(tex) sampler2D tex
 #define SMAATexturePass2D(tex) tex
-#if defined(SMAA_GLSL)
-#define SMAASampleLevelZero(tex, coord) texture2DLod(tex, coord, 0.0)
-#define SMAASampleLevelZeroPoint(tex, coord) texture2DLod(tex, coord, 0.0)
-#define SMAASampleLevelZeroOffset(tex, coord, offset) texture2DLod(tex, coord + offset * SMAA_RT_METRICS.xy, 0.0)
-#define SMAASample(tex, coord) texture2D(tex, coord)
-#define SMAASamplePoint(tex, coord) texture2D(tex, coord)
-#define SMAASampleOffset(tex, coord, offset) texture2D(tex, coord + offset * SMAA_RT_METRICS.xy)
-#else
 #define SMAASampleLevelZero(tex, coord) textureLod(tex, coord, 0.0)
 #define SMAASampleLevelZeroPoint(tex, coord) textureLod(tex, coord, 0.0)
 #define SMAASampleLevelZeroOffset(tex, coord, offset) textureLodOffset(tex, coord, 0.0, offset)
 #define SMAASample(tex, coord) texture(tex, coord)
 #define SMAASamplePoint(tex, coord) texture(tex, coord)
 #define SMAASampleOffset(tex, coord, offset) texture(tex, coord, offset)
-#endif
 #define SMAA_FLATTEN
 #define SMAA_BRANCH
 #define lerp(a, b, t) mix(a, b, t)
@@ -595,7 +586,7 @@ SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; Addres
 #define bool4 bvec4
 #endif
 
-#if !defined(SMAA_HLSL_3) && !defined(SMAA_HLSL_4) && !defined(SMAA_HLSL_4_1) && !defined(SMAA_GLSL) && !defined(SMAA_GLSL_3) && !defined(SMAA_GLSL_4) && !defined(SMAA_CUSTOM_SL)
+#if !defined(SMAA_HLSL_3) && !defined(SMAA_HLSL_4) && !defined(SMAA_HLSL_4_1) && !defined(SMAA_GLSL_3) && !defined(SMAA_GLSL_4) && !defined(SMAA_CUSTOM_SL)
 #error you must define the shading language: SMAA_HLSL_*, SMAA_GLSL_* or SMAA_CUSTOM_SL
 #endif
 

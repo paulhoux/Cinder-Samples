@@ -72,7 +72,10 @@
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBCPMT</IgnoreSpecificDefaultLibraries>
-    </Link><PostBuildEvent><Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command></PostBuildEvent>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -101,14 +104,16 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-    </Link><PostBuildEvent><Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command></PostBuildEvent>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\All\common\Pistons.cpp" />
-    <ClCompile Include="..\src\Shader.cpp" />
     <ClCompile Include="..\src\SMAA.cpp" />
     <ClCompile Include="..\src\SMAAApp.cpp" />
   </ItemGroup>
@@ -117,7 +122,6 @@
     <ClInclude Include="..\include\AreaTex.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\include\SearchTex.h" />
-    <ClInclude Include="..\include\Shader.h" />
     <ClInclude Include="..\include\SMAA.h" />
   </ItemGroup>
   <ItemGroup>

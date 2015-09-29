@@ -5,16 +5,19 @@ uniform vec4 SMAA_RT_METRICS; // (1/w, 1/h, w, h)
 
 #define SMAA_PRESET_ULTRA
 #define SMAA_INCLUDE_VS 0
-#define SMAA_GLSL // Custom compatibility profile, not available in original
-#include "SMAA.h"
+#define SMAA_GLSL_3
+#include "SMAA.glsl"
 
 // Additional shader inputs
 uniform sampler2D uColorTex;
 uniform sampler2D uBlendTex;
-varying float4    vOffset;
+
+in vec2 vertTexCoord0;
+in vec4 vertOffset;
+
+out vec4 fragColor;
 
 void main()
 {
-    float2 texCoord = gl_TexCoord[0].st;
-    gl_FragColor = SMAANeighborhoodBlendingPS(texCoord, vOffset, uColorTex, uBlendTex);
+    fragColor = SMAANeighborhoodBlendingPS(vertTexCoord0, vertOffset, uColorTex, uBlendTex);
 }
