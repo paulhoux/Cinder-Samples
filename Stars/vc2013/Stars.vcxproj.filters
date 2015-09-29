@@ -129,16 +129,16 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\shaders\stars_frag.glsl">
+    <None Include="..\assets\shaders\stars.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\shaders\stars_vert.glsl">
+    <None Include="..\assets\shaders\cylindrical.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\shaders\cylindrical_vert.glsl">
+    <None Include="..\assets\shaders\cylindrical.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\assets\shaders\cylindrical_frag.glsl">
+    <None Include="..\assets\shaders\stars.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

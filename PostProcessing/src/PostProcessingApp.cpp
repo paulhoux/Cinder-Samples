@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,10 +18,7 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
-
-#pragma comment(lib, "QTMLClient.lib")
-#pragma comment(lib, "CVClient.lib")
+ */
 
 #include "cinder/Filesystem.h"
 #include "cinder/ImageIo.h"
@@ -29,70 +26,57 @@
 #include "cinder/Surface.h"
 #include "cinder/Utilities.h"
 
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
 
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/qtime/QuickTime.h"
+#include "cinder/gl/draw.h"
+#include "cinder/gl/scoped.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class PostProcessingApp : public AppBasic {
+class PostProcessingApp : public App {
 public:
-	void prepareSettings( Settings *settings );
-	void setup();
-	void update();
-	void draw();
+	static void prepare( Settings *settings );
 
-	void keyDown( KeyEvent event );
-	void fileDrop( FileDropEvent event );
+	void setup() override;
+	void draw() override;
 
-	void play( const fs::path &path );
-	void playNext();
+	void keyDown( KeyEvent event ) override;
+	void fileDrop( FileDropEvent event ) override;
+
 protected:
-	gl::Texture				mImage;
-	gl::GlslProg			mShader;
-	qtime::MovieSurface		mMovie;
+	gl::TextureRef			mImage;
+	gl::GlslProgRef			mShader;
+
 	fs::path				mFile;
 };
 
-void PostProcessingApp::prepareSettings( Settings *settings )
+void PostProcessingApp::prepare( Settings *settings )
 {
-	settings->setWindowSize(1024, 768);
-	settings->setFrameRate(30.0f);
-	settings->setTitle("Post-processing Video Player");
+	settings->setWindowSize( 1024, 768 );
+	settings->disableFrameRate();
+	settings->setTitle( "Post-processing" );
 }
 
 void PostProcessingApp::setup()
 {
 	// load test image
-	try { mImage = gl::Texture( loadImage( loadAsset("test.png") ) ); }
-	catch( const std::exception &e ) { console() << "Could not load image: " << e.what() << std::endl; }
+	try {
+		mImage = gl::Texture::create( loadImage( loadAsset( "test.png" ) ) );
+	}
+	catch( const std::exception &e ) {
+		console() << "Could not load image: " << e.what() << std::endl;
+	}
 
 	// load post-processing shader
 	//  adapted from a shader by Iñigo Quílez ( http://www.iquilezles.org/ )
-	try { mShader = gl::GlslProg( loadAsset("post_process.vert"), loadAsset("post_process.frag") ); }
+	try { mShader = gl::GlslProg::create( loadAsset( "post_process.vert" ), loadAsset( "post_process.frag" ) ); }
 	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; quit(); }
-}
-
-void PostProcessingApp::update()
-{
-	// update movie texture if necessary
-	if(mMovie) { 
-		// get movie surface
-		Surface surf = mMovie.getSurface();
-
-		// copy surface into texture
-		if(surf)
-			mImage = gl::Texture( surf );
-
-		// play next movie in directory when done
-		if( mMovie.isDone() ) 
-			playNext();
-	}
 }
 
 void PostProcessingApp::draw()
@@ -101,20 +85,19 @@ void PostProcessingApp::draw()
 	gl::clear();
 
 	// bind shader and set shader variables
-	mShader.bind();
-	mShader.uniform( "tex0", 0 );
-	mShader.uniform( "time", (float)getElapsedSeconds() );
+	gl::ScopedGlslProg shader( mShader );
+	mShader->uniform( "tex0", 0 );
+	mShader->uniform( "time", (float)getElapsedSeconds() );
 
-	// draw image or video
+	// draw image
+	gl::ScopedTextureBind tex0( mImage );
+
 	gl::color( Color::white() );
-	gl::draw( mImage, getWindowBounds() );
-
-	// unbind shader
-	mShader.unbind();
+	gl::drawSolidRect( getWindowBounds() );
 }
 
 void PostProcessingApp::keyDown( KeyEvent event )
-{	
+{
 	switch( event.getCode() ) {
 		case KeyEvent::KEY_ESCAPE:
 			quit();
@@ -126,68 +109,17 @@ void PostProcessingApp::keyDown( KeyEvent event )
 }
 
 void PostProcessingApp::fileDrop( FileDropEvent event )
-{	
+{
 	// use the last of the dropped files
 	mFile = event.getFile( event.getNumFiles() - 1 );
 
-	try { 
-		// try loading image file
-		mImage = gl::Texture( loadImage( mFile ) );
-	}
-	catch(...) {
-		// otherwise, try loading QuickTime video
-		play( mFile );
-	}	
-}
-
-void PostProcessingApp::play( const fs::path &path ) 
-{
 	try {
-		// try loading QuickTime movie
-		mMovie = qtime::MovieSurface( path );
-		mMovie.play();
+		// try loading image file
+		mImage = gl::Texture::create( loadImage( mFile ) );
 	}
-	catch(...) {}
-
-	// keep track of file
-	mFile = path;
-}
-
-void PostProcessingApp::playNext()
-{
-	// get directory
-	fs::path path = mFile.parent_path();
-
-	// list *.mov files
-	vector<string> files;
-	string filter( ".mov" );
-
-	fs::directory_iterator end_itr;
-	for(fs::directory_iterator itr(path);itr!=end_itr;++itr) {
-		// skip if not a file
-		if( !boost::filesystem::is_regular_file( itr->status() ) ) continue;
-		
-		// skip if no match
-		if( itr->path().filename().string().find( filter ) == string::npos ) continue;
-
-		// file matches, store it
-		files.push_back( itr->path().string() );
-	}
-
-	// check if playable files are found
-	if( files.empty() ) return;
-
-	// play next file
-	vector<string>::iterator itr = find(files.begin(), files.end(), mFile);
-	if( itr == files.end() ) {
-		play( files[0] );
-	}
-	else {
-		++itr;
-		if( itr == files.end() ) 
-			play( files[0] );
-		else play( *itr );
+	catch( const std::exception &e ) {
+		console() << "Could not load image: " << e.what() << std::endl;
 	}
 }
 
-CINDER_APP_BASIC( PostProcessingApp, RendererGl )
+CINDER_APP( PostProcessingApp, RendererGl, &PostProcessingApp::prepare )

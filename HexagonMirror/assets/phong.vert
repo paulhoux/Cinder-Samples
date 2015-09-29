@@ -1,39 +1,51 @@
-#version 120
-#extension GL_EXT_draw_instanced : enable
+#version 150
 
-uniform sampler2D	texture;
-uniform vec2		scale;
+uniform mat4 ciModelView;
+uniform mat4 ciProjectionMatrix;
+uniform mat3 ciNormalMatrix;
 
-attribute mat4		model_matrix;
+uniform sampler2D	uTexture;
+uniform vec2		uScale;
 
-varying vec4		vVertex;
-varying vec3		vNormal;
+in vec4 ciPosition;
+in vec3 ciNormal;
+in vec4 ciColor;
+
+in mat4 iModelMatrix;
+
+out vec4 vertPosition;
+out vec3 vertNormal;
+out vec4 vertColor;
 
 void main()
 {
-	// get the texture coordinate for this instance
-	vec2 st = vec2( 1.0 - model_matrix[3].x * scale.x, 1.0 - model_matrix[3].y * scale.y );
+	// get the uTexture coordinate for this instance
+	vec2 st = vec2( iModelMatrix[3].x * uScale.x, iModelMatrix[3].y * uScale.y );
 
-	// retrieve a single color per hexagon from the texture
-	vec4 clr = texture2D( texture, st );
+	// retrieve a single color per hexagon from the uTexture
+	vec4 clr = texture( uTexture, st );
 
 	// retrieve the luminance and convert it to an angle
 	float luminance = dot( vec3(0.3, 0.59, 0.11), clr.rgb );
 	float angle = acos( luminance );
 
 	// create a rotation matrix, based on the luminance
+	float cosAngle = cos( angle );
+	float sinAngle = sin( angle );
+
 	mat4 m;
-    m[0] = vec4(1.0,        0.0,         0.0, 0.0);
-	m[1] = vec4(0.0, cos(angle), -sin(angle), 0.0);
-	m[2] = vec4(0.0, sin(angle),  cos(angle), 0.0);
-    m[3] = vec4(0.0,        0.0,         0.0, 1.0);
+    m[0] = vec4(1.0,      0.0,       0.0, 0.0);
+	m[1] = vec4(0.0, cosAngle, -sinAngle, 0.0);
+	m[2] = vec4(0.0, sinAngle,  cosAngle, 0.0);
+    m[3] = vec4(0.0,      0.0,       0.0, 1.0);
 
 	// calculate final vertex position in eye space
-	vVertex = gl_ModelViewMatrix * model_matrix * m * gl_Vertex;
+	vertPosition = ciModelView * iModelMatrix * m * ciPosition;
 
 	// do the same for the normal vector (note: this calculation is only correct if your model is uniformly scaled!)
-	vNormal = gl_NormalMatrix * vec3( model_matrix * m * vec4( gl_Normal, 0.0 ) );
+	vertNormal = ciNormalMatrix * vec3( iModelMatrix * m * vec4( ciNormal, 0.0 ) );
+
+	vertColor = ciColor;
 	
-	gl_Position = gl_ProjectionMatrix * vVertex;
-	gl_FrontColor = vec4(1, 1, 1, 1);
+	gl_Position = ciProjectionMatrix * vertPosition;
 }

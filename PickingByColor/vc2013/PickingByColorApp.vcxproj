@@ -69,7 +69,10 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
-    </Link><PostBuildEvent><Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command></PostBuildEvent>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -97,14 +100,17 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
-    </Link><PostBuildEvent><Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command></PostBuildEvent>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\PickingByColorApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\shaders\phong.frag" />
-    <None Include="..\shaders\phong.vert" />
+    <None Include="..\assets\shaders\phong.frag" />
+    <None Include="..\assets\shaders\phong.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

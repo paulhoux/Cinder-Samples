@@ -5,29 +5,32 @@ uniform vec4 SMAA_RT_METRICS; // (1/w, 1/h, w, h)
 
 #define SMAA_PRESET_ULTRA
 #define SMAA_INCLUDE_PS 0
-#define SMAA_GLSL // Custom compatibility profile, not available in original
-#include "SMAA.h"
+#define SMAA_GLSL_3
+#include "SMAA.glsl"
 
-// Shader outputs
-varying float2 vPixcoord;
-varying float4 vOffset[3];
+uniform mat4 ciModelViewProjection;
+
+in vec4 ciPosition;
+in vec2 ciTexCoord0;
+
+out vec2 vertTexCoord0;
+out vec2 vertPixcoord;
+out vec4 vertOffset[3];
 
 void main()
 {
-	float2 texCoord = gl_MultiTexCoord0.st;
-
 	// Somehow calling "SMAABlendingWeightCalculationVS(texCoord, vPixcoord, vOffset);" did not work :(
-	vPixcoord = texCoord * SMAA_RT_METRICS.zw;
+	vertPixcoord = ciTexCoord0 * SMAA_RT_METRICS.zw;
 
 	// We will use these offsets for the searches later on (see @PSEUDO_GATHER4):
-	vOffset[0] = mad(SMAA_RT_METRICS.xyxy, float4(-0.25, -0.125,  1.25, -0.125), texCoord.xyxy);
-	vOffset[1] = mad(SMAA_RT_METRICS.xyxy, float4(-0.125, -0.25, -0.125,  1.25), texCoord.xyxy);
+	vertOffset[0] = mad(SMAA_RT_METRICS.xyxy, vec4(-0.25, -0.125,  1.25, -0.125), ciTexCoord0.xyxy);
+	vertOffset[1] = mad(SMAA_RT_METRICS.xyxy, vec4(-0.125, -0.25, -0.125,  1.25), ciTexCoord0.xyxy);
 
 	// And these for the searches, they indicate the ends of the loops:
-	vOffset[2] = mad(SMAA_RT_METRICS.xxyy,
-					float4(-2.0, 2.0, -2.0, 2.0) * float(SMAA_MAX_SEARCH_STEPS),
-					float4(vOffset[0].xz, vOffset[1].yw));
+	vertOffset[2] = mad(SMAA_RT_METRICS.xxyy,
+					vec4(-2.0, 2.0, -2.0, 2.0) * float(SMAA_MAX_SEARCH_STEPS),
+					vec4(vertOffset[0].xz, vertOffset[1].yw));
 
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_Position = ftransform();
+	vertTexCoord0 = ciTexCoord0;
+	gl_Position = ciModelViewProjection * ciPosition;
 }

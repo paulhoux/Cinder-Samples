@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -28,43 +28,51 @@
 #include "cinder/gl/Vbo.h"
 #include "text/Text.h"
 
-namespace ph { namespace text {
+namespace ph {
+namespace text {
 
 class TextBox
-	: public ph::text::Text
-{
+	: public ph::text::Text {
 public:
-	TextBox(void)
-		: mSize( ci::Vec2f::zero() ) {};
-	TextBox(float width, float height) 
-		: mSize( ci::Vec2f(width, height) ) {};
-	TextBox(const ci::Vec2f &size) 
-		: mSize(size) {};
-	virtual ~TextBox(void) {};
+	TextBox( void )
+		: mSize( ci::vec2( 0 ) )
+	{
+	};
+	TextBox( float width, float height )
+		: mSize( ci::vec2( width, height ) )
+	{
+	};
+	TextBox( const ci::vec2 &size )
+		: mSize( size )
+	{
+	};
+	virtual ~TextBox( void ) {};
 
 	//!
-	void		drawBounds( const ci::Vec2f &offset = ci::Vec2f::zero() );
+	void		drawBounds( const ci::vec2 &offset = ci::vec2( 0 ) );
 
 	//!
-	ci::Vec2f	getSize() const { return mSize; }
+	ci::vec2	getSize() const { return mSize; }
 	//!
-	void		setSize(float width, float height) { mSize = ci::Vec2f(width, height); mInvalid = true; mBoundsInvalid = true; }
-	void		setSize(const ci::Vec2f &size) { mSize = size; mInvalid = true; mBoundsInvalid = true; }
+	void		setSize( float width, float height ) { mSize = ci::vec2( width, height ); mInvalid = true; mBoundsInvalid = true; }
+	void		setSize( const ci::vec2 &size ) { mSize = size; mInvalid = true; mBoundsInvalid = true; }
 protected:
 	//! get the maximum width of the text at the specified vertical position
-	virtual float getWidthAt(float y) { return mSize.x; }
+	virtual float getWidthAt( float y ) { return mSize.x; }
 	//! get the maximum height of the text
 	virtual float	getHeight() { return mSize.y; }
 	//! function to move the cursor to the next line
-	virtual	bool	newLine( ci::Vec2f *cursor ) {
-		cursor->x = 0.0f; 
-		cursor->y += std::floorf(getLeading() + 0.5f); 
+	virtual	bool	newLine( ci::vec2 *cursor )
+	{
+		cursor->x = 0.0f;
+		cursor->y += std::floorf( getLeading() + 0.5f );
 
 		float h = getHeight();
-		return (h == 0.0f || cursor->y < h); 
+		return ( h == 0.0f || cursor->y < h );
 	}
 protected:
-	ci::Vec2f		mSize;
+	ci::vec2		mSize;
 };
 
-} } // namespace ph::text
+}
+} // namespace ph::text

@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -20,7 +20,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cinder/app/AppNative.h"
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/Camera.h"
@@ -33,18 +34,17 @@ using namespace ci::app;
 using namespace std;
 
 // Our application
-class OneWorldMultipleWindowsApp : public AppNative {
+class OneWorldMultipleWindowsApp : public App {
 public:
-	void setup();	
+	void setup();
 	void update();
 	void draw();
 
 	void keyDown( KeyEvent event );
 private:
 	CameraPersp         mCamera;
-	gl::GlslProg        mShader;        
-	Pistons				mPistons;
-	double              mTime;   
+	Pistons             mPistons;
+	double              mTime;
 };
 
 void OneWorldMultipleWindowsApp::setup()
@@ -62,17 +62,16 @@ void OneWorldMultipleWindowsApp::update()
 	// Animate our camera
 	double t = mTime / 10.0;
 
-	float phi = (float) t;
-	float theta = 3.14159265f * (0.25f + 0.2f * math<float>::sin(phi * 0.9f));
-	float x = 150.0f * math<float>::cos(phi) * math<float>::cos(theta);
-	float y = 150.0f * math<float>::sin(theta);
-	float z = 150.0f * math<float>::sin(phi) * math<float>::cos(theta);
+	float phi = (float)t;
+	float theta = 3.14159265f * ( 0.25f + 0.2f * math<float>::sin( phi * 0.9f ) );
+	float x = 150.0f * math<float>::cos( phi ) * math<float>::cos( theta );
+	float y = 150.0f * math<float>::sin( theta );
+	float z = 150.0f * math<float>::sin( phi ) * math<float>::cos( theta );
 
-	mCamera.setEyePoint( Vec3f(x, y, z) );
-	mCamera.setCenterOfInterestPoint( Vec3f(1, 50, 0) );
+	mCamera.lookAt( vec3( x, y, z ), vec3( 1, 50, 0 ) );
 
 	// Animate our pistons
-	mPistons.update(mCamera);
+	mPistons.update( mCamera, (float)mTime );
 }
 
 void OneWorldMultipleWindowsApp::draw()
@@ -80,18 +79,18 @@ void OneWorldMultipleWindowsApp::draw()
 	// Note: this function is called once per frame for EACH WINDOW
 
 	// We are going to use the whole display to render our scene.
-	Vec2f displaySize( getDisplay()->getSize() );
-	Vec2f displayCenter = displaySize * 0.5f;
+	vec2 displaySize( getDisplay()->getSize() );
+	vec2 displayCenter = displaySize * 0.5f;
 
 	// Each window will be literally a window into our scene. This is made easy
 	// by the lens shift functions of the camera. We also need to set the correct
 	// vertical field of view and of course the aspect ratio of each window.
-	Vec2f windowPos( getWindow()->getPos() );
-	Vec2f windowSize( getWindow()->getSize() );
-	Vec2f windowCenter = windowPos + windowSize * 0.5f;
+	vec2 windowPos( getWindow()->getPos() );
+	vec2 windowSize( getWindow()->getSize() );
+	vec2 windowCenter = windowPos + windowSize * 0.5f;
 
-	float lensShiftX = 2.0f * (windowCenter.x - displayCenter.x) / windowSize.x;
-	float lensShiftY = 2.0f * (displayCenter.y - windowCenter.y) / windowSize.y;
+	float lensShiftX = 2.0f * ( windowCenter.x - displayCenter.x ) / windowSize.x;
+	float lensShiftY = 2.0f * ( displayCenter.y - windowCenter.y ) / windowSize.y;
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 	mCamera.setFov( 60.0f * windowSize.y / displaySize.y );
 	mCamera.setLensShift( lensShiftX, lensShiftY );
@@ -101,24 +100,23 @@ void OneWorldMultipleWindowsApp::draw()
 	// This is beyond the scope of the sample. See the FrustumCulling sample
 	// for more information.
 
-	gl::clear(); 
+	gl::clear();
 
-	mPistons.draw(mCamera, (float)mTime);
+	mPistons.draw( mCamera );
 }
 
 void OneWorldMultipleWindowsApp::keyDown( KeyEvent event )
 {
-	switch( event.getCode() )
-	{
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
-	default:
-		// Create a new window
-		app::WindowRef newWindow = createWindow( Window::Format().size( 400, 300 ) );
-		newWindow->setTitle("OneWorldMultipleWindowsApp");
-		break;
+	switch( event.getCode() ) {
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
+		default:
+			// Create a new window
+			app::WindowRef newWindow = createWindow( Window::Format().size( 400, 300 ) );
+			newWindow->setTitle( "OneWorldMultipleWindowsApp" );
+			break;
 	}
 }
 
-CINDER_APP_NATIVE( OneWorldMultipleWindowsApp, RendererGl( RendererGl::AA_MSAA_4 ) )
+CINDER_APP( OneWorldMultipleWindowsApp, RendererGl( RendererGl::Options().msaa( 16 ) ) )

@@ -22,7 +22,7 @@
 
 #include "Pistons.h"
 
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Camera.h"
 #include "cinder/Rand.h"
@@ -34,113 +34,155 @@ Piston::Piston()
 	: mOffset( 0.0f )
 	, mColor( 1.0f, 1.0f, 1.0f )
 	, mPosition( 0.0f, 0.0f, 0.0f )
-{}
-
-Piston::Piston(float x, float z)
-	: mOffset( ci::Rand::randFloat(0.0f, 10.0f) )
-	, mColor(  ci::CM_HSV,  ci::Rand::randFloat(0.0f, 0.1f),  ci::Rand::randFloat(0.0f, 1.0f),  ci::Rand::randFloat(0.25f, 1.0f) )
-	, mPosition(  ci::Vec3f(x, 0.0f, z) )
-{}
-
-void Piston::update(const ci::Camera& camera)
 {
-	mDistance = mPosition.distanceSquared(camera.getEyePoint());
 }
 
-void Piston::draw(float time)
+Piston::Piston( float x, float z )
+	: mOffset( ci::Rand::randFloat( 0.0f, 10.0f ) )
+	, mColor( ci::Color( ci::CM_HSV, ci::Rand::randFloat( 0.0f, 0.1f ), ci::Rand::randFloat( 0.0f, 1.0f ), ci::Rand::randFloat( 0.25f, 1.0f ) ) )
+	, mPosition( ci::vec3( x, 0.0f, z ) )
+{
+}
+
+void Piston::update( const ci::Camera& camera, float time )
 {
 	float t = mOffset + time;
-	float height = 55.0f + 45.0f *  ci::math<float>::sin(t);
+	float height = 55.0f + 45.0f *  ci::math<float>::sin( t );
 	mPosition.y = 0.5f * height;
 
-	gl::color( mColor );
-	gl::drawCube( mPosition,  ci::Vec3f(10.0f, height, 10.0f) );
+	mDistance = glm::distance2( mPosition, camera.getEyePoint() );
+}
+
+void Piston::draw( float time )
+{
+	//float t = mOffset + time;
+	//float height = 55.0f + 45.0f *  ci::math<float>::sin( t );
+	//mPosition.y = 0.5f * height;
+
+	//gl::color( mColor );
+	//gl::drawCube( mPosition, ci::vec3( 10.0f, height, 10.0f ) );
 }
 
 /////////////////////////////////////
 
-const char* Pistons::vs = 
-		"varying vec3 V;"
-		"varying vec3 N;"
-
-		"void main()"
-		"{"
-		"	V = vec3(gl_ModelViewMatrix * gl_Vertex);"
-		"	N = normalize(gl_NormalMatrix * gl_Normal);"
-		"	gl_TexCoord[0] = gl_MultiTexCoord0;"
-		"	gl_Position = ftransform();"
-		"	gl_FrontColor = gl_Color;"
-		"}";
+const char* Pistons::vs =
+"#version 150\n"
+""
+"uniform mat4 ciModelView;\n"
+"uniform mat4 ciModelViewProjection;\n"
+"uniform mat3 ciNormalMatrix;\n"
+""
+"in vec4 ciPosition;\n"
+"in vec3 ciNormal;\n"
+"in vec2 ciTexCoord0;\n"
+"in vec4 ciColor;\n"
+""
+"in vec4 iPosition;\n" // xyz = position, w = distance
+"in vec4 iColor;\n"    // xyz = color, w = offset
+""
+"out vec4 vertPosition;\n"
+"out vec3 vertNormal;\n"
+"out vec2 vertTexCoord0;\n"
+"out vec3 vertColor;\n"
+""
+"void main()\n"
+"{\n"
+"	vec4 scale = vec4( 10, 2.0 * iPosition.y, 10, 1 );\n"
+"	vec4 position = ciPosition * scale + vec4( iPosition.xyz, 0.0 );\n"
+""
+"	vertPosition = ciModelView * position;\n"
+"	vertNormal = ciNormalMatrix * ciNormal;\n"
+"	vertTexCoord0 = ciTexCoord0;\n"
+"	vertColor = iColor.rgb;\n"
+""
+"	gl_Position = ciModelViewProjection * position;\n"
+"}";
 
 const char* Pistons::fs =
-		"varying vec3 V;"
-		"varying vec3 N;"
+"#version 150\n"
+""
+"in vec4 vertPosition;\n"
+"in vec3 vertNormal;\n"
+"in vec2 vertTexCoord0;\n"
+"in vec3 vertColor;\n"
+""
+"out vec4 fragColor;\n"
+""
+"void main()\n"
+"{\n"
+"	vec2 uv = vertTexCoord0;\n"
+""
+"	vec3 N = normalize(vertNormal);\n"
+"	vec3 L = normalize(-vertPosition.xyz);\n"
+"	vec3 E = normalize(-vertPosition.xyz);\n"
+"	vec3 R = normalize(-reflect(L,N));\n"
 
-		"void main()"
-		"{"
-		"	vec2 uv = gl_TexCoord[0].st;"
-		"	vec3 L = normalize(-V);"
-		"	vec3 E = normalize(-V);"
-		"	vec3 R = normalize(-reflect(L,N));"
+// diffuse term with fake ambient occlusion
+"	float occlusion = 0.5 + 0.5*16.0*uv.x*uv.y*(1.0-uv.x)*(1.0-uv.y);\n"
+"	vec3 diffuse = vertColor * occlusion;\n"
+"	diffuse *= max(dot(N,L), 0.0);\n"
 
-			// diffuse term with fake ambient occlusion
-		"	float occlusion = 0.5 + 0.5*16.0*uv.x*uv.y*(1.0-uv.x)*(1.0-uv.y);"
-		"	vec4 diffuse = gl_Color * occlusion;"
-		"	diffuse *= max(dot(N,L), 0.0);"
+// specular term
+"	vec3 specular = vertColor;\n"
+"	specular *= pow(max(dot(R,E),0.0), 50.0);\n"
 
-			// specular term
-		"	vec4 specular = gl_Color;"
-		"	specular *= pow(max(dot(R,E),0.0), 50.0);"
+// write gamma corrected final color
+"	vec3 final = sqrt(diffuse + specular);\n"
+"	fragColor.rgb = final;\n"
 
-			// write gamma corrected final color
-		"	vec3 final = sqrt(diffuse + specular).rgb;"
-		"	gl_FragColor.rgb = final;"
-
-			// write luminance in alpha channel (required for FXAA)
-		"	const vec3 luminance = vec3(0.299, 0.587, 0.114);"
-		"	gl_FragColor.a = dot( final, luminance );"
-		"}";
+// write luminance in alpha channel (required for FXAA)
+"	const vec3 luminance = vec3(0.299, 0.587, 0.114);\n"
+"	fragColor.a = dot( final, luminance );\n"
+"}";
 
 void Pistons::setup()
 {
-	mPistons.clear();
+	mInstances.clear();
 
-	for(int x=-50; x<=50; x+=10)
-		for(int z=-50; z<=50; z+=10)
-			mPistons.push_back( Piston( float(x), float(z) ) );
+	for( int x = -50; x <= 50; x += 10 )
+		for( int z = -50; z <= 50; z += 10 )
+			mInstances.emplace_back( Piston( float( x ), float( z ) ) );
 
 	// Load and compile our shaders and textures
-	try { 
-		mShader = gl::GlslProg( vs, fs );
+	try {
+		geom::BufferLayout instanceDataLayout;
+		instanceDataLayout.append( geom::Attrib::CUSTOM_0, 4, sizeof( Piston ), offsetof( Piston, mPosition ), 1 /* per instance */ );
+		instanceDataLayout.append( geom::Attrib::CUSTOM_1, 4, sizeof( Piston ), offsetof( Piston, mColor ), 1 /* per instance */ );
+
+		mInstanceVbo = gl::Vbo::create( GL_ARRAY_BUFFER, mInstances.size() * sizeof( Piston ), mInstances.data(), GL_DYNAMIC_DRAW );
+		auto glsl = gl::GlslProg::create( vs, fs );
+		auto mesh = gl::VboMesh::create( geom::Cube() );
+		mesh->appendVbo( instanceDataLayout, mInstanceVbo );
+
+		mBatch = gl::Batch::create( mesh, glsl, { { geom::Attrib::CUSTOM_0, "iPosition" },{ geom::Attrib::CUSTOM_1, "iColor" } } );
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; }
 }
 
-void Pistons::update(const ci::Camera& camera)
+void Pistons::update( const ci::Camera& camera, float time )
 {
-	for(auto &piston : mPistons)
-		piston.update(camera);
+	for( auto &instance : mInstances )
+		instance.update( camera, time );
 
-	std::qsort( &mPistons.front(), mPistons.size(), sizeof(Piston), &Piston::CompareByDistanceToCamera );
+	std::qsort( &mInstances.front(), mInstances.size(), sizeof( Piston ), &Piston::CompareByDistanceToCamera );
+
+	Piston *ptr = static_cast<Piston*>( mInstanceVbo->mapReplace() );
+	for( size_t i = 0; i < mInstances.size(); ++i ) {
+		*ptr++ = mInstances[i];
+	}
+	mInstanceVbo->unmap();
 }
 
-void Pistons::draw(const ci::Camera& camera, float time)
+void Pistons::draw( const ci::Camera& camera )
 {
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
-	{
-		gl::pushMatrices();
-		gl::setMatrices(camera);
-		{
-			mShader.bind();
-			{
-				for(auto &piston : mPistons)
-					piston.draw(time);
-			}
-			mShader.unbind();
-		}
-		gl::popMatrices();
-	}
-	gl::disableDepthWrite();
-	gl::disableDepthRead();
+	gl::ScopedDepth depth( true, true );
+	gl::ScopedFaceCulling cull( true, GL_BACK );
+	gl::ScopedColor color( Color::white() );
+
+	gl::pushMatrices();
+	gl::setMatrices( camera );
+
+	mBatch->drawInstanced( mInstances.size() );
+
+	gl::popMatrices();
 }

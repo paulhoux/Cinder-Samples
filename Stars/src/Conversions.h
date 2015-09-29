@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -27,27 +27,27 @@
 #include "cinder/DataTarget.h"
 #include "cinder/Utilities.h"
 
-class Conversions
-{
+class Conversions {
 public:
 	//! converts a hexadecimal color (0xRRGGBB) to a Color
-	static ci::Color toColor(uint32_t hex);
+	static ci::Color toColor( uint32_t hex );
 	//! converts a hexadecimal color (0xAARRGGBB) to a ColorA
-	static ci::ColorA toColorA(uint32_t hex);
+	static ci::ColorA toColorA( uint32_t hex );
 	//! converts a string to an integer
-	static int toInt(const std::string &str);
+	static int toInt( const std::string &str );
 	//! converts a string to a float
-	static float toFloat(const std::string &str);
+	static float toFloat( const std::string &str );
 	//! converts a string to a double
-	static double toDouble(const std::string &str);
+	static double toDouble( const std::string &str );
 	//!
-	template<typename T> 
-	static T wrap(T value, T min, T max) {
-		T range = (max - min);
-		T frac = ((value - min) / range);
-		frac -= ci::math<T>::floor(frac);
+	template<typename T>
+	static T wrap( T value, T min, T max )
+	{
+		T range = ( max - min );
+		T frac = ( ( value - min ) / range );
+		frac -= ci::math<T>::floor( frac );
 
-		return min + (frac * range);
+		return min + ( frac * range );
 	};
 
 	//! merges a "Cartes du Ciel" file (StarNames.txt) with the HYG database CSV

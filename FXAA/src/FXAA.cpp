@@ -20,7 +20,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 
 #include "FXAA.h"
 
@@ -39,28 +39,25 @@ void FXAA::setup()
 	}
 }
 
-void FXAA::apply(ci::gl::Fbo& destination, ci::gl::Fbo& source)
+void FXAA::apply( ci::gl::FboRef &destination, ci::gl::FboRef &source )
 {
 	if( !mFXAA )
 		return;
 
 	// Source and destination should have the same size
-	assert(destination.getWidth() == source.getWidth());
-	assert(destination.getHeight() == source.getHeight());
+	assert( destination->getWidth() == source->getWidth() );
+	assert( destination->getHeight() == source->getHeight() );
 
 	// Apply FXAA
-	destination.bindFramebuffer();
+	gl::ScopedFramebuffer fbo( destination );
+	gl::ScopedTextureBind tex0( source->getColorTexture() );
 
-	mFXAA->bind();
-	mFXAA->uniform("uTexture", 0);
-	mFXAA->uniform("uRcpBufferSize", Vec2f::one() / Vec2f( destination.getSize() ));
-	{
-		gl::clear();
-		gl::color( Color::white() );
+	gl::ScopedGlslProg shader( mFXAA );
+	mFXAA->uniform( "uTexture", 0 );
+	mFXAA->uniform( "uRcpBufferSize", vec2( 1 ) / vec2( destination->getSize() ) );
 
-		gl::draw( source.getTexture(), destination.getBounds() );
-	}
-	mFXAA->unbind();
-	
-	destination.unbindFramebuffer();
+	gl::clear();
+	gl::ScopedColor color( Color::white() );
+
+	gl::drawSolidRect( destination->getBounds() );
 }

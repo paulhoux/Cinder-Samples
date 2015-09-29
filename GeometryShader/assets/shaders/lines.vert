@@ -1,11 +1,16 @@
-// ------------------ Vertex Shader --------------------------------
-#version 120
-#extension GL_EXT_gpu_shader4 : enable
+#version 150
+
+uniform mat4 ciModelViewProjection;
+
+in vec4 ciPosition;
+in vec3 ciColor;
+
+out VertexData{
+	vec3 mColor;
+} VertexOut;
 
 void main(void)
 {
-	gl_FrontColor = gl_Color;
-	gl_BackColor = gl_Color;
-
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	VertexOut.mColor = ciColor;
+	gl_Position = ciModelViewProjection * ciPosition;
 }

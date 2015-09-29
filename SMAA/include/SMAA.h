@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -28,30 +28,32 @@
 
 #include "Shader.h"
 
-class SMAA
-{
+class SMAA {
 public:
 	SMAA() {}
 	~SMAA() {}
 
 	void setup();
-	void apply(ci::gl::Fbo& destination, ci::gl::Fbo& source);
+	void apply( const ci::gl::FboRef& destination, const ci::gl::FboRef& source );
 
-	ci::gl::Texture& getEdgePass();
-	ci::gl::Texture& getBlendPass();
+	const ci::gl::Texture2dRef getAreaTex() const { return mAreaTex; }
+	const ci::gl::Texture2dRef getSearchTex() const { return mSearchTex; }
+
+	ci::gl::Texture2dRef getEdgePass() { return mFboEdgePass->getColorTexture(); }
+	ci::gl::Texture2dRef getBlendPass() { return mFboBlendPass->getColorTexture(); }
+
 private:
-	void doEdgePass(ci::gl::Fbo& source);
+	void doEdgePass( const ci::gl::FboRef& source );
 	void doBlendPass();
+
 private:
-	ci::gl::Fbo         mFboEdgePass;
-	ci::gl::Fbo         mFboBlendPass;
+	ci::gl::FboRef        mFboEdgePass;
+	ci::gl::FboRef        mFboBlendPass;
 
-	// The Shader class allows us to write and use shaders with support for #include
-	ShaderRef           mSMAAFirstPass;		// edge detection
-	ShaderRef           mSMAASecondPass;	// blending weight calculation
-	ShaderRef           mSMAAThirdPass;		// neighborhood blending
+	ci::gl::GlslProgRef   mSMAAFirstPass;	// edge detection
+	ci::gl::GlslProgRef   mSMAASecondPass;	// blending weight calculation
+	ci::gl::GlslProgRef   mSMAAThirdPass;	// neighborhood blending
 
-	//
-	ci::gl::TextureRef  mAreaTex;
-	ci::gl::TextureRef  mSearchTex;
+	ci::gl::Texture2dRef  mAreaTex;
+	ci::gl::Texture2dRef  mSearchTex;
 };

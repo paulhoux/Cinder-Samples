@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -25,37 +25,36 @@
 #include "cinder/DataSource.h"
 #include "cinder/DataTarget.h"
 #include "cinder/Utilities.h"
-
+#include "cinder/gl/Batch.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/gl/Vbo.h"
+#include "cinder/gl/VboMesh.h"
 
-class Stars
-{
+class Stars {
 public:
 	// the Star class will later be used to read/write binary star data files
-	class	Star
-	{
+	class	Star {
 	public:
-		Star(void)
-			: mDistance(0.0f), mMagnitude(0.0f), mColor( ci::Color::white() )
+		Star( void )
+			: mDistance( 0.0f ), mMagnitude( 0.0f ), mColor( ci::Color::white() )
 		{
-			setPosition(0.0f, 0.0f);
+			setPosition( 0.0f, 0.0f );
 		}
 
 		Star( float ra, float dec, float parsecs, float magnitude, const ci::Color &color )
-			: mDistance(parsecs), mMagnitude(magnitude), mColor(color) 
+			: mDistance( parsecs ), mMagnitude( magnitude ), mColor( color )
 		{
-			setPosition(ra, dec);
+			setPosition( ra, dec );
 		}
 
-		ci::Vec3f	getPosition() { return mDistance * mPosition; }
-		void		setPosition( float ra, float dec ) {
-						// convert to world (universe) coordinates
-						float alpha = ci::toRadians( ra * 15.0f );
-						float delta = ci::toRadians( dec );
-						mPosition = ci::Vec3f( sinf(alpha) * cosf(delta), sinf(delta), cosf(alpha) * cosf(delta) );
-					}
+		ci::vec3	getPosition() { return mDistance * mPosition; }
+		void		setPosition( float ra, float dec )
+		{
+			// convert to world (universe) coordinates
+			float alpha = ci::toRadians( ra * 15.0f );
+			float delta = ci::toRadians( dec );
+			mPosition = ci::vec3( sinf( alpha ) * cosf( delta ), sinf( delta ), cosf( alpha ) * cosf( delta ) );
+		}
 
 		float		getDistance() { return mDistance; }
 		void		setDistance( float parsecs ) { mDistance = parsecs; }
@@ -66,20 +65,20 @@ public:
 		float		getMagnitude() { return mMagnitude; }
 		void		setMagnitude( float magnitude ) { mMagnitude = magnitude; }
 	private:
-		ci::Vec3f	mPosition;
+		ci::vec3	mPosition;
 		float		mDistance;
 		float		mMagnitude;
 		ci::Color	mColor;
 	};
 
 public:
-	Stars(void);
-	~Stars(void);
+	Stars( void );
+	~Stars( void );
 
 	void	setup();
 	void	draw();
 
-	void	resize( const ci::Vec2i& size );
+	void	resize( const ci::ivec2& size );
 
 	void	clear();
 
@@ -100,15 +99,16 @@ public:
 private:
 	void	createMesh();
 private:
-	ci::gl::GlslProg	mShader;
-	ci::gl::Texture		mTextureStar;
-	ci::gl::Texture		mTextureCorona;
-	ci::gl::VboMesh		mVboMesh;
+	ci::gl::Texture2dRef      mTextureStar;
+	ci::gl::Texture2dRef      mTextureCorona;
+	ci::gl::GlslProgRef       mShader;
+	ci::gl::VboMeshRef        mVboMesh;
+	ci::gl::BatchRef          mBatch;
 
-	std::vector< ci::Vec3f > mVertices;
-	std::vector< ci::Vec2f > mTexcoords;
-	std::vector< ci::Color > mColors;
+	std::vector< ci::vec3 >   mVertices;
+	std::vector< ci::vec2 >   mTexcoords;
+	std::vector< ci::Color >  mColors;
 
-	float				mAspectRatio;
-	float				mScale;
+	float                     mAspectRatio;
+	float                     mScale;
 };

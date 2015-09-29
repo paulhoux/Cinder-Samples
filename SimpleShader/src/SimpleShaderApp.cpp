@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -18,39 +18,40 @@
  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
-#include "cinder/ImageIo.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/ImageIo.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class SimpleShaderApp : public AppBasic {
+class SimpleShaderApp : public App {
 public:
-	void setup();	
-	void update();
-	void draw();
+	void setup() override;
+	void update() override;
+	void draw() override;
 private:
-	gl::Texture		mTexture0;
-	gl::Texture		mTexture1;
+	gl::TextureRef	mTexture0;
+	gl::TextureRef	mTexture1;
 
-	gl::GlslProg	mShader;
+	gl::GlslProgRef	mShader;
 };
 
 void SimpleShaderApp::setup()
 {
 	try {
 		// load the two textures
-		mTexture0 = gl::Texture( loadImage( loadAsset("bottom.jpg") ) );
-		mTexture1 = gl::Texture( loadImage( loadAsset("top.jpg") ) );
-	
+		mTexture0 = gl::Texture::create( loadImage( loadAsset( "bottom.jpg" ) ) );
+		mTexture1 = gl::Texture::create( loadImage( loadAsset( "top.jpg" ) ) );
+
 		// load and compile the shader
-		mShader = gl::GlslProg( loadAsset("shader.vert"), loadAsset("shader.frag") );
+		mShader = gl::GlslProg::create( loadAsset( "shader.vert" ), loadAsset( "shader.frag" ) );
 	}
 	catch( const std::exception &e ) {
 		// if anything went wrong, show it in the output window
@@ -63,30 +64,24 @@ void SimpleShaderApp::update()
 }
 
 void SimpleShaderApp::draw()
-{	
+{
 	// clear the window
 	gl::clear();
 
 	// bind the shader and tell it which texture units to use (see: shader.frag)
-	mShader.bind();
-	mShader.uniform("tex0", 0);	
-	mShader.uniform("tex1", 1);
+	gl::ScopedGlslProg shader( mShader );
+	mShader->uniform( "tex0", 0 );
+	mShader->uniform( "tex1", 1 );
 
-	// enable the use of textures
-	gl::enable( GL_TEXTURE_2D );
-
-	// bind them
-	mTexture0.bind(0);
-	mTexture1.bind(1);
+	// bind the textures
+	gl::ScopedTextureBind tex0( mTexture0, (uint8_t) 0 );
+	gl::ScopedTextureBind tex1( mTexture1, (uint8_t) 1 );
 
 	// now run the shader for every pixel in the window
 	// by drawing a full screen rectangle
-	gl::drawSolidRect( Rectf( getWindowBounds() ), false );
+	gl::drawSolidRect( getWindowBounds() );
 
-	// unbind textures and shader
-	mTexture1.unbind();
-	mTexture0.unbind();
-	mShader.unbind();
+	// the shader and the textures will automatically unbind
 }
 
-CINDER_APP_BASIC( SimpleShaderApp, RendererGl )
+CINDER_APP( SimpleShaderApp, RendererGl )

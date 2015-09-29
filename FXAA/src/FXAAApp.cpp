@@ -20,7 +20,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cinder/app/AppNative.h"
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
@@ -37,13 +38,13 @@ using namespace ci::app;
 using namespace std;
 
 // Our application class
-class FXAAApp : public AppNative {
+class FXAAApp : public App {
 public:
 	void setup();
 	void update();
 	void draw();
 
-	void mouseDrag( MouseEvent event );	
+	void mouseDrag( MouseEvent event );
 
 	void keyDown( KeyEvent event );
 
@@ -53,10 +54,10 @@ private:
 private:
 	CameraPersp         mCamera;
 
-	gl::Fbo             mFboOriginal;
-	gl::Fbo             mFboResult;
+	gl::FboRef          mFboOriginal;
+	gl::FboRef          mFboResult;
 
-	gl::TextureRef      mArrow;
+	gl::Texture2dRef    mArrow;
 
 	Pistons             mPistons;
 	FXAA                mFXAA;
@@ -74,12 +75,12 @@ void FXAAApp::setup()
 	disableFrameRate();
 
 	// Set a proper title for our window
-	getWindow()->setTitle("FXAA");
+	getWindow()->setTitle( "FXAA" );
 
 	// Load and compile our shaders and textures
-	try { 
+	try {
 		mFXAA.setup();
-		mArrow = gl::Texture::create( loadImage( loadAsset("arrow.png") ) );
+		mArrow = gl::Texture::create( loadImage( loadAsset( "arrow.png" ) ) );
 	}
 	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
 
@@ -100,28 +101,27 @@ void FXAAApp::update()
 	// Animate our camera
 	double t = mTime / 10.0;
 
-	float phi = (float) t;
-	float theta = 3.14159265f * (0.25f + 0.2f * math<float>::sin(phi * 0.9f));
-	float x = 150.0f * math<float>::cos(phi) * math<float>::cos(theta);
-	float y = 150.0f * math<float>::sin(theta);
-	float z = 150.0f * math<float>::sin(phi) * math<float>::cos(theta);
+	float phi = (float)t;
+	float theta = 3.14159265f * ( 0.25f + 0.2f * math<float>::sin( phi * 0.9f ) );
+	float x = 150.0f * math<float>::cos( phi ) * math<float>::cos( theta );
+	float y = 150.0f * math<float>::sin( theta );
+	float z = 150.0f * math<float>::sin( phi ) * math<float>::cos( theta );
 
-	mCamera.setEyePoint( Vec3f(x, y, z) );
-	mCamera.setCenterOfInterestPoint( Vec3f(1, 50, 0) );
+	mCamera.lookAt( vec3( x, y, z ), vec3( 1, 50, 0 ) );
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 	mCamera.setFov( 40.0f );
 
 	// Update the pistons
-	mPistons.update(mCamera);
+	mPistons.update( mCamera, (float)mTime );
 }
 
 void FXAAApp::draw()
 {
 	// Render our scene to the frame buffer
 	render();
-	
+
 	// Perform FXAA
-	mFXAA.apply(mFboResult, mFboOriginal);
+	mFXAA.apply( mFboResult, mFboOriginal );
 
 	// Draw the frame buffer...
 	gl::clear();
@@ -131,18 +131,18 @@ void FXAAApp::draw()
 	int h = getWindowHeight();
 
 	// ...while applying FXAA for the left side
-	gl::draw( mFboResult.getTexture(), 
-		Area(0, 0, mDividerX, h), Rectf(0, 0, (float)mDividerX, (float)h) );
-	
+	gl::draw( mFboResult->getColorTexture(),
+			  Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+
 	// ...and without FXAA for the right side
-	gl::draw( mFboOriginal.getTexture(), 
-		Area(mDividerX, 0, w, h), Rectf((float)mDividerX, 0, (float)w, (float)h) );
+	gl::draw( mFboOriginal->getColorTexture(),
+			  Area( mDividerX, 0, w, h ), Rectf( (float)mDividerX, 0, (float)w, (float)h ) );
 
 	// Draw divider
-	gl::drawLine( Vec2f((float)mDividerX, 0.0f), Vec2f((float)mDividerX, (float)h) );
+	gl::drawLine( vec2( (float)mDividerX, 0.0f ), vec2( (float)mDividerX, (float)h ) );
 
 	Rectf rct = mArrow->getBounds();
-	rct.offset( Vec2f(mDividerX - rct.getWidth()/2, h - rct.getHeight()) );
+	rct.offset( vec2( mDividerX - rct.getWidth() / 2, h - rct.getHeight() ) );
 
 	gl::enableAlphaBlending();
 	gl::draw( mArrow, rct );
@@ -157,44 +157,42 @@ void FXAAApp::mouseDrag( MouseEvent event )
 
 void FXAAApp::keyDown( KeyEvent event )
 {
-	switch( event.getCode() )
-	{
-	case KeyEvent::KEY_ESCAPE:
-		quit();
-		break;
-	case KeyEvent::KEY_SPACE:
-		// Start/stop the animation
-		if(mTimer.isStopped())
-		{
-			mTimeOffset += mTimer.getSeconds();
-			mTimer.start();
-		}
-		else
-			mTimer.stop();
-		break;
-	case KeyEvent::KEY_v:
-		if( gl::isVerticalSyncEnabled() )
-			gl::disableVerticalSync();
-		else
-			gl::enableVerticalSync();
-		break;
+	switch( event.getCode() ) {
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+			break;
+		case KeyEvent::KEY_SPACE:
+			// Start/stop the animation
+			if( mTimer.isStopped() ) {
+				mTimeOffset += mTimer.getSeconds();
+				mTimer.start();
+			}
+			else
+				mTimer.stop();
+			break;
+		case KeyEvent::KEY_v:
+			if( gl::isVerticalSyncEnabled() )
+				gl::enableVerticalSync( false );
+			else
+				gl::enableVerticalSync( true );
+			break;
 	}
 }
 
 void FXAAApp::resize()
 {
 	// Do not enable multisampling and make sure the texture is interpolated bilinearly
+	gl::Texture2d::Format tfmt;
+	tfmt.setMinFilter( GL_LINEAR );
+	tfmt.setMagFilter( GL_LINEAR );
+	tfmt.setInternalFormat( GL_RGBA );
+
 	gl::Fbo::Format fmt;
-	fmt.setMinFilter( GL_LINEAR );
-	fmt.setMagFilter( GL_LINEAR );
-	fmt.setColorInternalFormat( GL_RGBA );
+	fmt.setColorTextureFormat( tfmt );
 
-	mFboOriginal = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
-	mFboOriginal.getTexture().setFlipped(true);
+	mFboOriginal = gl::Fbo::create( getWindowWidth(), getWindowHeight(), fmt );
+	mFboResult = gl::Fbo::create( getWindowWidth(), getWindowHeight(), fmt );
 
-	mFboResult = gl::Fbo( getWindowWidth(), getWindowHeight(), fmt );
-	mFboResult.getTexture().setFlipped(true);
-	
 	// Reset divider
 	mDividerX = getWindowWidth() / 2;
 }
@@ -202,16 +200,12 @@ void FXAAApp::resize()
 void FXAAApp::render()
 {
 	// Enable frame buffer
-	mFboOriginal.bindFramebuffer();
+	gl::ScopedFramebuffer fbo( mFboOriginal );
 
 	// Draw scene
 	gl::clear();
-	gl::color( Color::white() );
 
-	mPistons.draw(mCamera, (float)mTime);
-
-	// Disable frame buffer
-	mFboOriginal.unbindFramebuffer();
+	mPistons.draw( mCamera );
 }
 
-CINDER_APP_NATIVE( FXAAApp, RendererGl( RendererGl::AA_NONE ) )
+CINDER_APP( FXAAApp, RendererGl )

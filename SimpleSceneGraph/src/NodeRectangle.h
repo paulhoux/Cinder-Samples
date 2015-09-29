@@ -29,7 +29,7 @@
 #include "nodes/Node.h"
 
 //! For convenience, create a new type for the shared pointer and node list
-typedef boost::shared_ptr<class NodeRectangle>	NodeRectangleRef;
+typedef std::shared_ptr<class NodeRectangle>	NodeRectangleRef;
 typedef std::deque<NodeRectangleRef>			NodeRectangleList;
 
 //! Our class extends a simple 2D node
@@ -60,10 +60,10 @@ public:
 protected:
 	TouchMode		mTouchMode;
 
-	ci::Vec2f		mInitialPosition;
-	ci::Quatf		mInitialRotation;
-	ci::Vec2f		mInitialScale;
+	ci::vec2		mInitialPosition;
+	ci::quat		mInitialRotation;
+	ci::vec2		mInitialScale;
 	
-	ci::Vec2f		mInitialMouse;
-	ci::Vec2f		mCurrentMouse;
+	ci::vec2		mInitialMouse;
+	ci::vec2		mCurrentMouse;
 };

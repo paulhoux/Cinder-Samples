@@ -78,7 +78,10 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
-    </Link><PostBuildEvent><Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command></PostBuildEvent>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -110,7 +113,10 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
-    </Link><PostBuildEvent><Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command></PostBuildEvent>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).exe" "$(TargetDir)..\..\$(ProjectName).exe"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\TextRendering\include\text\Font.cpp" />
@@ -152,10 +158,10 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\shaders\cylindrical_frag.glsl" />
-    <None Include="..\assets\shaders\cylindrical_vert.glsl" />
-    <None Include="..\assets\shaders\stars_frag.glsl" />
-    <None Include="..\assets\shaders\stars_vert.glsl" />
+    <None Include="..\assets\shaders\cylindrical.frag" />
+    <None Include="..\assets\shaders\cylindrical.vert" />
+    <None Include="..\assets\shaders\stars.frag" />
+    <None Include="..\assets\shaders\stars.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

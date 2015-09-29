@@ -1,31 +1,32 @@
-#version 110
+#version 150
 
-varying vec4 vVertex;
-varying vec3 vNormal;
+in vec4 vertPosition;
+in vec3 vertNormal;
+in vec4 vertColor;
+
+out vec4 fragColor;
 
 void main()
 {
-	// light position in eye space (relative to camera)
-	const vec3 light = vec3(0.0, 0.0, 0.0);
+	// kLightPosition position in eye space (relative to camera)
+	const vec3 kLightPosition = vec3(0.0, 0.0, 0.0);
 
 	// calculate lighting vectors
-    vec3 N = normalize( vNormal );
-	vec3 L = normalize( light - vVertex.xyz );
-	vec3 E = normalize( -vVertex.xyz ); 
+    vec3 N = normalize( vertNormal );
+	vec3 L = normalize( kLightPosition - vertPosition.xyz );
+	vec3 E = normalize( -vertPosition.xyz ); 
 	vec3 R = normalize( -reflect(L,N) );
 
 	// diffuse term
-	vec4 diffuse = gl_Color;
-	diffuse *= max( dot(N,L), 0.0 );
-	diffuse = clamp( diffuse, 0.0, 1.0 );     
+	vec4 diffuse = vertColor;
+	diffuse *= max( dot( N, L ), 0.0 );    
 
 	// specular term
-	const float shininess = 25.0;
+	const float kShininess = 25.0;
 
 	vec4 specular = vec4(0.5, 0.5, 0.5, 1.0); 
-	specular *= pow( max(dot(R,E),0.0), shininess );
-	specular = clamp( specular, 0.0, 1.0 ); 
+	specular *= pow( max(dot(R,E),0.0), kShininess );
 
 	// final color 
-	gl_FragColor = diffuse + specular;
+	fragColor = diffuse + specular;
 }

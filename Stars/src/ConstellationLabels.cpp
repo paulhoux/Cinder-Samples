@@ -25,6 +25,8 @@
 
 #include "text/FontStore.h"
 
+#include "cinder/app/App.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -42,13 +44,13 @@ ConstellationLabels::~ConstellationLabels(void)
 
 void ConstellationLabels::draw()
 {
-	glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+	//glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
 	gl::enableAdditiveBlending();
 	gl::color( Color(0.5f, 0.6f, 0.8f) * mAttenuation );
 
 	mLabels.draw();
 
-	glPopAttrib();
+	//glPopAttrib();
 }
 
 void ConstellationLabels::setCameraDistance( float distance )
@@ -103,7 +105,7 @@ void ConstellationLabels::load( DataSourceRef source )
 			double alpha = toRadians( ra * 15.0 );
 			double delta = toRadians( dec );
 
-			Vec3f position = 2000.0f * Vec3f((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta)));
+			vec3 position = 2000.0f * vec3((float) (sin(alpha) * cos(delta)), (float) sin(delta), (float) (cos(alpha) * cos(delta)));
 
 			mLabels.addLabel( position, name );
 		}

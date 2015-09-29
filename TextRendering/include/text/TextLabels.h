@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -28,30 +28,32 @@
 #include "cinder/gl/Vbo.h"
 #include "text/Text.h"
 
-namespace ph { namespace text {
+namespace ph {
+namespace text {
 
-class TextLabelCompare
-{
+class TextLabelCompare {
 public:
 	TextLabelCompare() {};
 
 	// always append at the end
-	bool operator() (const ci::Vec3f &a, const ci::Vec3f &b) const {
-        return false;
-    }
+	bool operator() ( const ci::vec3 &a, const ci::vec3 &b ) const
+	{
+		return false;
+	}
 };
 
-typedef std::multimap< ci::Vec3f, std::u16string, TextLabelCompare >	TextLabelList;
+typedef std::multimap< ci::vec3, std::u16string, TextLabelCompare >	TextLabelList;
 typedef TextLabelList::iterator			TextLabelListIter;
 typedef TextLabelList::const_iterator	TextLabelListConstIter;
-	
+
 class TextLabels
-	: public ph::text::Text
-{
+	: public ph::text::Text {
 public:
-	TextLabels(void)
-		: mOffset( ci::Vec2f::zero() ) {};
-	virtual ~TextLabels(void) {};
+	TextLabels( void )
+		: mOffset( 0 )
+	{
+	};
+	virtual ~TextLabels( void ) {};
 
 	//! clears all labels
 	void	clear();
@@ -63,34 +65,35 @@ public:
 	TextLabelListConstIter	end() const { return mLabels.end(); }
 
 	//!
-	//ci::Vec2f	getOffset() const { return mOffset; }
-	//void		setOffset( float x, float y ) { setOffset( ci::Vec2f(x, y) ); }
-	//void		setOffset( const ci::Vec2f &offset ) { mOffset = offset; mInvalid = true; }
+	//ci::vec2	getOffset() const { return mOffset; }
+	//void		setOffset( float x, float y ) { setOffset( ci::vec2(x, y) ); }
+	//void		setOffset( const ci::vec2 &offset ) { mOffset = offset; mInvalid = true; }
 
 	//!	add label
-	void	addLabel( const ci::Vec3f &position, const std::string &text ) { addLabel(position, ci::toUtf16(text)); }
-	void	addLabel( const ci::Vec3f &position, const std::u16string &text );
+	void	addLabel( const ci::vec3 &position, const std::string &text ) { addLabel( position, ci::toUtf16( text ) ); }
+	void	addLabel( const ci::vec3 &position, const std::u16string &text );
 protected:
 	//! get the maximum width of the text at the specified vertical position
-	virtual float getWidthAt(float y) const { return 1000.0f; }
-	
+	virtual float getWidthAt( float y ) const { return 1000.0f; }
+
 	//! override vertex shader and bind method
 	virtual std::string	getVertexShader() const;
 	virtual bool		bindShader();
-	
+
 	//! clears the mesh and the buffers
 	virtual void		clearMesh();
 	//! renders the current contents of mText
 	virtual void		renderMesh();
 	//! helper to render a non-word-wrapped string
-	virtual void		renderString( const std::u16string &str, ci::Vec2f *cursor, float stretch=1.0f );
+	virtual void		renderString( const std::u16string &str, ci::vec2 *cursor, float stretch = 1.0f );
 	//! creates the VBO from the data in the buffers
 	virtual void		createMesh();
 private:
 	TextLabelList			mLabels;
-	
-	ci::Vec3f				mOffset;
-	std::vector<ci::Vec3f>	mOffsets;
+
+	ci::vec3				mOffset;
+	std::vector<ci::vec3>	mOffsets;
 };
 
-} } // namespace ph::text
+}
+} // namespace ph::text

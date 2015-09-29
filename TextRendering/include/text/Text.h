@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -26,27 +26,30 @@
 #include "cinder/Utilities.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Vbo.h"
+#include "cinder/gl/VboMesh.h"
 #include "text/Font.h"
 
-namespace ph { namespace text {
+namespace ph {
+namespace text {
 
-class Text
-{
+class Text {
 public:
 	//!
 	typedef enum { LEFT, CENTER, RIGHT } Alignment;
 	//! Specifies the boundary used to break up text in word wrapping and other algorithms
 	typedef enum { LINE, WORD } Boundary;
 public:
-	Text(void) : mInvalid(true), mBoundsInvalid(true),
-		mAlignment(LEFT), mBoundary(WORD), 
-		mFontSize(14.0f), mLineSpace(1.0f) {};
-	virtual ~Text(void) {};
+	Text( void ) : mInvalid( true ), mBoundsInvalid( true ),
+		mAlignment( LEFT ), mBoundary( WORD ),
+		mFontSize( 14.0f ), mLineSpace( 1.0f )
+	{
+	};
+	virtual ~Text( void ) {};
 
 	virtual void draw();
 	virtual void drawWireframe();
 
-	std::string	getFontFamily() const { if(mFont) return mFont->getFamily(); else return std::string(); }
+	std::string	getFontFamily() const { if( mFont ) return mFont->getFamily(); else return std::string(); }
 	void		setFont( FontRef font ) { mFont = font; mInvalid = true; }
 
 	float		getFontSize() const { return mFontSize; }
@@ -55,7 +58,7 @@ public:
 	float		getLineSpace() const { return mLineSpace; }
 	void		setLineSpace( float value ) { mLineSpace = value; mInvalid = true; }
 
-	float		getLeading() const { return (mFont ? std::floorf( mFont->getLeading(mFontSize) * mLineSpace + 0.5f ) : 0.0f); }
+	float		getLeading() const { return ( mFont ? std::floorf( mFont->getLeading( mFontSize ) * mLineSpace + 0.5f ) : 0.0f ); }
 
 	Alignment	getAlignment() const { return mAlignment; }
 	void		setAlignment( Alignment alignment ) { mAlignment = alignment; mInvalid = true; }
@@ -63,35 +66,36 @@ public:
 	Boundary	getBoundary() const { return mBoundary; }
 	void		setBoundary( Boundary boundary ) { mBoundary = boundary; mInvalid = true; }
 
-	void		setText(const std::string &text) { setText( ci::toUtf16(text) ); }
+	void		setText( const std::string &text ) { setText( ci::toUtf16( text ) ); }
 	void		setText( const std::u16string &text ) { mText = text; mMust.clear(); mAllow.clear(); mInvalid = true; }
 
-	ci::Rectf	getBounds() const;		
+	ci::Rectf	getBounds() const;
 protected:
 	//! get the maximum width of the text at the specified vertical position 
-	virtual float	getWidthAt(float y) { return 0.0f; }
+	virtual float	getWidthAt( float y ) { return 0.0f; }
 	//! get the maximum height of the text
 	virtual float	getHeight() { return 0.0f; }
 	//! function to move the cursor to the next line
-	virtual	bool	newLine( ci::Vec2f *cursor ) { 
-		cursor->x = 0.0f; 
+	virtual	bool	newLine( ci::vec2 *cursor )
+	{
+		cursor->x = 0.0f;
 		cursor->y += getLeading();
-		
+
 		return ( getHeight() == 0.0f || cursor->y < getHeight() );
-	}		
+	}
 
 	//!
 	virtual std::string	getVertexShader() const;
 	virtual std::string getFragmentShader() const;
 	virtual bool		bindShader();
 	virtual bool		unbindShader();
-	
+
 	//! clears the mesh and the buffers
 	virtual void		clearMesh();
 	//! renders the current contents of mText
 	virtual void		renderMesh();
 	//! helper to render a non-word-wrapped string
-	virtual void		renderString( const std::u16string &str, ci::Vec2f *cursor, float stretch = 1.0f );
+	virtual void		renderString( const std::u16string &str, ci::vec2 *cursor, float stretch = 1.0f );
 	//! creates the VBO from the data in the buffers
 	virtual void		createMesh();
 public:
@@ -111,8 +115,8 @@ protected:
 
 	std::u16string			mText;
 
-	ci::gl::GlslProg		mShader;
-	ci::gl::VboMesh			mVboMesh;
+	ci::gl::GlslProgRef		mShader;
+	ci::gl::VboMeshRef		mVboMesh;
 
 	FontRef					mFont;
 	float					mFontSize;
@@ -120,9 +124,10 @@ protected:
 	float					mLineSpace;
 
 	std::vector<size_t>		mMust, mAllow;
-	std::vector<ci::Vec3f>	mVertices;
-	std::vector<uint32_t>	mIndices;
-	std::vector<ci::Vec2f>	mTexcoords;
+	std::vector<ci::vec3>	mVertices;
+	std::vector<uint16_t>	mIndices;
+	std::vector<ci::vec2>	mTexcoords;
 };
 
-} } // namespace ph::text
+}
+} // namespace ph::text
