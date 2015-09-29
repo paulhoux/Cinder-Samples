@@ -1,4 +1,4 @@
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
@@ -7,27 +7,28 @@
 
 using namespace ci;
 using namespace ci::app;
-using namespace ph::text;
 using namespace std;
 
-class TextRenderingApp : public AppBasic {
+class TextRenderingApp : public App {
 public:
-	void prepareSettings( Settings *settings );
-	void setup();
-	void shutdown();
-	void update();
-	void draw();
+	static void prepare( Settings *settings );
 
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void mouseUp( MouseEvent event );
-	void mouseWheel( MouseEvent event );
+	void setup() override;
+	void cleanup() override;
 
-	void keyDown( KeyEvent event );
-	void keyUp( KeyEvent event );
+	void update() override;
+	void draw() override;
 
-	void resize();
-	void fileDrop( FileDropEvent event );
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
+	void mouseWheel( MouseEvent event ) override;
+
+	void keyDown( KeyEvent event ) override;
+	void keyUp( KeyEvent event ) override;
+	void fileDrop( FileDropEvent event ) override;
+
+	void resize() override;
 protected:
 	vec3	constrainAnchor( const vec3 &pt ) const;
 	void	updateWindowTitle();
@@ -39,7 +40,7 @@ protected:
 	Color			mBackColor;
 
 	//! 
-	TextBox			mTextBox;
+	ph::text::TextBox	mTextBox;
 
 	//! textbox transformation members
 	vec3			mAnchor;
@@ -65,7 +66,7 @@ protected:
 
 };
 
-void TextRenderingApp::prepareSettings( Settings *settings )
+void TextRenderingApp::prepare( Settings *settings )
 {
 	// set maximum frame rate quite high, so we can measure performance if vertical sync is disabled
 	settings->setFrameRate( 500.0f );
@@ -78,15 +79,15 @@ void TextRenderingApp::setup()
 {
 	try {
 		// load fonts using the FontStore
-		fonts().loadFont( loadAsset( "fonts/Walter Turncoat Regular.sdff" ) );
+		ph::text::fonts().loadFont( loadAsset( "fonts/Walter Turncoat Regular.sdff" ) );
 
 		// create a text box (rectangular text area)
-		mTextBox = TextBox( 400, 500 );
+		mTextBox = ph::text::TextBox( 400, 500 );
 		// set font and font size
-		mTextBox.setFont( fonts().getFont( "Walter Turncoat Regular" ) );
+		mTextBox.setFont( ph::text::fonts().getFont( "Walter Turncoat Regular" ) );
 		mTextBox.setFontSize( 14.0f );
 		// break lines between words
-		mTextBox.setBoundary( Text::WORD );
+		mTextBox.setBoundary( ph::text::Text::WORD );
 		// adjust space between lines
 		mTextBox.setLineSpace( 1.5f );
 
@@ -116,7 +117,7 @@ void TextRenderingApp::setup()
 	updateWindowTitle();
 }
 
-void TextRenderingApp::shutdown()
+void TextRenderingApp::cleanup()
 {
 	// no clean up necessary
 }
@@ -276,16 +277,16 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_LEFT:
 		/*if( mTextBox.getAlignment() == TextBox::JUSTIFIED )
 			mTextBox.setAlignment( TextBox::RIGHT );
-			else*/ if( mTextBox.getAlignment() == TextBox::RIGHT )
-	mTextBox.setAlignment( TextBox::CENTER );
-			else if( mTextBox.getAlignment() == TextBox::CENTER )
-				mTextBox.setAlignment( TextBox::LEFT );
+			else*/ if( mTextBox.getAlignment() == ph::text::TextBox::RIGHT )
+	mTextBox.setAlignment( ph::text::TextBox::CENTER );
+			else if( mTextBox.getAlignment() == ph::text::TextBox::CENTER )
+				mTextBox.setAlignment( ph::text::TextBox::LEFT );
 		break;
 	case KeyEvent::KEY_RIGHT:
-		if( mTextBox.getAlignment() == TextBox::LEFT )
-			mTextBox.setAlignment( TextBox::CENTER );
-		else if( mTextBox.getAlignment() == TextBox::CENTER )
-			mTextBox.setAlignment( TextBox::RIGHT );
+		if( mTextBox.getAlignment() == ph::text::TextBox::LEFT )
+			mTextBox.setAlignment( ph::text::TextBox::CENTER );
+		else if( mTextBox.getAlignment() == ph::text::TextBox::CENTER )
+			mTextBox.setAlignment( ph::text::TextBox::RIGHT );
 		/*else if( mTextBox.getAlignment() == TextBox::RIGHT )
 			mTextBox.setAlignment( TextBox::JUSTIFIED );*/
 		break;
@@ -357,7 +358,7 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 				ph::text::FontRef font( new ph::text::Font() );
 				font->read( loadFile( file ) );
 				// add font to font manager
-				fonts().addFont( font );
+				ph::text::fonts().addFont( font );
 				// set the text font
 				mTextBox.setFont( font );
 			}
@@ -383,7 +384,7 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 				// create a compact SDFF file
 				font->write( writeFile( fileB.parent_path() / ( font->getFamily() + ".sdff" ) ) );
 				// add font to font manager
-				fonts().addFont( font );
+				ph::text::fonts().addFont( font );
 				// set the text font
 				mTextBox.setFont( font );
 			}
@@ -399,7 +400,7 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 				// create a compact SDFF file
 				font->write( writeFile( fileA.parent_path() / ( font->getFamily() + ".sdff" ) ) );
 				// add font to font manager
-				fonts().addFont( font );
+				ph::text::fonts().addFont( font );
 				// set the text font
 				mTextBox.setFont( font );
 			}
@@ -444,4 +445,4 @@ void TextRenderingApp::updateWindowTitle()
 	getWindow()->setTitle( str.str() );
 }
 
-CINDER_APP_BASIC( TextRenderingApp, RendererGl )
+CINDER_APP( TextRenderingApp, RendererGl, &TextRenderingApp::prepare )

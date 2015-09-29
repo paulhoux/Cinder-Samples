@@ -23,6 +23,7 @@
 #include "cinder/Rand.h"
 #include "cinder/Unicode.h"
 #include "cinder/gl/VboMesh.h"
+#include "cinder/gl/draw.h"
 
 #include "text/Text.h"
 
@@ -117,77 +118,77 @@ void Text::renderMesh()
 		linewidth = getWidthAt( cursor.y );
 
 		switch( mBoundary ) {
-		case LINE:
-			// render the whole paragraph
-			trimmed = boost::trim_copy( mText.substr( index, *mitr - index + 1 ) );
-			width = mFont->measureWidth( trimmed, mFontSize, true );
-
-			// advance iterator
-			index = *mitr;
-			++mitr;
-
-			break;
-		case WORD:
-			// measure the first chunk on this line
-			chunk = ( mText.substr( index, *aitr - index + 1 ) );
-			width = mFont->measureWidth( chunk, mFontSize, false );
-
-			// if it fits, add the next chunk until no more chunks fit or are available
-			while( linewidth > 0.0f && width < linewidth && *aitr != *mitr ) {
-				++aitr;
-
-				if( aitr == mAllow.end() )
-					break;
-
-				chunk = ( mText.substr( *( aitr - 1 ) + 1, *aitr - *( aitr - 1 ) ) );
-				width += mFont->measureWidth( chunk, mFontSize, false );
-			}
-
-			// end of line encountered
-			if( aitr == mAllow.begin() || *( aitr - 1 ) <= index ) {	// not a single chunk fits on this line, just render what we have				
-			}
-			else if( linewidth > 0.0f && width > linewidth ) {	// remove the last chunk				
-				--aitr;
-			}
-
-			if( aitr != mAllow.end() ) {
-				// 
-				trimmed = boost::trim_copy( mText.substr( index, *aitr - index + 1 ) );
-				width = mFont->measureWidth( trimmed, mFontSize );
-
-				// end of paragraph encountered, move to next
-				if( *aitr == *mitr )
-					++mitr;
-				/*else if( mAlignment == JUSTIFIED )
-				{
-				// count spaces
-				uint32_t c = std::count( trimmed.begin(), trimmed.end(), 32 );
-				if( c == 0 ) break;
-				// remaining whitespace
-				float remaining = getWidthAt( cursor.y ) - width;
-				float space = mFont->getAdvance( 32, mFontSize );
-				//
-				stretch = (remaining / c + space) / space;
-				if( stretch > 3.0f ) stretch = 1.0f;
-				}*/
+			case LINE:
+				// render the whole paragraph
+				trimmed = boost::trim_copy( mText.substr( index, *mitr - index + 1 ) );
+				width = mFont->measureWidth( trimmed, mFontSize, true );
 
 				// advance iterator
-				index = *aitr;
-				++aitr;
-			}
+				index = *mitr;
+				++mitr;
 
-			break;
+				break;
+			case WORD:
+				// measure the first chunk on this line
+				chunk = ( mText.substr( index, *aitr - index + 1 ) );
+				width = mFont->measureWidth( chunk, mFontSize, false );
+
+				// if it fits, add the next chunk until no more chunks fit or are available
+				while( linewidth > 0.0f && width < linewidth && *aitr != *mitr ) {
+					++aitr;
+
+					if( aitr == mAllow.end() )
+						break;
+
+					chunk = ( mText.substr( *( aitr - 1 ) + 1, *aitr - *( aitr - 1 ) ) );
+					width += mFont->measureWidth( chunk, mFontSize, false );
+				}
+
+				// end of line encountered
+				if( aitr == mAllow.begin() || *( aitr - 1 ) <= index ) {	// not a single chunk fits on this line, just render what we have				
+				}
+				else if( linewidth > 0.0f && width > linewidth ) {	// remove the last chunk				
+					--aitr;
+				}
+
+				if( aitr != mAllow.end() ) {
+					// 
+					trimmed = boost::trim_copy( mText.substr( index, *aitr - index + 1 ) );
+					width = mFont->measureWidth( trimmed, mFontSize );
+
+					// end of paragraph encountered, move to next
+					if( *aitr == *mitr )
+						++mitr;
+					/*else if( mAlignment == JUSTIFIED )
+					{
+					// count spaces
+					uint32_t c = std::count( trimmed.begin(), trimmed.end(), 32 );
+					if( c == 0 ) break;
+					// remaining whitespace
+					float remaining = getWidthAt( cursor.y ) - width;
+					float space = mFont->getAdvance( 32, mFontSize );
+					//
+					stretch = (remaining / c + space) / space;
+					if( stretch > 3.0f ) stretch = 1.0f;
+					}*/
+
+					// advance iterator
+					index = *aitr;
+					++aitr;
+				}
+
+				break;
 		}
 
 		// adjust alignment
 		switch( mAlignment ) {
-		case CENTER:
-			cursor.x = 0.5f * ( linewidth - width );
-			break;
-		case RIGHT:
-			cursor.x = ( linewidth - width );
-			break;
-			break;
+			case CENTER:
+				cursor.x = 0.5f * ( linewidth - width );
+				break;
+			case RIGHT:
+				cursor.x = ( linewidth - width );
+				break;
+				break;
 		}
 
 		// add this fitting part of the text to the mesh 
@@ -205,7 +206,7 @@ void Text::renderString( const std::u16string &str, vec2 *cursor, float stretch 
 	std::u16string::const_iterator itr;
 	for( itr = str.begin(); itr != str.end(); ++itr ) {
 		// retrieve character code
-		uint16_t id = (uint16_t) *itr;
+		uint16_t id = (uint16_t)*itr;
 
 		if( mFont->contains( id ) ) {
 			// get metrics for this character to speed up measurements
@@ -393,7 +394,7 @@ void Text::findBreaksUtf8( const std::string &line, std::vector<size_t> *must, s
 void Text::findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow )
 {
 	std::vector<uint8_t> resultBreaks;
-	calcLinebreaksUtf16( (uint16_t*) line.c_str(), &resultBreaks );
+	calcLinebreaksUtf16( (uint16_t*)line.c_str(), &resultBreaks );
 
 	//
 	must->clear();
@@ -412,7 +413,7 @@ void Text::findBreaksUtf16( const std::u16string &line, std::vector<size_t> *mus
 
 bool Text::isWhitespaceUtf8( const char ch )
 {
-	return isWhitespaceUtf16( (short) ch );
+	return isWhitespaceUtf16( (short)ch );
 }
 
 bool Text::isWhitespaceUtf16( const wchar_t ch )

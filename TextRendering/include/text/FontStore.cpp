@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -21,22 +21,23 @@
 */
 
 #include "cinder/Utilities.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "text/FontStore.h"
 
-namespace ph { namespace text {
+namespace ph {
+namespace text {
 
 using namespace ci;
 
 bool	FontStore::hasFont( const std::string &family )
 {
-	return (mFonts.find(family) != mFonts.end());
+	return ( mFonts.find( family ) != mFonts.end() );
 }
 
 FontRef	FontStore::getFont( const std::string &family )
 {
-	if( hasFont(family) )
-		return mFonts.at(family);
+	if( hasFont( family ) )
+		return mFonts.at( family );
 
 	// return empty font on error
 	return FontRef();
@@ -44,11 +45,11 @@ FontRef	FontStore::getFont( const std::string &family )
 
 bool	FontStore::addFont( FontRef font )
 {
-	if(!font) return false;
+	if( !font ) return false;
 
 	// check if font family is already known
 	std::string family = font->getFamily();
-	if( ! hasFont( family ) ) {
+	if( !hasFont( family ) ) {
 		mFonts[family] = font;
 		return true;
 	}
@@ -61,7 +62,7 @@ std::vector<std::string> FontStore::listFonts()
 	std::vector<std::string> keys;
 
 	FontList::const_iterator itr;
-	for(itr=mFonts.begin();itr!=mFonts.end();++itr) 
+	for( itr = mFonts.begin(); itr != mFonts.end(); ++itr )
 		keys.push_back( itr->first );
 
 	return keys;
@@ -69,21 +70,22 @@ std::vector<std::string> FontStore::listFonts()
 
 FontRef	FontStore::loadFont( DataSourceRef source )
 {
-	try { 
+	try {
 		// try to load the file from source
 		FontRef font = FontRef( new Font() );
-		font->read(source); 
+		font->read( source );
 
-		addFont(font);
+		addFont( font );
 
 		return font;
 	}
 	catch( const std::exception &e ) {
 		app::console() << "Error loading font:" << e.what() << std::endl;
 	}
-	
+
 	// return empty font on error
 	return FontRef();
 }
 
-} } // namespace ph::text
+}
+} // namespace ph::text

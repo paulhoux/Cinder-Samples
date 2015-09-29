@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -27,7 +27,8 @@
 
 #include <boost/algorithm/string.hpp>
 
-namespace ph { namespace text {
+namespace ph {
+namespace text {
 
 using namespace ci;
 using namespace std;
@@ -47,7 +48,7 @@ void TextLabels::addLabel( const vec3 &position, const std::u16string &text )
 void TextLabels::clearMesh()
 {
 	mVboMesh.reset();
-	
+
 	mVertices.clear();
 	mIndices.clear();
 	mTexcoords.clear();
@@ -60,7 +61,7 @@ void TextLabels::renderMesh()
 {
 	// parse all labels
 	TextLabelListIter labelItr;
-	for(labelItr=mLabels.begin();labelItr!=mLabels.end();++labelItr) {
+	for( labelItr = mLabels.begin(); labelItr != mLabels.end(); ++labelItr ) {
 		// render label
 		mOffset = labelItr->first;
 		setText( labelItr->second );
@@ -72,40 +73,40 @@ void TextLabels::renderMesh()
 void TextLabels::renderString( const std::u16string &str, vec2 *cursor, float stretch )
 {
 	std::u16string::const_iterator itr;
-	for(itr=str.begin();itr!=str.end();++itr) {
+	for( itr = str.begin(); itr != str.end(); ++itr ) {
 		// retrieve character code
-		uint16_t id = (uint16_t) *itr;
+		uint16_t id = (uint16_t)*itr;
 
-		if( mFont->contains(id) ) {
+		if( mFont->contains( id ) ) {
 			// get metrics for this character to speed up measurements
-			Font::Metrics m = mFont->getMetrics(id);
+			Font::Metrics m = mFont->getMetrics( id );
 
 			// skip whitespace characters
-			if( ! isWhitespaceUtf16(id) ) {
+			if( !isWhitespaceUtf16( id ) ) {
 				size_t index = mVertices.size();
 
-				Rectf bounds = mFont->getBounds(m, mFontSize);
-				mVertices.push_back( vec3(*cursor + bounds.getUpperLeft(),0) );
-				mVertices.push_back( vec3(*cursor + bounds.getUpperRight(),0) );
-				mVertices.push_back( vec3(*cursor + bounds.getLowerRight(),0) );
-				mVertices.push_back( vec3(*cursor + bounds.getLowerLeft(),0) );
-			
-				bounds = mFont->getTexCoords(m);
+				Rectf bounds = mFont->getBounds( m, mFontSize );
+				mVertices.push_back( vec3( *cursor + bounds.getUpperLeft(), 0 ) );
+				mVertices.push_back( vec3( *cursor + bounds.getUpperRight(), 0 ) );
+				mVertices.push_back( vec3( *cursor + bounds.getLowerRight(), 0 ) );
+				mVertices.push_back( vec3( *cursor + bounds.getLowerLeft(), 0 ) );
+
+				bounds = mFont->getTexCoords( m );
 				mTexcoords.push_back( bounds.getUpperLeft() );
 				mTexcoords.push_back( bounds.getUpperRight() );
 				mTexcoords.push_back( bounds.getLowerRight() );
 				mTexcoords.push_back( bounds.getLowerLeft() );
 
-				mIndices.push_back(index+0); mIndices.push_back(index+3); mIndices.push_back(index+1);
-				mIndices.push_back(index+1); mIndices.push_back(index+3); mIndices.push_back(index+2);
-			
-				mOffsets.insert(mOffsets.end(), 4, mOffset);
+				mIndices.push_back( index + 0 ); mIndices.push_back( index + 3 ); mIndices.push_back( index + 1 );
+				mIndices.push_back( index + 1 ); mIndices.push_back( index + 3 ); mIndices.push_back( index + 2 );
+
+				mOffsets.insert( mOffsets.end(), 4, mOffset );
 			}
 
 			if( id == 32 )
-				cursor->x += stretch * mFont->getAdvance(m, mFontSize);
+				cursor->x += stretch * mFont->getAdvance( m, mFontSize );
 			else
-				cursor->x += mFont->getAdvance(m, mFontSize);
+				cursor->x += mFont->getAdvance( m, mFontSize );
 		}
 	}
 
@@ -181,13 +182,12 @@ std::string TextLabels::getVertexShader() const
 		"	gl_Position = vec4( vertex + offset, 1.0 );\n"
 		"}";
 
-	return std::string(vs);
+	return std::string( vs );
 }
 
 bool TextLabels::bindShader()
 {
-	if( Text::bindShader() )
-	{
+	if( Text::bindShader() ) {
 		auto viewport = gl::getViewport();
 		mShader->uniform( "viewport", vec4( viewport.first.x, viewport.first.y, viewport.second.x, viewport.second.y ) );
 		return true;
@@ -196,4 +196,5 @@ bool TextLabels::bindShader()
 	return false;
 }
 
-} } // namespace ph::text
+}
+} // namespace ph::text
