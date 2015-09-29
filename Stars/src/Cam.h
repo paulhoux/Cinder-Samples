@@ -25,7 +25,7 @@
 #include "cinder/Vector.h"
 #include "cinder/Camera.h"
 #include "cinder/Timeline.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 
 #include <deque>
 
@@ -85,7 +85,7 @@ private:
 		ci::dvec3 avg( 0.0, 0.0, 0.0 );
 
 		for( std::deque<ci::dvec3>::const_iterator itr = v.begin(); itr != v.end(); ++itr )
-			avg += ( *itr / (double) v.size() );
+			avg += ( *itr / (double)v.size() );
 
 		return avg;
 	};

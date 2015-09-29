@@ -20,14 +20,13 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/MayaCamUI.h"
-#include "cinder/Utilities.h"
-#include "cinder/Timer.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
+#include "cinder/Utilities.h"
+#include "cinder/Timer.h"
 
 #include "Background.h"
 #include "Cam.h"
@@ -43,27 +42,35 @@
 #include <irrKlang.h>
 #pragma comment(lib, "irrKlang.lib")
 
+#if defined(CINDER_MSW)
+#include <windows.h>
+#include <winuser.h>
+#endif
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
 using namespace irrklang;
 
-class StarsApp : public AppBasic {
+class StarsApp : public App {
 public:
-	void	prepareSettings( Settings *settings );
-	void	setup();
-	void	shutdown();
-	void	update();
-	void	draw();
+	static void	prepare( Settings *settings );
 
-	void	mouseDown( MouseEvent event );
-	void	mouseDrag( MouseEvent event );
-	void	mouseUp( MouseEvent event );
+	void	setup() override;
+	void	cleanup() override;
 
-	void	keyDown( KeyEvent event );
-	void	resize();
-	void	fileDrop( FileDropEvent event );
+	void	update() override;
+	void	draw() override;
+
+	void	mouseDown( MouseEvent event ) override;
+	void	mouseDrag( MouseEvent event ) override;
+	void	mouseUp( MouseEvent event ) override;
+
+	void	keyDown( KeyEvent event ) override;
+	void	fileDrop( FileDropEvent event ) override;
+
+	void	resize() override;
 
 	bool	isStereoscopic() const { return mIsStereoscopic; }
 	bool	isCylindrical() const { return mIsCylindrical; }
@@ -138,7 +145,7 @@ protected:
 	std::vector<fs::path>		mMusicExtensions;
 };
 
-void StarsApp::prepareSettings( Settings *settings )
+void StarsApp::prepare( Settings *settings )
 {
 	auto displays = Display::getDisplays();
 
@@ -244,9 +251,10 @@ void StarsApp::setup()
 	mTime = getElapsedSeconds();
 }
 
-void StarsApp::shutdown()
+void StarsApp::cleanup()
 {
-	if( mSoundEngine ) mSoundEngine->stopAllSounds();
+	if( mSoundEngine )
+		mSoundEngine->stopAllSounds();
 }
 
 void StarsApp::update()
@@ -255,7 +263,7 @@ void StarsApp::update()
 	mTime += elapsed;
 
 	double time = getElapsedSeconds() / 200.0;
-	if( mSoundEngine && mMusic && mPlayMusic ) time = mMusic->getPlayPosition() / (double) mMusic->getPlayLength();
+	if( mSoundEngine && mMusic && mPlayMusic ) time = mMusic->getPlayPosition() / (double)mMusic->getPlayLength();
 
 	// animate camera
 	mCamera.setDistanceTime( time );
@@ -332,7 +340,7 @@ void StarsApp::draw()
 		const float aspect = float( w ) / float( h );
 		//const float hFoV = mSectionFovDegrees;
 		//const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
-		const float vFoVDegrees = (float) mCamera.getFov();
+		const float vFoVDegrees = (float)mCamera.getFov();
 		const float vFovRadians = glm::radians( vFoVDegrees );
 		const float hFoVRadians = 2.0f * math<float>::atan( math<float>::tan( vFovRadians * 0.5f ) * aspect );
 		const float hFovDegrees = glm::degrees( hFoVRadians );
@@ -383,7 +391,7 @@ void StarsApp::draw()
 
 			gl::ScopedGlslProg shader( mShader );
 			mShader->uniform( "tex", 0 );
-			mShader->uniform( "sides", (float) mSectionCount );
+			mShader->uniform( "sides", (float)mSectionCount );
 			mShader->uniform( "radians", mSectionCount * hFoVRadians );
 			mShader->uniform( "reciprocal", 0.5f / mSectionCount );
 
@@ -471,106 +479,106 @@ void StarsApp::mouseUp( MouseEvent event )
 
 void StarsApp::keyDown( KeyEvent event )
 {
-#ifdef WIN32
+#if defined( CINDER_MSW )
 	// allows the use of the media buttons on your Windows keyboard to control the music
 	switch( event.getNativeKeyCode() ) {
-	case VK_MEDIA_NEXT_TRACK:
-		// play next music file
-		playMusic( getNextFile( mMusicPath ) );
-		return;
-	case VK_MEDIA_PREV_TRACK:
-		// play next music file
-		playMusic( getPrevFile( mMusicPath ) );
-		return;
-	case VK_MEDIA_STOP:
-		stopMusic();
-		return;
-	case VK_MEDIA_PLAY_PAUSE:
-		if( mSoundEngine && mMusic ) {
-			if( mMusic->isFinished() )
-				playMusic( mMusicPath );
-			else
-				mMusic->setIsPaused( !mMusic->getIsPaused() );
-		}
-		return;
+		case VK_MEDIA_NEXT_TRACK:
+			// play next music file
+			playMusic( getNextFile( mMusicPath ) );
+			return;
+		case VK_MEDIA_PREV_TRACK:
+			// play next music file
+			playMusic( getPrevFile( mMusicPath ) );
+			return;
+		case VK_MEDIA_STOP:
+			stopMusic();
+			return;
+		case VK_MEDIA_PLAY_PAUSE:
+			if( mSoundEngine && mMusic ) {
+				if( mMusic->isFinished() )
+					playMusic( mMusicPath );
+				else
+					mMusic->setIsPaused( !mMusic->getIsPaused() );
+			}
+			return;
 	}
 #endif
 
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_f:
-		// toggle full screen
-		setFullScreen( !isFullScreen() );
-		if( !isFullScreen() )
-			forceShowCursor();
-		break;
-	case KeyEvent::KEY_v:
-		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-		break;
-	case KeyEvent::KEY_ESCAPE:
-		// quit the application
-		quit();
-		break;
-	case KeyEvent::KEY_SPACE:
-		// enable animation
-		mCamera.setup();
-		break;
-	case KeyEvent::KEY_g:
-		// toggle grid
-		mIsGridVisible = !mIsGridVisible;
-		break;
-	case KeyEvent::KEY_l:
-		// toggle labels
-		mIsLabelsVisible = !mIsLabelsVisible;
-		break;
-	case KeyEvent::KEY_u:
-		// toggle user interface
-		mDrawUserInterface = !mDrawUserInterface;
-		break;
-	case KeyEvent::KEY_c:
-		// toggle constellations / art
-		if( event.isShiftDown() )
-			mIsConstellationArtVisible = !mIsConstellationArtVisible;
-		else
-			mIsConstellationsVisible = !mIsConstellationsVisible;
-		break;
-	case KeyEvent::KEY_a:
-		// toggle cursor arrow
-		if( mIsCursorVisible )
-			forceHideCursor();
-		else
-			forceShowCursor();
-		break;
-	case KeyEvent::KEY_s:
-		// toggle stereoscopic view
-		mIsStereoscopic = !mIsStereoscopic;
-		mIsCylindrical = false;
-		// adjust line width and aspect ratio
-		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
-		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
-		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
-		break;
-	case KeyEvent::KEY_d:
-		// cylindrical panorama
-		mIsCylindrical = !mIsCylindrical;
-		mIsStereoscopic = false;
-		// adjust line width and aspect ratio
-		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
-		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
-		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
-		break;
-	case KeyEvent::KEY_RETURN:
-		createShader();
-		break;
-	case KeyEvent::KEY_PLUS:
-	case KeyEvent::KEY_EQUALS:
-	case KeyEvent::KEY_KP_PLUS:
-		mCamera.setFov( mCamera.getFov() + 0.1 );
-		break;
-	case KeyEvent::KEY_MINUS:
-	case KeyEvent::KEY_UNDERSCORE:
-	case KeyEvent::KEY_KP_MINUS:
-		mCamera.setFov( mCamera.getFov() - 0.1 );
-		break;
+		case KeyEvent::KEY_f:
+			// toggle full screen
+			setFullScreen( !isFullScreen() );
+			if( !isFullScreen() )
+				forceShowCursor();
+			break;
+		case KeyEvent::KEY_v:
+			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+			break;
+		case KeyEvent::KEY_ESCAPE:
+			// quit the application
+			quit();
+			break;
+		case KeyEvent::KEY_SPACE:
+			// enable animation
+			mCamera.setup();
+			break;
+		case KeyEvent::KEY_g:
+			// toggle grid
+			mIsGridVisible = !mIsGridVisible;
+			break;
+		case KeyEvent::KEY_l:
+			// toggle labels
+			mIsLabelsVisible = !mIsLabelsVisible;
+			break;
+		case KeyEvent::KEY_u:
+			// toggle user interface
+			mDrawUserInterface = !mDrawUserInterface;
+			break;
+		case KeyEvent::KEY_c:
+			// toggle constellations / art
+			if( event.isShiftDown() )
+				mIsConstellationArtVisible = !mIsConstellationArtVisible;
+			else
+				mIsConstellationsVisible = !mIsConstellationsVisible;
+			break;
+		case KeyEvent::KEY_a:
+			// toggle cursor arrow
+			if( mIsCursorVisible )
+				forceHideCursor();
+			else
+				forceShowCursor();
+			break;
+		case KeyEvent::KEY_s:
+			// toggle stereoscopic view
+			mIsStereoscopic = !mIsStereoscopic;
+			mIsCylindrical = false;
+			// adjust line width and aspect ratio
+			mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+			mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
+			mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
+			break;
+		case KeyEvent::KEY_d:
+			// cylindrical panorama
+			mIsCylindrical = !mIsCylindrical;
+			mIsStereoscopic = false;
+			// adjust line width and aspect ratio
+			mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+			mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
+			mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
+			break;
+		case KeyEvent::KEY_RETURN:
+			createShader();
+			break;
+		case KeyEvent::KEY_PLUS:
+		case KeyEvent::KEY_EQUALS:
+		case KeyEvent::KEY_KP_PLUS:
+			mCamera.setFov( mCamera.getFov() + 0.1 );
+			break;
+		case KeyEvent::KEY_MINUS:
+		case KeyEvent::KEY_UNDERSCORE:
+		case KeyEvent::KEY_KP_MINUS:
+			mCamera.setFov( mCamera.getFov() - 0.1 );
+			break;
 	}
 }
 
@@ -699,7 +707,7 @@ void StarsApp::constrainCursor( const ivec2 &pos )
 	// ever hitting the sides of the screen
 
 	if( pos.x < 50 || pos.x > getWindowWidth() - 50 || pos.y < 50 || pos.y > getWindowHeight() - 50 ) {
-#ifdef WIN32
+#if defined(CINDER_MSW)
 		POINT pt;
 		mCursorPrevious.x = pt.x = getWindowWidth() / 2;
 		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
@@ -765,7 +773,7 @@ fs::path	StarsApp::getNextFile( const fs::path &current )
 				// file matches, return it
 				return i->path();
 			}
-			else if( *i == current ) {
+			else if( i->path() == current ) {
 				useNext = true;
 			}
 		}
@@ -785,7 +793,7 @@ fs::path	StarsApp::getPrevFile( const fs::path &current )
 			// skip if not a file
 			if( !fs::is_regular_file( i->status() ) ) continue;
 
-			if( *i == current ) {
+			if( i->path() == current ) {
 				// do we know what file came before this one?
 				if( !previous.empty() )
 					return previous;
@@ -798,7 +806,7 @@ fs::path	StarsApp::getPrevFile( const fs::path &current )
 					continue;
 
 				// keep track of this file
-				previous = *i;
+				previous = i->path();
 			}
 		}
 	}
@@ -810,4 +818,4 @@ fs::path	StarsApp::getPrevFile( const fs::path &current )
 // allow easy access to the application from outside
 static StarsApp* StarsAppPtr() { return static_cast<StarsApp*>( App::get() ); }
 
-CINDER_APP_BASIC( StarsApp, RendererGl )
+CINDER_APP( StarsApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &StarsApp::prepare )

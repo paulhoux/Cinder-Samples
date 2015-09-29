@@ -25,6 +25,8 @@
 
 #include "text/FontStore.h"
 
+#include "cinder/app/App.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 

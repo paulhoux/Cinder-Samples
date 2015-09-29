@@ -22,8 +22,9 @@
 
 #include "UserInterface.h"
 
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/Context.h"
+#include "cinder/gl/scoped.h"
 #include "text/FontStore.h"
 
 using namespace ci;
@@ -57,7 +58,7 @@ void UserInterface::draw( const std::string &text )
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 
-	gl::ScopedAlphaBlend blend( false );
+	gl::ScopedBlendAlpha blend;
 	gl::ScopedColor color( 1, 1, 1 );
 
 	auto viewport = gl::getViewport();

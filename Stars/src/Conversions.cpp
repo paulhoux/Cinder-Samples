@@ -90,7 +90,8 @@ void Conversions::mergeNames( ci::DataSourceRef hyg, ci::DataSourceRef ciel )
 	std::map< uint32_t, std::string > names;
 
 	std::vector< std::string > lines;
-	boost::algorithm::split( lines, stars, boost::is_any_of("\r\n"), boost::token_compress_on );
+	//boost::algorithm::split( lines, stars, boost::is_any_of("\r\n"), boost::token_compress_on );
+	lines = ci::split( stars, "\r\n", true );
 
 	std::vector< std::string >::iterator itr;
 	for(itr=lines.begin();itr!=lines.end();++itr) {

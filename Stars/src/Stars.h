@@ -5,9 +5,9 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and
 	the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
 	the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -30,32 +30,31 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/VboMesh.h"
 
-class Stars
-{
+class Stars {
 public:
 	// the Star class will later be used to read/write binary star data files
-	class	Star
-	{
+	class	Star {
 	public:
-		Star(void)
-			: mDistance(0.0f), mMagnitude(0.0f), mColor( ci::Color::white() )
+		Star( void )
+			: mDistance( 0.0f ), mMagnitude( 0.0f ), mColor( ci::Color::white() )
 		{
-			setPosition(0.0f, 0.0f);
+			setPosition( 0.0f, 0.0f );
 		}
 
 		Star( float ra, float dec, float parsecs, float magnitude, const ci::Color &color )
-			: mDistance(parsecs), mMagnitude(magnitude), mColor(color) 
+			: mDistance( parsecs ), mMagnitude( magnitude ), mColor( color )
 		{
-			setPosition(ra, dec);
+			setPosition( ra, dec );
 		}
 
 		ci::vec3	getPosition() { return mDistance * mPosition; }
-		void		setPosition( float ra, float dec ) {
-						// convert to world (universe) coordinates
-						float alpha = ci::toRadians( ra * 15.0f );
-						float delta = ci::toRadians( dec );
-						mPosition = ci::vec3( sinf(alpha) * cosf(delta), sinf(delta), cosf(alpha) * cosf(delta) );
-					}
+		void		setPosition( float ra, float dec )
+		{
+			// convert to world (universe) coordinates
+			float alpha = ci::toRadians( ra * 15.0f );
+			float delta = ci::toRadians( dec );
+			mPosition = ci::vec3( sinf( alpha ) * cosf( delta ), sinf( delta ), cosf( alpha ) * cosf( delta ) );
+		}
 
 		float		getDistance() { return mDistance; }
 		void		setDistance( float parsecs ) { mDistance = parsecs; }
@@ -73,8 +72,8 @@ public:
 	};
 
 public:
-	Stars(void);
-	~Stars(void);
+	Stars( void );
+	~Stars( void );
 
 	void	setup();
 	void	draw();

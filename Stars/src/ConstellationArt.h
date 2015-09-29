@@ -22,12 +22,12 @@
 
 #pragma once
 
-#include "cinder/Vector.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/Batch.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/VboMesh.h"
+#include "cinder/Vector.h"
 
 class ConstellationArt {
 public:
@@ -45,7 +45,7 @@ private:
 	std::string	getVertexShader() const;
 	std::string	getFragmentShader() const;
 	//
-	float				mAttenuation;
+	float						mAttenuation;
 
 	ci::gl::Texture2dRef		mTexture;
 	ci::gl::BatchRef			mBatch;

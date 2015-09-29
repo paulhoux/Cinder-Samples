@@ -24,8 +24,9 @@
 #include "Conversions.h"
 
 #include "cinder/ImageIo.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/Context.h"
+#include "cinder/gl/scoped.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -61,7 +62,7 @@ void ConstellationArt::draw()
 	gl::pushModelView();
 	{
 		gl::ScopedTextureBind tex0( mTexture );
-		gl::ScopedAdditiveBlend blend;
+		gl::ScopedBlendAdditive blend;
 		gl::ScopedColor color( mAttenuation * Color( 0.4f, 0.6f, 0.8f ) );
 
 		mBatch->draw();

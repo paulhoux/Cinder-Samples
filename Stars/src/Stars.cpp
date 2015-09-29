@@ -24,7 +24,8 @@
 #include "Conversions.h"
 
 #include "cinder/ImageIo.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
+#include "cinder/gl/scoped.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
@@ -67,9 +68,9 @@ void Stars::draw()
 
 	enablePointSprites();
 
-	gl::ScopedAdditiveBlend blend;
-	gl::ScopedTextureBind tex0( mTextureStar, (uint8_t) 0 );
-	gl::ScopedTextureBind tex1( mTextureCorona, (uint8_t) 1 );
+	gl::ScopedBlendAdditive blend;
+	gl::ScopedTextureBind tex0( mTextureStar, (uint8_t)0 );
+	gl::ScopedTextureBind tex1( mTextureCorona, (uint8_t)1 );
 	gl::ScopedColor color( Color::white() );
 
 	mBatch->draw();
@@ -84,7 +85,7 @@ void Stars::resize( const ivec2& size )
 
 	// point sprite sizes differ between ATI/AMD and NVIDIA GPU's,
 	// ATI's are twice as large and have to be scaled down
-	std::string vendor = std::string( (char*) glGetString( GL_VENDOR ) );
+	std::string vendor = std::string( (char*)glGetString( GL_VENDOR ) );
 
 	if( vendor == "ATI Technologies Inc." )
 		mScale *= 0.5f;
@@ -112,7 +113,7 @@ void Stars::enablePointSprites()
 	mShader->bind();
 	mShader->uniform( "tex0", 0 );
 	mShader->uniform( "tex1", 1 );
-	mShader->uniform( "time", (float) getElapsedSeconds() );
+	mShader->uniform( "time", (float)getElapsedSeconds() );
 	mShader->uniform( "aspect", mAspectRatio );
 	mShader->uniform( "scale", mScale );
 }
@@ -189,16 +190,15 @@ void Stars::load( DataSourceRef source )
 	// load the star database
 	std::string	stars = loadString( source );
 
-	// use boost tokenizer to parse the file
-	std::vector<std::string> tokens;
-	boost::split_iterator<std::string::iterator> lineItr, endItr;
-	for( lineItr = boost::make_split_iterator( stars, boost::token_finder( boost::is_any_of( "\n\r" ) ) ); lineItr != endItr; ++lineItr ) {
+	// parse the file
+	auto entries = ci::split( stars, "\n\r", true );
+	for( auto &entry : entries ) {
 		// retrieve a single, trimmed line
-		std::string line = boost::algorithm::trim_copy( boost::copy_range<std::string>( *lineItr ) );
+		std::string line = boost::algorithm::trim_copy( boost::copy_range<std::string>( entry ) );
 		if( line.empty() ) continue;
 
 		// split into tokens   
-		boost::algorithm::split( tokens, line, boost::is_any_of( ";" ), boost::token_compress_off );
+		auto tokens = ci::split( line, ";", false );
 
 		// skip if data was incomplete
 		if( tokens.size() < 23 )  continue;
@@ -212,9 +212,9 @@ void Stars::load( DataSourceRef source )
 			double colorindex = ( tokens.size() > 16 ) ? Conversions::toDouble( tokens[16] ) : 0.0;
 			double colorlut = ( colorindex + 0.40 ) / 0.05;
 
-			uint32_t index = math<uint32_t>::clamp( (uint32_t) colorlut, 0, 48 );
-			uint32_t next_index = math<uint32_t>::clamp( (uint32_t) colorlut + 1, 0, 48 );
-			float t = math<float>::clamp( (float) colorlut - index, 0.0f, 1.0f );
+			uint32_t index = math<uint32_t>::clamp( (uint32_t)colorlut, 0, 48 );
+			uint32_t next_index = math<uint32_t>::clamp( (uint32_t)colorlut + 1, 0, 48 );
+			float t = math<float>::clamp( (float)colorlut - index, 0.0f, 1.0f );
 
 			ColorA color = ( 1.0f - t )  * lookup[index] + t * lookup[next_index];
 
@@ -227,9 +227,9 @@ void Stars::load( DataSourceRef source )
 			double delta = toRadians( dec );
 
 			// convert to world (universe) coordinates
-			mVertices.push_back( vec3( distance * dvec3( (float) ( sin( alpha ) * cos( delta ) ), (float) sin( delta ), (float) ( cos( alpha ) * cos( delta ) ) ) ) );
+			mVertices.push_back( vec3( distance * dvec3( (float)( sin( alpha ) * cos( delta ) ), (float)sin( delta ), (float)( cos( alpha ) * cos( delta ) ) ) ) );
 			// put extra data (absolute magnitude and distance to Earth) in texture coordinates
-			mTexcoords.push_back( vec2( (float) abs_mag, (float) distance ) );
+			mTexcoords.push_back( vec2( (float)abs_mag, (float)distance ) );
 			// put color in color attribute
 			mColors.push_back( color );
 		}

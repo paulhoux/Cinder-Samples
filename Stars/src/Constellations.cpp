@@ -23,9 +23,10 @@
 #include "Constellations.h"
 #include "Conversions.h"
 
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/Context.h"
 #include "cinder/gl/VboMesh.h"
+#include "cinder/gl/scoped.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -50,7 +51,7 @@ void Constellations::draw()
 	glLineWidth( mLineWidth );
 
 	gl::ScopedColor color( Color( 0.5f, 0.6f, 0.8f ) * mAttenuation );
-	gl::ScopedAdditiveBlend blend;
+	gl::ScopedBlendAdditive blend;
 
 	mBatch->draw();
 }

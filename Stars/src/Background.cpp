@@ -24,9 +24,10 @@
 #include "Conversions.h"
 
 #include "cinder/ImageIo.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/Context.h"
 #include "cinder/gl/VboMesh.h"
+#include "cinder/gl/scoped.h"
 
 using namespace ci;
 using namespace ci::app;

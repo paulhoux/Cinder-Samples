@@ -25,7 +25,7 @@
 
 #include "cinder/CinderMath.h"
 #include "cinder/Utilities.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -142,7 +142,7 @@ void Cam::update( double elapsed )
 	}
 
 	// focus camera
-	mCurrentCam.setConvergence( math<float>::min( 1.0f, 0.95f * mCurrentCam.getEyePoint().length() ), true );
+	mCurrentCam.setConvergence( math<float>::min( 1.0f, 0.95f * glm::length( mCurrentCam.getEyePoint() ) ), true );
 }
 
 void Cam::mouseDown( const ivec2 &mousePos )
@@ -209,7 +209,7 @@ void Cam::setCurrentCam( const CameraStereo &aCurrentCam )
 	mCurrentCam = aCurrentCam;
 
 	// update distance and fov
-	mDistance = mCurrentCam.getEyePoint().length();
+	mDistance = glm::length( mCurrentCam.getEyePoint() );
 	mFov = (double) mCurrentCam.getFov();
 }
 
@@ -220,7 +220,7 @@ const CameraStereo& Cam::getCamera()
 	mCurrentCam.setEyePoint( getPosition() );
 
 	if( !mIsOriented )
-		mCurrentCam.setCenterOfInterestPoint( vec3( 0 ) );
+		mCurrentCam.lookAt( vec3( 0 ) );
 
 	return mCurrentCam;
 }
@@ -230,7 +230,7 @@ void Cam::setOrientation( const quat& orientation )
 	mIsOriented = true;
 
 	// If we're facing forward, we should always look at the sun.
-	mCurrentCam.setCenterOfInterestPoint( vec3( 0 ) );
+	mCurrentCam.lookAt( vec3( 0 ) );
 	mCurrentCam.setOrientation( mCurrentCam.getOrientation() * orientation );
 }
 

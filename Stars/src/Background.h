@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "cinder/Vector.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/Batch.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/Vector.h"
 
 class Background {
 public:
