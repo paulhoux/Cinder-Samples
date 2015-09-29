@@ -20,52 +20,53 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/ImageIo.h"
-#include "cinder/MayaCamUI.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Context.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/ImageIo.h"
+#include "cinder/CameraUi.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class TransparentMeshApp : public AppBasic {
+class TransparentMeshApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
-	void setup();
-	void update();
-	void draw();
+	void setup() override;
+	void update() override;
+	void draw() override;
 
-	void resize();
+	void resize() override;
 
-	void mouseMove( MouseEvent event );
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void mouseUp( MouseEvent event );
+	void mouseMove( MouseEvent event ) override;
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
 
-	void keyDown( KeyEvent event );
-	void keyUp( KeyEvent event );
+	void keyDown( KeyEvent event ) override;
+	void keyUp( KeyEvent event ) override;
 private:
 	// our textures
-	gl::TextureRef	mTexEarth;
-	gl::TextureRef	mTexBackground;
+	gl::Texture2dRef	mTexEarth;
+	gl::Texture2dRef	mTexBackground;
 
 	// our shader
-	gl::GlslProgRef	mShader;
+	gl::GlslProgRef		mShader;
 
 	// animate the Earth by rotating it around y-axis
-	float			mDegrees;
+	float				mDegrees;
 
 	// our controlable 3D camera
-	MayaCamUI		mCamera;
+	CameraPersp			mCamera;
+	CameraUi			mCameraUi;
 };
 
-void TransparentMeshApp::prepareSettings( Settings *settings )
+void TransparentMeshApp::prepare( Settings *settings )
 {
 	settings->setTitle( "Transparent Mesh Sample" );
 }
@@ -93,12 +94,10 @@ void TransparentMeshApp::setup()
 	mDegrees = 0.0f;
 
 	// intialize 3D camera
-	CameraPersp cam;
-	cam.setPerspective( 60.0f, 1.0f, 0.1f, 1000.0f );
-	cam.setEyePoint( vec3( 0, 150, -200 ) );
-	cam.setCenterOfInterestPoint( vec3( 0 ) );
+	mCamera.setPerspective( 60.0f, 1.0f, 0.1f, 1000.0f );
+	mCamera.lookAt( vec3( 0, 150, -200 ), vec3( 0 ) );
 
-	mCamera.setCurrentCam( cam );
+	mCameraUi.setCamera( &mCamera );
 }
 
 void TransparentMeshApp::update()
@@ -112,7 +111,7 @@ void TransparentMeshApp::draw()
 	gl::clear();
 
 	// first draw a 2D background
-	gl::color( Color::white() );
+	gl::ScopedColor color( Color::white() );
 	gl::draw( mTexBackground, getWindowBounds() );
 
 	// next, enable the depth buffer and camera so we can render in 3D
@@ -120,7 +119,7 @@ void TransparentMeshApp::draw()
 	gl::enableDepthWrite();
 
 	gl::pushMatrices();
-	gl::setMatrices( mCamera.getCamera() );
+	gl::setMatrices( mCamera );
 
 	// rotate the coordinate system, so the earth rotates over time
 	gl::rotate( mDegrees, 0, 1, 0 );
@@ -128,28 +127,24 @@ void TransparentMeshApp::draw()
 	// bind the shader and earth texture (containing transparency) and enable alpha blending
 	gl::ScopedGlslProg shader( mShader );
 	gl::ScopedTextureBind tex0( mTexEarth );
-	gl::enableAlphaBlending();
+	gl::ScopedBlendAlpha blend;
 
 	// the trick with rendering transparent objects, is to render from back to front.
 	// For a single mesh, this is relatively easy: first, only draw all back-facing polygons,
 	// then draw all front-facing polygons. This is where face-culling comes in.
-	gl::enable( GL_CULL_FACE );
+	gl::ScopedFaceCulling culling( true );
 
 	// draw all back-facing polygons first (in a slightly darker color)
-	glCullFace( GL_FRONT );
+	gl::cullFace( GL_FRONT );
 	gl::color( Color( 0.75f, 0.75f, 0.75f ) );
 	gl::drawSphere( vec3( 0 ), 100.0f, 60 );
 
 	// draw all front-facing polygons next (in their original color)
-	glCullFace( GL_BACK );
+	gl::cullFace( GL_BACK );
 	gl::color( Color( 1, 1, 1 ) );
 	gl::drawSphere( vec3( 0 ), 100.0f, 60 );
 
-	// disable face culling again
-	gl::disable( GL_CULL_FACE );
-
 	// restore all the other render states
-	gl::disableAlphaBlending();
 	gl::popMatrices();
 	gl::disableDepthWrite();
 	gl::disableDepthRead();
@@ -158,9 +153,7 @@ void TransparentMeshApp::draw()
 void TransparentMeshApp::resize()
 {
 	// update the camera's aspect ratio
-	CameraPersp cam = mCamera.getCamera();
-	cam.setAspectRatio( getWindowAspectRatio() );
-	mCamera.setCurrentCam( cam );
+	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
 void TransparentMeshApp::mouseMove( MouseEvent event )
@@ -170,13 +163,13 @@ void TransparentMeshApp::mouseMove( MouseEvent event )
 void TransparentMeshApp::mouseDown( MouseEvent event )
 {
 	// let the user control our camera
-	mCamera.mouseDown( event.getPos() );
+	mCameraUi.mouseDown( event.getPos() );
 }
 
 void TransparentMeshApp::mouseDrag( MouseEvent event )
 {
 	// let the user control our camera
-	mCamera.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	mCameraUi.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void TransparentMeshApp::mouseUp( MouseEvent event )
@@ -191,4 +184,4 @@ void TransparentMeshApp::keyUp( KeyEvent event )
 {
 }
 
-CINDER_APP_BASIC( TransparentMeshApp, RendererGl )
+CINDER_APP( TransparentMeshApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &TransparentMeshApp::prepare )
