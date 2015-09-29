@@ -21,10 +21,10 @@
  */
 
 #include "cinder/Camera.h"
+#include "cinder/CameraUi.h"
 #include "cinder/ImageIo.h"
-#include "cinder/MayaCamUI.h"
 #include "cinder/Surface.h"
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Batch.h"
@@ -37,23 +37,23 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class SmoothDisplacementMappingApp : public AppBasic {
+class SmoothDisplacementMappingApp : public App {
 public:
-	void prepareSettings( Settings *settings );
+	static void prepare( Settings *settings );
 
-	void setup();
-	void update();
-	void draw();
+	void setup() override;
+	void update() override;
+	void draw() override;
 
-	void resize();
+	void resize() override;
 
-	void mouseMove( MouseEvent event );
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void mouseUp( MouseEvent event );
+	void mouseMove( MouseEvent event ) override;
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
 
-	void keyDown( KeyEvent event );
-	void keyUp( KeyEvent event );
+	void keyDown( KeyEvent event ) override;
+	void keyUp( KeyEvent event ) override;
 private:
 	void createMesh();
 	void createTextures();
@@ -64,36 +64,36 @@ private:
 
 	void resetCamera();
 private:
-	bool			mDrawTextures;
-	bool			mDrawWireframe;
-	bool			mDrawOriginalMesh;
-	bool			mEnableShader;
+	float             mAmplitude;
+	float             mAmplitudeTarget;
 
-	float			mAmplitude;
-	float			mAmplitudeTarget;
+	CameraPersp       mCamera;
+	CameraUi          mCameraUi;
 
-	MayaCamUI		mMayaCam;
-	CameraPersp		mCamera;
+	gl::FboRef        mDispMapFbo;
+	gl::GlslProgRef   mDispMapShader;
 
-	gl::FboRef		mDispMapFbo;
-	gl::GlslProgRef	mDispMapShader;
+	gl::FboRef        mNormalMapFbo;
+	gl::GlslProgRef   mNormalMapShader;
 
-	gl::FboRef		mNormalMapFbo;
-	gl::GlslProgRef	mNormalMapShader;
+	gl::VboMeshRef    mVboMesh;
+	gl::GlslProgRef   mMeshShader;
+	gl::BatchRef      mBatch;
 
-	gl::VboMeshRef	mVboMesh;
-	gl::GlslProgRef	mMeshShader;
-	gl::BatchRef	mBatch;
+	gl::Texture2dRef  mBackgroundTexture;
+	gl::GlslProgRef   mBackgroundShader;
 
-	gl::TextureRef	mBackgroundTexture;
-	gl::GlslProgRef	mBackgroundShader;
+	bool              mDrawTextures;
+	bool              mDrawWireframe;
+	bool              mDrawOriginalMesh;
+	bool              mEnableShader;
 };
 
-void SmoothDisplacementMappingApp::prepareSettings( Settings *settings )
+void SmoothDisplacementMappingApp::prepare( Settings *settings )
 {
 	settings->setTitle( "Vertex Displacement Mapping with Smooth Normals" );
 	settings->setWindowSize( 1280, 720 );
-	settings->setFrameRate( 500.0f );
+	settings->disableFrameRate();
 }
 
 void SmoothDisplacementMappingApp::setup()
@@ -107,6 +107,7 @@ void SmoothDisplacementMappingApp::setup()
 	mAmplitudeTarget = 10.0f;
 
 	// initialize our camera
+	mCameraUi.setCamera( &mCamera );
 	resetCamera();
 
 	// load and compile shaders
@@ -180,8 +181,8 @@ void SmoothDisplacementMappingApp::draw()
 
 	if( mDispMapFbo && mNormalMapFbo && mMeshShader ) {
 		// bind the displacement and normal maps, each to their own texture unit
-		gl::ScopedTextureBind tex0( mDispMapFbo->getColorTexture(), (uint8_t) 0 );
-		gl::ScopedTextureBind tex1( mNormalMapFbo->getColorTexture(), (uint8_t) 1 );
+		gl::ScopedTextureBind tex0( mDispMapFbo->getColorTexture(), (uint8_t)0 );
+		gl::ScopedTextureBind tex1( mNormalMapFbo->getColorTexture(), (uint8_t)1 );
 
 		// render our mesh using vertex displacement
 		gl::ScopedGlslProg shader( mMeshShader );
@@ -202,9 +203,7 @@ void SmoothDisplacementMappingApp::draw()
 
 void SmoothDisplacementMappingApp::resetCamera()
 {
-	mCamera.setEyePoint( vec3( 0.0f, 0.0f, 130.0f ) );
-	mCamera.setCenterOfInterestPoint( vec3( 0.0f, 0.0f, 0.0f ) );
-	mMayaCam.setCurrentCam( mCamera );
+	mCamera.lookAt( vec3( 0.0f, 0.0f, 130.0f ), vec3( 0.0f, 0.0f, 0.0f ) );
 }
 
 void SmoothDisplacementMappingApp::renderDisplacementMap()
@@ -289,7 +288,6 @@ void SmoothDisplacementMappingApp::resize()
 {
 	// if window is resized, update camera aspect ratio
 	mCamera.setAspectRatio( getWindowAspectRatio() );
-	mMayaCam.setCurrentCam( mCamera );
 }
 
 void SmoothDisplacementMappingApp::mouseMove( MouseEvent event )
@@ -299,14 +297,13 @@ void SmoothDisplacementMappingApp::mouseMove( MouseEvent event )
 void SmoothDisplacementMappingApp::mouseDown( MouseEvent event )
 {
 	// handle user input
-	mMayaCam.mouseDown( event.getPos() );
+	mCameraUi.mouseDown( event.getPos() );
 }
 
 void SmoothDisplacementMappingApp::mouseDrag( MouseEvent event )
 {
 	// handle user input
-	mMayaCam.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
-	mCamera = mMayaCam.getCamera();
+	mCameraUi.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
 void SmoothDisplacementMappingApp::mouseUp( MouseEvent event )
@@ -316,47 +313,47 @@ void SmoothDisplacementMappingApp::mouseUp( MouseEvent event )
 void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-	case KeyEvent::KEY_ESCAPE:
-		// quit
-		quit();
-		break;
-	case KeyEvent::KEY_f:
-		// toggle full screen
-		setFullScreen( !isFullScreen() );
-		break;
-	case KeyEvent::KEY_m:
-		// toggle original mesh
-		mDrawOriginalMesh = !mDrawOriginalMesh;
-		break;
-	case KeyEvent::KEY_s:
-		// reload shaders
-		compileShaders();
-		break;
-	case KeyEvent::KEY_t:
-		// toggle draw textures
-		mDrawTextures = !mDrawTextures;
-		break;
-	case KeyEvent::KEY_v:
-		// toggle vertical sync
-		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-		break;
-	case KeyEvent::KEY_w:
-		// toggle wire frame
-		mDrawWireframe = !mDrawWireframe;
-		break;
-	case KeyEvent::KEY_SPACE:
-		// reset camera
-		resetCamera();
-		break;
-	case KeyEvent::KEY_a:
-		if( mAmplitudeTarget < 10.0f )
-			mAmplitudeTarget = 10.0f;
-		else
-			mAmplitudeTarget = 0.0f;
-		break;
-	case KeyEvent::KEY_q:
-		mEnableShader = !mEnableShader;
-		break;
+		case KeyEvent::KEY_ESCAPE:
+			// quit
+			quit();
+			break;
+		case KeyEvent::KEY_f:
+			// toggle full screen
+			setFullScreen( !isFullScreen() );
+			break;
+		case KeyEvent::KEY_m:
+			// toggle original mesh
+			mDrawOriginalMesh = !mDrawOriginalMesh;
+			break;
+		case KeyEvent::KEY_s:
+			// reload shaders
+			compileShaders();
+			break;
+		case KeyEvent::KEY_t:
+			// toggle draw textures
+			mDrawTextures = !mDrawTextures;
+			break;
+		case KeyEvent::KEY_v:
+			// toggle vertical sync
+			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+			break;
+		case KeyEvent::KEY_w:
+			// toggle wire frame
+			mDrawWireframe = !mDrawWireframe;
+			break;
+		case KeyEvent::KEY_SPACE:
+			// reset camera
+			resetCamera();
+			break;
+		case KeyEvent::KEY_a:
+			if( mAmplitudeTarget < 10.0f )
+				mAmplitudeTarget = 10.0f;
+			else
+				mAmplitudeTarget = 0.0f;
+			break;
+		case KeyEvent::KEY_q:
+			mEnableShader = !mEnableShader;
+			break;
 	}
 }
 
@@ -396,11 +393,11 @@ void SmoothDisplacementMappingApp::createMesh()
 		for( int z = 0; z < RES_Z - 1; ++z ) {
 			uint16_t i = x * RES_Z + z;
 
-			indices.push_back( i ); 
-			indices.push_back( i + 1 ); 
+			indices.push_back( i );
+			indices.push_back( i + 1 );
 			indices.push_back( i + RES_Z );
-			indices.push_back( i + RES_Z ); 
-			indices.push_back( i + 1 ); 
+			indices.push_back( i + RES_Z );
+			indices.push_back( i + 1 );
 			indices.push_back( i + RES_Z + 1 );
 		}
 	}
@@ -424,11 +421,11 @@ void SmoothDisplacementMappingApp::createMesh()
 void SmoothDisplacementMappingApp::createTextures()
 {
 	try {
-		mBackgroundTexture = gl::Texture::create( loadImage( loadAsset( "background.png" ) ) );
+		mBackgroundTexture = gl::Texture2d::create( loadImage( loadAsset( "background.png" ) ) );
 	}
 	catch( const std::exception &e ) {
 		console() << "Could not load image: " << e.what() << std::endl;
 	}
 }
 
-CINDER_APP_BASIC( SmoothDisplacementMappingApp, RendererGl )
+CINDER_APP( SmoothDisplacementMappingApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &SmoothDisplacementMappingApp::prepare )
