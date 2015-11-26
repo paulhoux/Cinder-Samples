@@ -22,7 +22,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#version 130
+#version 150
 
 uniform sampler2D tex;
 

@@ -29,6 +29,7 @@ public:
 	ConstellationLabels( void );
 	~ConstellationLabels( void );
 
+	void setup() override;
 	void draw() override;
 
 	void setCameraDistance( float distance ) override;

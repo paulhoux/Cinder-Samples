@@ -42,6 +42,22 @@ ConstellationLabels::~ConstellationLabels(void)
 {
 }
 
+void ConstellationLabels::setup()
+{
+	// intialize labels
+	text::fonts().loadFont( loadAsset( "fonts/Ubuntu-BoldItalic.sdff" ) );
+	mLabels.setFont( text::fonts().getFont( "Ubuntu-BoldItalic" ) );
+	mLabels.setFontSize( 16.0f );
+	mLabels.setBoundary( text::Text::LINE );
+	//mLabels.setOffset( 2.5f, 2.5f );
+
+	double alpha = toRadians( 17.76112222 * 15.0 );
+	double delta = toRadians( -29.00780555 );
+	vec3 position = 8330.0f * vec3( (float)( sin( alpha ) * cos( delta ) ), (float)sin( delta ), (float)( cos( alpha ) * cos( delta ) ) );
+
+	mLabels.addLabel( position, "Center of the Galaxy" );
+}
+
 void ConstellationLabels::draw()
 {
 	//glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );

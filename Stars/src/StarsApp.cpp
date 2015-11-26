@@ -150,7 +150,7 @@ void StarsApp::prepare( Settings *settings )
 	auto displays = Display::getDisplays();
 
 	settings->disableFrameRate();
-	settings->setWindowSize( 1920, 1080 );
+	settings->setWindowSize( 1280, 720 );
 
 #if !_DEBUG
 	settings->setFullScreen( true );
@@ -189,6 +189,10 @@ void StarsApp::setup()
 
 	if( fs::exists( getAssetPath( "" ) / "labels.cdb" ) )
 		mLabels.read( loadFile( getAssetPath( "" ) / "labels.cdb" ) );
+	else {
+		mLabels.load( loadAsset( "hygxyz.csv" ) );
+		mLabels.write( writeFile( getAssetPath( "" ) / "labels.cdb" ) );
+	}
 
 	if( fs::exists( getAssetPath( "" ) / "constellations.cdb" ) )
 		mConstellations.read( loadFile( getAssetPath( "" ) / "constellations.cdb" ) );
