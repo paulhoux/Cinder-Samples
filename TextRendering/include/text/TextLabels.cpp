@@ -39,9 +39,9 @@ void TextLabels::clear()
 	mInvalid = true;
 }
 
-void TextLabels::addLabel( const vec3 &position, const std::u16string &text )
+void TextLabels::addLabel( const vec3 &position, const std::u16string &text, float data )
 {
-	mLabels.insert( pair<vec3, std::u16string>( position, text ) );
+	mLabels.insert( pair<vec4, std::u16string>( vec4( position, data ), text ) );
 	mInvalid = true;
 }
 
@@ -124,12 +124,12 @@ void TextLabels::createMesh()
 	gl::VboMesh::Layout layout;
 	layout.attrib( geom::POSITION, 3 );
 	layout.attrib( geom::TEX_COORD_0, 2 );
-	layout.attrib( geom::TEX_COORD_1, 3 );
+	layout.attrib( geom::TEX_COORD_1, 4 );
 
 	mVboMesh = gl::VboMesh::create( mVertices.size(), GL_TRIANGLES, { layout }, mIndices.size(), GL_UNSIGNED_SHORT );
 	mVboMesh->bufferAttrib( geom::POSITION, mVertices.size() * sizeof( vec3 ), mVertices.data() );
 	mVboMesh->bufferAttrib( geom::TEX_COORD_0, mTexcoords.size() * sizeof( vec2 ), mTexcoords.data() );
-	mVboMesh->bufferAttrib( geom::TEX_COORD_1, mOffsets.size() * sizeof( vec3 ), mOffsets.data() );
+	mVboMesh->bufferAttrib( geom::TEX_COORD_1, mOffsets.size() * sizeof( vec4 ), mOffsets.data() );
 	mVboMesh->bufferIndices( mIndices.size() * sizeof( uint16_t ), mIndices.data() );
 
 	mInvalid = false;
@@ -146,7 +146,7 @@ std::string TextLabels::getVertexShader() const
 		"in vec4 ciPosition;\n"
 		"in vec4 ciColor;\n"
 		"in vec2 ciTexCoord0;\n"
-		"in vec3 ciTexCoord1;\n"
+		"in vec4 ciTexCoord1;\n"
 		""
 		"out vec4 vColor;\n"
 		"out vec2 vTexCoord0;\n"
@@ -173,7 +173,7 @@ std::string TextLabels::getVertexShader() const
 		"	vColor = ciColor;\n"
 		""
 		"	// convert label position to normalized device coordinates to find the 2D offset\n"
-		"	vec3 offset = toNDC( ciModelViewProjection * vec4(ciTexCoord1,1) );\n"
+		"	vec3 offset = toNDC( ciModelViewProjection * vec4( ciTexCoord1.xyz , 1 ) );\n"
 		""
 		"	// convert vertex from screen space to normalized device coordinates\n"
 		"	vec3 vertex = vec3( ciPosition.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"

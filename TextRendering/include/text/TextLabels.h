@@ -36,13 +36,13 @@ public:
 	TextLabelCompare() {};
 
 	// always append at the end
-	bool operator() ( const ci::vec3 &a, const ci::vec3 &b ) const
+	bool operator() ( const ci::vec4 &a, const ci::vec4 &b ) const
 	{
 		return false;
 	}
 };
 
-typedef std::multimap< ci::vec3, std::u16string, TextLabelCompare >	TextLabelList;
+typedef std::multimap< ci::vec4, std::u16string, TextLabelCompare >	TextLabelList;
 typedef TextLabelList::iterator			TextLabelListIter;
 typedef TextLabelList::const_iterator	TextLabelListConstIter;
 
@@ -70,14 +70,16 @@ public:
 	//void		setOffset( const ci::vec2 &offset ) { mOffset = offset; mInvalid = true; }
 
 	//!	add label
-	void	addLabel( const ci::vec3 &position, const std::string &text ) { addLabel( position, ci::toUtf16( text ) ); }
-	void	addLabel( const ci::vec3 &position, const std::u16string &text );
+	void	addLabel( const ci::vec3 &position, const std::string &text, float data = 0.0f ) { addLabel( position, ci::toUtf16( text ), data ); }
+	void	addLabel( const ci::vec3 &position, const std::u16string &text, float data = 0.0f );
+
+	//! override vertex shader
+	virtual std::string	getVertexShader() const;
 protected:
 	//! get the maximum width of the text at the specified vertical position
 	virtual float getWidthAt( float y ) const { return 1000.0f; }
 
-	//! override vertex shader and bind method
-	virtual std::string	getVertexShader() const;
+	//! override bind method
 	virtual bool		bindShader();
 
 	//! clears the mesh and the buffers
@@ -91,8 +93,8 @@ protected:
 private:
 	TextLabelList			mLabels;
 
-	ci::vec3				mOffset;
-	std::vector<ci::vec3>	mOffsets;
+	ci::vec4				mOffset;
+	std::vector<ci::vec4>	mOffsets;
 };
 
 }

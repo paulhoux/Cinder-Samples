@@ -70,6 +70,13 @@ public:
 	void		setText( const std::u16string &text ) { mText = text; mMust.clear(); mAllow.clear(); mInvalid = true; }
 
 	ci::Rectf	getBounds() const;
+
+	//!
+	virtual std::string	getVertexShader() const;
+	//!
+	virtual std::string getFragmentShader() const;
+	//! Allows you to override the default text shader.
+	void		setShader( const ci::gl::GlslProgRef &shader ) { mShader = shader; }
 protected:
 	//! get the maximum width of the text at the specified vertical position 
 	virtual float	getWidthAt( float y ) { return 0.0f; }
@@ -85,8 +92,6 @@ protected:
 	}
 
 	//!
-	virtual std::string	getVertexShader() const;
-	virtual std::string getFragmentShader() const;
 	virtual bool		bindShader();
 	virtual bool		unbindShader();
 
