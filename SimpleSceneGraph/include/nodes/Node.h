@@ -57,7 +57,7 @@ namespace nodes {
 typedef std::shared_ptr<class Node>			NodeRef;
 typedef std::shared_ptr<const class Node>	NodeConstRef;
 typedef std::weak_ptr<class Node>			NodeWeakRef;
-typedef std::deque<NodeRef>					NodeList;
+typedef std::vector<NodeRef>				NodeList;
 typedef std::map<unsigned int, NodeWeakRef>	NodeMap;
 
 class Node : public std::enable_shared_from_this < Node > {

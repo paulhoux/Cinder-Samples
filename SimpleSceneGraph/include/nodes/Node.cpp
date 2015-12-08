@@ -158,7 +158,7 @@ void Node::moveToBottom( NodeRef node )
 	mChildren.erase( itr );
 
 	// add to start of list
-	mChildren.push_front( node );
+	mChildren.insert( mChildren.begin(), node );
 }
 
 NodeRef Node::findChild( unsigned int uuid )
