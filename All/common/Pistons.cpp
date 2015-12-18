@@ -53,16 +53,6 @@ void Piston::update( const ci::Camera& camera, float time )
 	mDistance = glm::distance2( mPosition, camera.getEyePoint() );
 }
 
-void Piston::draw( float time )
-{
-	//float t = mOffset + time;
-	//float height = 55.0f + 45.0f *  ci::math<float>::sin( t );
-	//mPosition.y = 0.5f * height;
-
-	//gl::color( mColor );
-	//gl::drawCube( mPosition, ci::vec3( 10.0f, height, 10.0f ) );
-}
-
 /////////////////////////////////////
 
 const char* Pistons::vs =
@@ -139,6 +129,7 @@ void Pistons::setup()
 {
 	mInstances.clear();
 
+	Rand::randSeed( 2015 );
 	for( int x = -50; x <= 50; x += 10 )
 		for( int z = -50; z <= 50; z += 10 )
 			mInstances.emplace_back( Piston( float( x ), float( z ) ) );
@@ -175,9 +166,10 @@ void Pistons::update( const ci::Camera& camera, float time )
 
 void Pistons::draw( const ci::Camera& camera )
 {
-	gl::ScopedDepth depth( true, true );
-	gl::ScopedFaceCulling cull( true, GL_BACK );
-	gl::ScopedColor color( Color::white() );
+	gl::ScopedDepth scpDepth( true );
+	gl::ScopedFaceCulling scpCull( true, GL_BACK );
+	gl::ScopedColor scpColor( Color::white() );
+	gl::ScopedBlend scpBlend( false );
 
 	gl::pushMatrices();
 	gl::setMatrices( camera );

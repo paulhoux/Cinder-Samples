@@ -25,6 +25,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/Camera.h"
+#include "cinder/Log.h"
 #include "cinder/Rand.h"
 
 #include "Pistons.h"
@@ -41,15 +42,17 @@ public:
 	void draw();
 
 	void keyDown( KeyEvent event );
+
+	void resize();
 private:
 	CameraPersp         mCamera;
-	Pistons             mPistons;
 	double              mTime;
 };
 
 void OneWorldMultipleWindowsApp::setup()
 {
-	mPistons.setup();
+	mCamera.setPerspective( 30.0f, 1.0f, 0.1f, 10000.0f );
+	mCamera.lookAt( vec3( 0, 0, 5000 ), vec3( 0, 0, 0 ) );
 }
 
 void OneWorldMultipleWindowsApp::update()
@@ -71,12 +74,18 @@ void OneWorldMultipleWindowsApp::update()
 	mCamera.lookAt( vec3( x, y, z ), vec3( 1, 50, 0 ) );
 
 	// Animate our pistons
-	mPistons.update( mCamera, (float)mTime );
+	for( size_t i = 0; i < getNumWindows(); ++i ) {
+		auto window = app::getWindowIndex( i );
+		auto pistons = window->getUserData<Pistons>();
+		if( pistons )
+			pistons->update( mCamera, (float)mTime );
+	}
 }
 
 void OneWorldMultipleWindowsApp::draw()
 {
 	// Note: this function is called once per frame for EACH WINDOW
+	gl::ScopedViewport scpViewport( ivec2( 0 ), getWindowSize() );
 
 	// We are going to use the whole display to render our scene.
 	vec2 displaySize( getDisplay()->getSize() );
@@ -85,14 +94,15 @@ void OneWorldMultipleWindowsApp::draw()
 	// Each window will be literally a window into our scene. This is made easy
 	// by the lens shift functions of the camera. We also need to set the correct
 	// vertical field of view and of course the aspect ratio of each window.
-	vec2 windowPos( getWindow()->getPos() );
-	vec2 windowSize( getWindow()->getSize() );
+	vec2 windowPos( getWindowPos() );
+	vec2 windowSize( getWindowSize() );
 	vec2 windowCenter = windowPos + windowSize * 0.5f;
 
+	const float fov = glm::radians( 30.0f );
 	float lensShiftX = 2.0f * ( windowCenter.x - displayCenter.x ) / windowSize.x;
 	float lensShiftY = 2.0f * ( displayCenter.y - windowCenter.y ) / windowSize.y;
-	mCamera.setAspectRatio( getWindowAspectRatio() );
-	mCamera.setFov( 60.0f * windowSize.y / displaySize.y );
+	mCamera.setAspectRatio( windowSize.x / windowSize.y );
+	mCamera.setFov( 2.0f * glm::degrees( glm::atan( windowSize.y / displaySize.y * glm::tan( 0.5f * fov ) ) ) );
 	mCamera.setLensShift( lensShiftX, lensShiftY );
 
 	// Draw our scene. Note: if possible, try to only draw what is visible in
@@ -102,7 +112,9 @@ void OneWorldMultipleWindowsApp::draw()
 
 	gl::clear();
 
-	mPistons.draw( mCamera );
+	auto pistons = getWindow()->getUserData<Pistons>();
+	if( pistons )
+		pistons->draw( mCamera );
 }
 
 void OneWorldMultipleWindowsApp::keyDown( KeyEvent event )
@@ -113,10 +125,26 @@ void OneWorldMultipleWindowsApp::keyDown( KeyEvent event )
 			break;
 		default:
 			// Create a new window
-			app::WindowRef newWindow = createWindow( Window::Format().size( 400, 300 ) );
+			app::WindowRef newWindow = createWindow( Window::Format().size( 640, 480 ) );
 			newWindow->setTitle( "OneWorldMultipleWindowsApp" );
 			break;
 	}
 }
 
-CINDER_APP( OneWorldMultipleWindowsApp, RendererGl( RendererGl::Options().msaa( 16 ) ) )
+void OneWorldMultipleWindowsApp::resize()
+{
+	// Called after a window is created or resized.
+	// Because each window has its own shared OpenGL context,
+	// and the Pistons require a Batch+VBO that can not be shared,
+	// we need to create a separate Pistons instance for each window.
+	// They will be stored using a shared_ptr, so we don't have to destroy them.
+	auto pistons = getWindow()->getUserData<Pistons>();
+	if( !pistons ) {
+		pistons = new Pistons();
+		pistons->setup();
+
+		getWindow()->setUserData( pistons );
+	}
+}
+
+CINDER_APP( OneWorldMultipleWindowsApp, RendererGl( RendererGl::Options().msaa( 0 ) ) )

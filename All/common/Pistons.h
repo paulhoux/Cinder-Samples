@@ -41,7 +41,6 @@ public:
 	Piston( float x, float z );
 
 	void update( const ci::Camera& camera, float time = 0 );
-	void draw( float time );
 
 	// Our custom sorting comparator
 	static int CompareByDistanceToCamera( const void* a, const void* b )
@@ -75,9 +74,8 @@ public:
 	static const char* vs;
 	static const char* fs;
 private:
-	ci::gl::BatchRef     mBatch;
-
 	std::vector<Piston>  mInstances;
+	ci::gl::BatchRef     mBatch;
 	ci::gl::VboRef       mInstanceVbo;
 };
 
