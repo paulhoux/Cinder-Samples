@@ -149,6 +149,23 @@ void Node::moveToBottom()
 	if( parent ) parent->moveToBottom( shared_from_this() );
 }
 
+//! sets the transformation matrix of this node
+
+void Node::setTransform( const ci::mat4 & transform ) const
+{
+	mTransform = transform;
+
+	auto parent = getParent<Node2D>();
+	if( parent )
+		mWorldTransform = parent->getWorldTransform() * mTransform;
+	else mWorldTransform = mTransform;
+
+	mIsTransformInvalidated = false;
+
+	for( auto &child : mChildren )
+		child->invalidateTransform();
+}
+
 void Node::moveToBottom( NodeRef node )
 {
 	// remove from list
@@ -227,7 +244,7 @@ void Node::treeDraw()
 	gl::pushModelView();
 
 	// usual way to update model matrix
-	gl::multModelMatrix( mTransform );
+	gl::setModelMatrix( getWorldTransform() );
 
 	// draw this node by calling derived class
 	draw();
@@ -433,7 +450,7 @@ vec2 Node2D::screenToObject( const vec2 &pt, float z ) const
 	vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
 
 	// Calculate the view-projection matrix.
-	mat4 model = mWorldTransform;
+	mat4 model = getWorldTransform();
 	mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
 
 	// Calculate the intersection of the mouse ray with the near (z=0) and far (z=1) planes.
@@ -456,7 +473,7 @@ vec2 Node2D::parentToScreen( const vec2 &pt ) const
 
 vec2 Node2D::parentToObject( const vec2 &pt ) const
 {
-	mat4 invTransform = glm::inverse( mTransform );
+	mat4 invTransform = glm::inverse( getTransform() );
 	vec4 p = invTransform * vec4( pt, 0, 0 );
 
 	return vec2( p.x, p.y );
@@ -464,7 +481,7 @@ vec2 Node2D::parentToObject( const vec2 &pt ) const
 
 vec2 Node2D::objectToParent( const vec2 &pt ) const
 {
-	vec4 p = mTransform * vec4( pt, 0, 0 );
+	vec4 p = getTransform() * vec4( pt, 0, 0 );
 	return vec2( p.x, p.y );
 }
 
@@ -476,7 +493,7 @@ vec2 Node2D::objectToScreen( const vec2 &pt ) const
 	vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
 
 	// Calculate the view-projection matrix.
-	mat4 model = mWorldTransform;
+	mat4 model = getWorldTransform();
 	mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
 
 	vec2 p = vec2( glm::project( vec3( pt, 0 ), model, viewProjection, viewport ) );
@@ -504,7 +521,7 @@ void Node3D::treeDrawWireframe()
 	gl::pushModelView();
 
 	// usual way to update model matrix
-	gl::multModelMatrix( mTransform );
+	gl::setModelMatrix( getWorldTransform() );
 
 	// draw this node by calling derived class
 	drawWireframe();

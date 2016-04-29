@@ -153,10 +153,17 @@ public:
 
 	//! returns the transformation matrix of this node
 	const ci::mat4& getTransform() const { if( mIsTransformInvalidated ) transform(); return mTransform; }
+	//! sets the transformation matrices of this node
+	void setTransform( const ci::mat4 &transform ) const;
 	//! returns the accumulated transformation matrix of this node
 	const ci::mat4& getWorldTransform() const { if( mIsTransformInvalidated ) transform(); return mWorldTransform; }
 	//!
-	void invalidateTransform() const { mIsTransformInvalidated = true; }
+	void invalidateTransform() const { 
+		mIsTransformInvalidated = true;
+
+		for( auto &child : mChildren )
+			child->invalidateTransform();
+	}
 
 	//! 
 	virtual void setSelected( bool selected = true ) { mIsSelected = selected; }
@@ -238,10 +245,6 @@ protected:
 	NodeList				mChildren;
 
 	ci::ColorA				mColor;
-
-	mutable bool			mIsTransformInvalidated;
-	mutable ci::mat4		mTransform;
-	mutable ci::mat4		mWorldTransform;
 protected:
 	//! function that is called right before drawing this node
 	virtual void predraw() {}
@@ -250,7 +253,8 @@ protected:
 
 	//! required transform() function to populate the transform matrix
 	virtual void transform() const = 0;
-private:
+
+private		:
 	bool				mIsSetup;
 
 	//! nodeCount is used to count the number of Node instances for debugging purposes
@@ -259,6 +263,10 @@ private:
 	static unsigned int uuidCount;
 	//! uuidLookup allows us to quickly find a Node by id
 	static NodeMap		uuidLookup;
+
+	mutable bool			mIsTransformInvalidated;
+	mutable ci::mat4		mTransform;
+	mutable ci::mat4		mWorldTransform;
 };
 
 // Basic support for OpenGL nodes
@@ -359,22 +367,16 @@ protected:
 	virtual void transform() const
 	{
 		// construct transformation matrix
-		mTransform = glm::translate( ci::vec3( mPosition, 0 ) );
-		mTransform *= glm::toMat4( mRotation );
-		mTransform *= glm::scale( ci::vec3( mScale, 1 ) );
+		ci::mat4 transform = glm::translate( ci::vec3( mPosition, 0 ) );
+		transform *= glm::toMat4( mRotation );
+		transform *= glm::scale( ci::vec3( mScale, 1 ) );
 
 		if( mAnchorIsPercentage )
-			mTransform *= glm::translate( ci::vec3( -mAnchor * getSize(), 0 ) );
+			transform *= glm::translate( ci::vec3( -mAnchor * getSize(), 0 ) );
 		else
-			mTransform *= glm::translate( ci::vec3( -mAnchor, 0 ) );
+			transform *= glm::translate( ci::vec3( -mAnchor, 0 ) );
 
-		// update world matrix (TODO will not work with cached matrix!)
-		Node2DRef parent = getParent<Node2D>();
-		if( parent )
-			mWorldTransform = parent->mWorldTransform * mTransform;
-		else mWorldTransform = mTransform;
-
-		// TODO set mIsTransformValidated to false once the world matrix stuff has been rewritten
+		setTransform( transform );
 	}
 };
 
@@ -423,16 +425,12 @@ protected:
 	virtual void transform() const
 	{
 		// construct transformation matrix
-		mTransform = glm::translate( mPosition );
-		mTransform *= glm::toMat4( mRotation );
-		mTransform *= glm::scale( mScale );
-		mTransform *= glm::translate( -mAnchor );
+		ci::mat4 transform = glm::translate( mPosition );
+		transform *= glm::toMat4( mRotation );
+		transform *= glm::scale( mScale );
+		transform *= glm::translate( -mAnchor );
 
-		// update world matrix
-		Node3DRef parent = getParent<Node3D>();
-		if( parent )
-			mWorldTransform = parent->mWorldTransform * mTransform;
-		else mWorldTransform = mTransform;
+		setTransform( transform );
 	}
 };
 
