@@ -13,6 +13,8 @@
 /*/vc2013/Release
 *.opensdf
 *.sdf
+*.opendb
+*.VC.db
 *.suo
 *.user
 *.gitignore
