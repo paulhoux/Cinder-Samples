@@ -44,20 +44,22 @@ void main() {
     // Boost the blur factor
     //normRadius = clamp(normRadius * 2.0, -1.0, 1.0);
 
+    // Decrease sharp image's contribution rapidly in the near field
+    // (which has positive normRadius)
+    if ( normRadius > 0.1 ) {
+       normRadius = min( normRadius * 1.5, 1.0 );
+    }
+        
+    //near.rgb = mix( near.rgb, blurred, abs( normRadius ) );
+
     if (coverageBoost != 1.0) {
-        float a = saturate(coverageBoost * near.a);
-        near.rgb = near.rgb * (a / max(near.a, 0.001f));
+        float a = saturate( coverageBoost * near.a );
+        near.rgb = near.rgb * ( a / max( near.a, 0.001 ) );
         near.a = a;
     }
 
-    // Decrease sharp image's contribution rapidly in the near field
-    // (which has positive normRadius)
-    if (normRadius > 0.1) {
-        normRadius = min(normRadius * 1.5, 1.0);
-    }
-
     // Two mixs, the second of which has a premultiplied alpha
-    result = mix(sharp, blurred, abs(normRadius)) * (1.0 - near.a) + near.rgb;
+    result = mix( sharp, blurred, abs( normRadius ) ) * (1.0 - near.a) + near.rgb;
     
     /////////////////////////////////////////////////////////////////////////////////
     // Debugging options:
@@ -73,7 +75,7 @@ void main() {
     switch (debugOption) {
     case SHOW_COC:
         // Go back to the true radius, before it was enlarged by post-processing
-        result.rgb = vec3(abs(pack.a * cocReadScaleBias.x + cocReadScaleBias.y));
+        result.rgb = vec3( abs( normRadius ) ); // vec3(abs(pack.a * cocReadScaleBias.x + cocReadScaleBias.y));
         break;
 
     case SHOW_SIGNED_COC:

@@ -25,13 +25,13 @@ void main()
 
     float dist = length( vertPosition.xyz );
     
-    //float coc = uAperture * ( uFocalLength * ( uFocalDistance - dist ) ) / ( dist * ( uFocalDistance - uFocalLength ) );
-    //coc *= uMaxCoCRadiusPixels;
-    //coc = clamp( coc * 0.5 + 0.5, 0.0, 1.0 );
-
-    const float kScale = 0.1;
-    float coc = ( uFocalDistance - dist ) * kScale;
+    float coc = uAperture * ( uFocalLength * ( uFocalDistance - dist ) ) / ( dist * ( uFocalDistance - uFocalLength ) );
+    coc *= uMaxCoCRadiusPixels;
     coc = clamp( coc * 0.5 + 0.5, 0.0, 1.0 );
+
+    //const float kScale = 0.1;
+    //float coc = ( uFocalDistance - dist ) * kScale;
+    //coc = clamp( coc * 0.5 + 0.5, 0.0, 1.0 );
 
     fragColor = vec4( texture( uTex, uv ).rgb, coc );
 }
