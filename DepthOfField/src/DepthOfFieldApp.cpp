@@ -19,7 +19,7 @@ class DepthOfFieldApp : public App {
 	    , mFocalPlane( 35 )
 	    , mFocalLength( 1.0f )
 	    , mFoV( 10 )
-	    , mMaxCoCRadiusPixels( 13 )
+	    , mMaxCoCRadiusPixels( 11 )
 	    , mFarRadiusRescale( 1.0f )
 	    , mDebugOption( 0 )
 	    , mTime( 0 )
@@ -243,7 +243,6 @@ void DepthOfFieldApp::update( double timestep )
 
 	mCamera.setFov( mFoV );
 	mFocalLength = mCamera.getFocalLength();
-	mFocalPlane = glm::max( mFocalPlane, mFocalLength );
 
 	static const float fstops[] = { 0.7f, 0.8f, 1.0f, 1.2f, 1.4f, 1.7f, 2.0f, 2.4f, 2.8f, 3.3f, 4.0f, 4.8f, 5.6f, 6.7f, 8.0f, 9.5f, 11.0f, 16.0f, 22.0f };
 	mAperture = mFocalLength / fstops[mFocalStop];
