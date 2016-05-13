@@ -126,7 +126,7 @@ void main(void)
     
 #if HORIZONTAL
         // Retain the packed radius on the first pass.  On the second pass it is not needed.
-        blurResult.a = 1.0;//packedA;
+        blurResult.a = packedA;
 #else
         blurResult.a = 1.0;
 #endif
