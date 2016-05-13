@@ -51,7 +51,7 @@ class DepthOfFieldApp : public App {
   private:
 	CameraPersp            mCamera;                         // Our main camera.
 	CameraPersp            mCameraUser;                     // Our user camera. We'll smoothly interpolate the main camera using the user camera as reference.
-	CameraUi               mCameraUi;                       // Allows us to control the main camera.
+	CameraUi               mCameraUi;                       // Allows us to control the user camera.
 	Sphere                 mBounds;                         // Bounding sphere of a single teapot, allows us to easily find the object under the cursor.
 	gl::VboRef             mInstances;                      // Buffer containing the model matrix for each teapot.
 	gl::BatchRef           mTeapots, mBackground, mSpheres; // Batches to draw our objects.
@@ -171,7 +171,7 @@ void DepthOfFieldApp::setup()
 	mParams->addButton( "Toggle Bounds", [&]() { mShowBounds = !mShowBounds; } );
 	mParams->addText( "Hold SHIFT to auto-focus." );
 
-	// Note: the Fbo's will be created in the resize() function.
+	// Note: the Fbo's will be created in the update() function after the window has been resized.
 
 	// Now load and assign the actual shaders.
 	reload();
