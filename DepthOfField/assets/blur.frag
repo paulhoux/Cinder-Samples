@@ -1,5 +1,4 @@
-#version 150
-#extension GL_ARB_separate_shader_objects : enable
+#version 330 core
 
 #define saturate(s) clamp( s, 0.0, 1.0 )
 
