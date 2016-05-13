@@ -338,7 +338,13 @@ void DepthOfFieldApp::draw()
 		if( mShowBounds ) {
 			// Render bounding spheres.
 			gl::ScopedColor     scpColor( 0, 1, 1 );
-			gl::ScopedLineWidth scpLineWidth( 4.0f );
+			gl::ScopedLineWidth scpLineWidth( 4.0f ); // To counter sparse downsampling.
+
+			gl::ScopedGlslProg scpGlsl( mSpheres->getGlslProg() );
+			mSpheres->getGlslProg()->uniform( "uAperture", mAperture );
+			mSpheres->getGlslProg()->uniform( "uFocalDistance", mFocalPlane );
+			mSpheres->getGlslProg()->uniform( "uFocalLength", mFocalLength );
+			mSpheres->getGlslProg()->uniform( "uMaxCoCRadiusPixels", mMaxCoCRadiusPixels );
 			mSpheres->drawInstanced( 9 * 9 * 9 );
 		}
 	}
@@ -440,6 +446,9 @@ void DepthOfFieldApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_SPACE:
 		mPaused = !mPaused;
+		break;
+	case KeyEvent::KEY_b:
+		mShowBounds = !mShowBounds;
 		break;
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
