@@ -53,7 +53,7 @@ class DepthOfFieldApp : public App {
 	Sphere mBounds;
 
 	gl::VboRef     mInstances;
-	gl::BatchRef   mTeapots, mBackground;
+	gl::BatchRef   mTeapots, mBackground, mSpheres;
 	gl::TextureRef mTexGold, mTexClay;
 
 	gl::FboRef mFboSource;
@@ -121,14 +121,21 @@ void DepthOfFieldApp::setup()
 
 	// Create mesh and append per-instance data.
 	AxisAlignedBox bounds;
-	auto           mesh = gl::VboMesh::create( geom::Teapot().subdivisions( 8 ) >> geom::Bounds( &bounds ) );
+
+	auto mesh = gl::VboMesh::create( geom::Teapot().subdivisions( 8 ) >> geom::Bounds( &bounds ) );
 	mesh->appendVbo( layout, mInstances );
 
 	mBounds.setCenter( bounds.getCenter() );
-	mBounds.setRadius( glm::length( bounds.getExtents() ) );
+	mBounds.setRadius( 0.5f * glm::length( bounds.getExtents() ) ); // Scale down for a better fit.
 
 	// Create batch.
 	mTeapots = gl::Batch::create( mesh, glsl, { { geom::Attrib::CUSTOM_0, "vInstanceMatrix" } } );
+
+	// mesh = gl::VboMesh::create( geom::WireCube().size( bounds.getExtents() * 2.0f ) >> geom::Translate( bounds.getCenter() ) );
+	mesh = gl::VboMesh::create( geom::WireSphere().center( mBounds.getCenter() ).radius( mBounds.getRadius() ) );
+	mesh->appendVbo( layout, mInstances );
+
+	mSpheres = gl::Batch::create( mesh, glsl, { { geom::Attrib::CUSTOM_0, "vInstanceMatrix" } } );
 
 	// Create background.
 	mesh = gl::VboMesh::create( geom::Sphere().subdivisions( 60 ).radius( 50.0f ) );
@@ -318,6 +325,11 @@ void DepthOfFieldApp::draw()
 
 			mBackground->draw();
 		}
+
+		if( false ) {
+			gl::ScopedColor scpColor( 0, 1, 1 );
+			mSpheres->drawInstanced( 9 * 9 * 9 );
+		}
 	}
 
 	// Perform horizontal blur and downsampling. Output 2 targets.
@@ -443,6 +455,16 @@ void DepthOfFieldApp::reload()
 
 		if( mTeapots )
 			mTeapots->replaceGlslProg( glsl );
+	}
+	catch( const std::exception &exc ) {
+		console() << "Failed to load teapots shader: " << exc.what() << std::endl;
+	}
+
+	try {
+		auto glsl = gl::GlslProg::create( loadAsset( "instanced.vert" ), loadAsset( "debug.frag" ) );
+
+		if( mSpheres )
+			mSpheres->replaceGlslProg( glsl );
 	}
 	catch( const std::exception &exc ) {
 		console() << "Failed to load teapots shader: " << exc.what() << std::endl;
