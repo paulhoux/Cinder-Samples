@@ -61,14 +61,14 @@ class DepthOfFieldApp : public App {
 	gl::GlslProgRef        mGlslComposite;                  // Composite shader.
 	params::InterfaceGlRef mParams;                         // Debug parameters.
 
-	float mAperture;
-	int   mFocalStop;
-	float mFocalPlane;
-	float mFocalLength;
-	float mFoV;
-	int   mMaxCoCRadiusPixels;
-	float mFarRadiusRescale;
-	int   mDebugOption;
+	float mAperture;           // Calculated from F-Stop and Focal Length.
+	int   mFocalStop;          // For more information on these values, see: http://improvephotography.com/photography-basics/aperture-shutter-speed-and-iso/
+	float mFocalPlane;         // Distance to object in perfect focus.
+	float mFocalLength;        // Calculated from Field of View.
+	float mFoV;                // In degrees.
+	int   mMaxCoCRadiusPixels; // Maximum blur in pixels.
+	float mFarRadiusRescale;   // Should usually be set to 1.
+	int   mDebugOption;        // Debug render modes.
 
 	double mTime;
 	float  mFPS;
