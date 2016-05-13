@@ -32,7 +32,7 @@ class DepthOfFieldApp : public App {
 
 	void setup() override;
 	void update() override;
-	void update( double timestep );
+	void update( double timestep ); // Will be called a fixed number of times per second.
 	void draw() override;
 
 	void mouseMove( MouseEvent event ) override;
@@ -47,31 +47,26 @@ class DepthOfFieldApp : public App {
 	void reload();
 
   private:
-	CameraPersp mCamera;
-	CameraUi    mCameraUi;
+	CameraPersp            mCamera;                         // Our main camera.
+	CameraUi               mCameraUi;                       // Allows us to control the main camera.
+	Sphere                 mBounds;                         // Bounding sphere of a single teapot, allows us to easily find the object under the cursor.
+	gl::VboRef             mInstances;                      // Buffer containing the model matrix for each teapot.
+	gl::BatchRef           mTeapots, mBackground, mSpheres; // Batches to draw our objects.
+	gl::TextureRef         mTexGold, mTexClay;              // Textures.
+	gl::FboRef             mFboSource;                      // We render the scene to this Fbo, which is then used as input to the Depth-of-Field pass.
+	gl::FboRef             mFboBlur[2];                     // Downsampled and blurred versions of our scene.
+	gl::GlslProgRef        mGlslBlur[2];                    // Horizontal and vertical blur shaders.
+	gl::GlslProgRef        mGlslComposite;                  // Composite shader.
+	params::InterfaceGlRef mParams;                         // Debug parameters.
 
-	Sphere mBounds;
-
-	gl::VboRef     mInstances;
-	gl::BatchRef   mTeapots, mBackground, mSpheres;
-	gl::TextureRef mTexGold, mTexClay;
-
-	gl::FboRef mFboSource;
-	gl::FboRef mFboBlur[2];
-
-	gl::GlslProgRef mGlslBlur[2];
-	gl::GlslProgRef mGlslComposite;
-
-	params::InterfaceGlRef mParams;
-	float                  mAperture;
-	int                    mFocalStop;
-	float                  mFocalPlane;
-	float                  mFocalLength;
-	float                  mFoV;
-	float                  mCoCScale, mCoCBias;
-	int                    mMaxCoCRadiusPixels;
-	float                  mFarRadiusRescale;
-	int                    mDebugOption;
+	float mAperture;
+	int   mFocalStop;
+	float mFocalPlane;
+	float mFocalLength;
+	float mFoV;
+	int   mMaxCoCRadiusPixels;
+	float mFarRadiusRescale;
+	int   mDebugOption;
 
 	double mTime;
 
@@ -89,15 +84,14 @@ void DepthOfFieldApp::prepare( Settings *settings )
 
 void DepthOfFieldApp::setup()
 {
-	// Create dummy shader. Actual shaders will be loaded in the reload()
-	// function.
+	// Create dummy shader. Actual shaders will be loaded in the reload() function.
 	auto glsl = gl::getStockShader( gl::ShaderDef() );
 
-	// Load the texture.
+	// Load the textures.
 	mTexGold = gl::Texture2d::create( loadImage( loadAsset( "gold.png" ) ) );
 	mTexClay = gl::Texture2d::create( loadImage( loadAsset( "clay.png" ) ) );
 
-	// Initialize instance matrices (one for each instance).
+	// Initialize model matrices (one for each instance).
 	std::vector<mat4> matrices;
 	for( int z = -4; z <= 4; z++ ) {
 		for( int y = -4; y <= 4; y++ ) {
@@ -115,9 +109,9 @@ void DepthOfFieldApp::setup()
 
 	// Setup per-instance data buffer.
 	geom::BufferLayout layout;
-	layout.append( geom::Attrib::CUSTOM_0, sizeof( mat4 ) / sizeof( float ), sizeof( mat4 ), 0, 1 /* per instance */ );
+	layout.append( geom::Attrib::CUSTOM_0, sizeof( mat4 ) / sizeof( float ) /* dims */, sizeof( mat4 ) /* stride */, 0, 1 /* per instance */ );
 
-	mInstances = gl::Vbo::create( GL_ARRAY_BUFFER, matrices.size() * sizeof( mat4 ), matrices.data(), GL_STATIC_DRAW );
+	mInstances = gl::Vbo::create( GL_ARRAY_BUFFER, matrices.size() * sizeof( mat4 ), matrices.data(), GL_STREAM_DRAW );
 
 	// Create mesh and append per-instance data.
 	AxisAlignedBox bounds;
@@ -128,10 +122,9 @@ void DepthOfFieldApp::setup()
 	mBounds.setCenter( bounds.getCenter() );
 	mBounds.setRadius( 0.5f * glm::length( bounds.getExtents() ) ); // Scale down for a better fit.
 
-	// Create batch.
+	// Create batches.
 	mTeapots = gl::Batch::create( mesh, glsl, { { geom::Attrib::CUSTOM_0, "vInstanceMatrix" } } );
 
-	// mesh = gl::VboMesh::create( geom::WireCube().size( bounds.getExtents() * 2.0f ) >> geom::Translate( bounds.getCenter() ) );
 	mesh = gl::VboMesh::create( geom::WireSphere().center( mBounds.getCenter() ).radius( mBounds.getRadius() ) );
 	mesh->appendVbo( layout, mInstances );
 
@@ -166,7 +159,7 @@ void DepthOfFieldApp::setup()
 
 	// Note: the Fbo's will be created in the resize() function.
 
-	//
+	// Now load and assign the actual shaders.
 	reload();
 }
 
@@ -179,12 +172,16 @@ void DepthOfFieldApp::update()
 		int width = getWindowWidth();
 		int height = getWindowHeight();
 
+		// Our input Fbo will contain the full resolution scene. RGB = color, A = Signed CoC (Circle of Confusion).
 		auto fmt = gl::Fbo::Format()
 		               .samples( 16 )
 		               .attachment( GL_COLOR_ATTACHMENT0, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_RGBA16F ) ) )
 		               .attachment( GL_DEPTH_STENCIL_ATTACHMENT, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_DEPTH24_STENCIL8 ).dataType( GL_UNSIGNED_INT_24_8 ) ) );
 		mFboSource = gl::Fbo::create( width, height, fmt );
 
+		// The horizontal blur Fbo will contain a downsampled and blurred version of the scene.
+		// The first attachment contains the foreground. RGB = premultiplied color, A = coverage.
+		// The second attachments contains the blurred scene. RGB = color, A = Signed CoC.
 		width >>= 2;
 
 		fmt = gl::Fbo::Format()
@@ -192,11 +189,14 @@ void DepthOfFieldApp::update()
 		          .attachment( GL_COLOR_ATTACHMENT1, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_RGBA16F ) ) );
 		mFboBlur[0] = gl::Fbo::create( width, height, fmt );
 
+		// The vertical blur Fbo will contain a downsampled and blurred version of the scene.
+		// The first attachment contains the foreground. RGB = premultiplied color, A = coverage.
+		// The second attachments contains the blurred scene. RGB = color, A = discarded.
 		height >>= 2;
 
 		fmt = gl::Fbo::Format()
 		          .attachment( GL_COLOR_ATTACHMENT0, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_RGBA16F ) ) )
-		          .attachment( GL_COLOR_ATTACHMENT1, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_RGBA16F ) ) );
+		          .attachment( GL_COLOR_ATTACHMENT1, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_RGB16F ) ) );
 		mFboBlur[1] = gl::Fbo::create( width, height, fmt );
 	}
 
@@ -238,17 +238,12 @@ void DepthOfFieldApp::update( double timestep )
 	static const float fstops[] = { 0.7f, 0.8f, 1.0f, 1.2f, 1.4f, 1.7f, 2.0f, 2.4f, 2.8f, 3.3f, 4.0f, 4.8f, 5.6f, 6.7f, 8.0f, 9.5f, 11.0f };
 	mAperture = 1.0f / fstops[mFocalStop];
 
-	// float zNear = mCamera.getNearClip();
-	// float zFar = mCamera.getFarClip();
-	// mCoCScale = ( mAperture * mFocalLength * mFocalPlane * ( zFar - zNear ) ) / ( ( mFocalPlane - mFocalLength ) * zNear * zFar );
-	// mCoCBias = ( mAperture * mFocalLength * ( zNear - mFocalPlane ) ) / ( ( mFocalPlane * mFocalLength ) * zNear );
-
 	// Initialize ray-casting.
 	auto  ray = mCamera.generateRay( mMousePos, getWindowSize() );
 	float min, max, dist = FLT_MAX;
 
-	//
-	Rand::randSeed( 1612112 );
+	// Reset random number generator.
+	Rand::randSeed( 12345 );
 
 	// Animate teapots and perform ray casting at the same time.
 	auto ptr = (mat4 *)mInstances->mapReplace();
@@ -265,10 +260,12 @@ void DepthOfFieldApp::update( double timestep )
 				( *ptr++ ) = transform;
 
 				// Ray-casting.
-				auto bounds = mBounds.transformed( transform );
-				if( bounds.intersect( ray, &min, &max ) > 0 ) {
-					if( min < dist )
-						dist = min;
+				if( mShiftDown ) {
+					auto bounds = mBounds.transformed( transform );
+					if( bounds.intersect( ray, &min, &max ) > 0 ) {
+						if( min < dist )
+							dist = min;
+					}
 				}
 			}
 		}
@@ -290,7 +287,7 @@ void DepthOfFieldApp::draw()
 		gl::ScopedFramebuffer scpFbo( mFboSource );
 		gl::ScopedViewport    scpViewport( mFboSource->getSize() );
 
-		gl::clear( ColorA( 0, 0, 0, 0 ) );
+		gl::clear( ColorA( 0, 0, 0, 0 ) ); // Don't forget to clear the alpha channel as well.
 
 		gl::ScopedMatrices scpMatrices;
 		gl::setMatrices( mCamera );
@@ -298,7 +295,8 @@ void DepthOfFieldApp::draw()
 		gl::ScopedDepth scpDepth( true );
 		gl::ScopedBlend scpBlend( false );
 
-		{
+		if( true ) {
+			// Render teapots.
 			gl::ScopedFaceCulling scpCull( true );
 			gl::ScopedColor       scpColor( 1, 1, 1 );
 
@@ -312,9 +310,10 @@ void DepthOfFieldApp::draw()
 			mTeapots->drawInstanced( 9 * 9 * 9 );
 		}
 
-		{
+		if( true ) {
+			// Render background.
 			gl::ScopedFaceCulling scpCull( true, GL_FRONT );
-			gl::ScopedColor       scpColor( Color::gray( 0.1f ) );
+			gl::ScopedColor       scpColor( 1, 1, 1 );
 
 			gl::ScopedTextureBind scpTex0( mTexClay );
 			gl::ScopedGlslProg    scpGlsl( mBackground->getGlslProg() );
@@ -327,6 +326,7 @@ void DepthOfFieldApp::draw()
 		}
 
 		if( false ) {
+			// Render bounding spheres.
 			gl::ScopedColor scpColor( 0, 1, 1 );
 			mSpheres->drawInstanced( 9 * 9 * 9 );
 		}
@@ -347,9 +347,9 @@ void DepthOfFieldApp::draw()
 
 		gl::ScopedTextureBind scpTex0( mFboSource->getColorTexture() );
 		gl::ScopedGlslProg    scpGlsl( mGlslBlur[0] );
-		mGlslBlur[0]->uniform( "maxCoCRadiusPixels", mMaxCoCRadiusPixels );
-		mGlslBlur[0]->uniform( "nearBlurRadiusPixels", mMaxCoCRadiusPixels );
-		mGlslBlur[0]->uniform( "invNearBlurRadiusPixels", 1.0f / mMaxCoCRadiusPixels );
+		mGlslBlur[0]->uniform( "uMaxCoCRadiusPixels", mMaxCoCRadiusPixels );
+		mGlslBlur[0]->uniform( "uNearBlurRadiusPixels", mMaxCoCRadiusPixels );
+		mGlslBlur[0]->uniform( "uInvNearBlurRadiusPixels", 1.0f / mMaxCoCRadiusPixels );
 
 		gl::drawSolidRect( mFboBlur[0]->getBounds() );
 	}
@@ -370,9 +370,9 @@ void DepthOfFieldApp::draw()
 		gl::ScopedTextureBind scpTex0( mFboBlur[0]->getTexture2d( GL_COLOR_ATTACHMENT0 ), 0 );
 		gl::ScopedTextureBind scpTex1( mFboBlur[0]->getTexture2d( GL_COLOR_ATTACHMENT1 ), 1 );
 		gl::ScopedGlslProg    scpGlsl( mGlslBlur[1] );
-		mGlslBlur[1]->uniform( "maxCoCRadiusPixels", mMaxCoCRadiusPixels );
-		mGlslBlur[1]->uniform( "nearBlurRadiusPixels", mMaxCoCRadiusPixels );
-		mGlslBlur[1]->uniform( "invNearBlurRadiusPixels", 1.0f / mMaxCoCRadiusPixels );
+		mGlslBlur[1]->uniform( "uMaxCoCRadiusPixels", mMaxCoCRadiusPixels );
+		mGlslBlur[1]->uniform( "uNearBlurRadiusPixels", mMaxCoCRadiusPixels );
+		// mGlslBlur[1]->uniform( "uInvNearBlurRadiusPixels", 1.0f / mMaxCoCRadiusPixels ); // Not used in this pass.
 
 		gl::drawSolidRect( mFboBlur[1]->getBounds() );
 	}
@@ -386,13 +386,14 @@ void DepthOfFieldApp::draw()
 		gl::ScopedTextureBind scpTex1( mFboBlur[1]->getTexture2d( GL_COLOR_ATTACHMENT0 ), 1 );
 		gl::ScopedTextureBind scpTex2( mFboBlur[1]->getTexture2d( GL_COLOR_ATTACHMENT1 ), 2 );
 		gl::ScopedGlslProg    scpGlsl( mGlslComposite );
-		mGlslComposite->uniform( "packedBufferInvSize", 1.0f / vec2( mFboSource->getSize() ) );
-		mGlslComposite->uniform( "farRadiusRescale", mFarRadiusRescale );
-		mGlslComposite->uniform( "debugOption", mDebugOption );
+		mGlslComposite->uniform( "uInputSourceInvSize", 1.0f / vec2( mFboSource->getSize() ) );
+		mGlslComposite->uniform( "uFarRadiusRescale", mFarRadiusRescale );
+		mGlslComposite->uniform( "uDebugOption", mDebugOption );
 
 		gl::drawSolidRect( getWindowBounds() );
 	}
 
+	// Draw parameters.
 	mParams->draw();
 }
 
@@ -448,38 +449,41 @@ void DepthOfFieldApp::resize()
 
 void DepthOfFieldApp::reload()
 {
-	try {
-		auto glsl = gl::GlslProg::create( loadAsset( "instanced.vert" ), loadAsset( "scene.frag" ) );
-		glsl->uniform( "uTex", 0 );
-		glsl->uniform( "uMaxCoCRadiusPixels", mMaxCoCRadiusPixels );
+	if( mTeapots ) {
+		try {
+			auto glsl = gl::GlslProg::create( loadAsset( "instanced.vert" ), loadAsset( "scene.frag" ) );
+			glsl->uniform( "uTex", 0 );
+			glsl->uniform( "uMaxCoCRadiusPixels", mMaxCoCRadiusPixels );
 
-		if( mTeapots )
 			mTeapots->replaceGlslProg( glsl );
-	}
-	catch( const std::exception &exc ) {
-		console() << "Failed to load teapots shader: " << exc.what() << std::endl;
+		}
+		catch( const std::exception &exc ) {
+			console() << "Failed to load teapots shader: " << exc.what() << std::endl;
+		}
 	}
 
-	try {
-		auto glsl = gl::GlslProg::create( loadAsset( "instanced.vert" ), loadAsset( "debug.frag" ) );
+	if( mSpheres ) {
+		try {
+			auto glsl = gl::GlslProg::create( loadAsset( "instanced.vert" ), loadAsset( "debug.frag" ) );
 
-		if( mSpheres )
 			mSpheres->replaceGlslProg( glsl );
-	}
-	catch( const std::exception &exc ) {
-		console() << "Failed to load teapots shader: " << exc.what() << std::endl;
+		}
+		catch( const std::exception &exc ) {
+			console() << "Failed to load spheres shader: " << exc.what() << std::endl;
+		}
 	}
 
-	try {
-		auto glsl = gl::GlslProg::create( loadAsset( "single.vert" ), loadAsset( "scene.frag" ) );
-		glsl->uniform( "uTex", 0 );
-		glsl->uniform( "uMaxCoCRadiusPixels", mMaxCoCRadiusPixels );
+	if( mBackground ) {
+		try {
+			auto glsl = gl::GlslProg::create( loadAsset( "single.vert" ), loadAsset( "scene.frag" ) );
+			glsl->uniform( "uTex", 0 );
+			glsl->uniform( "uMaxCoCRadiusPixels", mMaxCoCRadiusPixels );
 
-		if( mBackground )
 			mBackground->replaceGlslProg( glsl );
-	}
-	catch( const std::exception &exc ) {
-		console() << "Failed to load background shader: " << exc.what() << std::endl;
+		}
+		catch( const std::exception &exc ) {
+			console() << "Failed to load background shader: " << exc.what() << std::endl;
+		}
 	}
 
 	// Load DoF shaders.
@@ -487,31 +491,31 @@ void DepthOfFieldApp::reload()
 		auto fmt = gl::GlslProg::Format().vertex( loadAsset( "blur.vert" ) ).fragment( loadAsset( "blur.frag" ) ).define( "HORIZONTAL", "1" );
 
 		mGlslBlur[0] = gl::GlslProg::create( fmt );
-		mGlslBlur[0]->uniform( "blurSourceBuffer", 0 );
+		mGlslBlur[0]->uniform( "uBlurSource", 0 );
 	}
 	catch( const std::exception &exc ) {
 		console() << "Failed to load horizontal blur shader: " << exc.what() << std::endl;
 	}
+
 	try {
 		auto fmt = gl::GlslProg::Format().vertex( loadAsset( "blur.vert" ) ).fragment( loadAsset( "blur.frag" ) ).define( "HORIZONTAL", "0" );
 
 		mGlslBlur[1] = gl::GlslProg::create( fmt );
-		mGlslBlur[1]->uniform( "nearSourceBuffer", 0 );
-		mGlslBlur[1]->uniform( "blurSourceBuffer", 1 );
+		mGlslBlur[1]->uniform( "uNearSource", 0 );
+		mGlslBlur[1]->uniform( "uBlurSource", 1 );
 	}
 	catch( const std::exception &exc ) {
 		console() << "Failed to load vertical blur shader: " << exc.what() << std::endl;
 	}
+
 	try {
 		auto fmt = gl::GlslProg::Format().vertex( loadAsset( "composite.vert" ) ).fragment( loadAsset( "composite.frag" ) );
 
 		mGlslComposite = gl::GlslProg::create( fmt );
-		mGlslComposite->uniform( "packedBuffer", 0 );
-		mGlslComposite->uniform( "blurBuffer", 2 );
-		mGlslComposite->uniform( "nearBuffer", 1 );
-		mGlslComposite->uniform( "shift", vec2( 0 ) );
-		mGlslComposite->uniform( "farRadiusRescale", 1.0f );
-		mGlslComposite->uniform( "debugOption", 0 );
+		mGlslComposite->uniform( "uInputSource", 0 );
+		mGlslComposite->uniform( "uBlurSource", 2 );
+		mGlslComposite->uniform( "uNearSource", 1 );
+		mGlslComposite->uniform( "uOffset", vec2( 0 ) );
 	}
 	catch( const std::exception &exc ) {
 		console() << "Failed to load composite shader: " << exc.what() << std::endl;
