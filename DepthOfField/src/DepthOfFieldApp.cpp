@@ -71,6 +71,7 @@ class DepthOfFieldApp : public App {
 	int   mDebugOption;
 
 	double mTime;
+    float  mFPS;
 
 	bool mPaused;
 	bool mResized;
@@ -83,6 +84,7 @@ class DepthOfFieldApp : public App {
 void DepthOfFieldApp::prepare( Settings *settings )
 {
 	settings->setWindowSize( 960, 540 );
+    settings->disableFrameRate();
 }
 
 void DepthOfFieldApp::setup()
@@ -143,15 +145,17 @@ void DepthOfFieldApp::setup()
 	mCameraUi.setCamera( &mCamera );
 
 	// Setup interface.
-	mParams = params::InterfaceGl::create( "Parameters", ivec2( 320, 250 ) );
+	mParams = params::InterfaceGl::create( "Parameters", ivec2( 320, 280 ) );
 	mParams->setOptions( "", "valueswidth=120" );
-	mParams->setOptions( "", "refresh=0.05" );
+    mParams->setOptions( "", "refresh=0.05" );
+    mParams->addParam("FPS", &mFPS, false ).step(0.1f);
+    mParams->addSeparator();
 	mParams->addParam( "Focal Distance", &mFocalPlane, false ).min( 0.1f ).max( 100.0f ).step( 0.1f );
 	mParams->addParam( "F-stop", { "0.7", "0.8", "1.0", "1.2", "1.4", "1.7", "2.0", "2.4", "2.8", "3.3", "4.0", "4.8", "5.6", "6.7", "8.0", "9.5", "11.0" }, &mFocalStop, false );
 	mParams->addParam( "Field of View", &mFoV ).min( 5.0f ).max( 90.0f ).step( 1.0f );
 	mParams->addSeparator();
-	mParams->addParam( "Aperture", &mAperture, true );
-	mParams->addParam( "Focal Length", &mFocalLength, true );
+	mParams->addParam( "Aperture", &mAperture, true ).step(0.01f);
+	mParams->addParam( "Focal Length", &mFocalLength, true ).step(0.01f);
 	mParams->addSeparator();
 	mParams->addParam( "Max. CoC Radius", &mMaxCoCRadiusPixels ).min( 1 ).max( 20 ).step( 1 );
 	mParams->addParam( "Far Radius Rescale", &mFarRadiusRescale ).min( 0.1f ).max( 20.0f ).step( 0.1f );
@@ -169,6 +173,8 @@ void DepthOfFieldApp::setup()
 
 void DepthOfFieldApp::update()
 {
+    mFPS = getAverageFps();
+    
 	// Create or resize Fbo's.
 	if( mResized ) {
 		mResized = false;
@@ -332,6 +338,7 @@ void DepthOfFieldApp::draw()
 		if( mShowBounds ) {
 			// Render bounding spheres.
 			gl::ScopedColor scpColor( 0, 1, 1 );
+            gl::ScopedLineWidth scpLineWidth(4.0f);
 			mSpheres->drawInstanced( 9 * 9 * 9 );
 		}
 	}
@@ -440,6 +447,9 @@ void DepthOfFieldApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_r:
 		reload();
 		break;
+    case KeyEvent::KEY_v:
+        gl::enableVerticalSync( ! gl::isVerticalSyncEnabled() );
+        break;
 	default:
 		break;
 	}
