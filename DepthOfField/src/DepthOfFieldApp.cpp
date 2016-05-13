@@ -50,6 +50,7 @@ class DepthOfFieldApp : public App {
 
   private:
 	CameraPersp            mCamera;                         // Our main camera.
+	CameraPersp            mCameraUser;                     // Our user camera. We'll smoothly interpolate the main camera using the user camera as reference.
 	CameraUi               mCameraUi;                       // Allows us to control the main camera.
 	Sphere                 mBounds;                         // Bounding sphere of a single teapot, allows us to easily find the object under the cursor.
 	gl::VboRef             mInstances;                      // Buffer containing the model matrix for each teapot.
@@ -72,6 +73,7 @@ class DepthOfFieldApp : public App {
 
 	double mTime;
 	float  mFPS;
+	float  mFocus;
 
 	bool mPaused;
 	bool mResized;
@@ -89,6 +91,8 @@ void DepthOfFieldApp::prepare( Settings *settings )
 
 void DepthOfFieldApp::setup()
 {
+	mFocus = mFocalPlane;
+
 	// Create dummy shader. Actual shaders will be loaded in the reload() function.
 	auto glsl = gl::getStockShader( gl::ShaderDef() );
 
@@ -142,7 +146,9 @@ void DepthOfFieldApp::setup()
 	// Setup the camera.
 	mCamera.setPerspective( 30.0f, 1.0f, 0.05f, 100.0f );
 	mCamera.lookAt( vec3( 5, 15, 30 ), vec3( 0 ) );
-	mCameraUi.setCamera( &mCamera );
+	mCameraUser.setPerspective( 30.0f, 1.0f, 0.05f, 100.0f );
+	mCameraUser.lookAt( vec3( 5, 15, 30 ), vec3( 0 ) );
+	mCameraUi.setCamera( &mCameraUser );
 
 	// Setup interface.
 	mParams = params::InterfaceGl::create( "Parameters", ivec2( 320, 280 ) );
@@ -235,13 +241,26 @@ void DepthOfFieldApp::update( double timestep )
 {
 	mTime += timestep;
 
-	// Adjust camera.
-	auto distance = glm::clamp( mCamera.getPivotDistance(), 5.0f, 45.0f );
-	auto target = mCamera.getPivotPoint();
-	auto eye = target - distance * mCamera.getViewDirection();
-	mCamera.lookAt( eye, target );
+	// Adjust cameras.
+	const float kSmoothing = 0.1f;
 
-	mCamera.setFov( mFoV );
+	{
+		auto distance = glm::clamp( mCameraUser.getPivotDistance(), 5.0f, 45.0f );
+		auto target = mCameraUser.getPivotPoint();
+		auto eye = target - distance * mCameraUser.getViewDirection();
+		mCameraUser.lookAt( eye, target );
+		mCameraUser.setFov( mFoV );
+	}
+
+	{
+		auto  eye = glm::mix( mCamera.getEyePoint(), mCameraUser.getEyePoint(), kSmoothing );
+		auto  target = glm::mix( mCamera.getPivotPoint(), mCameraUser.getPivotPoint(), kSmoothing );
+		float fov = glm::mix( mCamera.getFov(), mCameraUser.getFov(), kSmoothing );
+		mCamera.setFov( fov );
+		mCamera.lookAt( eye, target );
+	}
+
+	mFocalPlane = glm::mix( mFocalPlane, mFocus, kSmoothing );
 	mFocalLength = mCamera.getFocalLength();
 
 	static const float fstops[] = { 0.7f, 0.8f, 1.0f, 1.2f, 1.4f, 1.7f, 2.0f, 2.4f, 2.8f, 3.3f, 4.0f, 4.8f, 5.6f, 6.7f, 8.0f, 9.5f, 11.0f, 16.0f, 22.0f };
@@ -283,7 +302,7 @@ void DepthOfFieldApp::update( double timestep )
 
 	// Auto-focus.
 	if( mShiftDown && dist < FLT_MAX ) {
-		mFocalPlane = dist;
+		mFocus = dist;
 	}
 }
 
@@ -466,6 +485,8 @@ void DepthOfFieldApp::keyDown( KeyEvent event )
 void DepthOfFieldApp::resize()
 {
 	mCamera.setAspectRatio( getWindowAspectRatio() );
+	mCameraUser.setAspectRatio( getWindowAspectRatio() );
+
 	mResized = true;
 }
 
