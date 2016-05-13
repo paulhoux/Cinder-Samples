@@ -1,7 +1,7 @@
 Depth of Field
 ==============
 
-![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/DepthOfField/PREVIEW.png)
+![Preview](https://raw.githubusercontent.com/paulhoux/Cinder-Samples/master/DepthOfField/PREVIEW.png)
 
 This sample is based on the following paper:
 http://casual-effects.blogspot.nl/2013/09/the-skylanders-swap-force-depth-of.html
