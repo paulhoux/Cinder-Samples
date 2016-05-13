@@ -16,8 +16,8 @@ uniform int       uMaxCoCRadiusPixels;
 uniform int       uNearBlurRadiusPixels;
 uniform float     uInvNearBlurRadiusPixels;
 
-out layout(location = 0) vec4 nearResult;
-out layout(location = 1) vec4 blurResult;
+layout(location = 0) out vec4 nearResult;
+layout(location = 1) out vec4 blurResult;
 
 bool inNearField( in float radiusPixels ) {
     return radiusPixels > 0.25;
