@@ -25,6 +25,8 @@ class DepthOfFieldApp : public App {
 	    , mTime( 0 )
 	    , mPaused( false )
 	    , mResized( true )
+		, mShiftDown( false )
+		, mShowBounds( false )
 	{
 	}
 
@@ -73,6 +75,7 @@ class DepthOfFieldApp : public App {
 	bool mPaused;
 	bool mResized;
 	bool mShiftDown;
+	bool mShowBounds;
 
 	vec2 mMousePos;
 };
@@ -140,7 +143,7 @@ void DepthOfFieldApp::setup()
 	mCameraUi.setCamera( &mCamera );
 
 	// Setup interface.
-	mParams = params::InterfaceGl::create( "Parameters", ivec2( 320, 240 ) );
+	mParams = params::InterfaceGl::create( "Parameters", ivec2( 320, 250 ) );
 	mParams->setOptions( "", "valueswidth=120" );
 	mParams->setOptions( "", "refresh=0.05" );
 	mParams->addParam( "Focal Distance", &mFocalPlane, false ).min( 0.1f ).max( 100.0f ).step( 0.1f );
@@ -155,6 +158,7 @@ void DepthOfFieldApp::setup()
 	mParams->addParam( "Debug Option", { "Off", "Show CoC", "Show Region", "Show Near", "Show Blurry", "Show Input", "Show Mid & Far", "Show Signed CoC" }, &mDebugOption );
 	mParams->addSeparator();
 	mParams->addButton( "Pause", [&]() { mPaused = !mPaused; } );
+	mParams->addButton( "Toggle Bounds", [&]() { mShowBounds = !mShowBounds; } );
 	mParams->addText( "Hold SHIFT to auto-focus." );
 
 	// Note: the Fbo's will be created in the resize() function.
@@ -325,7 +329,7 @@ void DepthOfFieldApp::draw()
 			mBackground->draw();
 		}
 
-		if( false ) {
+		if( mShowBounds ) {
 			// Render bounding spheres.
 			gl::ScopedColor scpColor( 0, 1, 1 );
 			mSpheres->drawInstanced( 9 * 9 * 9 );
