@@ -240,7 +240,7 @@ void DepthOfFieldApp::update( double timestep )
 	mFocalPlane = glm::max( mFocalPlane, mFocalLength );
 
 	static const float fstops[] = { 0.7f, 0.8f, 1.0f, 1.2f, 1.4f, 1.7f, 2.0f, 2.4f, 2.8f, 3.3f, 4.0f, 4.8f, 5.6f, 6.7f, 8.0f, 9.5f, 11.0f };
-	mAperture = 1.0f / fstops[mFocalStop];
+	mAperture = mFocalLength / fstops[mFocalStop];
 
 	// Initialize ray-casting.
 	auto  ray = mCamera.generateRay( mMousePos, getWindowSize() );
