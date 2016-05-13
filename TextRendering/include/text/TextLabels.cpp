@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -97,8 +97,12 @@ void TextLabels::renderString( const std::u16string &str, vec2 *cursor, float st
 				mTexcoords.push_back( bounds.getLowerRight() );
 				mTexcoords.push_back( bounds.getLowerLeft() );
 
-				mIndices.push_back( index + 0 ); mIndices.push_back( index + 3 ); mIndices.push_back( index + 1 );
-				mIndices.push_back( index + 1 ); mIndices.push_back( index + 3 ); mIndices.push_back( index + 2 );
+				mIndices.push_back( index + 0 );
+				mIndices.push_back( index + 3 );
+				mIndices.push_back( index + 1 );
+				mIndices.push_back( index + 1 );
+				mIndices.push_back( index + 3 );
+				mIndices.push_back( index + 2 );
 
 				mOffsets.insert( mOffsets.end(), 4, mOffset );
 			}
@@ -138,49 +142,49 @@ void TextLabels::createMesh()
 std::string TextLabels::getVertexShader() const
 {
 	// vertex shader
-	const char *vs =
-		"#version 150\n"
-		""
-		"uniform mat4 ciModelViewProjection;\n"
-		""
-		"in vec4 ciPosition;\n"
-		"in vec4 ciColor;\n"
-		"in vec2 ciTexCoord0;\n"
-		"in vec4 ciTexCoord1;\n"
-		""
-		"out vec4 vColor;\n"
-		"out vec2 vTexCoord0;\n"
-		""
-		"// viewport parameters (x, y, width, height)\n"
-		"uniform vec4 viewport;\n"
-		""
-		"vec3 toNDC(vec4 vertex)\n"
-		"{\n"
-		"	return vec3( vertex.xyz / vertex.w );\n"
-		"}\n"
-		""
-		"vec2 toScreenSpace(vec4 vertex)\n"
-		"{\n"
-		"	return vec2( vertex.xy / vertex.w ) * viewport.zw;\n"
-		"}\n"
-		""
-		"void main()\n"
-		"{\n"
-		"	// pass font texture coordinate to fragment shader\n"
-		"	vTexCoord0 = ciTexCoord0;\n"
-		""
-		"	// set the color\n"
-		"	vColor = ciColor;\n"
-		""
-		"	// convert label position to normalized device coordinates to find the 2D offset\n"
-		"	vec3 offset = toNDC( ciModelViewProjection * vec4( ciTexCoord1.xyz , 1 ) );\n"
-		""
-		"	// convert vertex from screen space to normalized device coordinates\n"
-		"	vec3 vertex = vec3( ciPosition.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"
-		""
-		"	// calculate final vertex position by offsetting it\n"
-		"	gl_Position = vec4( vertex + offset, 1.0 );\n"
-		"}";
+	const char *vs
+	    = "#version 150\n"
+	      ""
+	      "uniform mat4 ciModelViewProjection;\n"
+	      ""
+	      "in vec4 ciPosition;\n"
+	      "in vec4 ciColor;\n"
+	      "in vec2 ciTexCoord0;\n"
+	      "in vec4 ciTexCoord1;\n"
+	      ""
+	      "out vec4 vColor;\n"
+	      "out vec2 vTexCoord0;\n"
+	      ""
+	      "// viewport parameters (x, y, width, height)\n"
+	      "uniform vec4 viewport;\n"
+	      ""
+	      "vec3 toNDC(vec4 vertex)\n"
+	      "{\n"
+	      "	return vec3( vertex.xyz / vertex.w );\n"
+	      "}\n"
+	      ""
+	      "vec2 toScreenSpace(vec4 vertex)\n"
+	      "{\n"
+	      "	return vec2( vertex.xy / vertex.w ) * viewport.zw;\n"
+	      "}\n"
+	      ""
+	      "void main()\n"
+	      "{\n"
+	      "	// pass font texture coordinate to fragment shader\n"
+	      "	vTexCoord0 = ciTexCoord0;\n"
+	      ""
+	      "	// set the color\n"
+	      "	vColor = ciColor;\n"
+	      ""
+	      "	// convert label position to normalized device coordinates to find the 2D offset\n"
+	      "	vec3 offset = toNDC( ciModelViewProjection * vec4( ciTexCoord1.xyz , 1 ) );\n"
+	      ""
+	      "	// convert vertex from screen space to normalized device coordinates\n"
+	      "	vec3 vertex = vec3( ciPosition.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"
+	      ""
+	      "	// calculate final vertex position by offsetting it\n"
+	      "	gl_Position = vec4( vertex + offset, 1.0 );\n"
+	      "}";
 
 	return std::string( vs );
 }
@@ -195,6 +199,5 @@ bool TextLabels::bindShader()
 
 	return false;
 }
-
 }
 } // namespace ph::text

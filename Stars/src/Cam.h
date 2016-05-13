@@ -22,54 +22,59 @@
 
 #pragma once
 
-#include "cinder/Vector.h"
 #include "cinder/Camera.h"
 #include "cinder/Timeline.h"
+#include "cinder/Vector.h"
 #include "cinder/app/App.h"
 
 #include <deque>
 
 class Cam {
-public:
+  public:
 	Cam();
-	Cam( const ci::CameraStereo &aInitialCam ) : Cam() { mInitialCam = mCurrentCam = aInitialCam; }
+	Cam( const ci::CameraStereo &aInitialCam )
+	    : Cam()
+	{
+		mInitialCam = mCurrentCam = aInitialCam;
+	}
 
-	void		setup();
-	void		update( double elapsed );
+	void setup();
+	void update( double elapsed );
 
-	void		mouseDown( const ci::ivec2 &mousePos );
-	void		mouseDrag( const ci::ivec2 &mousePos, bool leftDown, bool middleDown, bool rightDown );
-	void		mouseUp( const ci::ivec2 &mousePos );
+	void mouseDown( const ci::ivec2 &mousePos );
+	void mouseDrag( const ci::ivec2 &mousePos, bool leftDown, bool middleDown, bool rightDown );
+	void mouseUp( const ci::ivec2 &mousePos );
 
-	void		resize();
+	void resize();
 
-	double		getFov() const { return mFov.value(); }
-	void		setFov( double angle ) { mFov = ci::math<double>::clamp( angle, 1.0, 179.0 ); }
+	double getFov() const { return mFov.value(); }
+	void setFov( double angle ) { mFov = ci::math<double>::clamp( angle, 1.0, 179.0 ); }
 
-	void		setCurrentCam( const ci::CameraStereo &aCurrentCam );
+	void setCurrentCam( const ci::CameraStereo &aCurrentCam );
 
-	const ci::CameraStereo&	getCamera();
+	const ci::CameraStereo &getCamera();
 
-	void		setDistanceTime( double time ) { mTimeDistanceTarget = time; }
+	void setDistanceTime( double time ) { mTimeDistanceTarget = time; }
 
-	void		setEyeSeparation( float distance ) { mCurrentCam.setEyeSeparation( distance ); }
-	void		setConvergence( float distance ) { mCurrentCam.setConvergence( distance ); }
+	void setEyeSeparation( float distance ) { mCurrentCam.setEyeSeparation( distance ); }
+	void setConvergence( float distance ) { mCurrentCam.setConvergence( distance ); }
 
-	void		enableStereoLeft() { mCurrentCam.enableStereoLeft(); }
-	bool		isStereoLeftEnabled() const { return mCurrentCam.isStereoLeftEnabled(); }
+	void enableStereoLeft() { mCurrentCam.enableStereoLeft(); }
+	bool isStereoLeftEnabled() const { return mCurrentCam.isStereoLeftEnabled(); }
 
-	void		enableStereoRight() { mCurrentCam.enableStereoRight(); }
-	bool		isStereoRightEnabled() const { return mCurrentCam.isStereoRightEnabled(); }
+	void enableStereoRight() { mCurrentCam.enableStereoRight(); }
+	bool isStereoRightEnabled() const { return mCurrentCam.isStereoRightEnabled(); }
 
-	void		disableStereo() { mCurrentCam.disableStereo(); }
+	void disableStereo() { mCurrentCam.disableStereo(); }
 
-	void		setOrientation( const ci::quat& orientation );
+	void setOrientation( const ci::quat &orientation );
 
 	//! returns the position of the camera in world space
-	ci::vec3	getPosition();
-private:
+	ci::vec3 getPosition();
+
+  private:
 	//!
-	double		average( const std::deque<double> &v )
+	double average( const std::deque<double> &v )
 	{
 		double avg = 0.0;
 
@@ -80,7 +85,7 @@ private:
 	};
 
 	//!
-	ci::dvec3	average( const std::deque<ci::dvec3> &v )
+	ci::dvec3 average( const std::deque<ci::dvec3> &v )
 	{
 		ci::dvec3 avg( 0.0, 0.0, 0.0 );
 
@@ -89,33 +94,34 @@ private:
 
 		return avg;
 	};
-private:
-	static const double		LATITUDE_LIMIT;
-	static const double		LATITUDE_THRESHOLD;
-	static const double		DISTANCE_MIN;
-	static const double		DISTANCE_MAX;
 
-	ci::CameraStereo		mCurrentCam;
+  private:
+	static const double LATITUDE_LIMIT;
+	static const double LATITUDE_THRESHOLD;
+	static const double DISTANCE_MIN;
+	static const double DISTANCE_MAX;
 
-	ci::ivec2				mInitialMousePos;
-	ci::CameraStereo		mInitialCam;
+	ci::CameraStereo mCurrentCam;
 
-	double					mDeltaX;
-	double					mDeltaY;
-	double					mDeltaD;
-	std::deque<ci::dvec3>	mDeltas;
+	ci::ivec2        mInitialMousePos;
+	ci::CameraStereo mInitialCam;
 
-	bool					mIsMouseDown;
-	bool					mIsOriented;
+	double                mDeltaX;
+	double                mDeltaY;
+	double                mDeltaD;
+	std::deque<ci::dvec3> mDeltas;
 
-	double					mTimeMouse;
-	double					mTimeOut;
+	bool mIsMouseDown;
+	bool mIsOriented;
 
-	double					mTimeDistanceTarget;
-	double					mTimeDistance;
+	double mTimeMouse;
+	double mTimeOut;
 
-	ci::Anim<double>		mLatitude;
-	ci::Anim<double>		mLongitude;
-	ci::Anim<double>		mDistance;
-	ci::Anim<double>		mFov;
+	double mTimeDistanceTarget;
+	double mTimeDistance;
+
+	ci::Anim<double> mLatitude;
+	ci::Anim<double> mLongitude;
+	ci::Anim<double> mDistance;
+	ci::Anim<double> mFov;
 };

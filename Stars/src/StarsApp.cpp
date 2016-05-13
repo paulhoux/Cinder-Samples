@@ -21,18 +21,18 @@
  */
 
 #include "cinder/app/App.h"
+#include "cinder/Timer.h"
+#include "cinder/Utilities.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
-#include "cinder/Utilities.h"
-#include "cinder/Timer.h"
+#include "cinder/gl/gl.h"
 
 #include "Background.h"
 #include "Cam.h"
-#include "Constellations.h"
 #include "ConstellationArt.h"
 #include "ConstellationLabels.h"
+#include "Constellations.h"
 #include "Conversions.h"
 #include "Grid.h"
 #include "Labels.h"
@@ -40,9 +40,9 @@
 #include "UserInterface.h"
 
 #include <irrKlang.h>
-#pragma comment(lib, "irrKlang.lib")
+#pragma comment( lib, "irrKlang.lib" )
 
-#if defined(CINDER_MSW)
+#if defined( CINDER_MSW )
 #include <windows.h>
 #include <winuser.h>
 #endif
@@ -54,95 +54,96 @@ using namespace std;
 using namespace irrklang;
 
 class StarsApp : public App {
-public:
-	static void	prepare( Settings *settings );
+  public:
+	static void prepare( Settings *settings );
 
-	void	setup() override;
-	void	cleanup() override;
+	void setup() override;
+	void cleanup() override;
 
-	void	update() override;
-	void	draw() override;
+	void update() override;
+	void draw() override;
 
-	void	mouseDown( MouseEvent event ) override;
-	void	mouseDrag( MouseEvent event ) override;
-	void	mouseUp( MouseEvent event ) override;
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
 
-	void	keyDown( KeyEvent event ) override;
-	void	fileDrop( FileDropEvent event ) override;
+	void keyDown( KeyEvent event ) override;
+	void fileDrop( FileDropEvent event ) override;
 
-	void	resize() override;
+	void resize() override;
 
-	bool	isStereoscopic() const { return mIsStereoscopic; }
-	bool	isCylindrical() const { return mIsCylindrical; }
-protected:
-	void	playMusic( const fs::path &path, bool loop = false );
-	void	stopMusic();
-	void	playSound( const fs::path &path, bool loop = false );
+	bool isStereoscopic() const { return mIsStereoscopic; }
+	bool isCylindrical() const { return mIsCylindrical; }
+  protected:
+	void playMusic( const fs::path &path, bool loop = false );
+	void stopMusic();
+	void playSound( const fs::path &path, bool loop = false );
 
-	shared_ptr<ISound>	createSound( const fs::path &path );
+	shared_ptr<ISound> createSound( const fs::path &path );
 
-	void	forceHideCursor();
-	void	forceShowCursor();
-	void	constrainCursor( const ivec2 &pos );
+	void forceHideCursor();
+	void forceShowCursor();
+	void constrainCursor( const ivec2 &pos );
 
-	void	render();
+	void render();
 
-	void	createShader();
-	void	createFbo();
+	void createShader();
+	void createFbo();
 
-	fs::path	getFirstFile( const fs::path &path );
-	fs::path	getNextFile( const fs::path &current );
-	fs::path	getPrevFile( const fs::path &current );
-protected:
-	double				mTime;
+	fs::path getFirstFile( const fs::path &path );
+	fs::path getNextFile( const fs::path &current );
+	fs::path getPrevFile( const fs::path &current );
+
+  protected:
+	double mTime;
 
 	// cursor position
-	ivec2				mCursorPos;
-	ivec2				mCursorPrevious;
+	ivec2 mCursorPos;
+	ivec2 mCursorPrevious;
 
 	// camera
-	Cam					mCamera;
+	Cam mCamera;
 
 	// graphical elements
-	Stars				mStars;
-	Labels				mLabels;
-	Constellations		mConstellations;
-	ConstellationArt	mConstellationArt;
-	ConstellationLabels	mConstellationLabels;
-	Background			mBackground;
-	Grid				mGrid;
-	UserInterface		mUserInterface;
+	Stars               mStars;
+	Labels              mLabels;
+	Constellations      mConstellations;
+	ConstellationArt    mConstellationArt;
+	ConstellationLabels mConstellationLabels;
+	Background          mBackground;
+	Grid                mGrid;
+	UserInterface       mUserInterface;
 
 	// animation timer
-	Timer				mTimer;
+	Timer mTimer;
 
 	// toggles
-	bool				mIsGridVisible;
-	bool				mIsLabelsVisible;
-	bool				mIsConstellationsVisible;
-	bool				mIsConstellationArtVisible;
-	bool				mIsCursorVisible;
-	bool				mIsOculus;
-	bool				mIsStereoscopic;
-	bool				mIsCylindrical;
-	bool				mDrawUserInterface;
+	bool mIsGridVisible;
+	bool mIsLabelsVisible;
+	bool mIsConstellationsVisible;
+	bool mIsConstellationArtVisible;
+	bool mIsCursorVisible;
+	bool mIsOculus;
+	bool mIsStereoscopic;
+	bool mIsCylindrical;
+	bool mDrawUserInterface;
 
 	// frame buffer and shader used for cylindrical projection
-	gl::FboRef			mFbo;
-	gl::GlslProgRef		mShader;
-	unsigned			mSectionCount;
-	float				mSectionFovDegrees;
-	float				mSectionOverlap;
+	gl::FboRef      mFbo;
+	gl::GlslProgRef mShader;
+	unsigned        mSectionCount;
+	float           mSectionFovDegrees;
+	float           mSectionOverlap;
 
 	// sound
-	shared_ptr<ISoundEngine>	mSoundEngine;
-	shared_ptr<ISound>			mSound;
-	shared_ptr<ISound>			mMusic;
+	shared_ptr<ISoundEngine> mSoundEngine;
+	shared_ptr<ISound>       mSound;
+	shared_ptr<ISound>       mMusic;
 
 	// music player
-	bool						mPlayMusic;
-	fs::path					mMusicPath;
-	std::vector<fs::path>		mMusicExtensions;
+	bool                  mPlayMusic;
+	fs::path              mMusicPath;
+	std::vector<fs::path> mMusicExtensions;
 };
 
 void StarsApp::prepare( Settings *settings )
@@ -246,7 +247,7 @@ void StarsApp::setup()
 	//
 	mTimer.start();
 
-#if (defined WIN32 && defined NDEBUG)
+#if( defined WIN32 && defined NDEBUG )
 	forceHideCursor();
 #else
 	forceShowCursor();
@@ -267,7 +268,8 @@ void StarsApp::update()
 	mTime += elapsed;
 
 	double time = getElapsedSeconds() / 200.0;
-	if( mSoundEngine && mMusic && mPlayMusic ) time = mMusic->getPlayPosition() / (double)mMusic->getPlayLength();
+	if( mSoundEngine && mMusic && mPlayMusic )
+		time = mMusic->getPlayPosition() / (double)mMusic->getPlayLength();
 
 	// animate camera
 	mCamera.setDistanceTime( time );
@@ -276,21 +278,17 @@ void StarsApp::update()
 	// adjust content based on camera distance
 	float distance = length( mCamera.getCamera().getEyePoint() );
 	mBackground.setCameraDistance( distance );
-	//mLabels.setCameraDistance( distance );
+	// mLabels.setCameraDistance( distance );
 	mConstellations.setCameraDistance( distance );
 	mConstellationArt.setCameraDistance( distance );
-	//mConstellationLabels.setCameraDistance( distance );
+	// mConstellationLabels.setCameraDistance( distance );
 	mUserInterface.setCameraDistance( distance );
 
 	//
 	if( mSoundEngine ) {
 		// send camera position to sound engine (for 3D sounds)
 		vec3 pos = mCamera.getPosition();
-		mSoundEngine->setListenerPosition(
-			vec3df( pos.x, pos.y, pos.z ),
-			vec3df( -pos.x, -pos.y, -pos.z ),
-			vec3df( 0, 0, 0 ),
-			vec3df( 0, 1, 0 ) );
+		mSoundEngine->setListenerPosition( vec3df( pos.x, pos.y, pos.z ), vec3df( -pos.x, -pos.y, -pos.z ), vec3df( 0, 0, 0 ), vec3df( 0, 1, 0 ) );
 
 		// if music has finished, play next track
 		if( mPlayMusic && mMusic && mMusic->isFinished() ) {
@@ -342,8 +340,8 @@ void StarsApp::draw()
 		h = mFbo->getHeight();
 
 		const float aspect = float( w ) / float( h );
-		//const float hFoV = mSectionFovDegrees;
-		//const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
+		// const float hFoV = mSectionFovDegrees;
+		// const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
 		const float vFoVDegrees = (float)mCamera.getFov();
 		const float vFovRadians = glm::radians( vFoVDegrees );
 		const float hFoVRadians = 2.0f * math<float>::atan( math<float>::tan( vFovRadians * 0.5f ) * aspect );
@@ -359,13 +357,14 @@ void StarsApp::draw()
 
 			gl::clear();
 
-			// setup camera	
+			// setup camera
 			CameraStereo cam = mCamera.getCamera();
 			cam.disableStereo();
 			cam.setAspectRatio( aspect );
 			cam.setFov( vFoVDegrees );
 
-			vec3 right, up; cam.getBillboardVectors( &right, &up );
+			vec3 right, up;
+			cam.getBillboardVectors( &right, &up );
 			vec3 forward = cross( up, right );
 
 			// render sections
@@ -401,7 +400,7 @@ void StarsApp::draw()
 
 			Rectf centered = Rectf( mFbo->getBounds() ).getCenteredFit( getWindowBounds(), false );
 			gl::drawSolidRect( centered );
-			//gl::draw( mFbo->getColorTexture(), centered );
+			// gl::draw( mFbo->getColorTexture(), centered );
 		}
 	}
 	else {
@@ -486,103 +485,103 @@ void StarsApp::keyDown( KeyEvent event )
 #if defined( CINDER_MSW )
 	// allows the use of the media buttons on your Windows keyboard to control the music
 	switch( event.getNativeKeyCode() ) {
-		case VK_MEDIA_NEXT_TRACK:
-			// play next music file
-			playMusic( getNextFile( mMusicPath ) );
-			return;
-		case VK_MEDIA_PREV_TRACK:
-			// play next music file
-			playMusic( getPrevFile( mMusicPath ) );
-			return;
-		case VK_MEDIA_STOP:
-			stopMusic();
-			return;
-		case VK_MEDIA_PLAY_PAUSE:
-			if( mSoundEngine && mMusic ) {
-				if( mMusic->isFinished() )
-					playMusic( mMusicPath );
-				else
-					mMusic->setIsPaused( !mMusic->getIsPaused() );
-			}
-			return;
+	case VK_MEDIA_NEXT_TRACK:
+		// play next music file
+		playMusic( getNextFile( mMusicPath ) );
+		return;
+	case VK_MEDIA_PREV_TRACK:
+		// play next music file
+		playMusic( getPrevFile( mMusicPath ) );
+		return;
+	case VK_MEDIA_STOP:
+		stopMusic();
+		return;
+	case VK_MEDIA_PLAY_PAUSE:
+		if( mSoundEngine && mMusic ) {
+			if( mMusic->isFinished() )
+				playMusic( mMusicPath );
+			else
+				mMusic->setIsPaused( !mMusic->getIsPaused() );
+		}
+		return;
 	}
 #endif
 
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_f:
-			// toggle full screen
-			setFullScreen( !isFullScreen() );
-			if( !isFullScreen() )
-				forceShowCursor();
-			break;
-		case KeyEvent::KEY_v:
-			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-			break;
-		case KeyEvent::KEY_ESCAPE:
-			// quit the application
-			quit();
-			break;
-		case KeyEvent::KEY_SPACE:
-			// enable animation
-			mCamera.setup();
-			break;
-		case KeyEvent::KEY_g:
-			// toggle grid
-			mIsGridVisible = !mIsGridVisible;
-			break;
-		case KeyEvent::KEY_l:
-			// toggle labels
-			mIsLabelsVisible = !mIsLabelsVisible;
-			break;
-		case KeyEvent::KEY_u:
-			// toggle user interface
-			mDrawUserInterface = !mDrawUserInterface;
-			break;
-		case KeyEvent::KEY_c:
-			// toggle constellations / art
-			if( event.isShiftDown() )
-				mIsConstellationArtVisible = !mIsConstellationArtVisible;
-			else
-				mIsConstellationsVisible = !mIsConstellationsVisible;
-			break;
-		case KeyEvent::KEY_a:
-			// toggle cursor arrow
-			if( mIsCursorVisible )
-				forceHideCursor();
-			else
-				forceShowCursor();
-			break;
-		case KeyEvent::KEY_s:
-			// toggle stereoscopic view
-			mIsStereoscopic = !mIsStereoscopic;
-			mIsCylindrical = false;
-			// adjust line width and aspect ratio
-			mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
-			mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
-			mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
-			break;
-		case KeyEvent::KEY_d:
-			// cylindrical panorama
-			mIsCylindrical = !mIsCylindrical;
-			mIsStereoscopic = false;
-			// adjust line width and aspect ratio
-			mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
-			mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
-			mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
-			break;
-		case KeyEvent::KEY_RETURN:
-			createShader();
-			break;
-		case KeyEvent::KEY_PLUS:
-		case KeyEvent::KEY_EQUALS:
-		case KeyEvent::KEY_KP_PLUS:
-			mCamera.setFov( mCamera.getFov() + 0.1 );
-			break;
-		case KeyEvent::KEY_MINUS:
-		case KeyEvent::KEY_UNDERSCORE:
-		case KeyEvent::KEY_KP_MINUS:
-			mCamera.setFov( mCamera.getFov() - 0.1 );
-			break;
+	case KeyEvent::KEY_f:
+		// toggle full screen
+		setFullScreen( !isFullScreen() );
+		if( !isFullScreen() )
+			forceShowCursor();
+		break;
+	case KeyEvent::KEY_v:
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
+	case KeyEvent::KEY_ESCAPE:
+		// quit the application
+		quit();
+		break;
+	case KeyEvent::KEY_SPACE:
+		// enable animation
+		mCamera.setup();
+		break;
+	case KeyEvent::KEY_g:
+		// toggle grid
+		mIsGridVisible = !mIsGridVisible;
+		break;
+	case KeyEvent::KEY_l:
+		// toggle labels
+		mIsLabelsVisible = !mIsLabelsVisible;
+		break;
+	case KeyEvent::KEY_u:
+		// toggle user interface
+		mDrawUserInterface = !mDrawUserInterface;
+		break;
+	case KeyEvent::KEY_c:
+		// toggle constellations / art
+		if( event.isShiftDown() )
+			mIsConstellationArtVisible = !mIsConstellationArtVisible;
+		else
+			mIsConstellationsVisible = !mIsConstellationsVisible;
+		break;
+	case KeyEvent::KEY_a:
+		// toggle cursor arrow
+		if( mIsCursorVisible )
+			forceHideCursor();
+		else
+			forceShowCursor();
+		break;
+	case KeyEvent::KEY_s:
+		// toggle stereoscopic view
+		mIsStereoscopic = !mIsStereoscopic;
+		mIsCylindrical = false;
+		// adjust line width and aspect ratio
+		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
+		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
+		break;
+	case KeyEvent::KEY_d:
+		// cylindrical panorama
+		mIsCylindrical = !mIsCylindrical;
+		mIsStereoscopic = false;
+		// adjust line width and aspect ratio
+		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
+		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
+		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
+		break;
+	case KeyEvent::KEY_RETURN:
+		createShader();
+		break;
+	case KeyEvent::KEY_PLUS:
+	case KeyEvent::KEY_EQUALS:
+	case KeyEvent::KEY_KP_PLUS:
+		mCamera.setFov( mCamera.getFov() + 0.1 );
+		break;
+	case KeyEvent::KEY_MINUS:
+	case KeyEvent::KEY_UNDERSCORE:
+	case KeyEvent::KEY_KP_MINUS:
+		mCamera.setFov( mCamera.getFov() - 0.1 );
+		break;
 	}
 }
 
@@ -598,7 +597,8 @@ void StarsApp::fileDrop( FileDropEvent event )
 		fs::path file = event.getFile( i );
 
 		// skip if not a file
-		if( !fs::is_regular_file( file ) ) continue;
+		if( !fs::is_regular_file( file ) )
+			continue;
 
 		if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), file.extension() ) != mMusicExtensions.end() )
 			playMusic( file );
@@ -614,7 +614,8 @@ void StarsApp::playMusic( const fs::path &path, bool loop )
 
 		// play music in a very safe way
 		mMusic = shared_ptr<ISound>( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun( &ISound::drop ) );
-		if( mMusic ) mMusic->setIsPaused( false );
+		if( mMusic )
+			mMusic->setIsPaused( false );
 
 		mMusicPath = path;
 		mPlayMusic = true;
@@ -633,12 +634,13 @@ void StarsApp::playSound( const fs::path &path, bool loop )
 {
 	// play sound in a very safe way
 	shared_ptr<ISound> sound( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun( &ISound::drop ) );
-	if( sound ) sound->setIsPaused( false );
+	if( sound )
+		sound->setIsPaused( false );
 }
 
 shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 {
-	shared_ptr<ISound>	sound;
+	shared_ptr<ISound> sound;
 
 	if( mSoundEngine && !path.empty() ) {
 		// create sound in a very safe way
@@ -684,9 +686,10 @@ void StarsApp::createFbo()
 
 void StarsApp::forceHideCursor()
 {
-	// forces the cursor to hide
+// forces the cursor to hide
 #ifdef WIN32
-	while( ::ShowCursor( false ) >= 0 );
+	while(::ShowCursor( false ) >= 0 )
+		;
 #else
 	hideCursor();
 #endif
@@ -695,9 +698,10 @@ void StarsApp::forceHideCursor()
 
 void StarsApp::forceShowCursor()
 {
-	// forces the cursor to show
+// forces the cursor to show
 #ifdef WIN32
-	while( ::ShowCursor( true ) < 0 );
+	while(::ShowCursor( true ) < 0 )
+		;
 #else
 	showCursor();
 #endif
@@ -711,7 +715,7 @@ void StarsApp::constrainCursor( const ivec2 &pos )
 	// ever hitting the sides of the screen
 
 	if( pos.x < 50 || pos.x > getWindowWidth() - 50 || pos.y < 50 || pos.y > getWindowHeight() - 50 ) {
-#if defined(CINDER_MSW)
+#if defined( CINDER_MSW )
 		POINT pt;
 		mCursorPrevious.x = pt.x = getWindowWidth() / 2;
 		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
@@ -720,32 +724,33 @@ void StarsApp::constrainCursor( const ivec2 &pos )
 		::ClientToScreen( hWnd, &pt );
 		::SetCursorPos( pt.x, pt.y );
 #else
-		// on MacOS, the results seem to be a little choppy,
-		// which might have something to do with the OS
-		// suppressing events for a short while after warping
-		// the cursor. 
-		// A call to "CGSetLocalEventsSuppressionInterval(0.0)"
-		// might remedy that.
-		// Uncomment the code below to try things out.
-		/*//
-		ivec2 pt;
-		mCursorPrevious.x = pt.x = getWindowWidth() / 2;
-		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
+// on MacOS, the results seem to be a little choppy,
+// which might have something to do with the OS
+// suppressing events for a short while after warping
+// the cursor.
+// A call to "CGSetLocalEventsSuppressionInterval(0.0)"
+// might remedy that.
+// Uncomment the code below to try things out.
+/*//
+ivec2 pt;
+mCursorPrevious.x = pt.x = getWindowWidth() / 2;
+mCursorPrevious.y = pt.y = getWindowHeight() / 2;
 
-		CGPoint target = CGPointMake((float) pt.x, (float) pt.y);
-		// note: target should first be converted to screen position here
-		CGWarpMouseCursorPosition(target);
-		//*/
+CGPoint target = CGPointMake((float) pt.x, (float) pt.y);
+// note: target should first be converted to screen position here
+CGWarpMouseCursorPosition(target);
+//*/
 #endif
 	}
 }
 
-fs::path	StarsApp::getFirstFile( const fs::path &path )
+fs::path StarsApp::getFirstFile( const fs::path &path )
 {
 	fs::directory_iterator end_itr;
 	for( fs::directory_iterator i( path ); i != end_itr; ++i ) {
 		// skip if not a file
-		if( !fs::is_regular_file( i->status() ) ) continue;
+		if( !fs::is_regular_file( i->status() ) )
+			continue;
 
 		// skip if extension does not match
 		if( std::find( mMusicExtensions.begin(), mMusicExtensions.end(), i->path().extension() ) == mMusicExtensions.end() )
@@ -759,7 +764,7 @@ fs::path	StarsApp::getFirstFile( const fs::path &path )
 	return fs::path();
 }
 
-fs::path	StarsApp::getNextFile( const fs::path &current )
+fs::path StarsApp::getNextFile( const fs::path &current )
 {
 	if( !current.empty() ) {
 		bool useNext = false;
@@ -767,7 +772,8 @@ fs::path	StarsApp::getNextFile( const fs::path &current )
 		fs::directory_iterator end_itr;
 		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i ) {
 			// skip if not a file
-			if( !fs::is_regular_file( i->status() ) ) continue;
+			if( !fs::is_regular_file( i->status() ) )
+				continue;
 
 			if( useNext ) {
 				// skip if extension does not match
@@ -787,7 +793,7 @@ fs::path	StarsApp::getNextFile( const fs::path &current )
 	return fs::path();
 }
 
-fs::path	StarsApp::getPrevFile( const fs::path &current )
+fs::path StarsApp::getPrevFile( const fs::path &current )
 {
 	if( !current.empty() ) {
 		fs::path previous;
@@ -795,7 +801,8 @@ fs::path	StarsApp::getPrevFile( const fs::path &current )
 		fs::directory_iterator end_itr;
 		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i ) {
 			// skip if not a file
-			if( !fs::is_regular_file( i->status() ) ) continue;
+			if( !fs::is_regular_file( i->status() ) )
+				continue;
 
 			if( i->path() == current ) {
 				// do we know what file came before this one?
@@ -820,6 +827,9 @@ fs::path	StarsApp::getPrevFile( const fs::path &current )
 }
 
 // allow easy access to the application from outside
-static StarsApp* StarsAppPtr() { return static_cast<StarsApp*>( App::get() ); }
+static StarsApp *StarsAppPtr()
+{
+	return static_cast<StarsApp *>( App::get() );
+}
 
 CINDER_APP( StarsApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &StarsApp::prepare )

@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -56,7 +56,7 @@ void SMAA::setup()
 	mAreaTex = gl::Texture2d::create( areaTexBytes, GL_RG, AREATEX_WIDTH, AREATEX_HEIGHT, fmt );
 }
 
-void SMAA::apply( const ci::gl::FboRef& destination, const ci::gl::FboRef& source )
+void SMAA::apply( const ci::gl::FboRef &destination, const ci::gl::FboRef &source )
 {
 	// Source and destination should have the same size
 	assert( destination->getWidth() == source->getWidth() );
@@ -72,10 +72,10 @@ void SMAA::apply( const ci::gl::FboRef& destination, const ci::gl::FboRef& sourc
 	fmt.setWrap( GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER );
 
 	if( !mFboEdgePass || mFboEdgePass->getWidth() != w || mFboEdgePass->getHeight() != h ) {
-		// Note: using only RG channels decreases performance on NVIDIA, 
+		// Note: using only RG channels decreases performance on NVIDIA,
 		//       while RGBA does not decrease performance on Intel and AMD
-		//fmt.setInternalFormat( GL_RG );
-		//fmt.setSwizzleMask( GL_RED, GL_GREEN, GL_ZERO, GL_ONE );
+		// fmt.setInternalFormat( GL_RG );
+		// fmt.setSwizzleMask( GL_RED, GL_GREEN, GL_ZERO, GL_ONE );
 		mFboEdgePass = gl::Fbo::create( w, h, gl::Fbo::Format().colorTexture( fmt ).disableDepth().stencilBuffer() );
 	}
 
@@ -93,7 +93,7 @@ void SMAA::apply( const ci::gl::FboRef& destination, const ci::gl::FboRef& sourc
 	gl::ScopedFramebuffer fbo( destination );
 	gl::ScopedTextureBind tex0( source->getColorTexture(), 0 );
 	gl::ScopedTextureBind tex1( mFboBlendPass->getColorTexture(), 1 );
-	gl::ScopedGlslProg shader( mSMAAThirdPass );
+	gl::ScopedGlslProg    shader( mSMAAThirdPass );
 	mSMAAThirdPass->uniform( "uColorTex", 0 );
 	mSMAAThirdPass->uniform( "uBlendTex", 1 );
 	mSMAAThirdPass->uniform( "SMAA_RT_METRICS", vec4( 1.0f / w, 1.0f / h, (float)w, (float)h ) );
@@ -106,7 +106,7 @@ void SMAA::apply( const ci::gl::FboRef& destination, const ci::gl::FboRef& sourc
 	}
 }
 
-void SMAA::doEdgePass( const ci::gl::FboRef& source )
+void SMAA::doEdgePass( const ci::gl::FboRef &source )
 {
 	int w = mFboEdgePass->getWidth();
 	int h = mFboEdgePass->getHeight();
@@ -114,7 +114,7 @@ void SMAA::doEdgePass( const ci::gl::FboRef& source )
 	// Enable frame buffer
 	gl::ScopedFramebuffer fbo( mFboEdgePass );
 	gl::ScopedTextureBind tex0( source->getColorTexture(), 0 );
-	gl::ScopedGlslProg shader( mSMAAFirstPass );
+	gl::ScopedGlslProg    shader( mSMAAFirstPass );
 	mSMAAFirstPass->uniform( "uColorTex", 0 );
 	mSMAAFirstPass->uniform( "SMAA_RT_METRICS", vec4( 1.0f / w, 1.0f / h, (float)w, (float)h ) );
 	{

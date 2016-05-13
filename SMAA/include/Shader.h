@@ -6,9 +6,9 @@
  the following conditions are met:
 
     * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
+    the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -22,42 +22,41 @@
 
 #pragma once
 
-#include <exception>
-#include <string>
 #include "cinder/Filesystem.h"
 #include "cinder/gl/GlslProg.h"
+#include <exception>
+#include <string>
 
 typedef std::shared_ptr<class Shader> ShaderRef;
 
-class Shader
-{
-public:
-	Shader(void);
-	Shader(const std::string& name);
-	~Shader(void);
+class Shader {
+  public:
+	Shader( void );
+	Shader( const std::string &name );
+	~Shader( void );
 
-	static ShaderRef   create();
-	static ShaderRef   create( const std::string& name );
+	static ShaderRef create();
+	static ShaderRef create( const std::string &name );
 
-	ci::gl::GlslProg&  prog() { return mGlslProg; }
+	ci::gl::GlslProg &prog() { return mGlslProg; }
 
-protected:
-	const ci::fs::path&  getPath() const;
+  protected:
+	const ci::fs::path &getPath() const;
 
-	void                 load();
-	std::string          parseShader( const ci::fs::path& path, bool optional = true, int level = 0 );
-	std::string          parseVersion( const std::string& code );
+	void        load();
+	std::string parseShader( const ci::fs::path &path, bool optional = true, int level = 0 );
+	std::string parseVersion( const std::string &code );
 
-private:
-	std::string		mName;
-	std::string		mVertexFile;
-	std::string		mFragmentFile;
-	std::string		mGeometryFile;
+  private:
+	std::string mName;
+	std::string mVertexFile;
+	std::string mFragmentFile;
+	std::string mGeometryFile;
 
-	bool			bHasGeometryShader;
-	
-	mutable ci::fs::path	mPath;
+	bool bHasGeometryShader;
 
-	unsigned int			mGlslVersion;
-	ci::gl::GlslProg		mGlslProg;
+	mutable ci::fs::path mPath;
+
+	unsigned int     mGlslVersion;
+	ci::gl::GlslProg mGlslProg;
 };

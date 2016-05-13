@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -35,7 +35,7 @@ using namespace ci::app;
 using namespace ph;
 
 Labels::Labels( void )
-	: mAttenuation( 1.0f )
+    : mAttenuation( 1.0f )
 {
 }
 
@@ -50,7 +50,7 @@ void Labels::setup()
 	mLabels.setFont( text::fonts().getFont( "Ubuntu-BoldItalic" ) );
 	mLabels.setFontSize( 16.0f );
 	mLabels.setBoundary( text::Text::LINE );
-	//mLabels.setOffset( 2.5f, 2.5f );
+	// mLabels.setOffset( 2.5f, 2.5f );
 
 	try {
 		auto fmt = gl::GlslProg::Format().vertex( loadAsset( "shaders/labels.vert" ) ).fragment( mLabels.getFragmentShader() );
@@ -64,14 +64,14 @@ void Labels::setup()
 
 void Labels::draw()
 {
-	//glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+	// glPushAttrib( GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
 
 	gl::enableAdditiveBlending();
 	gl::color( Color::white() * mAttenuation );
 
 	mLabels.draw();
 
-	//glPopAttrib();
+	// glPopAttrib();
 }
 
 void Labels::setCameraDistance( float distance )
@@ -96,34 +96,37 @@ void Labels::load( DataSourceRef source )
 	mLabels.clear();
 
 	// load the star database
-	std::string	stars = loadString( source );
+	std::string stars = loadString( source );
 
 	// use boost tokenizer to parse the file
-	std::vector<std::string> tokens;
+	std::vector<std::string>                     tokens;
 	boost::split_iterator<std::string::iterator> lineItr, endItr;
 	for( lineItr = boost::make_split_iterator( stars, boost::token_finder( boost::is_any_of( "\n\r" ) ) ); lineItr != endItr; ++lineItr ) {
 		// retrieve a single, trimmed line
 		std::string line = boost::algorithm::trim_copy( boost::copy_range<std::string>( *lineItr ) );
-		if( line.empty() ) continue;
+		if( line.empty() )
+			continue;
 
-		// split into tokens   
+		// split into tokens
 		boost::algorithm::split( tokens, line, boost::is_any_of( ";" ), boost::token_compress_off );
 
 		// skip if data was incomplete
-		if( tokens.size() < 23 )  continue;
+		if( tokens.size() < 23 )
+			continue;
 
-		// 
+		//
 		try {
 			// name
 			std::string name = boost::trim_copy( tokens[6] );
-			//if( name.empty() ) name = boost::trim_copy( tokens[5] );
-			//if( name.empty() ) name = boost::trim_copy( tokens[4] );
-			if( name.empty() ) continue;
+			// if( name.empty() ) name = boost::trim_copy( tokens[5] );
+			// if( name.empty() ) name = boost::trim_copy( tokens[4] );
+			if( name.empty() )
+				continue;
 
 			// position
 			double ra = Conversions::toDouble( tokens[7] );
 			double dec = Conversions::toDouble( tokens[8] );
-			float distance = Conversions::toFloat( tokens[9] );
+			float  distance = Conversions::toFloat( tokens[9] );
 
 			// absolute magnitude of the star
 			double abs_mag = Conversions::toDouble( tokens[14] );
@@ -136,7 +139,7 @@ void Labels::load( DataSourceRef source )
 			mLabels.addLabel( position, name, abs_mag );
 		}
 		catch( ... ) {
-			// some of the data was invalid, ignore 
+			// some of the data was invalid, ignore
 			continue;
 		}
 	}

@@ -25,7 +25,7 @@
 #include "cinder/gl/Batch.h"
 
 class Grid {
-public:
+  public:
 	Grid( void );
 	~Grid( void );
 
@@ -33,8 +33,7 @@ public:
 	void draw();
 
 	void setLineWidth( float width ) { mLineWidth = width; }
-private:
-	ci::gl::VertBatchRef	mBatch;
-	float					mLineWidth;
+  private:
+	ci::gl::VertBatchRef mBatch;
+	float                mLineWidth;
 };
-

@@ -10,7 +10,7 @@ using namespace ci::app;
 using namespace std;
 
 class TextRenderingApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup() override;
@@ -29,41 +29,42 @@ public:
 	void fileDrop( FileDropEvent event ) override;
 
 	void resize() override;
-protected:
-	vec3	constrainAnchor( const vec3 &pt ) const;
-	void	updateWindowTitle();
-protected:
-	bool			mShowBounds;
-	bool			mShowWireframe;
 
-	Color			mFrontColor;
-	Color			mBackColor;
+  protected:
+	vec3 constrainAnchor( const vec3 &pt ) const;
+	void updateWindowTitle();
 
-	//! 
-	ph::text::TextBox	mTextBox;
+  protected:
+	bool mShowBounds;
+	bool mShowWireframe;
+
+	Color mFrontColor;
+	Color mBackColor;
+
+	//!
+	ph::text::TextBox mTextBox;
 
 	//! textbox transformation members
-	vec3			mAnchor;
-	quat			mOrientation;
-	float			mScale;
-	mat4			mTransform;
+	vec3  mAnchor;
+	quat  mOrientation;
+	float mScale;
+	mat4  mTransform;
 
 	//! textbox animation members
-	vec3			mAnchorTarget;
-	vec3			mAnchorSpeed;
-	float			mScaleSpeed;
+	vec3  mAnchorTarget;
+	vec3  mAnchorSpeed;
+	float mScaleSpeed;
 
 	//! interaction members
-	vec3			mInitialAnchor;
-	quat			mInitialOrientation;
-	float			mInitialScale;
+	vec3  mInitialAnchor;
+	quat  mInitialOrientation;
+	float mInitialScale;
 
-	vec2			mInitialMouse;
-	vec2			mCurrentMouse;
+	vec2 mInitialMouse;
+	vec2 mCurrentMouse;
 
-	uint32_t		mMouseDownFrame;
-	uint32_t		mMouseDragFrame;
-
+	uint32_t mMouseDownFrame;
+	uint32_t mMouseDragFrame;
 };
 
 void TextRenderingApp::prepare( Settings *settings )
@@ -94,7 +95,7 @@ void TextRenderingApp::setup()
 		// load a text and hand it to the text box
 		mTextBox.setText( loadString( loadAsset( "fonts/readme.txt" ) ) );
 	}
-	catch( const std::exception & e ) {
+	catch( const std::exception &e ) {
 		console() << e.what() << std::endl;
 	}
 
@@ -136,15 +137,15 @@ void TextRenderingApp::update()
 	mAnchor += 0.2f * ( mAnchorTarget - mAnchor );
 
 	// calculate transformation matrix
-	mTransform = glm::translate( vec3( 0.5f * vec2( getWindowSize() ), 0.0f ) );	// position
-	mTransform *= glm::toMat4( mOrientation );										// orientation
-	mTransform *= glm::scale( vec3( mScale, mScale, mScale ) );						// scale
-	mTransform *= glm::translate( -mAnchor );										// anchor
+	mTransform = glm::translate( vec3( 0.5f * vec2( getWindowSize() ), 0.0f ) ); // position
+	mTransform *= glm::toMat4( mOrientation );                                   // orientation
+	mTransform *= glm::scale( vec3( mScale, mScale, mScale ) );                  // scale
+	mTransform *= glm::translate( -mAnchor );                                    // anchor
 }
 
 void TextRenderingApp::draw()
 {
-	// note: when drawing text to an FBO, 
+	// note: when drawing text to an FBO,
 	//  make sure to enable maximum quality multisampling (16x is best)!
 
 	// clear out the window
@@ -209,8 +210,8 @@ void TextRenderingApp::mouseDrag( MouseEvent event )
 	}
 	else if( event.isRightDown() ) {
 		// scale text
-		float d0 = glm::length(mInitialMouse);
-		float d1 = glm::length(mCurrentMouse);
+		float d0 = glm::length( mInitialMouse );
+		float d1 = glm::length( mCurrentMouse );
 		mScale = mInitialScale * ( d1 / d0 );
 
 		// make sure auto-scrolling is disabled
@@ -264,9 +265,11 @@ void TextRenderingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_RETURN:
 		mScale = 1.0f;
 		break;
-	case KeyEvent::KEY_SPACE:
-	{ Color temp = mFrontColor; mFrontColor = mBackColor; mBackColor = temp; }
-		break;
+	case KeyEvent::KEY_SPACE: {
+		Color temp = mFrontColor;
+		mFrontColor = mBackColor;
+		mBackColor = temp;
+	} break;
 	case KeyEvent::KEY_LEFTBRACKET:
 		if( mTextBox.getFontSize() > 0.5f )
 			mTextBox.setFontSize( mTextBox.getFontSize() - 0.5f );
@@ -278,9 +281,9 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		/*if( mTextBox.getAlignment() == TextBox::JUSTIFIED )
 			mTextBox.setAlignment( TextBox::RIGHT );
 			else*/ if( mTextBox.getAlignment() == ph::text::TextBox::RIGHT )
-	mTextBox.setAlignment( ph::text::TextBox::CENTER );
-			else if( mTextBox.getAlignment() == ph::text::TextBox::CENTER )
-				mTextBox.setAlignment( ph::text::TextBox::LEFT );
+			mTextBox.setAlignment( ph::text::TextBox::CENTER );
+		else if( mTextBox.getAlignment() == ph::text::TextBox::CENTER )
+			mTextBox.setAlignment( ph::text::TextBox::LEFT );
 		break;
 	case KeyEvent::KEY_RIGHT:
 		if( mTextBox.getAlignment() == ph::text::TextBox::LEFT )
@@ -288,7 +291,7 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		else if( mTextBox.getAlignment() == ph::text::TextBox::CENTER )
 			mTextBox.setAlignment( ph::text::TextBox::RIGHT );
 		/*else if( mTextBox.getAlignment() == TextBox::RIGHT )
-			mTextBox.setAlignment( TextBox::JUSTIFIED );*/
+		    mTextBox.setAlignment( TextBox::JUSTIFIED );*/
 		break;
 	case KeyEvent::KEY_UP:
 		if( mTextBox.getLineSpace() > 0.2f )
@@ -415,9 +418,9 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 
 vec3 TextRenderingApp::constrainAnchor( const vec3 &pt ) const
 {
-	vec2	margin = vec2( 20, 20 ) / mScale;
-	vec2	size = mTextBox.getBounds().getSize();
-	vec2	center = 0.5f / mScale * vec2( getWindowSize() );
+	vec2 margin = vec2( 20, 20 ) / mScale;
+	vec2 size = mTextBox.getBounds().getSize();
+	vec2 center = 0.5f / mScale * vec2( getWindowSize() );
 
 	float x = math<float>::min( center.x - margin.x, 0.5f * size.x );
 	float y = math<float>::min( center.y - margin.y, 0.5f * size.y );

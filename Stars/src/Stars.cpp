@@ -35,7 +35,7 @@ using namespace ci::app;
 using namespace std;
 
 Stars::Stars( void )
-	: mAspectRatio( 1.0f )
+    : mAspectRatio( 1.0f )
 {
 }
 
@@ -64,28 +64,29 @@ void Stars::setup()
 
 void Stars::draw()
 {
-	if( !( mTextureStar && mTextureCorona && mBatch ) ) return;
+	if( !( mTextureStar && mTextureCorona && mBatch ) )
+		return;
 
 	enablePointSprites();
 
 	gl::ScopedBlendAdditive blend;
-	gl::ScopedTextureBind tex0( mTextureStar, (uint8_t)0 );
-	gl::ScopedTextureBind tex1( mTextureCorona, (uint8_t)1 );
-	gl::ScopedColor color( Color::white() );
+	gl::ScopedTextureBind   tex0( mTextureStar, (uint8_t)0 );
+	gl::ScopedTextureBind   tex1( mTextureCorona, (uint8_t)1 );
+	gl::ScopedColor         color( Color::white() );
 
 	mBatch->draw();
 
 	disablePointSprites();
 }
 
-void Stars::resize( const ivec2& size )
+void Stars::resize( const ivec2 &size )
 {
 	// adjust size based on the resolution
 	mScale = size.x / 1280.0f;
 
 	// point sprite sizes differ between ATI/AMD and NVIDIA GPU's,
 	// ATI's are twice as large and have to be scaled down
-	std::string vendor = std::string( (char*)glGetString( GL_VENDOR ) );
+	std::string vendor = std::string( (char *)glGetString( GL_VENDOR ) );
 
 	if( vendor == "ATI Technologies Inc." )
 		mScale *= 0.5f;
@@ -188,22 +189,24 @@ void Stars::load( DataSourceRef source )
 	clear();
 
 	// load the star database
-	std::string	stars = loadString( source );
+	std::string stars = loadString( source );
 
 	// parse the file
 	auto entries = ci::split( stars, "\n\r", true );
 	for( auto &entry : entries ) {
 		// retrieve a single, trimmed line
 		std::string line = boost::algorithm::trim_copy( boost::copy_range<std::string>( entry ) );
-		if( line.empty() ) continue;
+		if( line.empty() )
+			continue;
 
-		// split into tokens   
+		// split into tokens
 		auto tokens = ci::split( line, ";", false );
 
 		// skip if data was incomplete
-		if( tokens.size() < 23 )  continue;
+		if( tokens.size() < 23 )
+			continue;
 
-		// 
+		//
 		try {
 			// absolute magnitude of the star
 			double abs_mag = Conversions::toDouble( tokens[14] );
@@ -214,9 +217,9 @@ void Stars::load( DataSourceRef source )
 
 			uint32_t index = math<uint32_t>::clamp( (uint32_t)colorlut, 0, 48 );
 			uint32_t next_index = math<uint32_t>::clamp( (uint32_t)colorlut + 1, 0, 48 );
-			float t = math<float>::clamp( (float)colorlut - index, 0.0f, 1.0f );
+			float    t = math<float>::clamp( (float)colorlut - index, 0.0f, 1.0f );
 
-			ColorA color = ( 1.0f - t )  * lookup[index] + t * lookup[next_index];
+			ColorA color = ( 1.0f - t ) * lookup[index] + t * lookup[next_index];
 
 			// position
 			double ra = Conversions::toDouble( tokens[7] );
@@ -234,7 +237,7 @@ void Stars::load( DataSourceRef source )
 			mColors.push_back( color );
 		}
 		catch( ... ) {
-			// some of the data was invalid, ignore 
+			// some of the data was invalid, ignore
 			continue;
 		}
 	}
@@ -259,19 +262,24 @@ void Stars::read( DataSourceRef source )
 
 	for( size_t idx = 0; idx < numVertices; ++idx ) {
 		vec3 v;
-		in->readLittle( &v.x ); in->readLittle( &v.y ); in->readLittle( &v.z );
+		in->readLittle( &v.x );
+		in->readLittle( &v.y );
+		in->readLittle( &v.z );
 		mVertices.push_back( v );
 	}
 
 	for( size_t idx = 0; idx < numTexcoords; ++idx ) {
 		vec2 v;
-		in->readLittle( &v.x ); in->readLittle( &v.y );
+		in->readLittle( &v.x );
+		in->readLittle( &v.y );
 		mTexcoords.push_back( v );
 	}
 
 	for( size_t idx = 0; idx < numColors; ++idx ) {
 		Color v;
-		in->readLittle( &v.r ); in->readLittle( &v.g ); in->readLittle( &v.b );
+		in->readLittle( &v.r );
+		in->readLittle( &v.g );
+		in->readLittle( &v.b );
 		mColors.push_back( v );
 	}
 
@@ -291,15 +299,20 @@ void Stars::write( DataTargetRef target )
 	out->writeLittle( static_cast<uint32_t>( mColors.size() ) );
 
 	for( vector<vec3>::const_iterator it = mVertices.begin(); it != mVertices.end(); ++it ) {
-		out->writeLittle( it->x ); out->writeLittle( it->y ); out->writeLittle( it->z );
+		out->writeLittle( it->x );
+		out->writeLittle( it->y );
+		out->writeLittle( it->z );
 	}
 
 	for( vector<vec2>::const_iterator it = mTexcoords.begin(); it != mTexcoords.end(); ++it ) {
-		out->writeLittle( it->x ); out->writeLittle( it->y );
+		out->writeLittle( it->x );
+		out->writeLittle( it->y );
 	}
 
 	for( vector<Color>::const_iterator it = mColors.begin(); it != mColors.end(); ++it ) {
-		out->writeLittle( it->r ); out->writeLittle( it->g ); out->writeLittle( it->b );
+		out->writeLittle( it->r );
+		out->writeLittle( it->g );
+		out->writeLittle( it->b );
 	}
 }
 

@@ -22,32 +22,31 @@
 
 #pragma once
 
+#include "cinder/Vector.h"
 #include "cinder/app/App.h"
 #include "cinder/gl/Batch.h"
-#include "cinder/gl/Texture.h"
 #include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Texture.h"
 #include "cinder/gl/VboMesh.h"
-#include "cinder/Vector.h"
 
 class ConstellationArt {
-public:
+  public:
 	ConstellationArt( void );
 	~ConstellationArt( void );
 
-	void	setup();
-	void	draw();
+	void setup();
+	void draw();
 
-	void	create();
+	void create();
 
-	void	setCameraDistance( float distance );
+	void setCameraDistance( float distance );
 
-private:
-	std::string	getVertexShader() const;
-	std::string	getFragmentShader() const;
+  private:
+	std::string getVertexShader() const;
+	std::string getFragmentShader() const;
 	//
-	float						mAttenuation;
+	float mAttenuation;
 
-	ci::gl::Texture2dRef		mTexture;
-	ci::gl::BatchRef			mBatch;
+	ci::gl::Texture2dRef mTexture;
+	ci::gl::BatchRef     mBatch;
 };
-

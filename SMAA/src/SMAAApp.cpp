@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -21,12 +21,12 @@
 */
 
 #include "cinder/app/App.h"
-#include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/Fbo.h"
-#include "cinder/gl/Texture.h"
 #include "cinder/Camera.h"
 #include "cinder/ImageIo.h"
+#include "cinder/app/RendererGl.h"
+#include "cinder/gl/Fbo.h"
+#include "cinder/gl/Texture.h"
+#include "cinder/gl/gl.h"
 
 #include "Pistons.h"
 #include "SMAA.h"
@@ -37,7 +37,7 @@ using namespace std;
 
 // Our application class
 class SMAAApp : public App {
-public:
+  public:
 	void setup() override;
 	void update() override;
 	void draw() override;
@@ -46,27 +46,29 @@ public:
 	void keyDown( KeyEvent event ) override;
 
 	void resize() override;
-private:
+
+  private:
 	void render();
-private:
+
+  private:
 	enum Mode { EDGE_DETECTION, BLEND_WEIGHTS, BLEND_NEIGHBORS };
 
-	CameraPersp         mCamera;
+	CameraPersp mCamera;
 
-	Pistons             mPistons;
-	SMAA                mSMAA;
+	Pistons mPistons;
+	SMAA    mSMAA;
 
-	gl::FboRef          mFboOriginal;
-	gl::FboRef          mFboResult;
+	gl::FboRef mFboOriginal;
+	gl::FboRef mFboResult;
 
-	gl::TextureRef      mArrow;
+	gl::TextureRef mArrow;
 
-	Timer               mTimer;
-	double              mTime;
-	double              mTimeOffset;
+	Timer  mTimer;
+	double mTime;
+	double mTimeOffset;
 
-	int                 mDividerX;
-	Mode                mMode;
+	int  mDividerX;
+	Mode mMode;
 };
 
 void SMAAApp::setup()
@@ -83,7 +85,10 @@ void SMAAApp::setup()
 
 		mSMAA.setup();
 	}
-	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
+	catch( const std::exception &e ) {
+		console() << e.what() << std::endl;
+		quit();
+	}
 
 	// Setup the pistons
 	mPistons.setup();
@@ -138,28 +143,24 @@ void SMAAApp::draw()
 
 		// ...with SMAA for the left side
 		switch( mMode ) {
-			case EDGE_DETECTION:
-				gl::draw( mSMAA.getEdgePass(),
-						  Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
-				break;
-			case BLEND_WEIGHTS:
-				gl::draw( mSMAA.getBlendPass(),
-						  Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
-				break;
-			case BLEND_NEIGHBORS:
-				gl::draw( mFboResult->getColorTexture(),
-						  Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
-				break;
+		case EDGE_DETECTION:
+			gl::draw( mSMAA.getEdgePass(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+			break;
+		case BLEND_WEIGHTS:
+			gl::draw( mSMAA.getBlendPass(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+			break;
+		case BLEND_NEIGHBORS:
+			gl::draw( mFboResult->getColorTexture(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+			break;
 		}
 
 		// ...and without SMAA for the right side
-		gl::draw( mFboOriginal->getColorTexture(),
-				  Area( mDividerX, 0, w, h ), Rectf( (float)mDividerX, 0, (float)w, (float)h ) );
+		gl::draw( mFboOriginal->getColorTexture(), Area( mDividerX, 0, w, h ), Rectf( (float)mDividerX, 0, (float)w, (float)h ) );
 	}
 
 	// Draw divider
 	{
-		gl::ScopedColor color( Color::white() );
+		gl::ScopedColor      color( Color::white() );
 		gl::ScopedBlendAlpha blend;
 
 		gl::drawLine( vec2( (float)mDividerX, 0.0f ), vec2( (float)mDividerX, (float)h ) );
@@ -180,30 +181,30 @@ void SMAAApp::mouseDrag( MouseEvent event )
 void SMAAApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		case KeyEvent::KEY_SPACE:
-			// Start/stop the animation
-			if( mTimer.isStopped() ) {
-				mTimeOffset += mTimer.getSeconds();
-				mTimer.start();
-			}
-			else
-				mTimer.stop();
-			break;
-		case KeyEvent::KEY_1:
-			mMode = Mode::EDGE_DETECTION;
-			break;
-		case KeyEvent::KEY_2:
-			mMode = Mode::BLEND_WEIGHTS;
-			break;
-		case KeyEvent::KEY_3:
-			mMode = Mode::BLEND_NEIGHBORS;
-			break;
-		case KeyEvent::KEY_v:
-			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_SPACE:
+		// Start/stop the animation
+		if( mTimer.isStopped() ) {
+			mTimeOffset += mTimer.getSeconds();
+			mTimer.start();
+		}
+		else
+			mTimer.stop();
+		break;
+	case KeyEvent::KEY_1:
+		mMode = Mode::EDGE_DETECTION;
+		break;
+	case KeyEvent::KEY_2:
+		mMode = Mode::BLEND_WEIGHTS;
+		break;
+	case KeyEvent::KEY_3:
+		mMode = Mode::BLEND_NEIGHBORS;
+		break;
+	case KeyEvent::KEY_v:
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
 	}
 }
 

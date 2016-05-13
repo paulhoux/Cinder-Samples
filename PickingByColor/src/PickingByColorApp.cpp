@@ -38,7 +38,7 @@ using namespace ci::app;
 using namespace std;
 
 class PickingByColorApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup();
@@ -66,17 +66,12 @@ public:
 	void loadShaders();
 	//! draws a grid on the floor
 	void drawGrid( float size = 100.0f, float step = 10.0f );
-public:
-	// utility functions to translate colors to and from ints or chars 
-	static Color charToColor( unsigned char r, unsigned char g, unsigned char b )
-	{
-		return Color( r / 255.0f, g / 255.0f, b / 255.0f );
-	};
 
-	static unsigned int charToInt( unsigned char r, unsigned char g, unsigned char b )
-	{
-		return b + ( g << 8 ) + ( r << 16 );
-	};
+  public:
+	// utility functions to translate colors to and from ints or chars
+	static Color charToColor( unsigned char r, unsigned char g, unsigned char b ) { return Color( r / 255.0f, g / 255.0f, b / 255.0f ); };
+
+	static unsigned int charToInt( unsigned char r, unsigned char g, unsigned char b ) { return b + ( g << 8 ) + ( r << 16 ); };
 
 	static Color intToColor( unsigned int i )
 	{
@@ -93,35 +88,36 @@ public:
 		unsigned char b = (unsigned char)( color.b * 255 );
 		return b + ( g << 8 ) + ( r << 16 );
 	};
-protected:
+
+  protected:
 	//! our camera
-	CameraPersp		mCamera;
-	CameraUi		mCameraUi;
+	CameraPersp mCamera;
+	CameraUi    mCameraUi;
 
 	//! mesh and picking color of the pitcher object
-	gl::BatchRef	mMeshPitcher;
-	Color			mColorPitcher;
+	gl::BatchRef mMeshPitcher;
+	Color        mColorPitcher;
 
 	//! mesh and picking color of the watering can object
-	gl::BatchRef	mMeshCan;
-	Color			mColorCan;
+	gl::BatchRef mMeshCan;
+	Color        mColorCan;
 
 	//! our Phong shader, which supports multiple targets
-	gl::GlslProgRef	mPhongShader;
+	gl::GlslProgRef mPhongShader;
 
 	//! our main framebuffer (AA, containing 2 color buffers)
-	gl::FboRef		mFbo;
-	//! our little picking framebuffer (non-AA) 
-	gl::FboRef		mPickingFbo;
+	gl::FboRef mFbo;
+	//! our little picking framebuffer (non-AA)
+	gl::FboRef mPickingFbo;
 
 	//! keeping track of our cursor position
-	ivec2			mMousePos;
+	ivec2 mMousePos;
 
 	//! fancy font fizzle
-	Font			mFont;
+	Font mFont;
 
 	//! background color
-	Color			mColorBackground;
+	Color mColorBackground;
 };
 
 void PickingByColorApp::prepare( Settings *settings )
@@ -137,15 +133,15 @@ void PickingByColorApp::setup()
 	//  because it is called anyway so we don't have to set it up twice
 
 	// create materials
-	//mMaterialPitcher.setAmbient( Color::black() );
-	//mMaterialPitcher.setDiffuse( Color(0.45f, 0.45f, 0.5f) );
-	//mMaterialPitcher.setSpecular( Color(0.55f, 0.55f, 0.55f) );
-	//mMaterialPitcher.setShininess( 3.0f );
+	// mMaterialPitcher.setAmbient( Color::black() );
+	// mMaterialPitcher.setDiffuse( Color(0.45f, 0.45f, 0.5f) );
+	// mMaterialPitcher.setSpecular( Color(0.55f, 0.55f, 0.55f) );
+	// mMaterialPitcher.setShininess( 3.0f );
 
-	//mMaterialCan.setAmbient( Color::black() );
-	//mMaterialCan.setDiffuse( Color(0.40f, 0.60f, 0.50f) );
-	//mMaterialCan.setSpecular( Color(0.50f, 0.70f, 0.60f) );
-	//mMaterialCan.setShininess( 20.0f );
+	// mMaterialCan.setAmbient( Color::black() );
+	// mMaterialCan.setDiffuse( Color(0.40f, 0.60f, 0.50f) );
+	// mMaterialCan.setSpecular( Color(0.50f, 0.70f, 0.60f) );
+	// mMaterialCan.setShininess( 20.0f );
 
 	// load shaders
 	loadShaders();
@@ -154,11 +150,11 @@ void PickingByColorApp::setup()
 	loadMesh( "models/pitcher.obj", "models/pitcher.msh", mMeshPitcher );
 	loadMesh( "models/watering_can.obj", "models/watering_can.msh", mMeshCan );
 
-	// each object should have a unique picking color.  
+	// each object should have a unique picking color.
 	// To make sure the colors are pickable, you should use
 	// the intToColor() and colorToInt() functions.
-	mColorPitcher = intToColor( 0x0000FF );	// blue
-	mColorCan = intToColor( 0x00FF00 );		// green
+	mColorPitcher = intToColor( 0x0000FF ); // blue
+	mColorCan = intToColor( 0x00FF00 );     // green
 
 	// load font
 	mFont = Font( loadAsset( "font/b2sq.ttf" ), 32 );
@@ -229,12 +225,12 @@ void PickingByColorApp::mouseUp( MouseEvent event )
 void PickingByColorApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		case KeyEvent::KEY_f:
-			setFullScreen( !isFullScreen() );
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_f:
+		setFullScreen( !isFullScreen() );
+		break;
 	}
 }
 
@@ -257,7 +253,7 @@ void PickingByColorApp::resize()
 		// we create multiple color targets:
 		//  -one for the scene as we will view it
 		//  -one to contain a color coded version of the scene that we can use for picking
-		//fmt.enableColorBuffer( true, 2 );
+		// fmt.enableColorBuffer( true, 2 );
 		gl::Texture2d::Format tfmt;
 		tfmt.setInternalFormat( GL_RGBA );
 
@@ -298,8 +294,8 @@ void PickingByColorApp::render()
 
 	// -draw pitcher
 	{
-		// -each mesh should have a unique picking color that we can use to 
-		//  find out which object is under the cursor. 
+		// -each mesh should have a unique picking color that we can use to
+		//  find out which object is under the cursor.
 		mPhongShader->uniform( "pickingColor", mColorPitcher );
 
 		gl::ScopedColor color( 0.45f, 0.45f, 0.5f );
@@ -334,11 +330,11 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 	if( !mFbo )
 		return "Error";
 
-	// first, specify a small region around the current cursor position 
+	// first, specify a small region around the current cursor position
 	float scaleX = mFbo->getWidth() / (float)getWindowWidth();
 	float scaleY = mFbo->getHeight() / (float)getWindowHeight();
-	ivec2	pixel( (int)( position.x * scaleX ), (int)( ( getWindowHeight() - position.y ) * scaleY ) );
-	Area	area( pixel.x - 5, pixel.y - 5, pixel.x + 5, pixel.y + 5 );
+	ivec2 pixel( (int)( position.x * scaleX ), (int)( ( getWindowHeight() - position.y ) * scaleY ) );
+	Area  area( pixel.x - 5, pixel.y - 5, pixel.x + 5, pixel.y + 5 );
 
 	// next, we need to copy this region to a non-anti-aliased framebuffer
 	//  because sadly we can not sample colors from an anti-aliased one. However,
@@ -361,7 +357,7 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 		mPickingFbo = gl::Fbo::create( area.getWidth(), area.getHeight(), fmt );
 	}
 
-	// (Cinder does not yet provide a way to handle multiple color targets in the blitTo function, 
+	// (Cinder does not yet provide a way to handle multiple color targets in the blitTo function,
 	//  so we have to make sure the correct target is selected before calling it)
 	glBindFramebufferEXT( GL_READ_FRAMEBUFFER_EXT, mFbo->getId() );
 	glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, mPickingFbo->getId() );
@@ -377,7 +373,7 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 	GLubyte buffer[400]; // make sure this is large enough to hold 4 bytes for every pixel!
 
 	glReadBuffer( GL_COLOR_ATTACHMENT0_EXT );
-	glReadPixels( 0, 0, mPickingFbo->getWidth(), mPickingFbo->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, (void*)buffer );
+	glReadPixels( 0, 0, mPickingFbo->getWidth(), mPickingFbo->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, (void *)buffer );
 
 	// unbind the picking framebuffer
 	mPickingFbo->unbindFramebuffer();
@@ -397,18 +393,14 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 	// find the most occuring color by calling std::max_element using a custom comparator.
 	unsigned int max = 0;
 
-	auto itr = std::max_element(
-		occurences.begin(), occurences.end(),
-		[]( const std::pair<unsigned int, unsigned int> &a, const std::pair<unsigned int, unsigned int> &b ) {
-		return a.second < b.second;
-	} );
+	auto itr = std::max_element( occurences.begin(), occurences.end(), []( const std::pair<unsigned int, unsigned int> &a, const std::pair<unsigned int, unsigned int> &b ) { return a.second < b.second; } );
 
 	if( itr != occurences.end() ) {
 		color = itr->first;
 		max = itr->second;
 	}
 
-	// if this color is present in at least 50% of the pixels, 
+	// if this color is present in at least 50% of the pixels,
 	//  we can safely assume that it is indeed belonging to one object
 	if( max >= ( total / 2 ) ) {
 		if( color == colorToInt( mColorCan ) )
@@ -417,7 +409,8 @@ std::string PickingByColorApp::pick( const ivec2 &position )
 			return "Pitcher";
 		else if( color == colorToInt( mColorBackground ) )
 			return "Background";
-		else return "Nothing";
+		else
+			return "Nothing";
 	}
 	else {
 		// we can't be sure about the color, we probably are on an object's edge
@@ -436,7 +429,8 @@ void PickingByColorApp::loadMesh( const std::string &objFile, const std::string 
 		// note: instead of throwing an exception, Cinder crashes if the
 		//   file does not exist. Hopefully this will be changed in future versions.
 		DataSourceRef file = loadAsset( meshFile );
-		if( !file->createStream() ) throw std::exception();
+		if( !file->createStream() )
+			throw std::exception();
 
 		triMesh = TriMesh::create();
 		triMesh->read( file );

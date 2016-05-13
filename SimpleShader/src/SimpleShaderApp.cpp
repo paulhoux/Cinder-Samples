@@ -21,26 +21,27 @@
  */
 
 #include "cinder/app/App.h"
+#include "cinder/ImageIo.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/ImageIo.h"
+#include "cinder/gl/gl.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
 class SimpleShaderApp : public App {
-public:
+  public:
 	void setup() override;
 	void update() override;
 	void draw() override;
-private:
-	gl::TextureRef	mTexture0;
-	gl::TextureRef	mTexture1;
 
-	gl::GlslProgRef	mShader;
+  private:
+	gl::TextureRef mTexture0;
+	gl::TextureRef mTexture1;
+
+	gl::GlslProgRef mShader;
 };
 
 void SimpleShaderApp::setup()
@@ -74,8 +75,8 @@ void SimpleShaderApp::draw()
 	mShader->uniform( "tex1", 1 );
 
 	// bind the textures
-	gl::ScopedTextureBind tex0( mTexture0, (uint8_t) 0 );
-	gl::ScopedTextureBind tex1( mTexture1, (uint8_t) 1 );
+	gl::ScopedTextureBind tex0( mTexture0, (uint8_t)0 );
+	gl::ScopedTextureBind tex1( mTexture1, (uint8_t)1 );
 
 	// now run the shader for every pixel in the window
 	// by drawing a full screen rectangle

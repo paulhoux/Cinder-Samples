@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -29,37 +29,38 @@
 #include "cinder/gl/Batch.h"
 
 class Constellations {
-public:
+  public:
 	Constellations( void );
 	~Constellations( void );
 
-	void setup() {};
-	void update() {};
+	void setup(){};
+	void update(){};
 	void draw();
 
-	void	clear();
+	void clear();
 
-	void	setCameraDistance( float distance );
-	void	setLineWidth( float width ) { mLineWidth = width; }
+	void setCameraDistance( float distance );
+	void setLineWidth( float width ) { mLineWidth = width; }
 
 	//! load a comma separated file containing the HYG star database
-	void	load( ci::DataSourceRef source );
+	void load( ci::DataSourceRef source );
 
 	//! reads a binary label data file
-	void	read( ci::DataSourceRef source );
+	void read( ci::DataSourceRef source );
 	//! writes a binary label data file
-	void	write( ci::DataTargetRef target );
-private:
-	void						createMesh();
+	void write( ci::DataTargetRef target );
 
-	ci::dvec3					getStarCoordinate( double ra, double dec, double distance );
-	std::vector< ci::dvec3 >	getStarCoordinates( ci::DataSourceRef source );
-private:
-	ci::gl::BatchRef			mBatch;
+  private:
+	void createMesh();
 
-	std::vector< ci::vec3 >		mVertices;
+	ci::dvec3 getStarCoordinate( double ra, double dec, double distance );
+	std::vector<ci::dvec3> getStarCoordinates( ci::DataSourceRef source );
 
-	float						mAttenuation;
-	float						mLineWidth;
+  private:
+	ci::gl::BatchRef mBatch;
+
+	std::vector<ci::vec3> mVertices;
+
+	float mAttenuation;
+	float mLineWidth;
 };
-

@@ -24,8 +24,8 @@
 #include "cinder/Xml.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/gl.h"
 
 #include "ph/TextureStore.h"
 
@@ -34,32 +34,33 @@ using namespace ci::app;
 using namespace std;
 
 class FlickrImageViewerApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup();
 	void update();
 	void draw();
 
-	void mouseDown( MouseEvent event ) {};
-	void mouseDrag( MouseEvent event ) {};
-	void mouseUp( MouseEvent event ) {};
+	void mouseDown( MouseEvent event ){};
+	void mouseDrag( MouseEvent event ){};
+	void mouseUp( MouseEvent event ){};
 
 	void keyDown( KeyEvent event );
-protected:
-	vector<string>	mUrls;
 
-	gl::TextureRef	mFront;
-	gl::TextureRef	mBack;
+  protected:
+	vector<string> mUrls;
 
-	size_t			mIndex;
+	gl::TextureRef mFront;
+	gl::TextureRef mBack;
 
-	double			mTimeSwapped;
-	double			mTimeView;
-	double			mTimeFade;
-	double			mTimeDuration;
+	size_t mIndex;
 
-	bool			mAsynchronous;
+	double mTimeSwapped;
+	double mTimeView;
+	double mTimeFade;
+	double mTimeDuration;
+
+	bool mAsynchronous;
 };
 
 void FlickrImageViewerApp::prepare( Settings *settings )
@@ -71,7 +72,6 @@ void FlickrImageViewerApp::prepare( Settings *settings )
 	// run in windowed mode and watch the Output messages window to learn
 	// more about asynchronous loading. Press 'F" to toggle full screen.
 	settings->setFullScreen( false );
-
 }
 
 void FlickrImageViewerApp::setup()
@@ -98,7 +98,7 @@ void FlickrImageViewerApp::update()
 	if( mUrls.empty() ) {
 		// connect to Flickr and load a set of images. To view your own set,
 		// find the "RSS feed" link on the Flickr page and copy the url.
-		XmlTree doc( loadUrl( "http://api.flickr.com/services/feeds/photoset.gne?set=726262&nsid=14684343@N00" ) );
+		XmlTree       doc( loadUrl( "http://api.flickr.com/services/feeds/photoset.gne?set=726262&nsid=14684343@N00" ) );
 		XmlTree::Iter itr = doc.begin( "feed/entry/link" );
 		while( itr != doc.end() ) {
 			// check if link contains an image (type == 'image/jpeg')
@@ -112,7 +112,8 @@ void FlickrImageViewerApp::update()
 		}
 
 		// make sure we actually have something to show
-		if( mUrls.empty() ) return;
+		if( mUrls.empty() )
+			return;
 	}
 
 	// calculate elapsed time in seconds (since last swap)
@@ -142,8 +143,8 @@ void FlickrImageViewerApp::update()
 	}
 	else if( elapsed > mTimeFade ) {
 		if( mAsynchronous ) {
-			// as soon as the front image has been faded in, 
-			// start loading the back image asynchronously using the TextureManager. 
+			// as soon as the front image has been faded in,
+			// start loading the back image asynchronously using the TextureManager.
 			// The call will return an empty texture while not ready yet.
 			mBack = ph::fetchTexture( mUrls[mIndex] );
 		}
@@ -157,7 +158,9 @@ void FlickrImageViewerApp::update()
 		// if texture has been loaded and enough time has passed...
 		if( mBack && elapsed > ( mTimeFade + mTimeView ) ) {
 			// swap the two textures
-			gl::TextureRef temp = mFront; mFront = mBack; mBack = temp;
+			gl::TextureRef temp = mFront;
+			mFront = mBack;
+			mBack = temp;
 			// keep track of how long the previous image was shown,
 			// so there will be no visual indication that we swapped the images
 			mTimeDuration = elapsed;
@@ -178,21 +181,20 @@ void FlickrImageViewerApp::draw()
 	double elapsed = ( getElapsedSeconds() - mTimeSwapped );
 	// calculate crossfade alpha value
 	double fade = ci::math<double>::clamp( elapsed / mTimeFade, 0.0, 1.0 );
-	// calculate zoom factor 
+	// calculate zoom factor
 	float zoom = getWindowWidth() / 600.0f * 0.025f;
 
 	// draw back image
 	if( mBack ) {
 		Rectf image = mBack->getBounds();
 		Rectf window = getWindowBounds();
-		float sx = window.getWidth() / image.getWidth();	// scale width to fit window
-		float sy = window.getHeight() / image.getHeight();	// scale height to fit window
-		float s = ci::math<float>::max( sx, sy )
-			+ zoom * (float)( elapsed + mTimeDuration );	// fit window and zoom over time
-		float w = image.getWidth() * s;						// resulting width
-		float h = image.getHeight() * s;					// resulting height
-		float ox = -0.5f * ( w - window.getWidth() );			// horizontal position to keep image centered
-		float oy = -0.5f * ( h - window.getHeight() );		// vertical position to keep image centered
+		float sx = window.getWidth() / image.getWidth();                                      // scale width to fit window
+		float sy = window.getHeight() / image.getHeight();                                    // scale height to fit window
+		float s = ci::math<float>::max( sx, sy ) + zoom * (float)( elapsed + mTimeDuration ); // fit window and zoom over time
+		float w = image.getWidth() * s;                                                       // resulting width
+		float h = image.getHeight() * s;                                                      // resulting height
+		float ox = -0.5f * ( w - window.getWidth() );                                         // horizontal position to keep image centered
+		float oy = -0.5f * ( h - window.getHeight() );                                        // vertical position to keep image centered
 		image.set( ox, oy, ox + w, oy + h );
 
 		gl::color( Color( 1, 1, 1 ) );
@@ -217,29 +219,29 @@ void FlickrImageViewerApp::draw()
 		gl::draw( mFront, image );
 		gl::disableAlphaBlending();
 	}
-
 }
 
 void FlickrImageViewerApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		case KeyEvent::KEY_a:
-			// toggle synchronous and asynchronous loading
-			mAsynchronous = !mAsynchronous;
-			if( mAsynchronous )
-				console() << "Asynchronous loading ENABLED." << std::endl;
-			else console() << "Asynchronous loading DISABLED." << std::endl;
-			break;
-		case KeyEvent::KEY_f:
-			// toggle full screen
-			setFullScreen( !isFullScreen() );
-			break;
-		case KeyEvent::KEY_v:
-			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_a:
+		// toggle synchronous and asynchronous loading
+		mAsynchronous = !mAsynchronous;
+		if( mAsynchronous )
+			console() << "Asynchronous loading ENABLED." << std::endl;
+		else
+			console() << "Asynchronous loading DISABLED." << std::endl;
+		break;
+	case KeyEvent::KEY_f:
+		// toggle full screen
+		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_v:
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
 	}
 }
 

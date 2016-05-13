@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -29,11 +29,11 @@
 
 namespace ph {
 
-template<typename Key, typename Data>
+template <typename Key, typename Data>
 class ConcurrentMap {
-public:
-	ConcurrentMap( void ) {};
-	~ConcurrentMap( void ) {};
+  public:
+	ConcurrentMap( void ){};
+	~ConcurrentMap( void ){};
 
 	void clear()
 	{
@@ -41,7 +41,7 @@ public:
 		mQueue.clear();
 	}
 
-	bool contains( Key const& key )
+	bool contains( Key const &key )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 
@@ -49,7 +49,7 @@ public:
 		return ( itr != mQueue.end() );
 	}
 
-	bool erase( Key const& key )
+	bool erase( Key const &key )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 
@@ -58,7 +58,7 @@ public:
 		return ( n > 0 );
 	}
 
-	void push( Key const& key, Data const& data )
+	void push( Key const &key, Data const &data )
 	{
 		std::unique_lock<std::mutex> lock( mMutex );
 		mQueue[key] = data;
@@ -72,7 +72,7 @@ public:
 		return mQueue.empty();
 	}
 
-	bool get( Key const& key, Data& popped_value )
+	bool get( Key const &key, Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 
@@ -85,7 +85,7 @@ public:
 		return true;
 	}
 
-	bool try_pop( Key const& key, Data& popped_value )
+	bool try_pop( Key const &key, Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 
@@ -99,7 +99,7 @@ public:
 		return true;
 	}
 
-	void wait_and_pop( Key const& key, Data& popped_value )
+	void wait_and_pop( Key const &key, Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 		typename std::map<Key, Data>::iterator itr;
@@ -110,10 +110,11 @@ public:
 		popped_value = mQueue[key];
 		mQueue.erase( key );
 	}
-private:
-	std::map<Key, Data>			mQueue;
-	mutable std::mutex			mMutex;
-	std::condition_variable		mCondition;
+
+  private:
+	std::map<Key, Data> mQueue;
+	mutable std::mutex      mMutex;
+	std::condition_variable mCondition;
 };
 
 } // namespace ph

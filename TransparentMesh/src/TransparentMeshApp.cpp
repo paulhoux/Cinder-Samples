@@ -21,20 +21,20 @@
  */
 
 #include "cinder/app/App.h"
+#include "cinder/CameraUi.h"
+#include "cinder/ImageIo.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Context.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/ImageIo.h"
-#include "cinder/CameraUi.h"
+#include "cinder/gl/gl.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
 class TransparentMeshApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup() override;
@@ -50,20 +50,21 @@ public:
 
 	void keyDown( KeyEvent event ) override;
 	void keyUp( KeyEvent event ) override;
-private:
+
+  private:
 	// our textures
-	gl::Texture2dRef	mTexEarth;
-	gl::Texture2dRef	mTexBackground;
+	gl::Texture2dRef mTexEarth;
+	gl::Texture2dRef mTexBackground;
 
 	// our shader
-	gl::GlslProgRef		mShader;
+	gl::GlslProgRef mShader;
 
 	// animate the Earth by rotating it around y-axis
-	float				mDegrees;
+	float mDegrees;
 
 	// our controlable 3D camera
-	CameraPersp			mCamera;
-	CameraUi			mCameraUi;
+	CameraPersp mCamera;
+	CameraUi    mCameraUi;
 };
 
 void TransparentMeshApp::prepare( Settings *settings )
@@ -125,9 +126,9 @@ void TransparentMeshApp::draw()
 	gl::rotate( mDegrees, 0, 1, 0 );
 
 	// bind the shader and earth texture (containing transparency) and enable alpha blending
-	gl::ScopedGlslProg shader( mShader );
+	gl::ScopedGlslProg    shader( mShader );
 	gl::ScopedTextureBind tex0( mTexEarth );
-	gl::ScopedBlendAlpha blend;
+	gl::ScopedBlendAlpha  blend;
 
 	// the trick with rendering transparent objects, is to render from back to front.
 	// For a single mesh, this is relatively easy: first, only draw all back-facing polygons,

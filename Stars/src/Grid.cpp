@@ -28,7 +28,7 @@ using namespace ci;
 using namespace std;
 
 Grid::Grid( void )
-	: mLineWidth( 1.5f )
+    : mLineWidth( 1.5f )
 {
 }
 
@@ -95,18 +95,18 @@ void Grid::setup()
 			}
 		}
 	}
-
 }
 
 void Grid::draw()
 {
-	if( !mBatch ) return;
+	if( !mBatch )
+		return;
 
 	glLineWidth( mLineWidth );
 
-	gl::ScopedColor color( Color( 0.5f, 0.6f, 0.8f ) * 0.25f );
+	gl::ScopedColor         color( Color( 0.5f, 0.6f, 0.8f ) * 0.25f );
 	gl::ScopedBlendAdditive blend;
-	gl::ScopedGlslProg shader( gl::context()->getStockShader( gl::ShaderDef().color() ) );
+	gl::ScopedGlslProg      shader( gl::context()->getStockShader( gl::ShaderDef().color() ) );
 
 	gl::setModelMatrix( mat4() );
 	mBatch->draw();

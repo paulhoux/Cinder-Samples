@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -29,12 +29,12 @@
 #include "text/TextLabels.h"
 
 class Labels {
-public:
+  public:
 	Labels( void );
 	virtual ~Labels( void );
 
 	virtual void setup();
-	virtual void update() {};
+	virtual void update(){};
 	virtual void draw();
 
 	virtual void setCameraDistance( float distance );
@@ -43,12 +43,12 @@ public:
 	virtual void load( ci::DataSourceRef source );
 
 	//! reads a binary label data file
-	void	read( ci::DataSourceRef source );
+	void read( ci::DataSourceRef source );
 	//! writes a binary label data file
-	void	write( ci::DataTargetRef target );
-protected:
-	ph::text::TextLabels	mLabels;
+	void write( ci::DataTargetRef target );
 
-	float					mAttenuation;
+  protected:
+	ph::text::TextLabels mLabels;
+
+	float mAttenuation;
 };
-

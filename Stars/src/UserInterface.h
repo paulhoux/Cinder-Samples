@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -28,19 +28,18 @@
 #include <boost/format.hpp>
 
 class UserInterface {
-public:
+  public:
 	UserInterface( void );
 	~UserInterface( void );
 
-	void	setup();
-	void	draw( const std::string &text );
+	void setup();
+	void draw( const std::string &text );
 
 	//! set distance of camera to Sun in parsecs, then convert to lightyears
-	void	setCameraDistance( float distance ) { mDistance = distance * 3.261631f; }
-private:
-	float				mDistance;
+	void setCameraDistance( float distance ) { mDistance = distance * 3.261631f; }
+  private:
+	float mDistance;
 
-	ph::text::TextBox	mBox;
-	std::string			mText;
+	ph::text::TextBox mBox;
+	std::string       mText;
 };
-

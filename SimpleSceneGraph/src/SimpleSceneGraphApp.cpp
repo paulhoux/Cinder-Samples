@@ -22,8 +22,8 @@
 
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/gl.h"
 
 #include "NodeRectangle.h"
 
@@ -33,7 +33,7 @@ using namespace std;
 using namespace ph::nodes;
 
 class SimpleSceneGraphApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup() override;
@@ -51,11 +51,12 @@ public:
 	void keyUp( KeyEvent event ) override;
 
 	void resize() override;
-protected:
+
+  protected:
 	//! The root node
-	Node2DRef			mRoot;
+	Node2DRef mRoot;
 	//! The big rectangle that acts as a parent for the smaller ones
-	NodeRectangleRef	mParent;
+	NodeRectangleRef mParent;
 };
 
 void SimpleSceneGraphApp::prepare( Settings *settings )
@@ -78,7 +79,7 @@ void SimpleSceneGraphApp::setup()
 	mParent->setSize( 600, 450 );
 	// add it to the root of our scenegraph
 	mRoot->addChild( mParent );
-	
+
 	// add smaller rectangles to the root node
 	NodeRectangleRef child1( new NodeRectangle() );
 	child1->setPosition( 200, 225 ); // relative to parent node
@@ -116,7 +117,7 @@ void SimpleSceneGraphApp::setup()
 	child->setAnchorPercentage( 0.5f, 0.5f );
 	child->setSize( 100, 100 );
 	child2->addChild( child );
-	
+
 	// note that we only keep a reference to the root node. The children are
 	// not deleted when this function goes out of scope, because they sit happily
 	// in the list of children of their parent node. They are not deleted until
@@ -142,7 +143,7 @@ void SimpleSceneGraphApp::draw()
 	// draw all nodes, starting with the root node
 	mRoot->treeDraw();
 
-	// example of coordinate conversion: 
+	// example of coordinate conversion:
 	// convert big rectangle's origin to screen coordinates and draw a red circle there
 	gl::color( Color( 1, 0, 0 ) );
 	gl::drawSolidCircle( mParent->objectToScreen( vec2( 0 ) ), 5.0f );
@@ -154,7 +155,7 @@ void SimpleSceneGraphApp::mouseMove( MouseEvent event )
 	// frame rate down if you have a lot of nodes and none of them does anything with
 	// this event. Only use it if you have just a few nodes, like in this sample,
 	// or catch it as soon as possible by returning TRUE in your mouseMove() method.
-	mRoot->treeMouseMove(event);
+	mRoot->treeMouseMove( event );
 }
 
 void SimpleSceneGraphApp::mouseDown( MouseEvent event )

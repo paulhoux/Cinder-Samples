@@ -30,14 +30,17 @@ using namespace std;
 namespace ph {
 namespace nodes {
 
-int				Node::nodeCount = 0;
-unsigned int	Node::uuidCount = 1;
-NodeMap			Node::uuidLookup;
+int          Node::nodeCount = 0;
+unsigned int Node::uuidCount = 1;
+NodeMap      Node::uuidLookup;
 
 Node::Node( void )
-	: mUuid( uuidCount ),
-	mIsVisible( true ), mIsClickable( true ), mIsSelected( false ), mIsSetup( false ),
-	mIsTransformInvalidated( true )
+    : mUuid( uuidCount )
+    , mIsVisible( true )
+    , mIsClickable( true )
+    , mIsSelected( false )
+    , mIsSetup( false )
+    , mIsTransformInvalidated( true )
 {
 	// default constructor for [Node]
 	nodeCount++;
@@ -59,7 +62,8 @@ Node::~Node( void )
 void Node::removeFromParent()
 {
 	NodeRef node = mParent.lock();
-	if( node ) node->removeChild( shared_from_this() );
+	if( node )
+		node->removeChild( shared_from_this() );
 }
 
 void Node::addChild( NodeRef node )
@@ -67,7 +71,8 @@ void Node::addChild( NodeRef node )
 	if( node && !hasChild( node ) ) {
 		// remove child from current parent
 		NodeRef parent = node->getParent();
-		if( parent ) parent->removeChild( node );
+		if( parent )
+			parent->removeChild( node );
 
 		// add to children
 		mChildren.push_back( node );
@@ -108,20 +113,22 @@ void Node::removeChildren()
 bool Node::hasChild( NodeRef node ) const
 {
 	NodeList::const_iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
-	return( itr != mChildren.end() );
+	return ( itr != mChildren.end() );
 }
 
 void Node::putOnTop()
 {
 	NodeRef parent = getParent();
-	if( parent ) parent->putOnTop( shared_from_this() );
+	if( parent )
+		parent->putOnTop( shared_from_this() );
 }
 
 void Node::putOnTop( NodeRef node )
 {
 	// remove from list
 	NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
-	if( itr == mChildren.end() ) return;
+	if( itr == mChildren.end() )
+		return;
 
 	mChildren.erase( itr );
 
@@ -132,33 +139,39 @@ void Node::putOnTop( NodeRef node )
 bool Node::isOnTop() const
 {
 	NodeRef parent = getParent();
-	if( parent ) return parent->isOnTop( shared_from_this() );
-	else return false;
+	if( parent )
+		return parent->isOnTop( shared_from_this() );
+	else
+		return false;
 }
 
 bool Node::isOnTop( NodeConstRef node ) const
 {
-	if( mChildren.empty() ) return false;
-	if( mChildren.back() == node ) return true;
+	if( mChildren.empty() )
+		return false;
+	if( mChildren.back() == node )
+		return true;
 	return false;
 }
 
 void Node::moveToBottom()
 {
 	NodeRef parent = getParent();
-	if( parent ) parent->moveToBottom( shared_from_this() );
+	if( parent )
+		parent->moveToBottom( shared_from_this() );
 }
 
 //! sets the transformation matrix of this node
 
-void Node::setTransform( const ci::mat4 & transform ) const
+void Node::setTransform( const ci::mat4 &transform ) const
 {
 	mTransform = transform;
 
 	auto parent = getParent<Node2D>();
 	if( parent )
 		mWorldTransform = parent->getWorldTransform() * mTransform;
-	else mWorldTransform = mTransform;
+	else
+		mWorldTransform = mTransform;
 
 	mIsTransformInvalidated = false;
 
@@ -170,7 +183,8 @@ void Node::moveToBottom( NodeRef node )
 {
 	// remove from list
 	NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
-	if( itr == mChildren.end() ) return;
+	if( itr == mChildren.end() )
+		return;
 
 	mChildren.erase( itr );
 
@@ -180,13 +194,15 @@ void Node::moveToBottom( NodeRef node )
 
 NodeRef Node::findChild( unsigned int uuid )
 {
-	if( mUuid == uuid ) return shared_from_this();
+	if( mUuid == uuid )
+		return shared_from_this();
 
-	NodeRef node;
+	NodeRef            node;
 	NodeList::iterator itr;
 	for( itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
 		node = ( *itr )->findChild( uuid );
-		if( node ) return node;
+		if( node )
+			return node;
 	}
 
 	return node;
@@ -196,7 +212,7 @@ void Node::treeSetup()
 {
 	setup();
 
-	NodeList nodes( mChildren );
+	NodeList           nodes( mChildren );
 	NodeList::iterator itr;
 	for( itr = nodes.begin(); itr != nodes.end(); ++itr )
 		( *itr )->treeSetup();
@@ -204,7 +220,7 @@ void Node::treeSetup()
 
 void Node::treeShutdown()
 {
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
 	for( itr = nodes.rbegin(); itr != nodes.rend(); ++itr )
 		( *itr )->treeShutdown();
@@ -214,11 +230,11 @@ void Node::treeShutdown()
 
 void Node::treeUpdate( double elapsed )
 {
-	// let derived class perform animation 
+	// let derived class perform animation
 	update( elapsed );
 
 	// update this node's children
-	NodeList nodes( mChildren );
+	NodeList           nodes( mChildren );
 	NodeList::iterator itr;
 	for( itr = nodes.begin(); itr != nodes.end(); ++itr )
 		( *itr )->treeUpdate( elapsed );
@@ -235,7 +251,8 @@ void Node::treeDraw()
 	}
 
 	// update transform matrix by calling derived class's function
-	if( mIsTransformInvalidated ) transform();
+	if( mIsTransformInvalidated )
+		transform();
 
 	// let derived class know we are about to draw stuff
 	predraw();
@@ -262,71 +279,79 @@ void Node::treeDraw()
 }
 
 // Note: the scene graph implementation is currently not fast enough to support mouseMove events
-//  when there are more than a few nodes. 
+//  when there are more than a few nodes.
 bool Node::treeMouseMove( MouseEvent event )
 {
-	if( !mIsVisible ) return false;
+	if( !mIsVisible )
+		return false;
 
 	// test children first, from top to bottom
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
-	bool handled = false;
+	bool                       handled = false;
 	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeMouseMove( event );
 
 	// if not handled, test this node
-	if( !handled ) handled = mouseMove( event );
+	if( !handled )
+		handled = mouseMove( event );
 
 	return handled;
-}//*/
+} //*/
 
 bool Node::treeMouseDown( MouseEvent event )
 {
-	if( !mIsVisible ) return false;
+	if( !mIsVisible )
+		return false;
 
 	// test children first, from top to bottom
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
-	bool handled = false;
+	bool                       handled = false;
 	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeMouseDown( event );
 
 	// if not handled, test this node
-	if( !handled ) handled = mouseDown( event );
+	if( !handled )
+		handled = mouseDown( event );
 
 	return handled;
 }
 
 bool Node::treeMouseDrag( MouseEvent event )
 {
-	if( !mIsVisible ) return false;
+	if( !mIsVisible )
+		return false;
 
 	// test children first, from top to bottom
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
-	bool handled = false;
+	bool                       handled = false;
 	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeMouseDrag( event );
 
 	// if not handled, test this node
-	if( !handled ) handled = mouseDrag( event );
+	if( !handled )
+		handled = mouseDrag( event );
 
 	return handled;
 }
 
 bool Node::treeMouseUp( MouseEvent event )
 {
-	if( !mIsVisible ) return false;
+	if( !mIsVisible )
+		return false;
 
 	// test children first, from top to bottom
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
-	bool handled = false;
+	bool                       handled = false;
 	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		( *itr )->treeMouseUp( event ); // don't care about 'handled' for now
 
 	// if not handled, test this node
-	if( !handled ) handled = mouseUp( event );
+	if( !handled )
+		handled = mouseUp( event );
 
 	return handled;
 }
@@ -358,34 +383,38 @@ bool Node::mouseUpOutside( MouseEvent event )
 
 bool Node::treeKeyDown( KeyEvent event )
 {
-	if( !mIsVisible ) return false;
+	if( !mIsVisible )
+		return false;
 
 	// test children first, from top to bottom
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
-	bool handled = false;
+	bool                       handled = false;
 	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeKeyDown( event );
 
 	// if not handled, test this node
-	if( !handled ) handled = keyDown( event );
+	if( !handled )
+		handled = keyDown( event );
 
 	return handled;
 }
 
 bool Node::treeKeyUp( KeyEvent event )
 {
-	if( !mIsVisible ) return false;
+	if( !mIsVisible )
+		return false;
 
 	// test children first, from top to bottom
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
-	bool handled = false;
+	bool                       handled = false;
 	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeKeyUp( event );
 
 	// if not handled, test this node
-	if( !handled ) handled = keyUp( event );
+	if( !handled )
+		handled = keyUp( event );
 
 	return handled;
 }
@@ -403,14 +432,15 @@ bool Node::keyUp( KeyEvent event )
 bool Node::treeResize()
 {
 	// test children first, from top to bottom
-	NodeList nodes( mChildren );
+	NodeList                   nodes( mChildren );
 	NodeList::reverse_iterator itr;
-	bool handled = false;
+	bool                       handled = false;
 	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeResize();
 
 	// if not handled, test this node
-	if( !handled ) handled = resize();
+	if( !handled )
+		handled = resize();
 
 	return handled;
 }
@@ -424,7 +454,10 @@ bool Node::resize()
 
 
 Node2D::Node2D( void )
-	: mPosition( 0 ), mScale( 1 ), mAnchor( 0 ), mAnchorIsPercentage( false )
+    : mPosition( 0 )
+    , mScale( 1 )
+    , mAnchor( 0 )
+    , mAnchorIsPercentage( false )
 {
 }
 
@@ -437,7 +470,8 @@ vec2 Node2D::screenToParent( const vec2 &pt ) const
 	vec2 p = pt;
 
 	Node2DRef node = getParent<Node2D>();
-	if( node ) p = node->screenToObject( p );
+	if( node )
+		p = node->screenToObject( p );
 
 	return p;
 }
@@ -466,7 +500,8 @@ vec2 Node2D::parentToScreen( const vec2 &pt ) const
 	vec2 p = pt;
 
 	Node2DRef node = getParent<Node2D>();
-	if( node ) p = node->objectToScreen( p );
+	if( node )
+		p = node->objectToScreen( p );
 
 	return p;
 }
@@ -505,7 +540,7 @@ vec2 Node2D::objectToScreen( const vec2 &pt ) const
 ////////////////// Node3D //////////////////
 
 Node3D::Node3D( void )
-	: mScale( 1 )
+    : mScale( 1 )
 {
 }
 
@@ -515,7 +550,8 @@ Node3D::~Node3D( void )
 
 void Node3D::treeDrawWireframe()
 {
-	if( !mIsVisible ) return;
+	if( !mIsVisible )
+		return;
 
 	// apply transform
 	gl::pushModelView();
@@ -531,12 +567,12 @@ void Node3D::treeDrawWireframe()
 	for( itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
 		// only call other Node3D's
 		Node3DRef node = std::dynamic_pointer_cast<Node3D>( *itr );
-		if( node ) node->treeDrawWireframe();
+		if( node )
+			node->treeDrawWireframe();
 	}
 
 	// restore transform
 	gl::popModelView();
 }
-
 }
 } // namespace ph::nodes

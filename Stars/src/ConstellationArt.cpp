@@ -33,7 +33,7 @@ using namespace ci::app;
 using namespace std;
 
 ConstellationArt::ConstellationArt( void )
-	: mAttenuation( 1.0f )
+    : mAttenuation( 1.0f )
 {
 }
 
@@ -50,20 +50,23 @@ void ConstellationArt::setup()
 
 		mTexture = gl::Texture2d::create( loadImage( loadAsset( "textures/constellations.jpg" ) ), fmt );
 	}
-	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
+	catch( const std::exception &e ) {
+		console() << "Could not load texture: " << e.what() << std::endl;
+	}
 
 	create();
 }
 
 void ConstellationArt::draw()
 {
-	if( !( mTexture && mBatch ) ) return;
+	if( !( mTexture && mBatch ) )
+		return;
 
 	gl::pushModelView();
 	{
-		gl::ScopedTextureBind tex0( mTexture );
+		gl::ScopedTextureBind   tex0( mTexture );
 		gl::ScopedBlendAdditive blend;
-		gl::ScopedColor color( mAttenuation * Color( 0.4f, 0.6f, 0.8f ) );
+		gl::ScopedColor         color( mAttenuation * Color( 0.4f, 0.6f, 0.8f ) );
 
 		mBatch->draw();
 	}
@@ -73,20 +76,20 @@ void ConstellationArt::draw()
 
 void ConstellationArt::create()
 {
-	const double	TWO_PI = 2.0 * M_PI;
-	const double	HALF_PI = 0.5 * M_PI;
+	const double TWO_PI = 2.0 * M_PI;
+	const double HALF_PI = 0.5 * M_PI;
 
-	const int		SLICES = 30;
-	const int		SEGMENTS = 60;
-	const int		RADIUS = 25;
+	const int SLICES = 30;
+	const int SEGMENTS = 60;
+	const int RADIUS = 25;
 
 	// create data buffers
-	vector<vec3>		normals;
-	vector<vec3>		positions;
-	vector<vec2>		texCoords;
-	vector<uint16_t>	indices;
+	vector<vec3>     normals;
+	vector<vec3>     positions;
+	vector<vec2>     texCoords;
+	vector<uint16_t> indices;
 
-	//	
+	//
 	int x, y;
 	for( x = 0; x <= SEGMENTS; ++x ) {
 		double theta = static_cast<double>( x ) / SEGMENTS * TWO_PI;
@@ -94,12 +97,9 @@ void ConstellationArt::create()
 		for( y = 0; y <= SLICES; ++y ) {
 			double phi = ( 0.5 - static_cast<double>( y ) / SLICES ) * M_PI;
 
-			normals.push_back( vec3(
-				static_cast<float>( cos( phi ) * sin( theta ) ),
-				static_cast<float>( sin( phi ) ),
-				static_cast<float>( cos( phi ) * cos( theta ) ) ) );
+			normals.push_back( vec3( static_cast<float>( cos( phi ) * sin( theta ) ), static_cast<float>( sin( phi ) ), static_cast<float>( cos( phi ) * cos( theta ) ) ) );
 
-			positions.push_back( normals.back() * (float) RADIUS );
+			positions.push_back( normals.back() * (float)RADIUS );
 
 			float tx = 1.0f - static_cast<float>( x ) / SEGMENTS;
 			float ty = 1.0f - static_cast<float>( y ) / SLICES;
@@ -109,16 +109,16 @@ void ConstellationArt::create()
 	}
 
 	//
-	int rings = SLICES + 1;
+	int  rings = SLICES + 1;
 	bool forward = false;
 	for( x = 0; x < SEGMENTS; ++x ) {
 		if( forward ) {
 			// create jumps in the triangle strip by introducing degenerate polygons
-			indices.push_back( x      * rings + 0 );
-			indices.push_back( x      * rings + 0 );
-			// 
+			indices.push_back( x * rings + 0 );
+			indices.push_back( x * rings + 0 );
+			//
 			for( y = 0; y < rings; ++y ) {
-				indices.push_back( x      * rings + y );
+				indices.push_back( x * rings + y );
 				indices.push_back( ( x + 1 ) * rings + y );
 			}
 		}
@@ -126,10 +126,10 @@ void ConstellationArt::create()
 			// create jumps in the triangle strip by introducing degenerate polygons
 			indices.push_back( ( x + 1 ) * rings + SLICES );
 			indices.push_back( ( x + 1 ) * rings + SLICES );
-			// 
+			//
 			for( y = SLICES; y >= 0; --y ) {
 				indices.push_back( ( x + 1 ) * rings + y );
-				indices.push_back( x      * rings + y );
+				indices.push_back( x * rings + y );
 			}
 		}
 
@@ -137,13 +137,14 @@ void ConstellationArt::create()
 	}
 
 	// create the batch
-	auto vboMesh = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, { gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::POSITION, 3 ).attrib( geom::TEX_COORD_0, 2 ).attrib( geom::NORMAL, 3 ) }, indices.size(), GL_UNSIGNED_SHORT );
+	auto vboMesh
+	    = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, { gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::POSITION, 3 ).attrib( geom::TEX_COORD_0, 2 ).attrib( geom::NORMAL, 3 ) }, indices.size(), GL_UNSIGNED_SHORT );
 	vboMesh->bufferAttrib( geom::POSITION, positions );
 	vboMesh->bufferAttrib( geom::TEX_COORD_0, texCoords );
 	vboMesh->bufferAttrib( geom::NORMAL, normals );
 	vboMesh->bufferIndices( indices.size() * sizeof( uint16_t ), indices.data() );
 
-	//auto shader = gl::GlslProg::create( getVertexShader().c_str(), getFragmentShader().c_str() );
+	// auto shader = gl::GlslProg::create( getVertexShader().c_str(), getFragmentShader().c_str() );
 	auto shader = gl::context()->getStockShader( gl::ShaderDef().color().texture() );
 
 	mBatch = gl::Batch::create( vboMesh, shader );
@@ -160,16 +161,16 @@ void ConstellationArt::setCameraDistance( float distance )
 std::string ConstellationArt::getVertexShader() const
 {
 	// vertex shader
-	const char *vs =
-		"#version 110\n"
-		"\n"
-		"void main()\n"
-		"{\n"
-		"	gl_FrontColor = gl_Color;\n"
-		"	gl_TexCoord[0] = gl_MultiTexCoord0;\n"
-		"\n"
-		"	gl_Position = ftransform();\n"
-		"}\n";
+	const char *vs
+	    = "#version 110\n"
+	      "\n"
+	      "void main()\n"
+	      "{\n"
+	      "	gl_FrontColor = gl_Color;\n"
+	      "	gl_TexCoord[0] = gl_MultiTexCoord0;\n"
+	      "\n"
+	      "	gl_Position = ftransform();\n"
+	      "}\n";
 
 	return std::string( vs );
 }
@@ -177,30 +178,30 @@ std::string ConstellationArt::getVertexShader() const
 std::string ConstellationArt::getFragmentShader() const
 {
 	// fragment shader
-	const char *fs =
-		"#version 110\n"
-		"\n"
-		"uniform sampler2D	map;\n"
-		"uniform float      smoothness;\n"
-		"\n"
-		"const float gamma = 2.2;\n"
-		"\n"
-		"void main()\n"
-		"{\n"
-		"	// retrieve signed distance\n"
-		"	float sdf = texture2D( map, gl_TexCoord[0].xy ).r;\n"
-		"\n"
-		"	// perform adaptive anti-aliasing of the edges\n"
-		"	float w = clamp( smoothness * (abs(dFdx(gl_TexCoord[0].x)) + abs(dFdy(gl_TexCoord[0].y))), 0.0, 0.5);\n"
-		"	float a = smoothstep(0.5-w, 0.5+w, sdf);\n"
-		"\n"
-		"	// gamma correction for linear attenuation\n"
-		"	a = pow(a, 1.0/gamma);\n"
-		"\n"
-		"	// final color\n"
-		"	gl_FragColor.rgb = gl_Color.rgb;\n"
-		"	gl_FragColor.a = gl_Color.a * a;\n"
-		"}\n";
+	const char *fs
+	    = "#version 110\n"
+	      "\n"
+	      "uniform sampler2D	map;\n"
+	      "uniform float      smoothness;\n"
+	      "\n"
+	      "const float gamma = 2.2;\n"
+	      "\n"
+	      "void main()\n"
+	      "{\n"
+	      "	// retrieve signed distance\n"
+	      "	float sdf = texture2D( map, gl_TexCoord[0].xy ).r;\n"
+	      "\n"
+	      "	// perform adaptive anti-aliasing of the edges\n"
+	      "	float w = clamp( smoothness * (abs(dFdx(gl_TexCoord[0].x)) + abs(dFdy(gl_TexCoord[0].y))), 0.0, 0.5);\n"
+	      "	float a = smoothstep(0.5-w, 0.5+w, sdf);\n"
+	      "\n"
+	      "	// gamma correction for linear attenuation\n"
+	      "	a = pow(a, 1.0/gamma);\n"
+	      "\n"
+	      "	// final color\n"
+	      "	gl_FragColor.rgb = gl_Color.rgb;\n"
+	      "	gl_FragColor.a = gl_Color.a * a;\n"
+	      "}\n";
 
 	return std::string( fs );
 }

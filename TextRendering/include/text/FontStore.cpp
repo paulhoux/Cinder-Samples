@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -29,12 +29,12 @@ namespace text {
 
 using namespace ci;
 
-bool	FontStore::hasFont( const std::string &family )
+bool FontStore::hasFont( const std::string &family )
 {
 	return ( mFonts.find( family ) != mFonts.end() );
 }
 
-FontRef	FontStore::getFont( const std::string &family )
+FontRef FontStore::getFont( const std::string &family )
 {
 	if( hasFont( family ) )
 		return mFonts.at( family );
@@ -43,9 +43,10 @@ FontRef	FontStore::getFont( const std::string &family )
 	return FontRef();
 }
 
-bool	FontStore::addFont( FontRef font )
+bool FontStore::addFont( FontRef font )
 {
-	if( !font ) return false;
+	if( !font )
+		return false;
 
 	// check if font family is already known
 	std::string family = font->getFamily();
@@ -68,7 +69,7 @@ std::vector<std::string> FontStore::listFonts()
 	return keys;
 }
 
-FontRef	FontStore::loadFont( DataSourceRef source )
+FontRef FontStore::loadFont( DataSourceRef source )
 {
 	try {
 		// try to load the file from source
@@ -86,6 +87,5 @@ FontRef	FontStore::loadFont( DataSourceRef source )
 	// return empty font on error
 	return FontRef();
 }
-
 }
 } // namespace ph::text

@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -20,22 +20,22 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma warning(push)
-#pragma warning(disable: 4996) // _CRT_SECURE_NO_WARNINGS
+#pragma warning( push )
+#pragma warning( disable : 4996 ) // _CRT_SECURE_NO_WARNINGS
 
 #include "cinder/app/App.h"
-#include "cinder/app/Platform.h"
-#include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/Environment.h"
-#include "cinder/gl/Fbo.h"
-#include "cinder/gl/GlslProg.h"
-#include "cinder/gl/Texture.h"
 #include "cinder/ConcurrentCircularBuffer.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Log.h"
 #include "cinder/Unicode.h"
 #include "cinder/Utilities.h"
+#include "cinder/app/Platform.h"
+#include "cinder/app/RendererGl.h"
+#include "cinder/gl/Environment.h"
+#include "cinder/gl/Fbo.h"
+#include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Texture.h"
+#include "cinder/gl/gl.h"
 
 #include <time.h>
 
@@ -44,8 +44,8 @@ using namespace ci::app;
 using namespace std;
 
 class ShaderToyApp : public App {
-public:
-	static void prepare( Settings* settings );
+  public:
+	static void prepare( Settings *settings );
 
 	void setup() override;
 	void cleanup() override;
@@ -62,7 +62,8 @@ public:
 	void fileDrop( FileDropEvent event ) override;
 
 	void random();
-private:
+
+  private:
 	//! Sets the ShaderToy uniform variables.
 	void setUniforms();
 
@@ -74,11 +75,11 @@ private:
 	//! Our loader thread. Pass context by value, so the thread obtains ownership.
 	void loader( gl::ContextRef ctx );
 
-private:
+  private:
 	//! Time in seconds at which the transition to the next shader starts.
-	double          mTransitionTime;
+	double mTransitionTime;
 	//! Duration in seconds of the transition to the next shader.
-	double          mTransitionDuration;
+	double mTransitionDuration;
 	//! Shader that will perform the transition to the next shader.
 	gl::GlslProgRef mShaderTransition;
 	//! Currently active shader.
@@ -86,49 +87,50 @@ private:
 	//! Shader that has just been loaded and we are transitioning to.
 	gl::GlslProgRef mShaderNext;
 	//! Buffer containing the rendered output of the currently active shader.
-	gl::FboRef      mBufferCurrent;
+	gl::FboRef mBufferCurrent;
 	//! Buffer containing the rendered output of the shader we are transitioning to.
-	gl::FboRef      mBufferNext;
+	gl::FboRef mBufferNext;
 	//! Texture slots for our shader, based on ShaderToy.
-	gl::TextureRef  mChannel0;
-	gl::TextureRef  mChannel1;
-	gl::TextureRef  mChannel2;
-	gl::TextureRef  mChannel3;
+	gl::TextureRef mChannel0;
+	gl::TextureRef mChannel1;
+	gl::TextureRef mChannel2;
+	gl::TextureRef mChannel3;
 	//! Our mouse position: xy = current position while mouse down, zw = last click position.
-	vec4            mMouse;
+	vec4 mMouse;
 	//! Keep track of the current path.
-	fs::path        mPathCurrent;
+	fs::path mPathCurrent;
 	//! Keep track of the next path.
-	fs::path        mPathNext;
+	fs::path mPathNext;
 
 	//! We will use this structure to pass data from one thread to another.
 	struct LoaderData {
 		LoaderData() {}
-		LoaderData( const fs::path& path, gl::GlslProgRef shader )
-			: path( path ), shader( shader )
+		LoaderData( const fs::path &path, gl::GlslProgRef shader )
+		    : path( path )
+		    , shader( shader )
 		{
 		}
 
 		//! This constructor allows implicit conversion from path to LoaderData.
-		LoaderData( const fs::path& path )
-			: path( path )
+		LoaderData( const fs::path &path )
+		    : path( path )
 		{
 		}
 
-		fs::path path;
+		fs::path        path;
 		gl::GlslProgRef shader;
 	};
 	//! The main thread will push data to this buffer, to be picked up by the loading thread.
-	ConcurrentCircularBuffer<LoaderData>* mRequests;
+	ConcurrentCircularBuffer<LoaderData> *mRequests;
 	//! The loading thread will push data to this buffer, to be picked up by the main thread.
-	ConcurrentCircularBuffer<LoaderData>* mResponses;
+	ConcurrentCircularBuffer<LoaderData> *mResponses;
 	//! Our loading thread, sharing an OpenGL context with the main thread.
-	std::shared_ptr<std::thread>          mThread;
+	std::shared_ptr<std::thread> mThread;
 	//! Signals if the loading thread should abort.
-	bool                                  mThreadAbort;
+	bool mThreadAbort;
 };
 
-void ShaderToyApp::prepare( Settings* settings )
+void ShaderToyApp::prepare( Settings *settings )
 {
 	// Do not allow resizing our window. Feel free to remove this limitation.
 	settings->setResizable( false );
@@ -143,7 +145,8 @@ void ShaderToyApp::setup()
 	// Start the loading thread.
 	if( !setupLoader() ) {
 		CI_LOG_E( "Failed to create the loader thread and context." );
-		quit(); return;
+		quit();
+		return;
 	}
 
 	// Load our textures and transition shader in the main thread.
@@ -158,10 +161,11 @@ void ShaderToyApp::setup()
 
 		mShaderTransition = gl::GlslProg::create( loadAsset( "common/shadertoy.vert" ), loadAsset( "common/shadertoy.frag" ) );
 	}
-	catch( const std::exception& e ) {
+	catch( const std::exception &e ) {
 		// Quit if anything went wrong.
 		CI_LOG_EXCEPTION( "Failed to load common textures and shaders:", e );
-		quit(); return;
+		quit();
+		return;
 	}
 
 	// Tell our loading thread to load the first shader. The path is converted to LoaderData implicitly.
@@ -174,9 +178,11 @@ void ShaderToyApp::cleanup()
 	shutdownLoader();
 
 	// Properly destroy the buffers.
-	if( mResponses ) delete mResponses;
+	if( mResponses )
+		delete mResponses;
 	mResponses = nullptr;
-	if( mRequests ) delete mRequests;
+	if( mRequests )
+		delete mRequests;
 	mRequests = nullptr;
 }
 
@@ -203,10 +209,14 @@ void ShaderToyApp::update()
 void ShaderToyApp::draw()
 {
 	// Bind textures.
-	if( mChannel0 ) mChannel0->bind( 0 );
-	if( mChannel1 ) mChannel1->bind( 1 );
-	if( mChannel2 ) mChannel2->bind( 2 );
-	if( mChannel3 ) mChannel3->bind( 3 );
+	if( mChannel0 )
+		mChannel0->bind( 0 );
+	if( mChannel1 )
+		mChannel1->bind( 1 );
+	if( mChannel2 )
+		mChannel2->bind( 2 );
+	if( mChannel3 )
+		mChannel3->bind( 3 );
 
 	// Render the current shader to a frame buffer.
 	if( mShaderCurrent && mBufferCurrent ) {
@@ -290,12 +300,12 @@ void ShaderToyApp::mouseDrag( MouseEvent event )
 void ShaderToyApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		case KeyEvent::KEY_SPACE:
-			random();
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_SPACE:
+		random();
+		break;
 	}
 }
 
@@ -357,12 +367,9 @@ void ShaderToyApp::setUniforms()
 	vec3  iChannelResolution3 = mChannel3 ? vec3( mChannel3->getSize(), 1 ) : vec3( 1 );
 
 	time_t now = time( 0 );
-	tm*    t = gmtime( &now );
-	vec4   iDate( float( t->tm_year + 1900 ),
-				  float( t->tm_mon + 1 ),
-				  float( t->tm_mday ),
-				  float( t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec ) );
-	
+	tm *   t = gmtime( &now );
+	vec4   iDate( float( t->tm_year + 1900 ), float( t->tm_mon + 1 ), float( t->tm_mday ), float( t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec ) );
+
 	// Set shader uniforms.
 	shader->uniform( "iResolution", iResolution );
 	shader->uniform( "iGlobalTime", iGlobalTime );
@@ -426,7 +433,7 @@ void ShaderToyApp::loader( gl::ContextRef ctx )
 				// If the shader compiled successfully, pass it to the main thread.
 				mResponses->pushFront( data );
 			}
-			catch( const std::exception& e ) {
+			catch( const std::exception &e ) {
 				// Uhoh, something went wrong, but it's not fatal.
 				CI_LOG_EXCEPTION( "Failed to compile the shader: ", e );
 			}
@@ -439,6 +446,6 @@ void ShaderToyApp::loader( gl::ContextRef ctx )
 	}
 }
 
-#pragma warning(pop) // _CRT_SECURE_NO_WARNINGS
+#pragma warning( pop ) // _CRT_SECURE_NO_WARNINGS
 
 CINDER_APP( ShaderToyApp, RendererGl, &ShaderToyApp::prepare )

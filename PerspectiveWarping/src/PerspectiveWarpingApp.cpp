@@ -23,8 +23,8 @@
 #include "cinder/ImageIo.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/gl.h"
 
 // this sample needs the Cinder-OpenCV block, which comes with the release
 // version of Cinder, but should be installed separately if you use the GitHub version.
@@ -35,11 +35,11 @@
 // using the #pragma directive
 #ifdef CINDER_MSW
 #ifndef _DEBUG
-#pragma comment(lib, "opencv_core249.lib")
-#pragma comment(lib, "opencv_imgproc249.lib")
+#pragma comment( lib, "opencv_core249.lib" )
+#pragma comment( lib, "opencv_imgproc249.lib" )
 #else
-#pragma comment(lib, "opencv_core249d.lib")
-#pragma comment(lib, "opencv_imgproc249d.lib")
+#pragma comment( lib, "opencv_core249d.lib" )
+#pragma comment( lib, "opencv_imgproc249d.lib" )
 #endif
 #endif
 
@@ -48,7 +48,7 @@ using namespace ci::app;
 using namespace std;
 
 class PerspectiveWarpingApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup();
@@ -64,42 +64,44 @@ public:
 
 	void keyDown( KeyEvent event );
 	void keyUp( KeyEvent event );
-public:
+
+  public:
 	//! set the size in pixels of the actual content
-	void	setContentSize( float width, float height );
+	void setContentSize( float width, float height );
 
 	//! find the index of the nearest corner
-	size_t	getNearestIndex( const ivec2 &pt );
-private:
+	size_t getNearestIndex( const ivec2 &pt );
+
+  private:
 	//! TRUE if the transform matrix needs to be recalculated
-	bool				mIsInvalid;
+	bool mIsInvalid;
 
 	//! size in pixels of the actual content
-	float				mWidth;
-	float				mHeight;
+	float mWidth;
+	float mHeight;
 
 	//! corners expressed in content coordinates
-	cv::Point2f			mSource[4];
+	cv::Point2f mSource[4];
 	//! corners expressed in window coordinates
-	cv::Point2f			mDestination[4];
+	cv::Point2f mDestination[4];
 	//! corners expressed in normalized window coordinates
-	vec2				mDestinationNormalized[4];
+	vec2 mDestinationNormalized[4];
 
 	//! warp transform matrix
-	mat4				mTransform;
+	mat4 mTransform;
 
 	//! content image
-	gl::Texture2dRef	mImage;
+	gl::Texture2dRef mImage;
 
 	//! edit variables
-	bool				mIsMouseDown;
+	bool mIsMouseDown;
 
-	size_t				mSelected;
+	size_t mSelected;
 
-	ivec2				mInitialMouse;
-	ivec2				mCurrentMouse;
+	ivec2 mInitialMouse;
+	ivec2 mCurrentMouse;
 
-	cv::Point2f			mInitialPosition;
+	cv::Point2f mInitialPosition;
 };
 
 void PerspectiveWarpingApp::prepare( Settings *settings )
@@ -117,17 +119,25 @@ void PerspectiveWarpingApp::setup()
 
 	// determine where the four corners should be,
 	// expressed in normalized window coordinates
-	mDestinationNormalized[0].x = 0.0f;	mDestinationNormalized[0].y = 0.0f;
-	mDestinationNormalized[1].x = 1.0f;	mDestinationNormalized[1].y = 0.0f;
-	mDestinationNormalized[2].x = 1.0f;	mDestinationNormalized[2].y = 1.0f;
-	mDestinationNormalized[3].x = 0.0f;	mDestinationNormalized[3].y = 1.0f;
+	mDestinationNormalized[0].x = 0.0f;
+	mDestinationNormalized[0].y = 0.0f;
+	mDestinationNormalized[1].x = 1.0f;
+	mDestinationNormalized[1].y = 0.0f;
+	mDestinationNormalized[2].x = 1.0f;
+	mDestinationNormalized[2].y = 1.0f;
+	mDestinationNormalized[3].x = 0.0f;
+	mDestinationNormalized[3].y = 1.0f;
 
 	// mouse is not down
 	mIsMouseDown = false;
 
 	// load image
-	try { mImage = gl::Texture::create( loadImage( loadAsset( "USS Enterprise D TNG Season 1-2.jpg" ) ) ); }
-	catch( const std::exception &e ) { console() << e.what() << std::endl; }
+	try {
+		mImage = gl::Texture::create( loadImage( loadAsset( "USS Enterprise D TNG Season 1-2.jpg" ) ) );
+	}
+	catch( const std::exception &e ) {
+		console() << e.what() << std::endl;
+	}
 }
 
 void PerspectiveWarpingApp::update()
@@ -138,13 +148,17 @@ void PerspectiveWarpingApp::update()
 		int w = getWindowWidth();
 		int h = getWindowHeight();
 
-		mDestination[0].x = w * mDestinationNormalized[0].x;	mDestination[0].y = h * mDestinationNormalized[0].y;
-		mDestination[1].x = w * mDestinationNormalized[1].x;	mDestination[1].y = h * mDestinationNormalized[1].y;
-		mDestination[2].x = w * mDestinationNormalized[2].x;	mDestination[2].y = h * mDestinationNormalized[2].y;
-		mDestination[3].x = w * mDestinationNormalized[3].x;	mDestination[3].y = h * mDestinationNormalized[3].y;
+		mDestination[0].x = w * mDestinationNormalized[0].x;
+		mDestination[0].y = h * mDestinationNormalized[0].y;
+		mDestination[1].x = w * mDestinationNormalized[1].x;
+		mDestination[1].y = h * mDestinationNormalized[1].y;
+		mDestination[2].x = w * mDestinationNormalized[2].x;
+		mDestination[2].y = h * mDestinationNormalized[2].y;
+		mDestination[3].x = w * mDestinationNormalized[3].x;
+		mDestination[3].y = h * mDestinationNormalized[3].y;
 
 		// calculate warp matrix
-		cv::Mat	warp = cv::getPerspectiveTransform( mSource, mDestination );
+		cv::Mat warp = cv::getPerspectiveTransform( mSource, mDestination );
 
 		// convert to OpenGL matrix
 		mTransform[0][0] = warp.ptr<double>( 0 )[0];
@@ -173,7 +187,8 @@ void PerspectiveWarpingApp::draw()
 
 	// draw content
 	gl::color( Color::white() );
-	if( mImage ) gl::draw( mImage );
+	if( mImage )
+		gl::draw( mImage );
 
 	gl::drawStrokedRect( Rectf( 0, 0, mWidth, mHeight ) );
 	gl::drawLine( vec2( 0, 0 ), vec2( mWidth, mHeight ) );
@@ -260,8 +275,8 @@ void PerspectiveWarpingApp::setContentSize( float width, float height )
 
 size_t PerspectiveWarpingApp::getNearestIndex( const ivec2 &pt )
 {
-	uint8_t	index = 0;
-	float	distance = 10.0e6f;
+	uint8_t index = 0;
+	float   distance = 10.0e6f;
 
 	for( size_t i = 0; i < 4; ++i ) {
 		float d = glm::distance( vec2( mDestination[i].x, mDestination[i].y ), vec2( pt ) );

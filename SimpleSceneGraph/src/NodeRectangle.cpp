@@ -30,7 +30,7 @@ using namespace ci::app;
 using namespace ph::nodes;
 
 NodeRectangle::NodeRectangle( void )
-	: mTouchMode( UNTOUCHED )
+    : mTouchMode( UNTOUCHED )
 {
 }
 
@@ -64,7 +64,7 @@ void NodeRectangle::draw()
 
 	// draw lines to the origin of each child
 	gl::color( Color( 0, 1, 1 ) );
-	NodeRectangleList nodes = getChildren<NodeRectangle>();
+	NodeRectangleList           nodes = getChildren<NodeRectangle>();
 	NodeRectangleList::iterator itr;
 	for( itr = nodes.begin(); itr != nodes.end(); ++itr )
 		gl::drawLine( getAnchor(), ( *itr )->getPosition() );
@@ -86,7 +86,8 @@ bool NodeRectangle::mouseDown( MouseEvent event )
 {
 	// check if mouse is inside node (convert from screen space to object space)
 	vec2 pt = screenToObject( event.getPos() );
-	if( !getBounds().contains( pt ) ) return false;
+	if( !getBounds().contains( pt ) )
+		return false;
 
 	// The event specifies the mouse coordinates in screen space,
 	// and our node position is specified in parent space. So, transform coordinates
@@ -118,8 +119,7 @@ bool NodeRectangle::mouseDrag( MouseEvent event )
 	case DRAGGING:
 		setPosition( mInitialPosition + ( mCurrentMouse - mInitialMouse ) );
 		return true;
-	case RESIZING:
-	{
+	case RESIZING: {
 		// calculate a new scale
 		float d0 = glm::length( mInitialMouse );
 		float d1 = glm::length( mCurrentMouse );

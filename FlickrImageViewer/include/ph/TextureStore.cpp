@@ -20,13 +20,13 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
- // get rid of a very annoying warning caused by boost::thread::sleep()
-#pragma warning(push)
-#pragma warning(disable: 4244)
+// get rid of a very annoying warning caused by boost::thread::sleep()
+#pragma warning( push )
+#pragma warning( disable : 4244 )
 
 #include "cinder/app/App.h"
-#include "cinder/ip/Resize.h"
 #include "cinder/Log.h"
+#include "cinder/ip/Resize.h"
 //#include "cinder/DataSource.h"
 //#include "cinder/ImageIo.h"
 //#include "cinder/Thread.h"
@@ -41,7 +41,7 @@ using namespace ci::app;
 using namespace std;
 
 TextureStore::TextureStore( void )
-	: mShouldQuit( false )
+    : mShouldQuit( false )
 {
 	// initialize buffers
 	mTextures.clear();
@@ -98,7 +98,8 @@ gl::TextureRef TextureStore::load( const string &url, gl::Texture2d::Format fmt 
 		gl::TextureRef tex = gl::Texture2d::create( img, fmt );
 		return storeTexture( url, tex );
 	}
-	catch( ... ) {}
+	catch( ... ) {
+	}
 
 	try {
 		ImageSourceRef img = loadImage( loadUrl( Url( url ) ) );
@@ -106,7 +107,8 @@ gl::TextureRef TextureStore::load( const string &url, gl::Texture2d::Format fmt 
 		gl::TextureRef tex = gl::Texture2d::create( img, fmt );
 		return storeTexture( url, tex );
 	}
-	catch( ... ) {}
+	catch( ... ) {
+	}
 
 	// did not succeed
 	CI_LOG_V( "Error loading texture '" << url << "'!" );
@@ -134,7 +136,7 @@ gl::TextureRef TextureStore::fetch( const string &url, gl::Texture2d::Format fmt
 		return storeTexture( url, tex );
 	}
 
-	// add to list of currently loading/scheduled files 
+	// add to list of currently loading/scheduled files
 	if( mLoadingQueue.push_back( url, true ) ) {
 		// hand over to threaded loader
 		if( mQueue.push_back( url, true ) ) {
@@ -176,10 +178,10 @@ bool TextureStore::isLoaded( const string &url )
 
 void TextureStore::threadLoad()
 {
-	bool			succeeded;
-	Surface			surface;
-	ImageSourceRef	image;
-	string			url;
+	bool           succeeded;
+	Surface        surface;
+	ImageSourceRef image;
+	string         url;
 
 	// run until interrupted
 	while( !mShouldQuit ) {
@@ -189,28 +191,35 @@ void TextureStore::threadLoad()
 		succeeded = false;
 
 		// try to load from FILE (fastest)
-		if( !succeeded ) try {
-			image = loadImage( loadFile( url ) );
-			succeeded = true;
-		}
-		catch( ... ) {}
+		if( !succeeded )
+			try {
+				image = loadImage( loadFile( url ) );
+				succeeded = true;
+			}
+			catch( ... ) {
+			}
 
 		// try to load from ASSET (fast)
-		if( !succeeded ) try {
-			image = loadImage( loadAsset( url ) );
-			succeeded = true;
-		}
-		catch( ... ) {}
+		if( !succeeded )
+			try {
+				image = loadImage( loadAsset( url ) );
+				succeeded = true;
+			}
+			catch( ... ) {
+			}
 
 		// try to load from URL (slow)
-		if( !succeeded ) try {
-			image = loadImage( loadUrl( Url( url ) ) );
-			succeeded = true;
-		}
-		catch( ... ) {}
+		if( !succeeded )
+			try {
+				image = loadImage( loadUrl( Url( url ) ) );
+				succeeded = true;
+			}
+			catch( ... ) {
+			}
 
 		// do NOT continue if not succeeded (yeah, it's confusing, I know)
-		if( !succeeded ) continue;
+		if( !succeeded )
+			continue;
 
 		// create Surface from the image
 		surface = Surface( image );
@@ -228,7 +237,7 @@ void TextureStore::threadLoad()
 	}
 }
 
-gl::TextureRef TextureStore::storeTexture( const std::string& url, const gl::TextureRef& src )
+gl::TextureRef TextureStore::storeTexture( const std::string &url, const gl::TextureRef &src )
 {
 	mTextures[url] = std::weak_ptr<gl::Texture2d>( src );
 
@@ -237,11 +246,11 @@ gl::TextureRef TextureStore::storeTexture( const std::string& url, const gl::Tex
 	return src;
 }
 
-void TextureStore::CustomDeleter::operator()( gl::TextureBase* ptr )
+void TextureStore::CustomDeleter::operator()( gl::TextureBase *ptr )
 {
 	// We know one of our textures has just been deleted. Find it in the map and remove it.
 	if( ptr ) {
-		auto& map = TextureStore::getInstance().mTextures;
+		auto &map = TextureStore::getInstance().mTextures;
 		for( auto itr = map.begin(); itr != map.end(); ++itr ) {
 			if( itr->second.expired() ) {
 				map.erase( itr );
@@ -258,4 +267,4 @@ void TextureStore::CustomDeleter::operator()( gl::TextureBase* ptr )
 
 } // namespace ph
 //
-#pragma warning(pop)
+#pragma warning( pop )

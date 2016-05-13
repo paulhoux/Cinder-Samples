@@ -34,18 +34,15 @@ using namespace ci::app;
 using namespace std;
 
 // define constants used in the coordinate conversion methods
-const dvec3	Background::GALACTIC_CENTER_EQUATORIAL = dvec3( toRadians( 266.40510 ), toRadians( -28.936175 ), 8.33 );
-const dvec2	Background::GALACTIC_NORTHPOLE_EQUATORIAL = dvec2( toRadians( 192.859508 ), toRadians( 27.128336 ) );
+const dvec3 Background::GALACTIC_CENTER_EQUATORIAL = dvec3( toRadians( 266.40510 ), toRadians( -28.936175 ), 8.33 );
+const dvec2 Background::GALACTIC_NORTHPOLE_EQUATORIAL = dvec2( toRadians( 192.859508 ), toRadians( 27.128336 ) );
 
 Background::Background( void )
-	: mAttenuation( 1.0f )
+    : mAttenuation( 1.0f )
 {
-	// Transform the map from galactic coordinates to equatorial coordinates. 
+	// Transform the map from galactic coordinates to equatorial coordinates.
 	// OpenGL matrix derived from http://arxiv.org/pdf/1010.3773.pdf
-	mTransform = mat4( +0.444829594298f, -0.746982248696f, -0.494109453633f, 0.0f,
-					   -0.198076389622f, +0.455983794523f, -0.867666135681f, 0.0f,
-					   +0.873437104725f, +0.483834991775f, +0.054875539390f, 0.0f,
-					   0.0f, 0.0f, 0.0f, 1.0f );
+	mTransform = mat4( +0.444829594298f, -0.746982248696f, -0.494109453633f, 0.0f, -0.198076389622f, +0.455983794523f, -0.867666135681f, 0.0f, +0.873437104725f, +0.483834991775f, +0.054875539390f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f );
 }
 
 Background::~Background( void )
@@ -54,18 +51,23 @@ Background::~Background( void )
 
 void Background::setup()
 {
-	try { mTexture = gl::Texture2d::create( loadImage( loadAsset( "textures/background.jpg" ) ) ); }
-	catch( const std::exception &e ) { console() << "Could not load texture: " << e.what() << std::endl; }
+	try {
+		mTexture = gl::Texture2d::create( loadImage( loadAsset( "textures/background.jpg" ) ) );
+	}
+	catch( const std::exception &e ) {
+		console() << "Could not load texture: " << e.what() << std::endl;
+	}
 
 	create();
 }
 
 void Background::draw()
 {
-	if( !( mTexture && mBatch ) ) return;
+	if( !( mTexture && mBatch ) )
+		return;
 
 	gl::ScopedTextureBind tex0( mTexture );
-	gl::ScopedColor color( mAttenuation * Color::white() );
+	gl::ScopedColor       color( mAttenuation * Color::white() );
 
 	gl::pushModelMatrix();
 	gl::multModelMatrix( mTransform );
@@ -76,20 +78,20 @@ void Background::draw()
 
 void Background::create()
 {
-	const double	TWO_PI = 2.0 * M_PI;
-	const double	HALF_PI = 0.5 * M_PI;
+	const double TWO_PI = 2.0 * M_PI;
+	const double HALF_PI = 0.5 * M_PI;
 
-	const int		SLICES = 30;
-	const int		SEGMENTS = 60;
-	const float		RADIUS = 2000;
+	const int   SLICES = 30;
+	const int   SEGMENTS = 60;
+	const float RADIUS = 2000;
 
 	// create data buffers
-	vector<vec3>		normals;
-	vector<vec3>		positions;
-	vector<vec2>		texCoords;
-	vector<uint16_t>	indices;
+	vector<vec3>     normals;
+	vector<vec3>     positions;
+	vector<vec2>     texCoords;
+	vector<uint16_t> indices;
 
-	//	
+	//
 	int x, y;
 	for( x = 0; x <= SEGMENTS; ++x ) {
 		double theta = static_cast<double>( x ) / SEGMENTS * TWO_PI;
@@ -97,10 +99,7 @@ void Background::create()
 		for( y = 0; y <= SLICES; ++y ) {
 			double phi = ( 0.5 - static_cast<double>( y ) / SLICES ) * M_PI;
 
-			normals.push_back( vec3(
-				static_cast<float>( cos( phi ) * sin( theta ) ),
-				static_cast<float>( sin( phi ) ),
-				static_cast<float>( cos( phi ) * cos( theta ) ) ) );
+			normals.push_back( vec3( static_cast<float>( cos( phi ) * sin( theta ) ), static_cast<float>( sin( phi ) ), static_cast<float>( cos( phi ) * cos( theta ) ) ) );
 
 			positions.push_back( normals.back() * RADIUS );
 
@@ -112,16 +111,16 @@ void Background::create()
 	}
 
 	//
-	int rings = SLICES + 1;
+	int  rings = SLICES + 1;
 	bool forward = false;
 	for( x = 0; x < SEGMENTS; ++x ) {
 		if( forward ) {
 			// create jumps in the triangle strip by introducing degenerate polygons
-			indices.push_back( x      * rings + 0 );
-			indices.push_back( x      * rings + 0 );
-			// 
+			indices.push_back( x * rings + 0 );
+			indices.push_back( x * rings + 0 );
+			//
 			for( y = 0; y < rings; ++y ) {
-				indices.push_back( x      * rings + y );
+				indices.push_back( x * rings + y );
 				indices.push_back( ( x + 1 ) * rings + y );
 			}
 		}
@@ -129,10 +128,10 @@ void Background::create()
 			// create jumps in the triangle strip by introducing degenerate polygons
 			indices.push_back( ( x + 1 ) * rings + SLICES );
 			indices.push_back( ( x + 1 ) * rings + SLICES );
-			// 
+			//
 			for( y = SLICES; y >= 0; --y ) {
 				indices.push_back( ( x + 1 ) * rings + y );
-				indices.push_back( x      * rings + y );
+				indices.push_back( x * rings + y );
 			}
 		}
 
@@ -140,7 +139,8 @@ void Background::create()
 	}
 
 	// create the batch
-	auto vboMesh = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, { gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::POSITION, 3 ).attrib( geom::TEX_COORD_0, 2 ).attrib( geom::NORMAL, 3 ) }, indices.size(), GL_UNSIGNED_SHORT );
+	auto vboMesh
+	    = gl::VboMesh::create( positions.size(), GL_TRIANGLE_STRIP, { gl::VboMesh::Layout().usage( GL_STATIC_DRAW ).attrib( geom::POSITION, 3 ).attrib( geom::TEX_COORD_0, 2 ).attrib( geom::NORMAL, 3 ) }, indices.size(), GL_UNSIGNED_SHORT );
 	vboMesh->bufferAttrib( geom::POSITION, positions );
 	vboMesh->bufferAttrib( geom::TEX_COORD_0, texCoords );
 	vboMesh->bufferAttrib( geom::NORMAL, normals );
@@ -167,8 +167,8 @@ void Background::setCameraDistance( float distance )
 
 dvec2 Background::toEquatorial( const dvec2 &radians )
 {
-	double longitude = radians.x;	// galactic longitude
-	double latitude = radians.y;	// galactic latitude
+	double longitude = radians.x; // galactic longitude
+	double latitude = radians.y;  // galactic latitude
 
 	double alpha = GALACTIC_NORTHPOLE_EQUATORIAL.x;
 	double delta = GALACTIC_NORTHPOLE_EQUATORIAL.y;

@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -33,57 +33,92 @@ namespace ph {
 namespace text {
 
 class Text {
-public:
+  public:
 	//!
 	typedef enum { LEFT, CENTER, RIGHT } Alignment;
 	//! Specifies the boundary used to break up text in word wrapping and other algorithms
 	typedef enum { LINE, WORD } Boundary;
-public:
-	Text( void ) : mInvalid( true ), mBoundsInvalid( true ),
-		mAlignment( LEFT ), mBoundary( WORD ),
-		mFontSize( 14.0f ), mLineSpace( 1.0f )
-	{
-	};
-	virtual ~Text( void ) {};
+
+  public:
+	Text( void )
+	    : mInvalid( true )
+	    , mBoundsInvalid( true )
+	    , mAlignment( LEFT )
+	    , mBoundary( WORD )
+	    , mFontSize( 14.0f )
+	    , mLineSpace( 1.0f ){};
+	virtual ~Text( void ){};
 
 	virtual void draw();
 	virtual void drawWireframe();
 
-	std::string	getFontFamily() const { if( mFont ) return mFont->getFamily(); else return std::string(); }
-	void		setFont( FontRef font ) { mFont = font; mInvalid = true; }
+	std::string getFontFamily() const
+	{
+		if( mFont )
+			return mFont->getFamily();
+		else
+			return std::string();
+	}
+	void setFont( FontRef font )
+	{
+		mFont = font;
+		mInvalid = true;
+	}
 
-	float		getFontSize() const { return mFontSize; }
-	void		setFontSize( float size ) { mFontSize = size; mInvalid = true; }
+	float getFontSize() const { return mFontSize; }
+	void setFontSize( float size )
+	{
+		mFontSize = size;
+		mInvalid = true;
+	}
 
-	float		getLineSpace() const { return mLineSpace; }
-	void		setLineSpace( float value ) { mLineSpace = value; mInvalid = true; }
+	float getLineSpace() const { return mLineSpace; }
+	void setLineSpace( float value )
+	{
+		mLineSpace = value;
+		mInvalid = true;
+	}
 
-	float		getLeading() const { return ( mFont ? std::floorf( mFont->getLeading( mFontSize ) * mLineSpace + 0.5f ) : 0.0f ); }
+	float getLeading() const { return ( mFont ? std::floorf( mFont->getLeading( mFontSize ) * mLineSpace + 0.5f ) : 0.0f ); }
 
-	Alignment	getAlignment() const { return mAlignment; }
-	void		setAlignment( Alignment alignment ) { mAlignment = alignment; mInvalid = true; }
+	Alignment getAlignment() const { return mAlignment; }
+	void setAlignment( Alignment alignment )
+	{
+		mAlignment = alignment;
+		mInvalid = true;
+	}
 
-	Boundary	getBoundary() const { return mBoundary; }
-	void		setBoundary( Boundary boundary ) { mBoundary = boundary; mInvalid = true; }
+	Boundary getBoundary() const { return mBoundary; }
+	void setBoundary( Boundary boundary )
+	{
+		mBoundary = boundary;
+		mInvalid = true;
+	}
 
-	void		setText( const std::string &text ) { setText( ci::toUtf16( text ) ); }
-	void		setText( const std::u16string &text ) { mText = text; mMust.clear(); mAllow.clear(); mInvalid = true; }
+	void setText( const std::string &text ) { setText( ci::toUtf16( text ) ); }
+	void setText( const std::u16string &text )
+	{
+		mText = text;
+		mMust.clear();
+		mAllow.clear();
+		mInvalid = true;
+	}
 
-	ci::Rectf	getBounds() const;
+	ci::Rectf getBounds() const;
 
 	//!
-	virtual std::string	getVertexShader() const;
+	virtual std::string getVertexShader() const;
 	//!
 	virtual std::string getFragmentShader() const;
 	//! Allows you to override the default text shader.
-	void		setShader( const ci::gl::GlslProgRef &shader ) { mShader = shader; }
-protected:
-	//! get the maximum width of the text at the specified vertical position 
-	virtual float	getWidthAt( float y ) { return 0.0f; }
+	void setShader( const ci::gl::GlslProgRef &shader ) { mShader = shader; }
+  protected:
+	//! get the maximum width of the text at the specified vertical position
+	virtual float getWidthAt( float y ) { return 0.0f; }
 	//! get the maximum height of the text
-	virtual float	getHeight() { return 0.0f; }
+	virtual float getHeight() { return 0.0f; }
 	//! function to move the cursor to the next line
-	virtual	bool	newLine( ci::vec2 *cursor )
+	virtual bool newLine( ci::vec2 *cursor )
 	{
 		cursor->x = 0.0f;
 		cursor->y += getLeading();
@@ -92,47 +127,48 @@ protected:
 	}
 
 	//!
-	virtual bool		bindShader();
-	virtual bool		unbindShader();
+	virtual bool bindShader();
+	virtual bool unbindShader();
 
 	//! clears the mesh and the buffers
-	virtual void		clearMesh();
+	virtual void clearMesh();
 	//! renders the current contents of mText
-	virtual void		renderMesh();
+	virtual void renderMesh();
 	//! helper to render a non-word-wrapped string
-	virtual void		renderString( const std::u16string &str, ci::vec2 *cursor, float stretch = 1.0f );
+	virtual void renderString( const std::u16string &str, ci::vec2 *cursor, float stretch = 1.0f );
 	//! creates the VBO from the data in the buffers
-	virtual void		createMesh();
-public:
+	virtual void createMesh();
+
+  public:
 	// special Unicode functions (requires Cinder v0.8.5)
 	void findBreaksUtf8( const std::string &line, std::vector<size_t> *must, std::vector<size_t> *allow );
 	void findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow );
 	bool isWhitespaceUtf8( const char ch );
 	bool isWhitespaceUtf16( const wchar_t ch );
-protected:
-	bool					mInvalid;
 
-	mutable bool			mBoundsInvalid;
-	mutable ci::Rectf		mBounds;
+  protected:
+	bool mInvalid;
 
-	Alignment				mAlignment;
-	Boundary				mBoundary;
+	mutable bool      mBoundsInvalid;
+	mutable ci::Rectf mBounds;
 
-	std::u16string			mText;
+	Alignment mAlignment;
+	Boundary  mBoundary;
 
-	ci::gl::GlslProgRef		mShader;
-	ci::gl::VboMeshRef		mVboMesh;
+	std::u16string mText;
 
-	FontRef					mFont;
-	float					mFontSize;
+	ci::gl::GlslProgRef mShader;
+	ci::gl::VboMeshRef  mVboMesh;
 
-	float					mLineSpace;
+	FontRef mFont;
+	float   mFontSize;
 
-	std::vector<size_t>		mMust, mAllow;
-	std::vector<ci::vec3>	mVertices;
-	std::vector<uint16_t>	mIndices;
-	std::vector<ci::vec2>	mTexcoords;
+	float mLineSpace;
+
+	std::vector<size_t>   mMust, mAllow;
+	std::vector<ci::vec3> mVertices;
+	std::vector<uint16_t> mIndices;
+	std::vector<ci::vec2> mTexcoords;
 };
-
 }
 } // namespace ph::text

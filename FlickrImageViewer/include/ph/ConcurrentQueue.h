@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -29,13 +29,13 @@
 
 namespace ph {
 
-template<typename Data>
+template <typename Data>
 class ConcurrentQueue {
-public:
-	ConcurrentQueue( void ) {};
-	~ConcurrentQueue( void ) {};
+  public:
+	ConcurrentQueue( void ){};
+	~ConcurrentQueue( void ){};
 
-	void push( Data const& data )
+	void push( Data const &data )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 		mQueue.push( data );
@@ -49,7 +49,7 @@ public:
 		return mQueue.empty();
 	}
 
-	bool try_pop( Data& popped_value )
+	bool try_pop( Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 		if( mQueue.empty() ) {
@@ -61,7 +61,7 @@ public:
 		return true;
 	}
 
-	void wait_and_pop( Data& popped_value )
+	void wait_and_pop( Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 		while( mQueue.empty() ) {
@@ -71,10 +71,11 @@ public:
 		popped_value = mQueue.front();
 		mQueue.pop();
 	}
-private:
-	std::queue<Data>			mQueue;
-	mutable boost::mutex		mMutex;
-	boost::condition_variable	mCondition;
+
+  private:
+	std::queue<Data>          mQueue;
+	mutable boost::mutex      mMutex;
+	boost::condition_variable mCondition;
 };
 
 } // namespace ph

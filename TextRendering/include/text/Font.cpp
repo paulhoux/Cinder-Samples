@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -21,7 +21,7 @@
 */
 
 #include "text/Font.h"
-#include <boost/algorithm/string.hpp> 
+#include <boost/algorithm/string.hpp>
 
 namespace ph {
 namespace text {
@@ -31,8 +31,13 @@ using namespace ci::app;
 using namespace std;
 
 Font::Font( void )
-	: mInvalid( true ), mFamily( "Unknown" ), mFontSize( 12.0f ), mLeading( 0.0f ),
-	mAscent( 0.0f ), mDescent( 0.0f ), mSpaceWidth( 0.0f )
+    : mInvalid( true )
+    , mFamily( "Unknown" )
+    , mFontSize( 12.0f )
+    , mLeading( 0.0f )
+    , mAscent( 0.0f )
+    , mDescent( 0.0f )
+    , mSpaceWidth( 0.0f )
 {
 }
 
@@ -59,31 +64,41 @@ void Font::create( const ci::DataSourceRef png, const ci::DataSourceRef txt )
 		mTexture = gl::Texture2d::create( mSurface );
 		mTextureSize = mTexture->getSize();
 	}
-	catch( ... ) { throw FontInvalidSourceExc(); }
+	catch( ... ) {
+		throw FontInvalidSourceExc();
+	}
 
 	// now that we have the font, let's read the metrics file
-	std::string	data;
-	try { data = loadString( txt ); }
-	catch( ... ) { throw FontInvalidSourceExc(); }
+	std::string data;
+	try {
+		data = loadString( txt );
+	}
+	catch( ... ) {
+		throw FontInvalidSourceExc();
+	}
 
 	// parse the file
 	try {
 		// split the file into lines
 		std::vector<std::string> lines = ci::split( data, "\n\r" );
-		if( lines.size() < 2 ) throw;
+		if( lines.size() < 2 )
+			throw;
 
 		// read the first line, containing the font name
 		std::vector<std::string> tokens = ci::split( lines[0], "=" );
-		if( tokens.size() < 2 && tokens[0] != "info face" ) throw;
+		if( tokens.size() < 2 && tokens[0] != "info face" )
+			throw;
 
 		mFamily = boost::algorithm::erase_all_copy( tokens[1], "\"" );
 
 		// read the second containing the number of characters in this font
 		tokens = ci::split( lines[1], "=" );
-		if( tokens.size() < 2 && tokens[0] != "chars count" ) throw;
+		if( tokens.size() < 2 && tokens[0] != "chars count" )
+			throw;
 
 		int count = boost::lexical_cast<int>( tokens[1] );
-		if( count < 1 ) throw;
+		if( count < 1 )
+			throw;
 
 		// create the metrics
 		uint32_t charcode = 0;
@@ -92,7 +107,8 @@ void Font::create( const ci::DataSourceRef png, const ci::DataSourceRef txt )
 			Metrics m;
 			for( size_t j = 0; j < tokens.size(); ++j ) {
 				std::vector<std::string> kvp = ci::split( tokens[j], "=" );
-				if( kvp.size() < 2 ) continue;
+				if( kvp.size() < 2 )
+					continue;
 
 				if( kvp[0] == "id" )
 					charcode = boost::lexical_cast<uint32_t>( kvp[1] );
@@ -117,7 +133,9 @@ void Font::create( const ci::DataSourceRef png, const ci::DataSourceRef txt )
 			mMetrics[charcode] = m;
 		}
 	}
-	catch( ... ) { throw FontInvalidSourceExc(); }
+	catch( ... ) {
+		throw FontInvalidSourceExc();
+	}
 
 	// measure font (standard ASCII range only to prevent weird characters influencing the measurements)
 	for( uint16_t i = 33; i < 127; ++i ) {
@@ -139,27 +157,36 @@ void Font::read( const ci::DataSourceRef source )
 {
 	mInvalid = true;
 
-	IStreamRef	in = source->createStream();
-	size_t		filesize = in->size();
+	IStreamRef in = source->createStream();
+	size_t     filesize = in->size();
 
 	// read header
 	uint8_t header;
-	in->read( &header ); if( header != 'S' ) throw FontInvalidSourceExc();
-	in->read( &header ); if( header != 'D' ) throw FontInvalidSourceExc();
-	in->read( &header ); if( header != 'F' ) throw FontInvalidSourceExc();
-	in->read( &header ); if( header != 'F' ) throw FontInvalidSourceExc();
+	in->read( &header );
+	if( header != 'S' )
+		throw FontInvalidSourceExc();
+	in->read( &header );
+	if( header != 'D' )
+		throw FontInvalidSourceExc();
+	in->read( &header );
+	if( header != 'F' )
+		throw FontInvalidSourceExc();
+	in->read( &header );
+	if( header != 'F' )
+		throw FontInvalidSourceExc();
 
 	uint16_t version;
 	in->readLittle( &version );
 
 	// read font name
-	if( version > 0x0001 ) in->read( &mFamily );
+	if( version > 0x0001 )
+		in->read( &mFamily );
 
 	// read font data
-	in->readData( (void*)&mLeading, sizeof( mLeading ) );
-	in->readData( (void*)&mAscent, sizeof( mAscent ) );
-	in->readData( (void*)&mDescent, sizeof( mDescent ) );
-	in->readData( (void*)&mSpaceWidth, sizeof( mSpaceWidth ) );
+	in->readData( (void *)&mLeading, sizeof( mLeading ) );
+	in->readData( (void *)&mAscent, sizeof( mAscent ) );
+	in->readData( (void *)&mDescent, sizeof( mDescent ) );
+	in->readData( (void *)&mSpaceWidth, sizeof( mSpaceWidth ) );
 	mFontSize = mAscent + mDescent;
 
 	// read metrics data
@@ -174,14 +201,14 @@ void Font::read( const ci::DataSourceRef source )
 			in->readLittle( &charcode );
 
 			Metrics m;
-			in->readData( (void*)&( m.x1 ), sizeof( m.x1 ) );
-			in->readData( (void*)&( m.y1 ), sizeof( m.y1 ) );
-			in->readData( (void*)&( m.w ), sizeof( m.w ) );
-			in->readData( (void*)&( m.h ), sizeof( m.h ) );
+			in->readData( (void *)&( m.x1 ), sizeof( m.x1 ) );
+			in->readData( (void *)&( m.y1 ), sizeof( m.y1 ) );
+			in->readData( (void *)&( m.w ), sizeof( m.w ) );
+			in->readData( (void *)&( m.h ), sizeof( m.h ) );
 
-			in->readData( (void*)&( m.dx ), sizeof( m.dx ) );
-			in->readData( (void*)&( m.dy ), sizeof( m.dy ) );
-			in->readData( (void*)&( m.d ), sizeof( m.d ) );
+			in->readData( (void *)&( m.dx ), sizeof( m.dx ) );
+			in->readData( (void *)&( m.dy ), sizeof( m.dy ) );
+			in->readData( (void *)&( m.d ), sizeof( m.d ) );
 
 			m.x2 = m.x1 + m.w;
 			m.y2 = m.y1 + m.h;
@@ -192,7 +219,7 @@ void Font::read( const ci::DataSourceRef source )
 		throw FontInvalidSourceExc();
 	}
 
-	// read image data	
+	// read image data
 	try {
 		// reserve memory
 		BufferRef buffer = Buffer::create( filesize );
@@ -219,15 +246,16 @@ void Font::read( const ci::DataSourceRef source )
 
 void Font::write( const ci::DataTargetRef target )
 {
-	if( !target ) throw FontInvalidTargetExc();
+	if( !target )
+		throw FontInvalidTargetExc();
 
 	OStreamRef out = target->getStream();
 
 	// write header
-	out->write( ( uint8_t ) 'S' );
-	out->write( ( uint8_t ) 'D' );
-	out->write( ( uint8_t ) 'F' );
-	out->write( ( uint8_t ) 'F' );
+	out->write( (uint8_t)'S' );
+	out->write( (uint8_t)'D' );
+	out->write( (uint8_t)'F' );
+	out->write( (uint8_t)'F' );
 
 	uint16_t version = 0x0002;
 	out->writeLittle( version );
@@ -236,10 +264,10 @@ void Font::write( const ci::DataTargetRef target )
 	out->write( mFamily );
 
 	// write font data
-	out->writeData( (void*)&mLeading, sizeof( mLeading ) );
-	out->writeData( (void*)&mAscent, sizeof( mAscent ) );
-	out->writeData( (void*)&mDescent, sizeof( mDescent ) );
-	out->writeData( (void*)&mSpaceWidth, sizeof( mSpaceWidth ) );
+	out->writeData( (void *)&mLeading, sizeof( mLeading ) );
+	out->writeData( (void *)&mAscent, sizeof( mAscent ) );
+	out->writeData( (void *)&mDescent, sizeof( mDescent ) );
+	out->writeData( (void *)&mSpaceWidth, sizeof( mSpaceWidth ) );
 
 	// write metrics data
 	{
@@ -251,14 +279,14 @@ void Font::write( const ci::DataTargetRef target )
 			// write char code
 			out->writeLittle( itr->first );
 			// write metrics
-			out->writeData( (void*)&( itr->second.x1 ), sizeof( itr->second.x1 ) );
-			out->writeData( (void*)&( itr->second.y1 ), sizeof( itr->second.y1 ) );
-			out->writeData( (void*)&( itr->second.w ), sizeof( itr->second.w ) );
-			out->writeData( (void*)&( itr->second.h ), sizeof( itr->second.h ) );
+			out->writeData( (void *)&( itr->second.x1 ), sizeof( itr->second.x1 ) );
+			out->writeData( (void *)&( itr->second.y1 ), sizeof( itr->second.y1 ) );
+			out->writeData( (void *)&( itr->second.w ), sizeof( itr->second.w ) );
+			out->writeData( (void *)&( itr->second.h ), sizeof( itr->second.h ) );
 
-			out->writeData( (void*)&( itr->second.dx ), sizeof( itr->second.dx ) );
-			out->writeData( (void*)&( itr->second.dy ), sizeof( itr->second.dy ) );
-			out->writeData( (void*)&( itr->second.d ), sizeof( itr->second.d ) );
+			out->writeData( (void *)&( itr->second.dx ), sizeof( itr->second.dx ) );
+			out->writeData( (void *)&( itr->second.dy ), sizeof( itr->second.dy ) );
+			out->writeData( (void *)&( itr->second.d ), sizeof( itr->second.d ) );
 		}
 	}
 
@@ -269,7 +297,8 @@ void Font::write( const ci::DataTargetRef target )
 Font::Metrics Font::getMetrics( uint16_t charcode ) const
 {
 	MetricsData::const_iterator itr = mMetrics.find( charcode );
-	if( itr == mMetrics.end() ) return Metrics();
+	if( itr == mMetrics.end() )
+		return Metrics();
 
 	return itr->second;
 }
@@ -285,12 +314,9 @@ Rectf Font::getBounds( uint16_t charcode, float fontSize ) const
 
 Rectf Font::getBounds( const Metrics &metrics, float fontSize ) const
 {
-	float	scale = ( fontSize / mFontSize );
+	float scale = ( fontSize / mFontSize );
 
-	return Rectf(
-		vec2( metrics.dx, -metrics.dy ) * scale,
-		vec2( metrics.dx + metrics.w, metrics.h - metrics.dy ) * scale
-		);
+	return Rectf( vec2( metrics.dx, -metrics.dy ) * scale, vec2( metrics.dx + metrics.w, metrics.h - metrics.dy ) * scale );
 }
 
 Rectf Font::getTexCoords( uint16_t charcode ) const
@@ -304,10 +330,7 @@ Rectf Font::getTexCoords( uint16_t charcode ) const
 
 Rectf Font::getTexCoords( const Metrics &metrics ) const
 {
-	return Rectf(
-		vec2( metrics.x1, metrics.y1 ) / mTextureSize,
-		vec2( metrics.x2, metrics.y2 ) / mTextureSize
-		);
+	return Rectf( vec2( metrics.x1, metrics.y1 ) / mTextureSize, vec2( metrics.x2, metrics.y2 ) / mTextureSize );
 }
 
 float Font::getAdvance( uint16_t charcode, float fontSize ) const
@@ -337,10 +360,7 @@ Rectf Font::measure( const std::u16string &text, float fontSize ) const
 
 		MetricsData::const_iterator itr = mMetrics.find( charcode );
 		if( itr != mMetrics.end() ) {
-			result.include(
-				Rectf( offset + itr->second.dx, -itr->second.dy,
-					   offset + itr->second.dx + itr->second.w, itr->second.h - itr->second.dy )
-				);
+			result.include( Rectf( offset + itr->second.dx, -itr->second.dy, offset + itr->second.dx + itr->second.w, itr->second.h - itr->second.dy ) );
 			offset += itr->second.d;
 		}
 	}
@@ -364,7 +384,7 @@ float Font::measureWidth( const std::u16string &text, float fontSize, bool preci
 		if( itr != mMetrics.end() ) {
 			offset += itr->second.d;
 
-			// precise measurement takes into account that the last character 
+			// precise measurement takes into account that the last character
 			// contributes to the total width only by its own width, not its advance
 			if( precise )
 				adjust = itr->second.dx + itr->second.w - itr->second.d;
@@ -373,6 +393,5 @@ float Font::measureWidth( const std::u16string &text, float fontSize, bool preci
 
 	return ( offset + adjust ) * ( fontSize / mFontSize );
 }
-
 }
 } // namespace ph::text

@@ -33,7 +33,7 @@ using namespace std;
 using namespace ph;
 
 UserInterface::UserInterface( void )
-	: mDistance( 0.0f )
+    : mDistance( 0.0f )
 {
 }
 
@@ -59,7 +59,7 @@ void UserInterface::draw( const std::string &text )
 	gl::disableDepthWrite();
 
 	gl::ScopedBlendAlpha blend;
-	gl::ScopedColor color( 1, 1, 1 );
+	gl::ScopedColor      color( 1, 1, 1 );
 
 	auto viewport = gl::getViewport();
 	vec2 position = vec2( 0.5f * viewport.second.x, 0.92f * viewport.second.y );

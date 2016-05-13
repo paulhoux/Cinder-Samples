@@ -40,7 +40,7 @@ using namespace ci::app;
 using namespace std;
 
 class PostProcessingApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup() override;
@@ -49,11 +49,11 @@ public:
 	void keyDown( KeyEvent event ) override;
 	void fileDrop( FileDropEvent event ) override;
 
-protected:
-	gl::TextureRef			mImage;
-	gl::GlslProgRef			mShader;
+  protected:
+	gl::TextureRef  mImage;
+	gl::GlslProgRef mShader;
 
-	fs::path				mFile;
+	fs::path mFile;
 };
 
 void PostProcessingApp::prepare( Settings *settings )
@@ -75,8 +75,13 @@ void PostProcessingApp::setup()
 
 	// load post-processing shader
 	//  adapted from a shader by Iñigo Quílez ( http://www.iquilezles.org/ )
-	try { mShader = gl::GlslProg::create( loadAsset( "post_process.vert" ), loadAsset( "post_process.frag" ) ); }
-	catch( const std::exception &e ) { console() << "Could not load & compile shader: " << e.what() << std::endl; quit(); }
+	try {
+		mShader = gl::GlslProg::create( loadAsset( "post_process.vert" ), loadAsset( "post_process.frag" ) );
+	}
+	catch( const std::exception &e ) {
+		console() << "Could not load & compile shader: " << e.what() << std::endl;
+		quit();
+	}
 }
 
 void PostProcessingApp::draw()
@@ -99,12 +104,12 @@ void PostProcessingApp::draw()
 void PostProcessingApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		case KeyEvent::KEY_f:
-			setFullScreen( !isFullScreen() );
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_f:
+		setFullScreen( !isFullScreen() );
+		break;
 	}
 }
 

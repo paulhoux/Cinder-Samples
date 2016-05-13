@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -29,11 +29,11 @@
 
 namespace ph {
 
-template<typename Data>
+template <typename Data>
 class ConcurrentDeque {
-public:
-	ConcurrentDeque( void ) {};
-	~ConcurrentDeque( void ) {};
+  public:
+	ConcurrentDeque( void ){};
+	~ConcurrentDeque( void ){};
 
 	void clear()
 	{
@@ -41,7 +41,7 @@ public:
 		mDeque.clear();
 	}
 
-	bool contains( Data const& data )
+	bool contains( Data const &data )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 
@@ -49,7 +49,7 @@ public:
 		return ( itr != mDeque.end() );
 	}
 
-	bool erase( Data const& data )
+	bool erase( Data const &data )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 
@@ -62,20 +62,21 @@ public:
 		return false;
 	}
 
-	bool erase_all( Data const& data )
+	bool erase_all( Data const &data )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 
 		typename std::deque<Data>::iterator itr;
 		do {
 			itr = std::find( mDeque.begin(), mDeque.end(), data );
-			if( itr != mDeque.end() ) mDeque.erase( itr );
+			if( itr != mDeque.end() )
+				mDeque.erase( itr );
 		} while( itr != mDeque.end() );
 
 		return true;
 	}
 
-	bool push_back( Data const& data, bool unique = false )
+	bool push_back( Data const &data, bool unique = false )
 	{
 		std::unique_lock<std::mutex> lock( mMutex );
 
@@ -106,7 +107,7 @@ public:
 		return mDeque.empty();
 	}
 
-	bool pop_front( Data& popped_value )
+	bool pop_front( Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 		if( mDeque.empty() ) {
@@ -118,7 +119,7 @@ public:
 		return true;
 	}
 
-	void wait_and_pop_front( Data& popped_value )
+	void wait_and_pop_front( Data &popped_value )
 	{
 		std::unique_lock<std::mutex> lock( mMutex );
 		while( mDeque.empty() ) {
@@ -128,10 +129,11 @@ public:
 		popped_value = mDeque.front();
 		mDeque.pop_front();
 	}
-private:
-	std::deque<Data>			mDeque;
-	mutable std::mutex		mMutex;
-	std::condition_variable	mCondition;
+
+  private:
+	std::deque<Data>        mDeque;
+	mutable std::mutex      mMutex;
+	std::condition_variable mCondition;
 };
 
 } // namespace ph

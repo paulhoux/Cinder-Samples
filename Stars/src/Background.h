@@ -22,38 +22,38 @@
 
 #pragma once
 
+#include "cinder/Vector.h"
 #include "cinder/app/App.h"
 #include "cinder/gl/Batch.h"
 #include "cinder/gl/Texture.h"
-#include "cinder/Vector.h"
 
 class Background {
-public:
+  public:
 	Background( void );
 	~Background( void );
 
-	void	setup();
-	void	draw();
+	void setup();
+	void draw();
 
-	void	create();
+	void create();
 
-	void	setCameraDistance( float distance );
-private:
+	void setCameraDistance( float distance );
+
+  private:
 	//! converts galactic coordinates (longitude, latitude) to equatorial coordinates (J2000: ra, dec)
-	ci::dvec2	toEquatorial( const ci::dvec2 &radians );
+	ci::dvec2 toEquatorial( const ci::dvec2 &radians );
 	//! converts equatorial coordinates (J2000: ra, dec) to galactic coordinates (longitude, latitude)
-	ci::dvec2	toGalactic( const ci::dvec2 &radians );
+	ci::dvec2 toGalactic( const ci::dvec2 &radians );
 
-public:
-	static const ci::dvec3	GALACTIC_CENTER_EQUATORIAL;
-	static const ci::dvec2	GALACTIC_NORTHPOLE_EQUATORIAL;
+  public:
+	static const ci::dvec3 GALACTIC_CENTER_EQUATORIAL;
+	static const ci::dvec2 GALACTIC_NORTHPOLE_EQUATORIAL;
 
-private:
+  private:
 	//
-	float					mAttenuation;
-	ci::mat4				mTransform;
+	float    mAttenuation;
+	ci::mat4 mTransform;
 
-	ci::gl::Texture2dRef	mTexture;
-	ci::gl::BatchRef		mBatch;
+	ci::gl::Texture2dRef mTexture;
+	ci::gl::BatchRef     mBatch;
 };
-

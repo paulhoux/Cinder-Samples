@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -21,12 +21,12 @@
 */
 
 #include "cinder/app/App.h"
-#include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/GlslProg.h"
 #include "cinder/Camera.h"
 #include "cinder/Log.h"
 #include "cinder/Rand.h"
+#include "cinder/app/RendererGl.h"
+#include "cinder/gl/GlslProg.h"
+#include "cinder/gl/gl.h"
 
 #include "Pistons.h"
 
@@ -36,7 +36,7 @@ using namespace std;
 
 // Our application
 class OneWorldMultipleWindowsApp : public App {
-public:
+  public:
 	void setup();
 	void update();
 	void draw();
@@ -44,9 +44,10 @@ public:
 	void keyDown( KeyEvent event );
 
 	void resize();
-private:
-	CameraPersp         mCamera;
-	double              mTime;
+
+  private:
+	CameraPersp mCamera;
+	double      mTime;
 };
 
 void OneWorldMultipleWindowsApp::setup()
@@ -99,8 +100,8 @@ void OneWorldMultipleWindowsApp::draw()
 	vec2 windowCenter = windowPos + windowSize * 0.5f;
 
 	const float fov = glm::radians( 30.0f );
-	float lensShiftX = 2.0f * ( windowCenter.x - displayCenter.x ) / windowSize.x;
-	float lensShiftY = 2.0f * ( displayCenter.y - windowCenter.y ) / windowSize.y;
+	float       lensShiftX = 2.0f * ( windowCenter.x - displayCenter.x ) / windowSize.x;
+	float       lensShiftY = 2.0f * ( displayCenter.y - windowCenter.y ) / windowSize.y;
 	mCamera.setAspectRatio( windowSize.x / windowSize.y );
 	mCamera.setFov( 2.0f * glm::degrees( glm::atan( windowSize.y / displaySize.y * glm::tan( 0.5f * fov ) ) ) );
 	mCamera.setLensShift( lensShiftX, lensShiftY );
@@ -120,14 +121,14 @@ void OneWorldMultipleWindowsApp::draw()
 void OneWorldMultipleWindowsApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		default:
-			// Create a new window
-			app::WindowRef newWindow = createWindow( Window::Format().size( 640, 480 ) );
-			newWindow->setTitle( "OneWorldMultipleWindowsApp" );
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	default:
+		// Create a new window
+		app::WindowRef newWindow = createWindow( Window::Format().size( 640, 480 ) );
+		newWindow->setTitle( "OneWorldMultipleWindowsApp" );
+		break;
 	}
 }
 

@@ -25,12 +25,12 @@
 #include "cinder/Timer.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Batch.h"
 #include "cinder/gl/Context.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/VboMesh.h"
+#include "cinder/gl/gl.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -42,31 +42,33 @@ using namespace std;
 typedef shared_ptr<class Ball> BallRef;
 
 class Ball {
-public:
+  public:
 	Ball();
 
-	void	reset();
+	void reset();
 
-	void	update();
-	void	draw( const gl::BatchRef &batch, bool useMotionBlur = true );
+	void update();
+	void draw( const gl::BatchRef &batch, bool useMotionBlur = true );
 
-	bool	isCollidingWith( BallRef other );
-	void	collideWith( BallRef other );
+	bool isCollidingWith( BallRef other );
+	void collideWith( BallRef other );
 
-	bool	isCollidingWithWindow();
-	void	collideWithWindow();
-public:
+	bool isCollidingWithWindow();
+	void collideWithWindow();
+
+  public:
 	static const int kRadius = 10;
-public:
-	vec2	mPrevPosition;
-	vec2	mPosition;
-	vec2	mVelocity;
 
-	Colorf	mColor;
+  public:
+	vec2 mPrevPosition;
+	vec2 mPosition;
+	vec2 mVelocity;
 
-	float	mGravity;
+	Colorf mColor;
 
-	bool	mHasBeenDrawn;
+	float mGravity;
+
+	bool mHasBeenDrawn;
 };
 
 Ball::Ball()
@@ -99,17 +101,19 @@ void Ball::reset()
 	y = Rand::randFloat( -15.0f, 0.0f ) * multiplier;
 	mVelocity = vec2( x, y );
 
-	// 
+	//
 	mHasBeenDrawn = false;
 }
 
 void Ball::update()
 {
 	// Store current position.
-	if( mHasBeenDrawn ) mPrevPosition = mPosition;
+	if( mHasBeenDrawn )
+		mPrevPosition = mPosition;
 
 	// First, update the ball's velocity.
-	if( !isCollidingWithWindow() ) mVelocity.y += mGravity;
+	if( !isCollidingWithWindow() )
+		mVelocity.y += mGravity;
 
 	// Next, update the ball's position.
 	mPosition += mVelocity;
@@ -172,7 +176,7 @@ void Ball::collideWith( BallRef other )
 	mPosition -= mVelocity;
 	other->mPosition -= other->mVelocity;
 
-	// 2) convert to simple 1-dimensional collision 
+	// 2) convert to simple 1-dimensional collision
 	//	by projecting onto line through both centers
 	vec2 line = other->mPosition - mPosition;
 	vec2 unit = glm::normalize( line );
@@ -180,7 +184,8 @@ void Ball::collideWith( BallRef other )
 	float distance = glm::dot( line, unit );
 	float velocity_a = glm::dot( mVelocity, unit );
 	float velocity_b = glm::dot( other->mVelocity, unit );
-	if( velocity_a == velocity_b ) return; // no collision will happen
+	if( velocity_a == velocity_b )
+		return; // no collision will happen
 
 	// 3) find time of collision
 	float t = ( kMinimal - distance ) / ( velocity_b - velocity_a );
@@ -189,14 +194,14 @@ void Ball::collideWith( BallRef other )
 	mPosition += t * mVelocity;
 	other->mPosition += t * other->mVelocity;
 
-	// 5) exchange velocities 	
+	// 5) exchange velocities
 	mVelocity -= velocity_a * unit;
 	mVelocity += velocity_b * unit;
 
 	other->mVelocity -= velocity_b * unit;
 	other->mVelocity += velocity_a * unit;
 
-	// 6) move forward to current time 
+	// 6) move forward to current time
 	mPosition += ( 1.0f - t ) * mVelocity;
 	other->mPosition += ( 1.0f - t ) * other->mVelocity;
 
@@ -207,8 +212,10 @@ void Ball::collideWith( BallRef other )
 
 bool Ball::isCollidingWithWindow()
 {
-	if( mPosition.x < ( 0.0f + kRadius ) || mPosition.x >( getWindowWidth() - kRadius ) ) return true;
-	if( mPosition.y > ( getWindowHeight() - kRadius ) ) return true;
+	if( mPosition.x < ( 0.0f + kRadius ) || mPosition.x > ( getWindowWidth() - kRadius ) )
+		return true;
+	if( mPosition.y > ( getWindowHeight() - kRadius ) )
+		return true;
 
 	return false;
 }
@@ -216,8 +223,8 @@ bool Ball::isCollidingWithWindow()
 void Ball::collideWithWindow()
 {
 	//	1) check if the ball hits the left or right side of the window
-	if( mPosition.x < ( 0.0f + kRadius ) || mPosition.x >( getWindowWidth() - kRadius ) ) {
-		// to reduce the visual effect of the ball missing the border, 
+	if( mPosition.x < ( 0.0f + kRadius ) || mPosition.x > ( getWindowWidth() - kRadius ) ) {
+		// to reduce the visual effect of the ball missing the border,
 		// set the previous position to where we are now
 		mPrevPosition = mPosition;
 		// move the ball back into window without adding energy,
@@ -228,7 +235,7 @@ void Ball::collideWithWindow()
 	}
 	//	2) check if the ball this the bottom of the window
 	if( mPosition.y > ( getWindowHeight() - kRadius ) ) {
-		// to reduce the visual effect of the ball missing the border, 
+		// to reduce the visual effect of the ball missing the border,
 		// set the previous position to where we are now
 		mPrevPosition = mPosition;
 		// move the ball back into window without adding energy,
@@ -239,13 +246,13 @@ void Ball::collideWithWindow()
 		mVelocity.y *= -0.9f;
 	}
 
-	//  3) if ball is still outside window, 
+	//  3) if ball is still outside window,
 	//		it was probably moving very slow or fast. Let's reset it then.
 	if( mPosition.x < ( 0.0f + kRadius ) ) {
 		mPosition.x = 0.0f + (float)kRadius;
 		mVelocity.x = 0.0f;
 	}
-	else if( mPosition.x >( getWindowWidth() - kRadius ) ) {
+	else if( mPosition.x > ( getWindowWidth() - kRadius ) ) {
 		mPosition.x = getWindowWidth() - (float)kRadius;
 		mVelocity.x = 0.0f;
 	}
@@ -259,25 +266,27 @@ void Ball::collideWithWindow()
 //////////////////////////////////////////
 
 class BouncingBallsApp : public App {
-public:
+  public:
 	void setup();
 	void update();
 	void draw();
 
 	void keyDown( KeyEvent event );
-private:
-	void performCollisions();
-private:
-	bool		mUseMotionBlur;
-	bool		mIsPaused;
 
-	// our list of balls 
+  private:
+	void performCollisions();
+
+  private:
+	bool mUseMotionBlur;
+	bool mIsPaused;
+
+	// our list of balls
 	std::vector<BallRef> mBalls;
 
 	// mesh and texture
-	gl::VboMeshRef  mMesh;
-	gl::BatchRef    mBatch;
-	gl::TextureRef  mTexture;
+	gl::VboMeshRef mMesh;
+	gl::BatchRef   mBatch;
+	gl::TextureRef mTexture;
 
 	// default shader
 	gl::GlslProgRef mShader;
@@ -306,8 +315,8 @@ void BouncingBallsApp::setup()
 	// create ball mesh ( much faster than using gl::drawSolidCircle() )
 	size_t slices = 20;
 
-	std::vector<vec3> positions;
-	std::vector<vec2> texcoords;
+	std::vector<vec3>    positions;
+	std::vector<vec2>    texcoords;
 	std::vector<uint8_t> indices;
 
 	texcoords.push_back( vec2( 0.5f, 0.5f ) );
@@ -315,7 +324,7 @@ void BouncingBallsApp::setup()
 
 	for( size_t i = 0; i <= slices; ++i ) {
 		float angle = i / (float)slices * 2.0f * (float)M_PI;
-		vec2 v( sinf( angle ), cosf( angle ) );
+		vec2  v( sinf( angle ), cosf( angle ) );
 
 		texcoords.push_back( vec2( 0.5f, 0.5f ) + 0.5f * v );
 		positions.push_back( (float)Ball::kRadius * vec3( v, 0.0f ) );
@@ -384,55 +393,55 @@ void BouncingBallsApp::draw()
 void BouncingBallsApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			// quit the application
-			quit();
+	case KeyEvent::KEY_ESCAPE:
+		// quit the application
+		quit();
+		break;
+	case KeyEvent::KEY_SPACE:
+		// reset all balls
+		for( auto &ball : mBalls )
+			ball->reset();
+		break;
+	case KeyEvent::KEY_RETURN:
+		// pause/resume simulation
+		mIsPaused = !mIsPaused;
+		break;
+	case KeyEvent::KEY_EQUALS: // For Macs without a keypad or a plus key
+		if( !event.isShiftDown() ) {
 			break;
-		case KeyEvent::KEY_SPACE:
-			// reset all balls
-			for( auto &ball : mBalls )
-				ball->reset();
-			break;
-		case KeyEvent::KEY_RETURN:
-			// pause/resume simulation
-			mIsPaused = !mIsPaused;
-			break;
-		case KeyEvent::KEY_EQUALS: //For Macs without a keypad or a plus key
-			if( !event.isShiftDown() ) {
-				break;
-			}
-		case KeyEvent::KEY_PLUS:
-		case KeyEvent::KEY_KP_PLUS:
-			// create a new ball
-			mBalls.push_back( BallRef( new Ball() ) );
-			break;
-		case KeyEvent::KEY_MINUS:
-		case KeyEvent::KEY_KP_MINUS:
-			// remove the oldest ball
-			if( !mBalls.empty() )
-				mBalls.erase( mBalls.begin() );
-			break;
-		case KeyEvent::KEY_f:
-			setFullScreen( !isFullScreen() );
-			break;
-		case KeyEvent::KEY_v:
-			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-			break;
-		case KeyEvent::KEY_m:
-			mUseMotionBlur = !mUseMotionBlur;
-			break;
-		case KeyEvent::KEY_1:
-			setFrameRate( 10.0f );
-			break;
-		case KeyEvent::KEY_2:
-			setFrameRate( 20.0f );
-			break;
-		case KeyEvent::KEY_3:
-			setFrameRate( 30.0f );
-			break;
-		case KeyEvent::KEY_4:
-			setFrameRate( 100.0f );
-			break;
+		}
+	case KeyEvent::KEY_PLUS:
+	case KeyEvent::KEY_KP_PLUS:
+		// create a new ball
+		mBalls.push_back( BallRef( new Ball() ) );
+		break;
+	case KeyEvent::KEY_MINUS:
+	case KeyEvent::KEY_KP_MINUS:
+		// remove the oldest ball
+		if( !mBalls.empty() )
+			mBalls.erase( mBalls.begin() );
+		break;
+	case KeyEvent::KEY_f:
+		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_v:
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
+	case KeyEvent::KEY_m:
+		mUseMotionBlur = !mUseMotionBlur;
+		break;
+	case KeyEvent::KEY_1:
+		setFrameRate( 10.0f );
+		break;
+	case KeyEvent::KEY_2:
+		setFrameRate( 20.0f );
+		break;
+	case KeyEvent::KEY_3:
+		setFrameRate( 30.0f );
+		break;
+	case KeyEvent::KEY_4:
+		setFrameRate( 100.0f );
+		break;
 	}
 }
 

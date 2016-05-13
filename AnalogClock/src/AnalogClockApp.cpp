@@ -29,7 +29,7 @@ using namespace ci::app;
 using namespace std;
 
 class AnalogClockApp : public App {
-public:
+  public:
 	// setting up and shutting down
 	static void prepare( Settings *settings );
 	void setup();
@@ -38,11 +38,13 @@ public:
 	void update();
 	void draw();
 
-	// application events	
+	// application events
 	void keyDown( KeyEvent event );
-protected:
+
+  protected:
 	int getSecondsSinceMidnight();
-protected:
+
+  protected:
 	// your class members go here
 };
 
@@ -127,9 +129,9 @@ void AnalogClockApp::draw()
 void AnalogClockApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
 	}
 }
 

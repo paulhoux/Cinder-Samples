@@ -27,8 +27,8 @@
 
 #include "text/Text.h"
 
-#include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
 
 namespace ph {
 namespace text {
@@ -61,7 +61,8 @@ void Text::drawWireframe()
 		createMesh();
 	}
 
-	if( !mVboMesh ) return;
+	if( !mVboMesh )
+		return;
 
 	gl::enableWireframe();
 	gl::disable( GL_TEXTURE_2D );
@@ -83,16 +84,19 @@ void Text::clearMesh()
 void Text::renderMesh()
 {
 	// prevent errors
-	if( !mInvalid ) return;
-	if( !mFont ) return;
-	if( mText.empty() )	return;
+	if( !mInvalid )
+		return;
+	if( !mFont )
+		return;
+	if( mText.empty() )
+		return;
 
 	// initialize variables
-	const float		space = mFont->getAdvance( 32, mFontSize );
-	const float		height = getHeight() > 0.0f ? ( getHeight() - mFont->getDescent( mFontSize ) ) : 0.0f;
-	float			width, linewidth;
-	size_t			index = 0;
-	std::u16string	trimmed, chunk;
+	const float    space = mFont->getAdvance( 32, mFontSize );
+	const float    height = getHeight() > 0.0f ? ( getHeight() - mFont->getDescent( mFontSize ) ) : 0.0f;
+	float          width, linewidth;
+	size_t         index = 0;
+	std::u16string trimmed, chunk;
 
 	// initialize cursor position
 	vec2 cursor( 0.0f, std::floorf( mFont->getAscent( mFontSize ) + 0.5f ) );
@@ -101,7 +105,7 @@ void Text::renderMesh()
 	if( mMust.empty() || mAllow.empty() )
 		findBreaksUtf16( mText, &mMust, &mAllow );
 
-	//double t = app::getElapsedSeconds();
+	// double t = app::getElapsedSeconds();
 
 	// reserve some room in the buffers, to prevent excessive resizing. Do not use the full string length,
 	// because the text may contain white space characters that don't need to be rendered.
@@ -111,94 +115,95 @@ void Text::renderMesh()
 	mIndices.reserve( 6 * sz );
 
 	// process text in chunks
-	std::vector<size_t>::iterator	mitr = mMust.begin();
-	std::vector<size_t>::iterator	aitr = mAllow.begin();
+	std::vector<size_t>::iterator mitr = mMust.begin();
+	std::vector<size_t>::iterator aitr = mAllow.begin();
 	while( aitr != mAllow.end() && mitr != mMust.end() && ( height == 0.0f || cursor.y <= height ) ) {
 		// calculate the maximum allowed width for this line
 		linewidth = getWidthAt( cursor.y );
 
 		switch( mBoundary ) {
-			case LINE:
-				// render the whole paragraph
-				trimmed = boost::trim_copy( mText.substr( index, *mitr - index + 1 ) );
-				width = mFont->measureWidth( trimmed, mFontSize, true );
+		case LINE:
+			// render the whole paragraph
+			trimmed = boost::trim_copy( mText.substr( index, *mitr - index + 1 ) );
+			width = mFont->measureWidth( trimmed, mFontSize, true );
+
+			// advance iterator
+			index = *mitr;
+			++mitr;
+
+			break;
+		case WORD:
+			// measure the first chunk on this line
+			chunk = ( mText.substr( index, *aitr - index + 1 ) );
+			width = mFont->measureWidth( chunk, mFontSize, false );
+
+			// if it fits, add the next chunk until no more chunks fit or are available
+			while( linewidth > 0.0f && width < linewidth && *aitr != *mitr ) {
+				++aitr;
+
+				if( aitr == mAllow.end() )
+					break;
+
+				chunk = ( mText.substr( *( aitr - 1 ) + 1, *aitr - *( aitr - 1 ) ) );
+				width += mFont->measureWidth( chunk, mFontSize, false );
+			}
+
+			// end of line encountered
+			if( aitr == mAllow.begin() || *( aitr - 1 ) <= index ) { // not a single chunk fits on this line, just render what we have
+			}
+			else if( linewidth > 0.0f && width > linewidth ) { // remove the last chunk
+				--aitr;
+			}
+
+			if( aitr != mAllow.end() ) {
+				//
+				trimmed = boost::trim_copy( mText.substr( index, *aitr - index + 1 ) );
+				width = mFont->measureWidth( trimmed, mFontSize );
+
+				// end of paragraph encountered, move to next
+				if( *aitr == *mitr )
+					++mitr;
+				/*else if( mAlignment == JUSTIFIED )
+				{
+				// count spaces
+				uint32_t c = std::count( trimmed.begin(), trimmed.end(), 32 );
+				if( c == 0 ) break;
+				// remaining whitespace
+				float remaining = getWidthAt( cursor.y ) - width;
+				float space = mFont->getAdvance( 32, mFontSize );
+				//
+				stretch = (remaining / c + space) / space;
+				if( stretch > 3.0f ) stretch = 1.0f;
+				}*/
 
 				// advance iterator
-				index = *mitr;
-				++mitr;
+				index = *aitr;
+				++aitr;
+			}
 
-				break;
-			case WORD:
-				// measure the first chunk on this line
-				chunk = ( mText.substr( index, *aitr - index + 1 ) );
-				width = mFont->measureWidth( chunk, mFontSize, false );
-
-				// if it fits, add the next chunk until no more chunks fit or are available
-				while( linewidth > 0.0f && width < linewidth && *aitr != *mitr ) {
-					++aitr;
-
-					if( aitr == mAllow.end() )
-						break;
-
-					chunk = ( mText.substr( *( aitr - 1 ) + 1, *aitr - *( aitr - 1 ) ) );
-					width += mFont->measureWidth( chunk, mFontSize, false );
-				}
-
-				// end of line encountered
-				if( aitr == mAllow.begin() || *( aitr - 1 ) <= index ) {	// not a single chunk fits on this line, just render what we have				
-				}
-				else if( linewidth > 0.0f && width > linewidth ) {	// remove the last chunk				
-					--aitr;
-				}
-
-				if( aitr != mAllow.end() ) {
-					// 
-					trimmed = boost::trim_copy( mText.substr( index, *aitr - index + 1 ) );
-					width = mFont->measureWidth( trimmed, mFontSize );
-
-					// end of paragraph encountered, move to next
-					if( *aitr == *mitr )
-						++mitr;
-					/*else if( mAlignment == JUSTIFIED )
-					{
-					// count spaces
-					uint32_t c = std::count( trimmed.begin(), trimmed.end(), 32 );
-					if( c == 0 ) break;
-					// remaining whitespace
-					float remaining = getWidthAt( cursor.y ) - width;
-					float space = mFont->getAdvance( 32, mFontSize );
-					//
-					stretch = (remaining / c + space) / space;
-					if( stretch > 3.0f ) stretch = 1.0f;
-					}*/
-
-					// advance iterator
-					index = *aitr;
-					++aitr;
-				}
-
-				break;
+			break;
 		}
 
 		// adjust alignment
 		switch( mAlignment ) {
-			case CENTER:
-				cursor.x = 0.5f * ( linewidth - width );
-				break;
-			case RIGHT:
-				cursor.x = ( linewidth - width );
-				break;
-				break;
+		case CENTER:
+			cursor.x = 0.5f * ( linewidth - width );
+			break;
+		case RIGHT:
+			cursor.x = ( linewidth - width );
+			break;
+			break;
 		}
 
-		// add this fitting part of the text to the mesh 
+		// add this fitting part of the text to the mesh
 		renderString( trimmed, &cursor );
 
 		// advance cursor to new line
-		if( !newLine( &cursor ) ) break;
+		if( !newLine( &cursor ) )
+			break;
 	}
 
-	//app::console() << ( app::getElapsedSeconds() - t ) << std::endl;
+	// app::console() << ( app::getElapsedSeconds() - t ) << std::endl;
 }
 
 void Text::renderString( const std::u16string &str, vec2 *cursor, float stretch )
@@ -228,8 +233,12 @@ void Text::renderString( const std::u16string &str, vec2 *cursor, float stretch 
 				mTexcoords.push_back( bounds.getLowerRight() );
 				mTexcoords.push_back( bounds.getLowerLeft() );
 
-				mIndices.push_back( index + 0 ); mIndices.push_back( index + 3 ); mIndices.push_back( index + 1 );
-				mIndices.push_back( index + 1 ); mIndices.push_back( index + 3 ); mIndices.push_back( index + 2 );
+				mIndices.push_back( index + 0 );
+				mIndices.push_back( index + 3 );
+				mIndices.push_back( index + 1 );
+				mIndices.push_back( index + 1 );
+				mIndices.push_back( index + 3 );
+				mIndices.push_back( index + 2 );
 			}
 
 			if( id == 32 )
@@ -267,7 +276,7 @@ Rectf Text::getBounds() const
 	if( mBoundsInvalid ) {
 		mBounds = Rectf( 0.0f, 0.0f, 0.0f, 0.0f );
 
-		vector< vec3 >::const_iterator itr = mVertices.begin();
+		vector<vec3>::const_iterator itr = mVertices.begin();
 		while( itr != mVertices.end() ) {
 			mBounds.x1 = ci::math<float>::min( itr->x, mBounds.x1 );
 			mBounds.y1 = ci::math<float>::min( itr->y, mBounds.y1 );
@@ -285,25 +294,25 @@ Rectf Text::getBounds() const
 std::string Text::getVertexShader() const
 {
 	// vertex shader
-	const char *vs =
-		"#version 150\n"
-		""
-		"uniform mat4 ciModelViewProjection;\n"
-		""
-		"in vec4 ciPosition;\n"
-		"in vec2 ciTexCoord0;\n"
-		"in vec4 ciColor;\n"
-		""
-		"out vec2 vTexCoord0;\n"
-		"out vec4 vColor;\n"
-		""
-		"void main()\n"
-		"{\n"
-		"	vColor = ciColor;\n"
-		"	vTexCoord0 = ciTexCoord0;\n"
-		""
-		"	gl_Position = ciModelViewProjection * ciPosition;\n"
-		"}\n";
+	const char *vs
+	    = "#version 150\n"
+	      ""
+	      "uniform mat4 ciModelViewProjection;\n"
+	      ""
+	      "in vec4 ciPosition;\n"
+	      "in vec2 ciTexCoord0;\n"
+	      "in vec4 ciColor;\n"
+	      ""
+	      "out vec2 vTexCoord0;\n"
+	      "out vec4 vColor;\n"
+	      ""
+	      "void main()\n"
+	      "{\n"
+	      "	vColor = ciColor;\n"
+	      "	vTexCoord0 = ciTexCoord0;\n"
+	      ""
+	      "	gl_Position = ciModelViewProjection * ciPosition;\n"
+	      "}\n";
 
 	return std::string( vs );
 }
@@ -311,35 +320,35 @@ std::string Text::getVertexShader() const
 std::string Text::getFragmentShader() const
 {
 	// fragment shader
-	const char *fs =
-		"#version 150\n"
-		""
-		"uniform sampler2D	font_map;\n"
-		"uniform float      smoothness;\n"
-		""
-		"const float kGamma = 2.2;\n"
-		""
-		"in vec2 vTexCoord0;\n"
-		"in vec4 vColor;\n"
-		""
-		"out vec4 oColor;\n"
-		""
-		"void main()\n"
-		"{\n"
-		"	// retrieve signed distance\n"
-		"	float sdf = texture( font_map, vTexCoord0.xy ).r;\n"
-		"\n"
-		"	// perform adaptive anti-aliasing of the edges\n"
-		"	float w = clamp( smoothness * (abs(dFdx(vTexCoord0.x)) + abs(dFdy(vTexCoord0.y))), 0.0, 0.5);\n"
-		"	float a = smoothstep(0.5-w, 0.5+w, sdf);\n"
-		"\n"
-		"	// gamma correction for linear attenuation\n"
-		"	a = pow(a, 1.0/kGamma);\n"
-		"\n"
-		"	// final color\n"
-		"	oColor.rgb = vColor.rgb;\n"
-		"	oColor.a = vColor.a * a;\n"
-		"}\n";
+	const char *fs
+	    = "#version 150\n"
+	      ""
+	      "uniform sampler2D	font_map;\n"
+	      "uniform float      smoothness;\n"
+	      ""
+	      "const float kGamma = 2.2;\n"
+	      ""
+	      "in vec2 vTexCoord0;\n"
+	      "in vec4 vColor;\n"
+	      ""
+	      "out vec4 oColor;\n"
+	      ""
+	      "void main()\n"
+	      "{\n"
+	      "	// retrieve signed distance\n"
+	      "	float sdf = texture( font_map, vTexCoord0.xy ).r;\n"
+	      "\n"
+	      "	// perform adaptive anti-aliasing of the edges\n"
+	      "	float w = clamp( smoothness * (abs(dFdx(vTexCoord0.x)) + abs(dFdy(vTexCoord0.y))), 0.0, 0.5);\n"
+	      "	float a = smoothstep(0.5-w, 0.5+w, sdf);\n"
+	      "\n"
+	      "	// gamma correction for linear attenuation\n"
+	      "	a = pow(a, 1.0/kGamma);\n"
+	      "\n"
+	      "	// final color\n"
+	      "	oColor.rgb = vColor.rgb;\n"
+	      "	oColor.a = vColor.a * a;\n"
+	      "}\n";
 
 	return std::string( fs );
 }
@@ -352,7 +361,8 @@ bool Text::bindShader()
 		}
 		catch( const std::exception &e ) {
 			app::console() << "Could not load&compile shader: " << e.what() << std::endl;
-			mShader = gl::GlslProgRef(); return false;
+			mShader = gl::GlslProgRef();
+			return false;
 		}
 	}
 
@@ -365,7 +375,7 @@ bool Text::bindShader()
 
 bool Text::unbindShader()
 {
-	//if( mShader ) 
+	// if( mShader )
 	//	mShader.unbind();
 
 	return true;
@@ -394,7 +404,7 @@ void Text::findBreaksUtf8( const std::string &line, std::vector<size_t> *must, s
 void Text::findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow )
 {
 	std::vector<uint8_t> resultBreaks;
-	calcLinebreaksUtf16( (uint16_t*)line.c_str(), &resultBreaks );
+	calcLinebreaksUtf16( (uint16_t *)line.c_str(), &resultBreaks );
 
 	//
 	must->clear();
@@ -418,20 +428,14 @@ bool Text::isWhitespaceUtf8( const char ch )
 
 bool Text::isWhitespaceUtf16( const wchar_t ch )
 {
-	// see: http://en.wikipedia.org/wiki/Whitespace_character, 
-	// make sure the values are in ascending order, 
+	// see: http://en.wikipedia.org/wiki/Whitespace_character,
+	// make sure the values are in ascending order,
 	// otherwise the binary search won't work
-	static const wchar_t arr[] = {
-		0x0009, 0x000A, 0x000B, 0x000C, 0x000D,
-		0x0020, 0x0085, 0x00A0, 0x1680, 0x180E,
-		0x2000, 0x2001, 0x2002, 0x2003, 0x2004,
-		0x2005, 0x2006, 0x2007, 0x2008, 0x2009,
-		0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000
-	};
+	static const wchar_t arr[]
+	    = { 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x0020, 0x0085, 0x00A0, 0x1680, 0x180E, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000 };
 	static const vector<wchar_t> whitespace( arr, arr + sizeof( arr ) / sizeof( arr[0] ) );
 
 	return std::binary_search( whitespace.begin(), whitespace.end(), ch );
 }
-
 }
 } // namespace ph::text

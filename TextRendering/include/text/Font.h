@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -38,22 +38,23 @@ namespace text {
 typedef std::shared_ptr<class Font> FontRef;
 
 class Font {
-public:
+  public:
 	// stores the font metrics for a single character
 	struct Metrics {
-		float x1;	// x - top left of character in texture
-		float y1;	// y - top left of character in texture
-		float x2;	// x - bottom right of character in texture
-		float y2;	// y - bottom right of character in texture
-		float w;	// w - width of character
-		float h;	// h - height of character
-		float dx;	// xoffset - adjusts character positioning
-		float dy;	// yoffset - adjusts character positioning
-		float d;	// xadvance - adjusts character positioning
+		float x1; // x - top left of character in texture
+		float y1; // y - top left of character in texture
+		float x2; // x - bottom right of character in texture
+		float y2; // y - bottom right of character in texture
+		float w;  // w - width of character
+		float h;  // h - height of character
+		float dx; // xoffset - adjusts character positioning
+		float dy; // yoffset - adjusts character positioning
+		float d;  // xadvance - adjusts character positioning
 	};
 
-	typedef std::unordered_map<uint16_t, Metrics>	MetricsData;
-public:
+	typedef std::unordered_map<uint16_t, Metrics> MetricsData;
+
+  public:
 	Font( void );
 	~Font( void );
 
@@ -68,83 +69,94 @@ public:
 	std::string getFamily() const { return mFamily; }
 
 	//!
-	float		getAscent( float fontSize = 12.0f ) const { return mAscent * ( fontSize / mFontSize ); }
+	float getAscent( float fontSize = 12.0f ) const { return mAscent * ( fontSize / mFontSize ); }
 	//!
-	float		getDescent( float fontSize = 12.0f ) const { return mDescent * ( fontSize / mFontSize ); }
+	float getDescent( float fontSize = 12.0f ) const { return mDescent * ( fontSize / mFontSize ); }
 	//!
-	float		getLeading( float fontSize = 12.0f ) const { return mLeading * ( fontSize / mFontSize ); }
+	float getLeading( float fontSize = 12.0f ) const { return mLeading * ( fontSize / mFontSize ); }
 	//!
-	float		getSpaceWidth( float fontSize = 12.0f ) const { return mSpaceWidth * ( fontSize / mFontSize ); }
+	float getSpaceWidth( float fontSize = 12.0f ) const { return mSpaceWidth * ( fontSize / mFontSize ); }
 
 	//!
-	bool		contains( uint16_t charcode ) const { return ( mMetrics.find( charcode ) != mMetrics.end() ); }
+	bool contains( uint16_t charcode ) const { return ( mMetrics.find( charcode ) != mMetrics.end() ); }
 
 	//!
-	Metrics		getMetrics( uint16_t charcode ) const;
+	Metrics getMetrics( uint16_t charcode ) const;
 
 	//!
-	ci::Rectf	getBounds( uint16_t charcode, float fontSize = 12.0f ) const;
+	ci::Rectf getBounds( uint16_t charcode, float fontSize = 12.0f ) const;
 	//!
 	inline ci::Rectf getBounds( const Metrics &metrics, float fontSize = 12.0f ) const;
 	//!
-	ci::Rectf	getTexCoords( uint16_t charcode ) const;
+	ci::Rectf getTexCoords( uint16_t charcode ) const;
 	//!
 	inline ci::Rectf getTexCoords( const Metrics &metrics ) const;
 	//!
-	float		getAdvance( uint16_t charcode, float fontSize = 12.0f ) const;
+	float getAdvance( uint16_t charcode, float fontSize = 12.0f ) const;
 	//!
 	inline float getAdvance( const Metrics &metrics, float fontSize = 12.0f ) const;
 
 	//!
-	void		enableAndBind() const { if( mTexture ) mTexture->bind(); }
+	void enableAndBind() const
+	{
+		if( mTexture )
+			mTexture->bind();
+	}
 	//!
-	void		bind( GLuint textureUnit = 0 ) const { if( mTexture ) mTexture->bind( textureUnit ); }
+	void bind( GLuint textureUnit = 0 ) const
+	{
+		if( mTexture )
+			mTexture->bind( textureUnit );
+	}
 	//!
-	void		unbind( GLuint textureUnit = 0 ) const { if( mTexture ) mTexture->unbind( textureUnit ); }
+	void unbind( GLuint textureUnit = 0 ) const
+	{
+		if( mTexture )
+			mTexture->unbind( textureUnit );
+	}
 
 	//!
-	ci::Rectf	measure( const std::string &text, float fontSize = 12.0f ) const { return measure( ci::toUtf16( text ), fontSize ); }
+	ci::Rectf measure( const std::string &text, float fontSize = 12.0f ) const { return measure( ci::toUtf16( text ), fontSize ); }
 	//!
-	ci::Rectf	measure( const std::u16string &text, float fontSize = 12.0f ) const;
+	ci::Rectf measure( const std::u16string &text, float fontSize = 12.0f ) const;
 
 	//!
-	float		measureWidth( const std::string &text, float fontSize = 12.0f, bool precise = true ) const { return measureWidth( ci::toUtf16( text ), fontSize, precise ); }
+	float measureWidth( const std::string &text, float fontSize = 12.0f, bool precise = true ) const { return measureWidth( ci::toUtf16( text ), fontSize, precise ); }
 	//!
-	float		measureWidth( const std::u16string &text, float fontSize = 12.0f, bool precise = true ) const;
+	float measureWidth( const std::u16string &text, float fontSize = 12.0f, bool precise = true ) const;
 
-protected:
-	bool				mInvalid;
+  protected:
+	bool mInvalid;
 
-	std::string			mFamily;
+	std::string mFamily;
 
 	//! calculated by the 'measure' function
-	float				mFontSize;
-	float				mLeading;
-	float				mAscent;
-	float				mDescent;
-	float				mSpaceWidth;
+	float mFontSize;
+	float mLeading;
+	float mAscent;
+	float mDescent;
+	float mSpaceWidth;
 
-	ci::Surface				mSurface;
-	ci::gl::Texture2dRef	mTexture;
-	ci::vec2				mTextureSize;
+	ci::Surface          mSurface;
+	ci::gl::Texture2dRef mTexture;
+	ci::vec2             mTextureSize;
 
-	MetricsData			mMetrics;
+	MetricsData mMetrics;
 };
 
 class FontExc : public std::exception {
-public:
-	virtual const char* what() const throw( ) { return "Font exception"; }
+  public:
+	virtual const char *what() const throw() { return "Font exception"; }
 };
 
 class FontInvalidSourceExc : public FontExc {
-public:
-	virtual const char* what() const throw( ) { return "Font exception: could not load from the specified source"; }
+  public:
+	virtual const char *what() const throw() { return "Font exception: could not load from the specified source"; }
 };
 
 class FontInvalidTargetExc : public FontExc {
-public:
-	virtual const char* what() const throw( ) { return "Font exception: could not write to the specified target"; }
+  public:
+	virtual const char *what() const throw() { return "Font exception: could not write to the specified target"; }
 };
-
 }
 } // namespace ph::text

@@ -24,9 +24,9 @@
 #include "cinder/Font.h"
 #include "cinder/ImageIo.h"
 #include "cinder/TriMesh.h"
-#include "cinder/gl/gl.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
+#include "cinder/gl/gl.h"
 
 #define SCENE_SIZE 512
 #define BLUR_SIZE 128
@@ -36,7 +36,7 @@ using namespace ci::app;
 using namespace std;
 
 class BloomingNeonApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup();
@@ -48,25 +48,26 @@ public:
 	void keyDown( KeyEvent event );
 
 	void drawStrokedRect( const Rectf &rect );
-protected:
-	ci::Font		mFont;
 
-	gl::FboRef		mFboScene;
-	gl::FboRef		mFboBlur1;
-	gl::FboRef		mFboBlur2;
+  protected:
+	ci::Font mFont;
 
-	gl::GlslProgRef	mShaderBlur;
-	gl::GlslProgRef	mShaderPhong;
+	gl::FboRef mFboScene;
+	gl::FboRef mFboBlur1;
+	gl::FboRef mFboBlur2;
 
-	gl::TextureRef	mTextureColor;
-	gl::TextureRef	mTextureIllumination;
-	gl::TextureRef	mTextureSpecular;
-	gl::TextureRef	mTextureArrows;
+	gl::GlslProgRef mShaderBlur;
+	gl::GlslProgRef mShaderPhong;
 
-	gl::BatchRef	mBatch;
-	CameraPersp		mCamera;
+	gl::TextureRef mTextureColor;
+	gl::TextureRef mTextureIllumination;
+	gl::TextureRef mTextureSpecular;
+	gl::TextureRef mTextureArrows;
 
-	mat4			mTransform;
+	gl::BatchRef mBatch;
+	CameraPersp  mCamera;
+
+	mat4 mTransform;
 };
 
 void BloomingNeonApp::prepare( Settings *settings )
@@ -102,7 +103,7 @@ void BloomingNeonApp::setup()
 	}
 
 	// setup the stuff to render our ducky:
-	// model and textures generously provided by AngryFly: 
+	// model and textures generously provided by AngryFly:
 	//   http://www.turbosquid.com/3d-models/free-3ds-mode-space/588767
 	TriMeshRef mesh = TriMesh::create();
 	mesh->read( loadAsset( "space_frigate.msh" ) );
@@ -135,7 +136,7 @@ void BloomingNeonApp::draw()
 	// render scene into mFboScene using illumination texture
 	{
 		gl::ScopedFramebuffer fbo( mFboScene );
-		gl::ScopedViewport viewport( 0, 0, mFboScene->getWidth(), mFboScene->getHeight() );
+		gl::ScopedViewport    viewport( 0, 0, mFboScene->getWidth(), mFboScene->getHeight() );
 
 		gl::ScopedTextureBind tex0( mTextureIllumination, (uint8_t)0 );
 		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t)1 );
@@ -158,7 +159,7 @@ void BloomingNeonApp::draw()
 		// copy a horizontally blurred version of our scene into the first blur Fbo
 		{
 			gl::ScopedFramebuffer fbo( mFboBlur1 );
-			gl::ScopedViewport viewport( 0, 0, mFboBlur1->getWidth(), mFboBlur1->getHeight() );
+			gl::ScopedViewport    viewport( 0, 0, mFboBlur1->getWidth(), mFboBlur1->getHeight() );
 
 			gl::ScopedTextureBind tex0( mFboScene->getColorTexture(), (uint8_t)0 );
 
@@ -175,7 +176,7 @@ void BloomingNeonApp::draw()
 		// copy a vertically blurred version of our blurred scene into the second blur Fbo
 		{
 			gl::ScopedFramebuffer fbo( mFboBlur2 );
-			gl::ScopedViewport viewport( 0, 0, mFboBlur2->getWidth(), mFboBlur2->getHeight() );
+			gl::ScopedViewport    viewport( 0, 0, mFboBlur2->getWidth(), mFboBlur2->getHeight() );
 
 			gl::ScopedTextureBind tex0( mFboBlur1->getColorTexture(), (uint8_t)0 );
 
@@ -189,7 +190,7 @@ void BloomingNeonApp::draw()
 	// render scene into mFboScene using color texture
 	{
 		gl::ScopedFramebuffer fbo( mFboScene );
-		gl::ScopedViewport viewport( 0, 0, mFboScene->getWidth(), mFboScene->getHeight() );
+		gl::ScopedViewport    viewport( 0, 0, mFboScene->getWidth(), mFboScene->getHeight() );
 
 		gl::ScopedTextureBind tex0( mTextureColor, (uint8_t)0 );
 		gl::ScopedTextureBind tex1( mTextureSpecular, (uint8_t)1 );
@@ -265,9 +266,9 @@ void BloomingNeonApp::render()
 void BloomingNeonApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
 	}
 }
 

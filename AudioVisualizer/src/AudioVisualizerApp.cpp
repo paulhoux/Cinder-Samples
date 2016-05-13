@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -21,16 +21,16 @@
 */
 
 #include "cinder/app/App.h"
+#include "cinder/Camera.h"
+#include "cinder/CameraUI.h"
+#include "cinder/Channel.h"
+#include "cinder/ImageIo.h"
+#include "cinder/Rand.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/Vbo.h"
-#include "cinder/Camera.h"
-#include "cinder/Channel.h"
-#include "cinder/ImageIo.h"
-#include "cinder/CameraUI.h"
-#include "cinder/Rand.h"
+#include "cinder/gl/gl.h"
 
 #include "FMOD.hpp"
 
@@ -43,8 +43,8 @@ using namespace ci::app;
 using namespace std;
 
 class AudioVisualizerApp : public App {
-public:
-	static void prepare( Settings* settings );
+  public:
+	static void prepare( Settings *settings );
 
 	void setup();
 	void shutdown();
@@ -58,21 +58,21 @@ public:
 	void resize();
 
 	// lists all audio files in the given directory
-	void		listAudio( const fs::path& directory, vector<fs::path>&	list );
+	void listAudio( const fs::path &directory, vector<fs::path> &list );
 	// show the open file dialog and let the user select an audio file
-	fs::path	openAudio( const fs::path& directory );
+	fs::path openAudio( const fs::path &directory );
 	// find the first audio file in a given directory
-	fs::path	findAudio( const fs::path& directory );
+	fs::path findAudio( const fs::path &directory );
 	// find the previous audio file relative to the given file
-	fs::path	prevAudio( const fs::path& file );
+	fs::path prevAudio( const fs::path &file );
 	// find the next audio file relative to the given file
-	fs::path	nextAudio( const fs::path& file );
+	fs::path nextAudio( const fs::path &file );
 	// play the audio file
-	void		playAudio( const fs::path& file );
+	void playAudio( const fs::path &file );
 	// stop playing the current audio file
-	void		stopAudio();
+	void stopAudio();
 
-private:
+  private:
 	// width and height of our mesh
 	static const int kWidth = 512;
 	static const int kHeight = 512;
@@ -81,34 +81,34 @@ private:
 	static const int kBands = 1024;
 	static const int kHistory = 128;
 
-	Channel32f				mChannelLeft;
-	Channel32f				mChannelRight;
-	CameraPersp				mCamera;
-	CameraUi				mCameraUi;
-	gl::GlslProgRef			mShader;
-	gl::Texture2dRef		mTextureLeft;
-	gl::Texture2dRef		mTextureRight;
-	gl::Texture2d::Format	mTextureFormat;
-	gl::VboMeshRef			mMesh;
-	uint32_t				mOffset;
+	Channel32f            mChannelLeft;
+	Channel32f            mChannelRight;
+	CameraPersp           mCamera;
+	CameraUi              mCameraUi;
+	gl::GlslProgRef       mShader;
+	gl::Texture2dRef      mTextureLeft;
+	gl::Texture2dRef      mTextureRight;
+	gl::Texture2d::Format mTextureFormat;
+	gl::VboMeshRef        mMesh;
+	uint32_t              mOffset;
 
-	FMOD::System*			mFMODSystem;
-	FMOD::Sound*			mFMODSound;
-	FMOD::Channel*			mFMODChannel;
+	FMOD::System * mFMODSystem;
+	FMOD::Sound *  mFMODSound;
+	FMOD::Channel *mFMODChannel;
 
-	bool					mIsMouseDown;
-	bool					mIsAudioPlaying;
-	double					mMouseUpTime;
-	double					mMouseUpDelay;
+	bool   mIsMouseDown;
+	bool   mIsAudioPlaying;
+	double mMouseUpTime;
+	double mMouseUpDelay;
 
-	vector<string>			mAudioExtensions;
-	fs::path				mAudioPath;
+	vector<string> mAudioExtensions;
+	fs::path       mAudioPath;
 
-public:
-	bool				signalChannelEnd;
+  public:
+	bool signalChannelEnd;
 };
 
-void AudioVisualizerApp::prepare( Settings* settings )
+void AudioVisualizerApp::prepare( Settings *settings )
 {
 	settings->setFullScreen( false );
 	settings->setWindowSize( 1280, 720 );
@@ -120,7 +120,7 @@ void AudioVisualizerApp::setup()
 	signalChannelEnd = false;
 
 	// make a list of valid audio file extensions and initialize audio variables
-	const char* extensions[] = { "mp3", "wav", "ogg" };
+	const char *extensions[] = { "mp3", "wav", "ogg" };
 	mAudioExtensions = vector<string>( extensions, extensions + 2 );
 	mAudioPath = getAssetPath( "" );
 	mIsAudioPlaying = false;
@@ -148,17 +148,17 @@ void AudioVisualizerApp::setup()
 	try {
 		mShader = gl::GlslProg::create( loadAsset( "shaders/spectrum.vert" ), loadAsset( "shaders/spectrum.frag" ) );
 	}
-	catch( const std::exception& e ) {
+	catch( const std::exception &e ) {
 		console() << e.what() << std::endl;
 		quit();
 		return;
 	}
 
 	// create static mesh (all animation is done in the vertex shader)
-	std::vector<vec3>		positions;
-	std::vector<Colorf>		colors;
-	std::vector<vec2>		coords;
-	std::vector<uint32_t>	indices;
+	std::vector<vec3>     positions;
+	std::vector<Colorf>   colors;
+	std::vector<vec2>     coords;
+	std::vector<uint32_t> indices;
 
 	for( size_t h = 0; h < kHeight; ++h ) {
 		for( size_t w = 0; w < kWidth; ++w ) {
@@ -181,8 +181,8 @@ void AudioVisualizerApp::setup()
 			// note: we only want to draw the lower part of the frequency bands,
 			//  so we scale the coordinates a bit
 			const float part = 0.5f;
-			float s = w / float( kWidth - 1 );
-			float t = h / float( kHeight - 1 );
+			float       s = w / float( kWidth - 1 );
+			float       t = h / float( kHeight - 1 );
 			coords.emplace_back( vec2( part - part * s, t ) );
 
 			// add vertex colors
@@ -242,8 +242,8 @@ void AudioVisualizerApp::update()
 	signalChannelEnd = false;
 
 	// get spectrum for left and right channels and copy it into our channels
-	float* pDataLeft = mChannelLeft.getData() + kBands * mOffset;
-	float* pDataRight = mChannelRight.getData() + kBands * mOffset;
+	float *pDataLeft = mChannelLeft.getData() + kBands * mOffset;
+	float *pDataRight = mChannelRight.getData() + kBands * mOffset;
 
 	mFMODSystem->getSpectrum( pDataLeft, kBands, 0, FMOD_DSP_FFT_WINDOW_HANNING );
 	mFMODSystem->getSpectrum( pDataRight, kBands, 1, FMOD_DSP_FFT_WINDOW_HANNING );
@@ -263,16 +263,15 @@ void AudioVisualizerApp::update()
 		float x = 0.5f + 0.5f * math<float>::cos( t * 0.07f );
 		float y = 0.1f - 0.2f * math<float>::sin( t * 0.09f );
 		float z = 0.25f * math<float>::sin( t * 0.05f ) - 0.25f;
-		vec3 eye = vec3( kWidth * x, kHeight * y, kHeight * z );
+		vec3  eye = vec3( kWidth * x, kHeight * y, kHeight * z );
 
 		x = 1.0f - x;
 		y = -0.3f;
-		z = 0.6f + 0.2f *  math<float>::sin( t * 0.12f );
+		z = 0.6f + 0.2f * math<float>::sin( t * 0.12f );
 		vec3 interest = vec3( kWidth * x, kHeight * y, kHeight * z );
 
 		// gradually move to eye position and center of interest
-		mCamera.lookAt( glm::mix( eye, mCamera.getEyePoint(), 0.995f ),
-						glm::mix( interest, mCamera.getPivotPoint(), 0.990f ) );
+		mCamera.lookAt( glm::mix( eye, mCamera.getEyePoint(), 0.995f ), glm::mix( interest, mCamera.getPivotPoint(), 0.990f ) );
 	}
 }
 
@@ -299,7 +298,7 @@ void AudioVisualizerApp::draw()
 
 		// draw mesh using additive blending
 		gl::ScopedBlendAdditive blend;
-		gl::ScopedColor color( 1, 1, 1 );
+		gl::ScopedColor         color( 1, 1, 1 );
 		gl::draw( mMesh );
 	}
 	gl::popMatrices();
@@ -330,31 +329,31 @@ void AudioVisualizerApp::keyDown( KeyEvent event )
 {
 	// handle key down
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_F4:
+		if( event.isAltDown() )
 			quit();
-			break;
-		case KeyEvent::KEY_F4:
-			if( event.isAltDown() )
-				quit();
-			break;
-		case KeyEvent::KEY_LEFT:
-			playAudio( prevAudio( mAudioPath ) );
-			break;
-		case KeyEvent::KEY_RIGHT:
-			playAudio( nextAudio( mAudioPath ) );
-			break;
-		case KeyEvent::KEY_f:
-			setFullScreen( !isFullScreen() );
-			break;
-		case KeyEvent::KEY_o:
-			playAudio( openAudio( mAudioPath ) );
-			break;
-		case KeyEvent::KEY_p:
-			playAudio( mAudioPath );
-			break;
-		case KeyEvent::KEY_s:
-			stopAudio();
-			break;
+		break;
+	case KeyEvent::KEY_LEFT:
+		playAudio( prevAudio( mAudioPath ) );
+		break;
+	case KeyEvent::KEY_RIGHT:
+		playAudio( nextAudio( mAudioPath ) );
+		break;
+	case KeyEvent::KEY_f:
+		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_o:
+		playAudio( openAudio( mAudioPath ) );
+		break;
+	case KeyEvent::KEY_p:
+		playAudio( mAudioPath );
+		break;
+	case KeyEvent::KEY_s:
+		stopAudio();
+		break;
 	}
 }
 
@@ -364,7 +363,7 @@ void AudioVisualizerApp::resize()
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
-void AudioVisualizerApp::listAudio( const fs::path& directory, vector<fs::path>& list )
+void AudioVisualizerApp::listAudio( const fs::path &directory, vector<fs::path> &list )
 {
 	// clear the list
 	list.clear();
@@ -376,7 +375,8 @@ void AudioVisualizerApp::listAudio( const fs::path& directory, vector<fs::path>&
 	fs::directory_iterator end_itr;
 	for( fs::directory_iterator i( directory ); i != end_itr; ++i ) {
 		// skip if not a file
-		if( !fs::is_regular_file( i->status() ) ) continue;
+		if( !fs::is_regular_file( i->status() ) )
+			continue;
 
 		// skip if extension does not match
 		string extension = i->path().extension().string();
@@ -389,9 +389,9 @@ void AudioVisualizerApp::listAudio( const fs::path& directory, vector<fs::path>&
 	}
 }
 
-fs::path AudioVisualizerApp::openAudio( const fs::path& directory )
+fs::path AudioVisualizerApp::openAudio( const fs::path &directory )
 {
-	// only works if not full screen	
+	// only works if not full screen
 	bool wasFullScreen = isFullScreen();
 	setFullScreen( false );
 
@@ -402,7 +402,7 @@ fs::path AudioVisualizerApp::openAudio( const fs::path& directory )
 	return file;
 }
 
-fs::path AudioVisualizerApp::findAudio( const fs::path& directory )
+fs::path AudioVisualizerApp::findAudio( const fs::path &directory )
 {
 	vector<fs::path> files;
 	listAudio( directory, files );
@@ -415,12 +415,12 @@ fs::path AudioVisualizerApp::findAudio( const fs::path& directory )
 	return openAudio( directory );
 }
 
-fs::path AudioVisualizerApp::prevAudio( const fs::path& file )
+fs::path AudioVisualizerApp::prevAudio( const fs::path &file )
 {
 	if( file.empty() || !fs::is_regular_file( file ) )
 		return fs::path();
 
-	fs::path& directory = file.parent_path();
+	fs::path &directory = file.parent_path();
 
 	// make a list of all audio files in the directory
 	vector<fs::path> files;
@@ -441,12 +441,12 @@ fs::path AudioVisualizerApp::prevAudio( const fs::path& file )
 	return *( --itr );
 }
 
-fs::path AudioVisualizerApp::nextAudio( const fs::path& file )
+fs::path AudioVisualizerApp::nextAudio( const fs::path &file )
 {
 	if( file.empty() || !fs::is_regular_file( file ) )
 		return fs::path();
 
-	fs::path& directory = file.parent_path();
+	fs::path &directory = file.parent_path();
 
 	// make a list of all audio files in the directory
 	vector<fs::path> files;
@@ -467,7 +467,7 @@ fs::path AudioVisualizerApp::nextAudio( const fs::path& file )
 	return *( ++itr );
 }
 
-void AudioVisualizerApp::playAudio( const fs::path& file )
+void AudioVisualizerApp::playAudio( const fs::path &file )
 {
 	FMOD_RESULT err;
 
@@ -489,7 +489,7 @@ void AudioVisualizerApp::playAudio( const fs::path& file )
 	mAudioPath = file;
 	mIsAudioPlaying = true;
 
-	// 
+	//
 	console() << "Now playing:" << mAudioPath.filename() << std::endl;
 }
 
@@ -520,15 +520,15 @@ void AudioVisualizerApp::stopAudio()
 FMOD_RESULT F_CALLBACK channelCallback( FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2 )
 {
 	// we first need access to the application instance
-	AudioVisualizerApp* pApp = static_cast<AudioVisualizerApp*>( App::get() );
+	AudioVisualizerApp *pApp = static_cast<AudioVisualizerApp *>( App::get() );
 
 	// now handle the callback
 	switch( type ) {
-		case FMOD_CHANNEL_CALLBACKTYPE_END:
-			// we can't call a function directly, because we are inside the FMOD thread,
-			// so let's notify the application instead by setting a boolean (which is thread safe).
-			pApp->signalChannelEnd = true;
-			break;
+	case FMOD_CHANNEL_CALLBACKTYPE_END:
+		// we can't call a function directly, because we are inside the FMOD thread,
+		// so let's notify the application instead by setting a boolean (which is thread safe).
+		pApp->signalChannelEnd = true;
+		break;
 	}
 
 	return FMOD_OK;

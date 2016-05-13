@@ -6,9 +6,9 @@
  the following conditions are met:
 
     * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
+    the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include "cinder/gl/Batch.h"
-#include "cinder/gl/Vbo.h"
 #include "cinder/Cinder.h"
 #include "cinder/Color.h"
 #include "cinder/Vector.h"
+#include "cinder/gl/Batch.h"
+#include "cinder/gl/Vbo.h"
 #include <vector>
 
 namespace cinder {
@@ -36,17 +36,17 @@ class Camera;
 typedef std::shared_ptr<class Piston> PistonRef;
 
 class Piston {
-public:
+  public:
 	Piston();
 	Piston( float x, float z );
 
-	void update( const ci::Camera& camera, float time = 0 );
+	void update( const ci::Camera &camera, float time = 0 );
 
 	// Our custom sorting comparator
-	static int CompareByDistanceToCamera( const void* a, const void* b )
+	static int CompareByDistanceToCamera( const void *a, const void *b )
 	{
-		const Piston* pA = reinterpret_cast<const Piston*>( a );
-		const Piston* pB = reinterpret_cast<const Piston*>( b );
+		const Piston *pA = reinterpret_cast<const Piston *>( a );
+		const Piston *pB = reinterpret_cast<const Piston *>( b );
 		if( pA->mDistance < pB->mDistance )
 			return -1;
 		if( pA->mDistance > pB->mDistance )
@@ -54,28 +54,26 @@ public:
 		return 0;
 	}
 
-public:
-	ci::vec3   mPosition;
-	float      mDistance;
-	ci::vec3   mColor;
-	float      mOffset;
+  public:
+	ci::vec3 mPosition;
+	float    mDistance;
+	ci::vec3 mColor;
+	float    mOffset;
 };
 
 class Pistons {
-public:
-	Pistons()
-	{
-	}
+  public:
+	Pistons() {}
 
 	void setup();
-	void update( const ci::Camera& camera, float time );
-	void draw( const ci::Camera& camera );
+	void update( const ci::Camera &camera, float time );
+	void draw( const ci::Camera &camera );
 
-	static const char* vs;
-	static const char* fs;
-private:
-	std::vector<Piston>  mInstances;
-	ci::gl::BatchRef     mBatch;
-	ci::gl::VboRef       mInstanceVbo;
+	static const char *vs;
+	static const char *fs;
+
+  private:
+	std::vector<Piston> mInstances;
+	ci::gl::BatchRef    mBatch;
+	ci::gl::VboRef      mInstanceVbo;
 };
-

@@ -6,9 +6,9 @@
  the following conditions are met:
 
     * Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
+    the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -21,14 +21,14 @@
 */
 
 #include "cinder/app/App.h"
-#include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/Fbo.h"
-#include "cinder/gl/GlslProg.h"
-#include "cinder/gl/Texture.h"
 #include "cinder/Camera.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
+#include "cinder/app/RendererGl.h"
+#include "cinder/gl/Fbo.h"
+#include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Texture.h"
+#include "cinder/gl/gl.h"
 
 #include "FXAA.h"
 #include "Pistons.h"
@@ -39,7 +39,7 @@ using namespace std;
 
 // Our application class
 class FXAAApp : public App {
-public:
+  public:
 	void setup();
 	void update();
 	void draw();
@@ -49,24 +49,26 @@ public:
 	void keyDown( KeyEvent event );
 
 	void resize();
-private:
+
+  private:
 	void render();
-private:
-	CameraPersp         mCamera;
 
-	gl::FboRef          mFboOriginal;
-	gl::FboRef          mFboResult;
+  private:
+	CameraPersp mCamera;
 
-	gl::Texture2dRef    mArrow;
+	gl::FboRef mFboOriginal;
+	gl::FboRef mFboResult;
 
-	Pistons             mPistons;
-	FXAA                mFXAA;
+	gl::Texture2dRef mArrow;
 
-	Timer               mTimer;
-	double              mTime;
-	double              mTimeOffset;
+	Pistons mPistons;
+	FXAA    mFXAA;
 
-	int                 mDividerX;
+	Timer  mTimer;
+	double mTime;
+	double mTimeOffset;
+
+	int mDividerX;
 };
 
 void FXAAApp::setup()
@@ -82,7 +84,10 @@ void FXAAApp::setup()
 		mFXAA.setup();
 		mArrow = gl::Texture::create( loadImage( loadAsset( "arrow.png" ) ) );
 	}
-	catch( const std::exception& e ) { console() << e.what() << std::endl; quit(); }
+	catch( const std::exception &e ) {
+		console() << e.what() << std::endl;
+		quit();
+	}
 
 	// Setup the pistons
 	mPistons.setup();
@@ -131,12 +136,10 @@ void FXAAApp::draw()
 	int h = getWindowHeight();
 
 	// ...while applying FXAA for the left side
-	gl::draw( mFboResult->getColorTexture(),
-			  Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+	gl::draw( mFboResult->getColorTexture(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
 
 	// ...and without FXAA for the right side
-	gl::draw( mFboOriginal->getColorTexture(),
-			  Area( mDividerX, 0, w, h ), Rectf( (float)mDividerX, 0, (float)w, (float)h ) );
+	gl::draw( mFboOriginal->getColorTexture(), Area( mDividerX, 0, w, h ), Rectf( (float)mDividerX, 0, (float)w, (float)h ) );
 
 	// Draw divider
 	gl::drawLine( vec2( (float)mDividerX, 0.0f ), vec2( (float)mDividerX, (float)h ) );
@@ -158,24 +161,24 @@ void FXAAApp::mouseDrag( MouseEvent event )
 void FXAAApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		case KeyEvent::KEY_SPACE:
-			// Start/stop the animation
-			if( mTimer.isStopped() ) {
-				mTimeOffset += mTimer.getSeconds();
-				mTimer.start();
-			}
-			else
-				mTimer.stop();
-			break;
-		case KeyEvent::KEY_v:
-			if( gl::isVerticalSyncEnabled() )
-				gl::enableVerticalSync( false );
-			else
-				gl::enableVerticalSync( true );
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_SPACE:
+		// Start/stop the animation
+		if( mTimer.isStopped() ) {
+			mTimeOffset += mTimer.getSeconds();
+			mTimer.start();
+		}
+		else
+			mTimer.stop();
+		break;
+	case KeyEvent::KEY_v:
+		if( gl::isVerticalSyncEnabled() )
+			gl::enableVerticalSync( false );
+		else
+			gl::enableVerticalSync( true );
+		break;
 	}
 }
 

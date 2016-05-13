@@ -5,10 +5,10 @@
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this list of conditions and
-	the following disclaimer.
-	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-	the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and
+    the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+    the following disclaimer in the documentation and/or other materials provided with the distribution.
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -22,19 +22,19 @@
 
 #pragma once
 
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/gl.h"
 
 #include "Shader.h"
 
 class SMAA {
-public:
+  public:
 	SMAA() {}
 	~SMAA() {}
 
 	void setup();
-	void apply( const ci::gl::FboRef& destination, const ci::gl::FboRef& source );
+	void apply( const ci::gl::FboRef &destination, const ci::gl::FboRef &source );
 
 	const ci::gl::Texture2dRef getAreaTex() const { return mAreaTex; }
 	const ci::gl::Texture2dRef getSearchTex() const { return mSearchTex; }
@@ -42,18 +42,18 @@ public:
 	ci::gl::Texture2dRef getEdgePass() { return mFboEdgePass->getColorTexture(); }
 	ci::gl::Texture2dRef getBlendPass() { return mFboBlendPass->getColorTexture(); }
 
-private:
-	void doEdgePass( const ci::gl::FboRef& source );
+  private:
+	void doEdgePass( const ci::gl::FboRef &source );
 	void doBlendPass();
 
-private:
-	ci::gl::FboRef        mFboEdgePass;
-	ci::gl::FboRef        mFboBlendPass;
+  private:
+	ci::gl::FboRef mFboEdgePass;
+	ci::gl::FboRef mFboBlendPass;
 
-	ci::gl::GlslProgRef   mSMAAFirstPass;	// edge detection
-	ci::gl::GlslProgRef   mSMAASecondPass;	// blending weight calculation
-	ci::gl::GlslProgRef   mSMAAThirdPass;	// neighborhood blending
+	ci::gl::GlslProgRef mSMAAFirstPass;  // edge detection
+	ci::gl::GlslProgRef mSMAASecondPass; // blending weight calculation
+	ci::gl::GlslProgRef mSMAAThirdPass;  // neighborhood blending
 
-	ci::gl::Texture2dRef  mAreaTex;
-	ci::gl::Texture2dRef  mSearchTex;
+	ci::gl::Texture2dRef mAreaTex;
+	ci::gl::Texture2dRef mSearchTex;
 };

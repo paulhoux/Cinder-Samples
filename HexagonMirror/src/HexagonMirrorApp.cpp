@@ -30,20 +30,20 @@
 #include "cinder/Utilities.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/Vbo.h"
+#include "cinder/gl/gl.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-#define NUM_INSTANCES		9600 
-#define INSTANCES_PER_ROW	60
+#define NUM_INSTANCES 9600
+#define INSTANCES_PER_ROW 60
 
 class HexagonMirrorApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup();
@@ -59,7 +59,8 @@ public:
 
 	void keyDown( KeyEvent event );
 	void keyUp( KeyEvent event );
-private:
+
+  private:
 	// the following functions may become part of Cinder's gl:: namespace in the future,
 	// but I've included them here so you can link against Cinder v0.8.4
 	void drawInstanced( const gl::VboMesh &vbo, size_t instanceCount );
@@ -70,25 +71,26 @@ private:
 	void loadMesh();
 	// creates a Vertex Array Object containing a transform matrix for each instance
 	void initializeBuffer();
-private:
+
+  private:
 	// our controlable camera
-	CameraPersp			mCamera;
-	CameraUi			mCameraUi;
+	CameraPersp mCamera;
+	CameraUi    mCameraUi;
 
 	// our shader with instanced rendering support
-	gl::GlslProgRef		mShader;
+	gl::GlslProgRef mShader;
 	// VBO containing one hexagon mesh
-	gl::VboMeshRef		mVboMesh;
+	gl::VboMeshRef mVboMesh;
 	// Batch that combines the mesh and shader
-	gl::BatchRef		mBatch;
+	gl::BatchRef mBatch;
 
 	// a VBO containing a list of matrices, one for every instance
-	gl::VboRef			mInstanceDataVbo;
+	gl::VboRef mInstanceDataVbo;
 
-	CaptureRef			mCapture;
-	gl::Texture2dRef	mCaptureTexture;
+	CaptureRef       mCapture;
+	gl::Texture2dRef mCaptureTexture;
 
-	gl::Texture2dRef	mDummyTexture;
+	gl::Texture2dRef mDummyTexture;
 };
 
 void HexagonMirrorApp::prepare( Settings *settings )
@@ -106,8 +108,12 @@ void HexagonMirrorApp::setup()
 	mCameraUi.setCamera( &mCamera );
 
 	// load shader
-	try { mShader = gl::GlslProg::create( loadAsset( "phong.vert" ), loadAsset( "phong.frag" ) ); }
-	catch( const std::exception &e ) { console() << "Could not load and compile shader: " << e.what() << std::endl; }
+	try {
+		mShader = gl::GlslProg::create( loadAsset( "phong.vert" ), loadAsset( "phong.frag" ) );
+	}
+	catch( const std::exception &e ) {
+		console() << "Could not load and compile shader: " << e.what() << std::endl;
+	}
 
 	// load hexagon mesh
 	loadMesh();
@@ -125,8 +131,11 @@ void HexagonMirrorApp::setup()
 	}
 
 	// load a dummy texture in case we have no webcam
-	try { mCaptureTexture = mDummyTexture = gl::Texture2d::create( loadImage( loadAsset( "placeholder.png" ) ) ); }
-	catch( const std::exception& ) {}
+	try {
+		mCaptureTexture = mDummyTexture = gl::Texture2d::create( loadImage( loadAsset( "placeholder.png" ) ) );
+	}
+	catch( const std::exception & ) {
+	}
 }
 
 void HexagonMirrorApp::update()
@@ -147,8 +156,8 @@ void HexagonMirrorApp::draw()
 
 	// set render states
 	gl::ScopedFaceCulling cull( true );
-	gl::ScopedDepth depth( true, true );
-	gl::ScopedColor color( 1, 0.8f, 0.6f );
+	gl::ScopedDepth       depth( true, true );
+	gl::ScopedColor       color( 1, 0.8f, 0.6f );
 
 	if( mVboMesh && mShader && mInstanceDataVbo && mCaptureTexture ) {
 		// bind webcam image to texture unit 0
@@ -170,10 +179,10 @@ void HexagonMirrorApp::draw()
 
 void HexagonMirrorApp::loadMesh()
 {
-	ObjLoader	loader( loadAsset( "hexagon.obj" ) );
+	ObjLoader loader( loadAsset( "hexagon.obj" ) );
 
 	try {
-		TriMeshRef	mesh = TriMesh::create( loader );
+		TriMeshRef mesh = TriMesh::create( loader );
 		mVboMesh = gl::VboMesh::create( *mesh );
 	}
 	catch( const std::exception &e ) {
@@ -197,7 +206,7 @@ void HexagonMirrorApp::initializeBuffer()
 	// See for more information: http://ogldev.atspace.co.uk/www/tutorial33/tutorial33.html
 
 	// initialize transforms for every instance
-	std::vector< mat4 > matrices;
+	std::vector<mat4> matrices;
 	matrices.reserve( NUM_INSTANCES );
 
 	for( size_t i = 0; i < NUM_INSTANCES; ++i ) {
@@ -224,7 +233,7 @@ void HexagonMirrorApp::initializeBuffer()
 
 void HexagonMirrorApp::resize()
 {
-	// adjust the camera aspect ratio	
+	// adjust the camera aspect ratio
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
@@ -250,16 +259,16 @@ void HexagonMirrorApp::keyDown( KeyEvent event )
 {
 
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			quit();
-			break;
-		case KeyEvent::KEY_f:
-			// toggle full screen
-			setFullScreen( !isFullScreen() );
-			break;
-		case KeyEvent::KEY_v:
-			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		quit();
+		break;
+	case KeyEvent::KEY_f:
+		// toggle full screen
+		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_v:
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
 	}
 }
 

@@ -26,19 +26,19 @@
 #include "cinder/Surface.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/gl/gl.h"
 #include "cinder/gl/Batch.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/VboMesh.h"
+#include "cinder/gl/gl.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
 class SmoothDisplacementMappingApp : public App {
-public:
+  public:
 	static void prepare( Settings *settings );
 
 	void setup() override;
@@ -54,7 +54,8 @@ public:
 
 	void keyDown( KeyEvent event ) override;
 	void keyUp( KeyEvent event ) override;
-private:
+
+  private:
 	void createMesh();
 	void createTextures();
 	bool compileShaders();
@@ -63,30 +64,31 @@ private:
 	void renderNormalMap();
 
 	void resetCamera();
-private:
-	float             mAmplitude;
-	float             mAmplitudeTarget;
 
-	CameraPersp       mCamera;
-	CameraUi          mCameraUi;
+  private:
+	float mAmplitude;
+	float mAmplitudeTarget;
 
-	gl::FboRef        mDispMapFbo;
-	gl::GlslProgRef   mDispMapShader;
+	CameraPersp mCamera;
+	CameraUi    mCameraUi;
 
-	gl::FboRef        mNormalMapFbo;
-	gl::GlslProgRef   mNormalMapShader;
+	gl::FboRef      mDispMapFbo;
+	gl::GlslProgRef mDispMapShader;
 
-	gl::VboMeshRef    mVboMesh;
-	gl::GlslProgRef   mMeshShader;
-	gl::BatchRef      mBatch;
+	gl::FboRef      mNormalMapFbo;
+	gl::GlslProgRef mNormalMapShader;
 
-	gl::Texture2dRef  mBackgroundTexture;
-	gl::GlslProgRef   mBackgroundShader;
+	gl::VboMeshRef  mVboMesh;
+	gl::GlslProgRef mMeshShader;
+	gl::BatchRef    mBatch;
 
-	bool              mDrawTextures;
-	bool              mDrawWireframe;
-	bool              mDrawOriginalMesh;
-	bool              mEnableShader;
+	gl::Texture2dRef mBackgroundTexture;
+	gl::GlslProgRef  mBackgroundShader;
+
+	bool mDrawTextures;
+	bool mDrawWireframe;
+	bool mDrawOriginalMesh;
+	bool mEnableShader;
 };
 
 void SmoothDisplacementMappingApp::prepare( Settings *settings )
@@ -111,7 +113,8 @@ void SmoothDisplacementMappingApp::setup()
 	resetCamera();
 
 	// load and compile shaders
-	if( !compileShaders() ) quit();
+	if( !compileShaders() )
+		quit();
 
 	// create the basic mesh (a flat plane)
 	createMesh();
@@ -150,13 +153,13 @@ void SmoothDisplacementMappingApp::draw()
 	// render background
 	if( mBackgroundTexture && mBackgroundShader ) {
 		gl::ScopedTextureBind tex0( mBackgroundTexture );
-		gl::ScopedGlslProg shader( mBackgroundShader );
+		gl::ScopedGlslProg    shader( mBackgroundShader );
 		mBackgroundShader->uniform( "uTex0", 0 );
 		mBackgroundShader->uniform( "uHue", float( 0.025 * getElapsedSeconds() ) );
 		gl::drawSolidRect( getWindowBounds() );
 	}
 
-	// if enabled, show the displacement and normal maps 
+	// if enabled, show the displacement and normal maps
 	if( mDrawTextures ) {
 		gl::color( Color( 0.05f, 0.05f, 0.05f ) );
 		gl::draw( mDispMapFbo->getColorTexture(), vec2( 0 ) );
@@ -212,7 +215,7 @@ void SmoothDisplacementMappingApp::renderDisplacementMap()
 		// bind frame buffer
 		gl::ScopedFramebuffer fbo( mDispMapFbo );
 
-		// setup viewport and matrices 
+		// setup viewport and matrices
 		gl::ScopedViewport viewport( 0, 0, mDispMapFbo->getWidth(), mDispMapFbo->getHeight() );
 
 		gl::pushMatrices();
@@ -239,7 +242,7 @@ void SmoothDisplacementMappingApp::renderNormalMap()
 		// bind frame buffer
 		gl::ScopedFramebuffer fbo( mNormalMapFbo );
 
-		// setup viewport and matrices 
+		// setup viewport and matrices
 		gl::ScopedViewport viewport( 0, 0, mNormalMapFbo->getWidth(), mNormalMapFbo->getHeight() );
 
 		gl::pushMatrices();
@@ -313,47 +316,47 @@ void SmoothDisplacementMappingApp::mouseUp( MouseEvent event )
 void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 {
 	switch( event.getCode() ) {
-		case KeyEvent::KEY_ESCAPE:
-			// quit
-			quit();
-			break;
-		case KeyEvent::KEY_f:
-			// toggle full screen
-			setFullScreen( !isFullScreen() );
-			break;
-		case KeyEvent::KEY_m:
-			// toggle original mesh
-			mDrawOriginalMesh = !mDrawOriginalMesh;
-			break;
-		case KeyEvent::KEY_s:
-			// reload shaders
-			compileShaders();
-			break;
-		case KeyEvent::KEY_t:
-			// toggle draw textures
-			mDrawTextures = !mDrawTextures;
-			break;
-		case KeyEvent::KEY_v:
-			// toggle vertical sync
-			gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
-			break;
-		case KeyEvent::KEY_w:
-			// toggle wire frame
-			mDrawWireframe = !mDrawWireframe;
-			break;
-		case KeyEvent::KEY_SPACE:
-			// reset camera
-			resetCamera();
-			break;
-		case KeyEvent::KEY_a:
-			if( mAmplitudeTarget < 10.0f )
-				mAmplitudeTarget = 10.0f;
-			else
-				mAmplitudeTarget = 0.0f;
-			break;
-		case KeyEvent::KEY_q:
-			mEnableShader = !mEnableShader;
-			break;
+	case KeyEvent::KEY_ESCAPE:
+		// quit
+		quit();
+		break;
+	case KeyEvent::KEY_f:
+		// toggle full screen
+		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_m:
+		// toggle original mesh
+		mDrawOriginalMesh = !mDrawOriginalMesh;
+		break;
+	case KeyEvent::KEY_s:
+		// reload shaders
+		compileShaders();
+		break;
+	case KeyEvent::KEY_t:
+		// toggle draw textures
+		mDrawTextures = !mDrawTextures;
+		break;
+	case KeyEvent::KEY_v:
+		// toggle vertical sync
+		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
+		break;
+	case KeyEvent::KEY_w:
+		// toggle wire frame
+		mDrawWireframe = !mDrawWireframe;
+		break;
+	case KeyEvent::KEY_SPACE:
+		// reset camera
+		resetCamera();
+		break;
+	case KeyEvent::KEY_a:
+		if( mAmplitudeTarget < 10.0f )
+			mAmplitudeTarget = 10.0f;
+		else
+			mAmplitudeTarget = 0.0f;
+		break;
+	case KeyEvent::KEY_q:
+		mEnableShader = !mEnableShader;
+		break;
 	}
 }
 
@@ -364,13 +367,13 @@ void SmoothDisplacementMappingApp::keyUp( KeyEvent event )
 void SmoothDisplacementMappingApp::createMesh()
 {
 	// create vertex, normal and texcoord buffers
-	const int RES_X = 400;
-	const int RES_Z = 100;
+	const int  RES_X = 400;
+	const int  RES_Z = 100;
 	const vec3 size = vec3( 200.0f, 1.0f, 50.0f );
 
-	std::vector<vec3> positions( RES_X  * RES_Z );
-	std::vector<vec3> normals( RES_X  * RES_Z );
-	std::vector<vec2> texcoords( RES_X  * RES_Z );
+	std::vector<vec3> positions( RES_X * RES_Z );
+	std::vector<vec3> normals( RES_X * RES_Z );
+	std::vector<vec2> texcoords( RES_X * RES_Z );
 
 	int i = 0;
 	for( int x = 0; x < RES_X; ++x ) {
@@ -386,7 +389,7 @@ void SmoothDisplacementMappingApp::createMesh()
 	}
 
 	// create index buffer
-	vector< uint16_t > indices;
+	vector<uint16_t> indices;
 	indices.reserve( 6 * ( RES_X - 1 ) * ( RES_Z - 1 ) );
 
 	for( int x = 0; x < RES_X - 1; ++x ) {
