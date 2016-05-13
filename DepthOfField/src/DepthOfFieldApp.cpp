@@ -156,7 +156,7 @@ void DepthOfFieldApp::setup()
 	mParams->setOptions( "", "refresh=0.05" );
 	mParams->addParam( "FPS", &mFPS, false ).step( 0.1f );
 	mParams->addSeparator();
-	mParams->addParam( "Focal Distance", &mFocalPlane, false ).min( 0.1f ).max( 100.0f ).step( 0.1f );
+	mParams->addParam( "Focal Distance", &mFocus, false ).min( 0.1f ).max( 100.0f ).step( 0.1f );
 	mParams->addParam( "F-stop", { "0.7", "0.8", "1.0", "1.2", "1.4", "1.7", "2.0", "2.4", "2.8", "3.3", "4.0", "4.8", "5.6", "6.7", "8.0", "9.5", "11.0", "16.0", "22.0" }, &mFocalStop, false );
 	mParams->addParam( "Field of View", &mFoV ).min( 5.0f ).max( 90.0f ).step( 1.0f );
 	mParams->addSeparator();
