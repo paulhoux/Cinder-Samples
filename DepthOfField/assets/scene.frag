@@ -15,6 +15,7 @@ out vec4 fragColor;
 
 void main()
 {
+    // simple matcap shading
     vec3 E = normalize( vertPosition.xyz );
     vec3 N = normalize( vertNormal );
 
@@ -23,12 +24,13 @@ void main()
 
     float m = 2.0 * sqrt( dot( r, r ) );
     vec2 uv = r.xy / m + 0.5;
-
-    float dist = length( vertPosition.xyz );
     
-    float coc = uAperture * ( uFocalLength * ( uFocalDistance - dist ) ) / ( dist * ( uFocalDistance - uFocalLength ) );
-    coc *= uMaxCoCRadiusPixels;
+    fragColor.rgb = texture( uTex, uv ).rgb * vertColor.rgb;
+
+    // store the normalized circle of confusion radius in the alpha channel
+    float dist = length( vertPosition.xyz );
+    float coc = uMaxCoCRadiusPixels * uAperture * ( uFocalLength * ( uFocalDistance - dist ) ) / ( dist * ( uFocalDistance - uFocalLength ) );
     coc = clamp( coc * 0.5 + 0.5, 0.0, 1.0 );
 
-    fragColor = vec4( texture( uTex, uv ).rgb, coc );
+    fragColor.a = coc;
 }
