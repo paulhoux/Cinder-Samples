@@ -55,28 +55,29 @@ void main( void )
     // Scale and bias attenuation such that:
     //   attenuation == 0 at extent of max influence
     //   attenuation == 1 when d == 0
-    const float kCutoff = 8.0 / 255.0;
+    const float kCutoff = 4.0 / 255.0;
     float intensity = lightColor.a;
     attenuation = ( attenuation - kCutoff ) / ( 1.0 - kCutoff );
     attenuation = max( attenuation, 0.0 );
 
     // Diffuse (Lambertian).
 	float lambert = max( dot( N, L ), 0.0 );
-	vec3  diffuse = lambert * attenuation * intensity * lightColor.rgb;
+	vec3  diffuse = lambert * intensity * lightColor.rgb;
 
 	// Specular (Blinn).
-	const float kRoughness = 0.3;
+	const float kRoughness = 0.4;
 	const float kRoughness2 = kRoughness * kRoughness;
     const float kRoughness4 = kRoughness2 * kRoughness2;
     const float kSpecularPower = 2.0 / kRoughness4 - 2.0;
 
 	vec3 H = normalize( L + E );
 	float NoH = max( dot( N, H ), 0.0 );
-    float blinn = 0.2 * ( kSpecularPower + 2.0 ) / 2.0 * pow( NoH, kSpecularPower );
+    float blinn = 1.0 * ( kSpecularPower + 2.0 ) / 2.0 * pow( NoH, kSpecularPower );
 
-    vec3 specular = blinn * attenuation * intensity * lightColor.rgb;
+    vec3 specular = blinn * intensity * lightColor.rgb;
 
     // Output final color.
-	fragColor.rgb = diffuse + specular;
+    const vec3 kGamma = vec3( 1.0 / 2.2 );
+	fragColor.rgb = attenuation * pow( diffuse + specular, kGamma );
 	fragColor.a = 1.0;
 }

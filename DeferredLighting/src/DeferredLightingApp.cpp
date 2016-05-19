@@ -6,7 +6,10 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 
-#define TEAPOTS_COUNT 50
+#define OBJECTS_X 10
+#define OBJECTS_Y 10
+#define OBJECTS_Z 10
+#define OBJECTS_COUNT ( OBJECTS_X * OBJECTS_Y * OBJECTS_Z )
 #define POINTLIGHTS_COUNT 100
 
 using namespace ci;
@@ -106,25 +109,30 @@ void DeferredLightingApp::setup()
 	auto glsl = gl::getStockShader( gl::ShaderDef() );
 
 	// Create our scene batch.
-	mObjects.reserve( TEAPOTS_COUNT );
+	mObjects.reserve( OBJECTS_COUNT );
 	mObjects.clear();
 
 	try {
 		Rand::randSeed( 12345 );
 
 		std::vector<mat4> matrices;
-		for( int i = 0; i < TEAPOTS_COUNT; ++i ) {
-			Object object;
-			object.position = Rand::randFloat( 1.0f, 10.0f ) * Rand::randVec3();
-			object.scale = 1.0f;
-			object.axis = Rand::randVec3();
-			object.angle = Rand::randFloat( -3.14159f, +3.14159f );
+		for( int x = 0; x < OBJECTS_X; ++x ) {
+			for( int y = 0; y < OBJECTS_Y; ++y ) {
+				for( int z = 0; z < OBJECTS_Z; ++z ) {
+					Object object;
+					object.position = vec3( x - OBJECTS_X / 2, y - OBJECTS_Y / 2, z - OBJECTS_Z / 2 ) + 0.5f * Rand::randVec3();
+					object.scale = 0.25f;
+					object.axis = Rand::randVec3();
+					object.angle = Rand::randFloat( -3.14159f, +3.14159f );
 
-			object.transform = glm::translate( object.position );
-			object.transform *= glm::rotate( object.angle, object.axis );
+					object.transform = glm::translate( object.position );
+					object.transform *= glm::scale( vec3( object.scale ) );
+					object.transform *= glm::rotate( object.angle, object.axis );
 
-			mObjects.emplace_back( object );
-			matrices.emplace_back( object.transform );
+					mObjects.emplace_back( object );
+					matrices.emplace_back( object.transform );
+				}
+			}
 		}
 
 		geom::BufferLayout layout;
@@ -146,17 +154,17 @@ void DeferredLightingApp::setup()
 	mLights.reserve( POINTLIGHTS_COUNT );
 
 	try {
-		Rand::randSeed( 12345 );
+		Rand::randSeed( 1 );
 
 		for( int i = 0; i < POINTLIGHTS_COUNT; ++i ) {
 			PointLight light;
-			light.sphere.setCenter( Rand::randVec3() * Rand::randFloat( 2.0f, 15.0f ) );
-			light.color = Color( CM_HSV, Rand::randFloat( 0.0f, 1.0f ), 0.75f, 0.75f );
+			light.sphere.setCenter( Rand::randVec3() * Rand::randFloat( 5.0f, 15.0f ) );
+			light.color = Color( CM_HSV, Rand::randFloat( 0.0f, 1.0f ), 1.0f, 1.0f );
 
 			// See: https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
-			const float kCutoff = 8.0f / 255.0f;
+			const float kCutoff = 4.0f / 255.0f;
 			const float kRadius = 1.0f;
-			light.intensity = randFloat( 1.5f, 2.5f );
+			light.intensity = 1.0f; //  randFloat( 0.5f, 1.0f );
 			light.sphere.setRadius( kRadius * ( glm::sqrt( light.intensity / kCutoff ) - 1.0f ) );
 
 			mLights.emplace_back( light );
@@ -250,7 +258,7 @@ void DeferredLightingApp::update()
 		mObjectData->unmap();
 	}
 	else {
-		mObjectCount = TEAPOTS_COUNT;
+		mObjectCount = OBJECTS_COUNT;
 
 		// Update data buffer.
 		auto ptr = (mat4 *)mObjectData->mapReplace();
@@ -293,6 +301,7 @@ void DeferredLightingApp::update( double timestep )
 		object.angle += float( timestep );
 
 		object.transform = glm::translate( object.position );
+		object.transform *= glm::scale( vec3( object.scale ) );
 		object.transform *= glm::rotate( object.angle, object.axis );
 	}
 }
@@ -301,8 +310,9 @@ void DeferredLightingApp::draw()
 {
 	// Render pre-pass.
 	bindFramebuffer( mFboNormalsAndDepth );
+	gl::clear();
+
 	if( mBatchPrePass && mObjectCount > 0 ) {
-		gl::clear();
 
 		gl::ScopedDepth       scpDepth( true, GL_LESS );
 		gl::ScopedFaceCulling scpFaceCull( true, GL_BACK );
@@ -316,8 +326,9 @@ void DeferredLightingApp::draw()
 
 	// Render point lights.
 	bindFramebuffer( mFboLightPrePass );
+	gl::clear( GL_COLOR_BUFFER_BIT );
+
 	if( mPointLights && mLightCount > 0 ) {
-		gl::clear( GL_COLOR_BUFFER_BIT );
 
 		gl::ScopedDepthTest     scpDepthTest( true /* true */, GL_GEQUAL /* GL_GEQUAL */ );
 		gl::ScopedDepthWrite    scpDepthWrite( false );
