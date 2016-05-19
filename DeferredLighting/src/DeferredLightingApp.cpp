@@ -127,11 +127,10 @@ void DeferredLightingApp::setup()
 			light.sphere.setCenter( Rand::randVec3() * Rand::randFloat( 2.0f, 15.0f ) );
 			light.color = Color( CM_HSV, Rand::randFloat( 0.0f, 1.0f ), 0.75f, 0.75f );
 
-			const float kCutoff = 4.0f / 255.0f;
-			light.intensity = randFloat( 0.5f, 2.5f );
-
 			// See: https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
+			const float kCutoff = 4.0f / 255.0f;
 			const float kRadius = 1.0f;
+			light.intensity = randFloat( 1.5f, 2.5f );
 			light.sphere.setRadius( kRadius * ( glm::sqrt( light.intensity / kCutoff ) - 1.0f ) );
 
 			mLights.emplace_back( light );
@@ -173,9 +172,21 @@ void DeferredLightingApp::update()
 	// Cull light sources against camera frustum.
 	if( mEnableLightCulling ) {
 		auto &frustum = Frustum( mCamera );
-		auto itr = std::remove_if( std::begin( mLights ), std::end( mLights ), [frustum]( const PointLight &light ) { return ( !frustum.intersects( light.sphere ) ); } );
+
+		auto itr = std::begin( mLights );
+		auto end = std::end( mLights );
+		while( itr != end ) {
+			auto &light = *itr;
+			if( !frustum.intersects( light.sphere ) ) {
+				std::swap( light, *( --end ) );
+			}
+			else {
+				itr++;
+			}
+		}
 
 		mLightCount = itr - mLights.begin();
+		getWindow()->setTitle( toString( mLightCount ) );
 
 		// Update data buffer.
 		auto ptr = (PointLight *)mLightData->mapReplace();
