@@ -55,7 +55,7 @@ void main( void )
     // Scale and bias attenuation such that:
     //   attenuation == 0 at extent of max influence
     //   attenuation == 1 when d == 0
-    const float kCutoff = 4.0 / 255.0;
+    const float kCutoff = 8.0 / 255.0;
     float intensity = lightColor.a;
     attenuation = ( attenuation - kCutoff ) / ( 1.0 - kCutoff );
     attenuation = max( attenuation, 0.0 );

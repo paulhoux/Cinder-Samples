@@ -13,6 +13,15 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+// Define a structure for our objects.
+typedef struct {
+	vec3  position;
+	float scale;
+	vec3  axis;
+	float angle;
+	mat4  transform;
+} Object;
+
 // Define a structure for our point lights.
 typedef struct {
 	Sphere sphere;
@@ -62,6 +71,10 @@ class DeferredLightingApp : public App {
 	std::vector<PointLight> mLights;
 	int                     mLightCount;
 
+	AxisAlignedBox      mBounds; // Teapot bounding box, used for frustum culling.
+	std::vector<Object> mObjects;
+	int                 mObjectCount;
+
 	double mTime;
 
 	bool mIsResized = true; // True if we need to resize our frame buffers.
@@ -93,15 +106,25 @@ void DeferredLightingApp::setup()
 	auto glsl = gl::getStockShader( gl::ShaderDef() );
 
 	// Create our scene batch.
+	mObjects.reserve( TEAPOTS_COUNT );
+	mObjects.clear();
+
 	try {
 		Rand::randSeed( 12345 );
 
 		std::vector<mat4> matrices;
 		for( int i = 0; i < TEAPOTS_COUNT; ++i ) {
-			mat4 matrix = glm::translate( Rand::randFloat( 1.0f, 10.0f ) * Rand::randVec3() );
-			matrix *= glm::rotate( Rand::randFloat( -3.14159f, +3.14159f ), Rand::randVec3() );
+			Object object;
+			object.position = Rand::randFloat( 1.0f, 10.0f ) * Rand::randVec3();
+			object.scale = 1.0f;
+			object.axis = Rand::randVec3();
+			object.angle = Rand::randFloat( -3.14159f, +3.14159f );
 
-			matrices.emplace_back( matrix );
+			object.transform = glm::translate( object.position );
+			object.transform *= glm::rotate( object.angle, object.axis );
+
+			mObjects.emplace_back( object );
+			matrices.emplace_back( object.transform );
 		}
 
 		geom::BufferLayout layout;
@@ -109,7 +132,7 @@ void DeferredLightingApp::setup()
 
 		mObjectData = gl::Vbo::create( GL_ARRAY_BUFFER, matrices.size() * sizeof( mat4 ), matrices.data(), GL_STATIC_DRAW );
 
-		auto mesh = gl::VboMesh::create( geom::Teapot().subdivisions( 9 ) >> geom::Translate( 0.0f, -0.5f, 0.0f ) );
+		auto mesh = gl::VboMesh::create( geom::Teapot().subdivisions( 9 ) >> geom::Translate( 0.0f, -0.5f, 0.0f ) >> geom::Bounds( &mBounds ) );
 		mesh->appendVbo( layout, mObjectData );
 
 		mBatchPrePass = gl::Batch::create( mesh, glsl, { { geom::CUSTOM_0, "iModelMatrix" } } );
@@ -119,6 +142,9 @@ void DeferredLightingApp::setup()
 	}
 
 	// Create our point lights.
+	mLights.clear();
+	mLights.reserve( POINTLIGHTS_COUNT );
+
 	try {
 		Rand::randSeed( 12345 );
 
@@ -128,7 +154,7 @@ void DeferredLightingApp::setup()
 			light.color = Color( CM_HSV, Rand::randFloat( 0.0f, 1.0f ), 0.75f, 0.75f );
 
 			// See: https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
-			const float kCutoff = 4.0f / 255.0f;
+			const float kCutoff = 8.0f / 255.0f;
 			const float kRadius = 1.0f;
 			light.intensity = randFloat( 1.5f, 2.5f );
 			light.sphere.setRadius( kRadius * ( glm::sqrt( light.intensity / kCutoff ) - 1.0f ) );
@@ -186,11 +212,10 @@ void DeferredLightingApp::update()
 		}
 
 		mLightCount = itr - mLights.begin();
-		getWindow()->setTitle( toString( mLightCount ) );
 
 		// Update data buffer.
 		auto ptr = (PointLight *)mLightData->mapReplace();
-		for( int i = 0; i < POINTLIGHTS_COUNT; ++i ) {
+		for( int i = 0; i < mLightCount; ++i ) {
 			*ptr++ = mLights[i];
 		}
 		mLightData->unmap();
@@ -198,6 +223,45 @@ void DeferredLightingApp::update()
 	else {
 		mLightCount = POINTLIGHTS_COUNT;
 	}
+
+	// Cull teapots against camera frustum.
+	if( mEnableObjectCulling ) {
+		auto &frustum = Frustum( mCamera );
+
+		auto itr = std::begin( mObjects );
+		auto end = std::end( mObjects );
+		while( itr != end ) {
+			auto &object = *itr;
+			if( !frustum.intersects( mBounds.transformed( object.transform ) ) ) {
+				std::swap( object, *( --end ) );
+			}
+			else {
+				itr++;
+			}
+		}
+
+		mObjectCount = itr - mObjects.begin();
+
+		// Update data buffer.
+		auto ptr = (mat4 *)mObjectData->mapReplace();
+		for( int i = 0; i < mObjectCount; ++i ) {
+			*ptr++ = mObjects[i].transform;
+		}
+		mObjectData->unmap();
+	}
+	else {
+		mObjectCount = TEAPOTS_COUNT;
+
+		// Update data buffer.
+		auto ptr = (mat4 *)mObjectData->mapReplace();
+		for( int i = 0; i < mObjectCount; ++i ) {
+			*ptr++ = mObjects[i].transform;
+		}
+		mObjectData->unmap();
+	}
+
+	// Update window title.
+	getWindow()->setTitle( std::string( "Objects: " ) + toString( mObjectCount ) + ", Lights: " + toString( mLightCount ) );
 
 	// Use a fixed time step for a steady 60 updates per second.
 	static const double timestep = 1.0 / 60.0;
@@ -224,23 +288,20 @@ void DeferredLightingApp::update( double timestep )
 {
 	mTime += timestep;
 
-	Rand::randSeed( 12345 );
+	// Animate objects.
+	for( auto &object : mObjects ) {
+		object.angle += float( timestep );
 
-	auto ptr = (mat4 *)mObjectData->mapReplace();
-	for( int i = 0; i < TEAPOTS_COUNT; ++i ) {
-		mat4 matrix = glm::translate( Rand::randFloat( 1.0f, 10.0f ) * Rand::randVec3() );
-		matrix *= glm::rotate( Rand::randFloat( -3.14159f, +3.14159f ) + float( mTime ), Rand::randVec3() );
-
-		*ptr++ = matrix;
+		object.transform = glm::translate( object.position );
+		object.transform *= glm::rotate( object.angle, object.axis );
 	}
-	mObjectData->unmap();
 }
 
 void DeferredLightingApp::draw()
 {
 	// Render pre-pass.
 	bindFramebuffer( mFboNormalsAndDepth );
-	{
+	if( mBatchPrePass && mObjectCount > 0 ) {
 		gl::clear();
 
 		gl::ScopedDepth       scpDepth( true, GL_LESS );
@@ -249,7 +310,7 @@ void DeferredLightingApp::draw()
 		gl::ScopedMatrices scpMatrices;
 		gl::setMatrices( mCamera );
 
-		mBatchPrePass->drawInstanced( TEAPOTS_COUNT );
+		mBatchPrePass->drawInstanced( mObjectCount );
 	}
 	unbindFramebuffer();
 
@@ -329,6 +390,12 @@ void DeferredLightingApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
+		break;
+	case KeyEvent::KEY_l:
+		mEnableLightCulling = !mEnableLightCulling;
+		break;
+	case KeyEvent::KEY_o:
+		mEnableObjectCulling = !mEnableObjectCulling;
 		break;
 	case KeyEvent::KEY_r:
 		reloadShaders();
