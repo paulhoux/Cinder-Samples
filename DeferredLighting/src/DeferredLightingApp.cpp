@@ -205,7 +205,7 @@ void DeferredLightingApp::update()
 
 	// Cull light sources against camera frustum.
 	if( mEnableLightCulling ) {
-		auto &frustum = Frustum( mCamera );
+		auto frustum = Frustum( mCamera );
 
 		auto itr = std::begin( mLights );
 		auto end = std::end( mLights );
@@ -234,7 +234,7 @@ void DeferredLightingApp::update()
 
 	// Cull teapots against camera frustum.
 	if( mEnableObjectCulling ) {
-		auto &frustum = Frustum( mCamera );
+		auto frustum = Frustum( mCamera );
 
 		auto itr = std::begin( mObjects );
 		auto end = std::end( mObjects );
