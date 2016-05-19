@@ -65,7 +65,7 @@ void main( void )
 	vec3  diffuse = lambert * intensity * lightColor.rgb;
 
 	// Specular (Blinn).
-	const float kRoughness = 0.4;
+	const float kRoughness = 0.2;
 	const float kRoughness2 = kRoughness * kRoughness;
     const float kRoughness4 = kRoughness2 * kRoughness2;
     const float kSpecularPower = 2.0 / kRoughness4 - 2.0;

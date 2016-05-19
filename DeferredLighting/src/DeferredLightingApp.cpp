@@ -158,13 +158,13 @@ void DeferredLightingApp::setup()
 
 		for( int i = 0; i < POINTLIGHTS_COUNT; ++i ) {
 			PointLight light;
-			light.sphere.setCenter( Rand::randVec3() * Rand::randFloat( 5.0f, 15.0f ) );
+			light.sphere.setCenter( Rand::randVec3() * Rand::randFloat( 1.5f, 5.0f ) );
 			light.color = Color( CM_HSV, Rand::randFloat( 0.0f, 1.0f ), 1.0f, 1.0f );
 
 			// See: https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
 			const float kCutoff = 4.0f / 255.0f;
 			const float kRadius = 1.0f;
-			light.intensity = 1.0f; //  randFloat( 0.5f, 1.0f );
+			light.intensity = randFloat( 0.1f, 0.5f );
 			light.sphere.setRadius( kRadius * ( glm::sqrt( light.intensity / kCutoff ) - 1.0f ) );
 
 			mLights.emplace_back( light );
