@@ -40,18 +40,19 @@ void main( void )
 	// Sample normal from texture.
 	vec3 N = decodeNormal( texelFetch( uTexNormals, uv, 0 ).rgb );
 
-	// Simple lambert.
-	const float kRadius = 1.0;
+	// Calculate light vectors.
+	vec3 E = normalize( -vertPosition.xyz );
 	vec3 L = lightPosition.xyz - vertPosition.xyz;
 	float distance = length( L );
-    float d = max( distance - kRadius, 0.0 );
     L /= distance;
 
-    // calculate basic attenuation
+    // Calculate basic attenuation.
+	const float kRadius = 1.0;
+    float d = max( distance - kRadius, 0.0 );
     float denom = d / kRadius + 1.0;
     float attenuation = 1.0 / ( denom * denom );
      
-    // scale and bias attenuation such that:
+    // Scale and bias attenuation such that:
     //   attenuation == 0 at extent of max influence
     //   attenuation == 1 when d == 0
     const float kCutoff = 4.0 / 255.0;
@@ -59,8 +60,23 @@ void main( void )
     attenuation = ( attenuation - kCutoff ) / ( 1.0 - kCutoff );
     attenuation = max( attenuation, 0.0 );
 
+    // Diffuse (Lambertian).
 	float lambert = max( dot( N, L ), 0.0 );
+	vec3  diffuse = lambert * attenuation * intensity * lightColor.rgb;
 
-	fragColor.rgb = attenuation * lambert * intensity * lightColor.rgb;
+	// Specular (Blinn).
+	const float kRoughness = 0.3;
+	const float kRoughness2 = kRoughness * kRoughness;
+    const float kRoughness4 = kRoughness2 * kRoughness2;
+    const float kSpecularPower = 2.0 / kRoughness4 - 2.0;
+
+	vec3 H = normalize( L + E );
+	float NoH = max( dot( N, H ), 0.0 );
+    float blinn = 0.2 * ( kSpecularPower + 2.0 ) / 2.0 * pow( NoH, kSpecularPower );
+
+    vec3 specular = blinn * attenuation * intensity * lightColor.rgb;
+
+    // Output final color.
+	fragColor.rgb = diffuse + specular;
 	fragColor.a = 1.0;
 }

@@ -38,6 +38,7 @@ class DeferredLightingApp : public App {
   private:
 	void update( double timestep );
 
+	void reloadShaders();
 	void createFramebuffers();
 
 	void bindFramebuffer( const gl::FboRef &fbo ); // Helper function.
@@ -88,6 +89,9 @@ void DeferredLightingApp::setup()
 	// Label texture.
 	mLabels = gl::Texture2d::create( loadImage( loadAsset( "labels.png" ) ) );
 
+	//
+	auto glsl = gl::getStockShader( gl::ShaderDef() );
+
 	// Create our scene batch.
 	try {
 		Rand::randSeed( 12345 );
@@ -108,7 +112,6 @@ void DeferredLightingApp::setup()
 		auto mesh = gl::VboMesh::create( geom::Teapot().subdivisions( 9 ) >> geom::Translate( 0.0f, -0.5f, 0.0f ) );
 		mesh->appendVbo( layout, mObjectData );
 
-		auto glsl = gl::GlslProg::create( loadAsset( "prepass.vert" ), loadAsset( "prepass.frag" ) );
 		mBatchPrePass = gl::Batch::create( mesh, glsl, { { geom::CUSTOM_0, "iModelMatrix" } } );
 	}
 	catch( const std::exception &exc ) {
@@ -143,32 +146,19 @@ void DeferredLightingApp::setup()
 		auto mesh = gl::VboMesh::create( geom::Sphere().radius( 1.0f ) );
 		mesh->appendVbo( layout, mLightData );
 
-		auto glsl = gl::GlslProg::create( loadAsset( "lighting.vert" ), loadAsset( "pointlight.frag" ) );
-		glsl->uniform( "uTexNormals", 0 );
-		glsl->uniform( "uTexDepth", 1 );
 		mPointLights = gl::Batch::create( mesh, glsl, { { geom::Attrib::CUSTOM_0, "iPositionAndRadius" }, { geom::Attrib::CUSTOM_1, "iColorAndIntensity" } } );
 
 		mesh = gl::VboMesh::create( geom::WireSphere().radius( 1.0f ) );
 		mesh->appendVbo( layout, mLightData );
 
-		auto fmt = gl::GlslProg::Format();
-		fmt.vertex( loadAsset( "lighting.vert" ) );
-		fmt.fragment(
-		    "#version 150\n"
-		    "in vec4 lightPosition;\n"
-		    "in vec4 lightColor;\n"
-		    "out vec4 fragColor;\n"
-		    "void main( void ){\n"
-		    "    fragColor.rgb = lightColor.rgb;\n"
-		    "    fragColor.a = 1.0;\n"
-		    "}" );
-
-		glsl = gl::GlslProg::create( fmt );
 		mPointLightsDebug = gl::Batch::create( mesh, glsl, { { geom::Attrib::CUSTOM_0, "iPositionAndRadius" }, { geom::Attrib::CUSTOM_1, "iColorAndIntensity" } } );
 	}
 	catch( const std::exception &exc ) {
 		console() << exc.what() << std::endl;
 	}
+
+	//
+	reloadShaders();
 }
 
 void DeferredLightingApp::update()
@@ -329,6 +319,9 @@ void DeferredLightingApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
 		break;
+	case KeyEvent::KEY_r:
+		reloadShaders();
+		break;
 	case KeyEvent::KEY_v:
 		gl::enableVerticalSync( !gl::isVerticalSyncEnabled() );
 		break;
@@ -342,6 +335,53 @@ void DeferredLightingApp::resize()
 	mIsResized = true;
 
 	mCamera.setAspectRatio( getWindowAspectRatio() );
+}
+
+void DeferredLightingApp::reloadShaders()
+{
+	if( mBatchPrePass ) {
+		try {
+			auto glsl = gl::GlslProg::create( loadAsset( "prepass.vert" ), loadAsset( "prepass.frag" ) );
+			mBatchPrePass->replaceGlslProg( glsl );
+		}
+		catch( const std::exception &exc ) {
+			console() << "Failed to load prepass shader: " << exc.what() << std::endl;
+		}
+	}
+
+	if( mPointLights ) {
+		try {
+			auto glsl = gl::GlslProg::create( loadAsset( "lighting.vert" ), loadAsset( "pointlight.frag" ) );
+			glsl->uniform( "uTexNormals", 0 );
+			glsl->uniform( "uTexDepth", 1 );
+			mPointLights->replaceGlslProg( glsl );
+		}
+		catch( const std::exception &exc ) {
+			console() << "Failed to load pointlight shader: " << exc.what() << std::endl;
+		}
+	}
+
+	if( mPointLightsDebug ) {
+		try {
+			auto fmt = gl::GlslProg::Format();
+			fmt.vertex( loadAsset( "lighting.vert" ) );
+			fmt.fragment(
+			    "#version 150\n"
+			    "in vec4 lightPosition;\n"
+			    "in vec4 lightColor;\n"
+			    "out vec4 fragColor;\n"
+			    "void main( void ){\n"
+			    "    fragColor.rgb = lightColor.rgb;\n"
+			    "    fragColor.a = 1.0;\n"
+			    "}" );
+
+			auto glsl = gl::GlslProg::create( fmt );
+			mPointLightsDebug->replaceGlslProg( glsl );
+		}
+		catch( const std::exception &exc ) {
+			console() << "Failed to load pointlight debug shader: " << exc.what() << std::endl;
+		}
+	}
 }
 
 void DeferredLightingApp::createFramebuffers()
@@ -358,7 +398,7 @@ void DeferredLightingApp::createFramebuffers()
 	mFboNormalsAndDepth = gl::Fbo::create( width, height, fmt );
 
 	// Lighting pass buffer.
-	fmt = gl::Fbo::Format().attachment( GL_COLOR_ATTACHMENT0, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_RGB ) ) ).attachment( GL_DEPTH_STENCIL_ATTACHMENT, depthTexture );
+	fmt = gl::Fbo::Format().attachment( GL_COLOR_ATTACHMENT0, gl::Texture2d::create( width, height, gl::Texture2d::Format().internalFormat( GL_RGB16F ) ) ).attachment( GL_DEPTH_STENCIL_ATTACHMENT, depthTexture );
 	mFboLightPrePass = gl::Fbo::create( width, height, fmt );
 }
 
