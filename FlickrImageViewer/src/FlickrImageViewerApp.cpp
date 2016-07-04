@@ -37,9 +37,10 @@ class FlickrImageViewerApp : public App {
   public:
 	static void prepare( Settings *settings );
 
-	void setup();
-	void update();
-	void draw();
+	void setup() override;
+	void cleanup() override;
+	void update() override;
+	void draw() override;
 
 	void mouseDown( MouseEvent event ){};
 	void mouseDrag( MouseEvent event ){};
@@ -90,6 +91,14 @@ void FlickrImageViewerApp::setup()
 
 	// toggle this using the 'A' key to see the advantage of asynchronous loading
 	mAsynchronous = true;
+}
+
+void FlickrImageViewerApp::cleanup()
+{
+	// The TextureStore is a singleton, running several threads that need to be terminated. Sadly, there is
+	// an issue in Visual Studio that forces us to manually terminate it before application shutdown.
+	// See: http://stackoverflow.com/questions/10915233/stdthreadjoin-hangs-if-called-after-main-exits-when-using-vs2012-rc
+	ph::TextureStore::getInstance().cleanup();
 }
 
 void FlickrImageViewerApp::update()

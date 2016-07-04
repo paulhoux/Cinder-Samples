@@ -51,22 +51,12 @@ TextureStore::TextureStore( void )
 	// create worker thread for each CPU
 	unsigned int numThreads = std::thread::hardware_concurrency();
 	for( unsigned int i = 0; i < numThreads; ++i )
-		mThreads.push_back( std::shared_ptr<std::thread>( new std::thread( &TextureStore::threadLoad, this ) ) );
+		mThreads.emplace_back( std::unique_ptr<std::thread>( new std::thread( &TextureStore::threadLoad, this ) ) );
 }
 
 TextureStore::~TextureStore( void )
 {
-	// stop loader threads and wait for them to finish
-	mShouldQuit = true;
-
-	TextureStoreThreadPool::const_iterator itr;
-	for( itr = mThreads.begin(); itr != mThreads.end(); ++itr )
-		( *itr )->join();
-
-	// clear buffers
-	mThreads.clear();
-	mSurfaces.clear();
-	mTextures.clear();
+	cleanup();
 }
 
 gl::TextureRef TextureStore::load( const string &url, gl::Texture2d::Format fmt )
@@ -153,6 +143,26 @@ bool TextureStore::abort( const string &url )
 	return mQueue.erase_all( url );
 }
 
+void TextureStore::cleanup()
+{
+	// stop loader threads and wait for them to finish
+	mShouldQuit = true;
+
+	mQueue.invalidate();
+	mLoadingQueue.invalidate();
+	mSurfaces.invalidate();
+
+	for( auto &thread : mThreads ) {
+		if( thread->joinable() )
+			thread->join();
+	}
+
+	// clear buffers
+	mThreads.clear();
+	mSurfaces.clear();
+	mTextures.clear();
+}
+
 vector<string> TextureStore::getLoadExtensions()
 {
 	// TODO: ImageIO::getLoadExtensions() doesn't work, but use that instead once it does
@@ -183,58 +193,68 @@ void TextureStore::threadLoad()
 	ImageSourceRef image;
 	string         url;
 
+	// CI_LOG_V( "Load thread initialized." );
+
 	// run until interrupted
 	while( !mShouldQuit ) {
-		mQueue.wait_and_pop_front( url );
+		bool valid = mQueue.wait_and_pop_front( url );
 
-		// try to load image
-		succeeded = false;
+		if( valid ) {
+			// try to load image
+			succeeded = false;
 
-		// try to load from FILE (fastest)
-		if( !succeeded )
-			try {
-				image = loadImage( loadFile( url ) );
-				succeeded = true;
-			}
-			catch( ... ) {
-			}
+			// try to load from FILE (fastest)
+			if( !succeeded )
+				try {
+					image = loadImage( loadFile( url ) );
+					succeeded = true;
+				}
+				catch( ... ) {
+				}
 
-		// try to load from ASSET (fast)
-		if( !succeeded )
-			try {
-				image = loadImage( loadAsset( url ) );
-				succeeded = true;
-			}
-			catch( ... ) {
-			}
+			// try to load from ASSET (fast)
+			if( !succeeded )
+				try {
+					image = loadImage( loadAsset( url ) );
+					succeeded = true;
+				}
+				catch( ... ) {
+				}
 
-		// try to load from URL (slow)
-		if( !succeeded )
-			try {
-				image = loadImage( loadUrl( Url( url ) ) );
-				succeeded = true;
-			}
-			catch( ... ) {
-			}
+			// try to load from URL (slow)
+			if( !succeeded )
+				try {
+					image = loadImage( loadUrl( Url( url ) ) );
+					succeeded = true;
+				}
+				catch( ... ) {
+				}
 
-		// do NOT continue if not succeeded (yeah, it's confusing, I know)
-		if( !succeeded )
-			continue;
+			// do NOT continue if not succeeded (yeah, it's confusing, I know)
+			if( !succeeded )
+				continue;
 
-		// create Surface from the image
-		surface = Surface( image );
+			// create Surface from the image
+			surface = Surface( image );
 
-		// resize image if larger than 4096 px
-		Area source = surface.getBounds();
-		Area dest( 0, 0, 4096, 4096 );
-		Area fit = Area::proportionalFit( source, dest, false, false );
+			// resize image if larger than 4096 px
+			Area source = surface.getBounds();
+			Area dest( 0, 0, 4096, 4096 );
+			Area fit = Area::proportionalFit( source, dest, false, false );
 
-		if( source.getSize() != fit.getSize() )
-			surface = ip::resizeCopy( surface, source, fit.getSize() );
+			if( source.getSize() != fit.getSize() )
+				surface = ip::resizeCopy( surface, source, fit.getSize() );
 
-		// copy to main thread
-		mSurfaces.push( url, surface );
+			// copy to main thread
+			mSurfaces.push( url, surface );
+		}
+		else {
+			assert( mShouldQuit == true );
+			// CI_LOG_V( "Queue invalidated: terminating loader thread." );
+		}
 	}
+
+	// CI_LOG_V( "Loader thread terminated." );
 }
 
 gl::TextureRef TextureStore::storeTexture( const std::string &url, const gl::TextureRef &src )

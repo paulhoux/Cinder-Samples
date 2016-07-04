@@ -30,7 +30,7 @@
 
 namespace ph {
 
-typedef std::vector<std::shared_ptr<std::thread>> TextureStoreThreadPool;
+typedef std::vector<std::unique_ptr<std::thread>> TextureStoreThreadPool;
 
 class TextureStore {
   private:
@@ -55,6 +55,8 @@ class TextureStore {
 	ci::gl::Texture2dRef fetch( const std::string &url, ci::gl::Texture2d::Format fmt = ci::gl::Texture2d::Format() );
 	//! remove url from the queue. Has no effect if image has already been loaded
 	bool abort( const std::string &url );
+	//! terminates all running threads and clears the cache. Call before terminating the application.
+	void cleanup();
 
 	//! returns a list of valid extensions for image files. ImageIO::getLoadExtensions() does not seem to work.
 	std::vector<std::string> getLoadExtensions();

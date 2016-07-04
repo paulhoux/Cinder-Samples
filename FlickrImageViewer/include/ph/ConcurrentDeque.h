@@ -32,7 +32,8 @@ namespace ph {
 template <typename Data>
 class ConcurrentDeque {
   public:
-	ConcurrentDeque( void ){};
+	ConcurrentDeque( void )
+	    : mInvalidated( false ){};
 	~ConcurrentDeque( void ){};
 
 	void clear()
@@ -110,7 +111,7 @@ class ConcurrentDeque {
 	bool pop_front( Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
-		if( mDeque.empty() ) {
+		if( mDeque.empty() || mInvalidated ) {
 			return false;
 		}
 
@@ -119,21 +120,32 @@ class ConcurrentDeque {
 		return true;
 	}
 
-	void wait_and_pop_front( Data &popped_value )
+	bool wait_and_pop_front( Data &popped_value )
 	{
 		std::unique_lock<std::mutex> lock( mMutex );
-		while( mDeque.empty() ) {
+		while( mDeque.empty() && !mInvalidated ) {
 			mCondition.wait( lock );
 		}
+		if( mInvalidated )
+			return false;
 
 		popped_value = mDeque.front();
 		mDeque.pop_front();
+
+		return true;
+	}
+
+	void invalidate()
+	{
+		mInvalidated = true;
+		mCondition.notify_all();
 	}
 
   private:
 	std::deque<Data>        mDeque;
 	mutable std::mutex      mMutex;
 	std::condition_variable mCondition;
+	std::atomic<bool>       mInvalidated;
 };
 
 } // namespace ph

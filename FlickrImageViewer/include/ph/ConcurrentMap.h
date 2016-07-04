@@ -32,7 +32,8 @@ namespace ph {
 template <typename Key, typename Data>
 class ConcurrentMap {
   public:
-	ConcurrentMap( void ){};
+	ConcurrentMap( void )
+	    : mInvalidated( false ){};
 	~ConcurrentMap( void ){};
 
 	void clear()
@@ -90,7 +91,7 @@ class ConcurrentMap {
 		std::lock_guard<std::mutex> lock( mMutex );
 
 		typename std::map<Key, Data>::iterator itr = mQueue.find( key );
-		if( itr == mQueue.end() )
+		if( itr == mQueue.end() || mInvalidated )
 			return false;
 
 		popped_value = mQueue[key];
@@ -99,22 +100,33 @@ class ConcurrentMap {
 		return true;
 	}
 
-	void wait_and_pop( Key const &key, Data &popped_value )
+	bool wait_and_pop( Key const &key, Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
 		typename std::map<Key, Data>::iterator itr;
-		while( mQueue.find( key ) == mQueue.end() ) {
+		while( mQueue.find( key ) == mQueue.end() && !mInvalidated ) {
 			mCondition.wait( lock );
 		}
+		if( mInvalidated )
+			return false;
 
 		popped_value = mQueue[key];
 		mQueue.erase( key );
+
+		return true;
+	}
+
+	void invalidate()
+	{
+		mInvalidated = true;
+		mCondition.notify_all();
 	}
 
   private:
-	std::map<Key, Data> mQueue;
+	std::map<Key, Data>     mQueue;
 	mutable std::mutex      mMutex;
 	std::condition_variable mCondition;
+	std::atomic<bool>       mInvalidated;
 };
 
 } // namespace ph

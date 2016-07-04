@@ -32,7 +32,8 @@ namespace ph {
 template <typename Data>
 class ConcurrentQueue {
   public:
-	ConcurrentQueue( void ){};
+	ConcurrentQueue( void )
+	    : mInvalidated( false ){};
 	~ConcurrentQueue( void ){};
 
 	void push( Data const &data )
@@ -52,7 +53,7 @@ class ConcurrentQueue {
 	bool try_pop( Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
-		if( mQueue.empty() ) {
+		if( mQueue.empty() || mInvalidated ) {
 			return false;
 		}
 
@@ -61,21 +62,32 @@ class ConcurrentQueue {
 		return true;
 	}
 
-	void wait_and_pop( Data &popped_value )
+	bool wait_and_pop( Data &popped_value )
 	{
 		std::lock_guard<std::mutex> lock( mMutex );
-		while( mQueue.empty() ) {
+		while( mQueue.empty() && !mInvalidated ) {
 			mCondition.wait( lock );
 		}
+		if( mInvalidated )
+			return false;
 
 		popped_value = mQueue.front();
 		mQueue.pop();
+
+		return true;
+	}
+
+	void invalidate()
+	{
+		mInvalidated = true;
+		mCondition.notify();
 	}
 
   private:
-	std::queue<Data>          mQueue;
-	mutable boost::mutex      mMutex;
-	boost::condition_variable mCondition;
+	std::queue<Data>        mQueue;
+	mutable std::mutex      mMutex;
+	std::condition_variable mCondition;
+	std::atomic<bool>       mInvalidated;
 };
 
 } // namespace ph
