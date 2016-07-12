@@ -509,14 +509,14 @@ vec2 Node2D::parentToScreen( const vec2 &pt ) const
 vec2 Node2D::parentToObject( const vec2 &pt ) const
 {
 	mat4 invTransform = glm::inverse( getTransform() );
-	vec4 p = invTransform * vec4( pt, 0, 0 );
+	vec4 p = invTransform * vec4( pt, 0, 1 );
 
 	return vec2( p.x, p.y );
 }
 
 vec2 Node2D::objectToParent( const vec2 &pt ) const
 {
-	vec4 p = getTransform() * vec4( pt, 0, 0 );
+	vec4 p = getTransform() * vec4( pt, 0, 1 );
 	return vec2( p.x, p.y );
 }
 
