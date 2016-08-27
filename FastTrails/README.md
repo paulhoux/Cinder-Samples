@@ -1,7 +1,7 @@
 Fast Trail Rendering
 ====================
 
-![Preview](https://raw.github.com/paulhoux/Cinder-Samples/master/FastTrails/PREVIEW.png)
+![Preview](https://raw.github.com/paulhoux/Cinder-Samples/v0.8.6/FastTrails/PREVIEW.png)
 
 
 Copyright (c) 2012, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
