@@ -16,8 +16,8 @@ void main()
 	vec2 coord = gl_PointCoord.xy * 2.0 - 1.0;
 	coord.x /= aspect;
 
-	const float kFallOff = 6.0;
-	float opacity = pow( clamp( 1.0 - length( coord ), 0.0, 1.0 ), kFallOff );
+	const float kFallOff = 8.0;
+	float opacity = clamp( pow( 1.0 - length( coord ), kFallOff ), 0.0, 1.0 );
 
 	oColor = opacity * texture(tex0, gl_PointCoord) * vColor;
 }
