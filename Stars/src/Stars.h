@@ -86,8 +86,11 @@ class Stars {
 
 	void clear();
 
-	void enablePointSprites();
-	void disablePointSprites();
+	bool isStarsEnabled() const { return mEnableStars; }
+	void enableStars( bool enable = true ) { mEnableStars = enable; }
+
+	bool isHalosEnabled() const { return mEnableHalos; }
+	void enableHalos( bool enable = true ) { mEnableHalos = enable; }
 
 	//
 	float getAspectRatio() const { return mAspectRatio; }
@@ -104,12 +107,18 @@ class Stars {
   private:
 	void createMesh();
 
+	void enablePointSprites();
+	void disablePointSprites();
+
   private:
 	ci::gl::Texture2dRef mTextureStar;
 	ci::gl::Texture2dRef mTextureCorona;
-	ci::gl::GlslProgRef  mShader;
+	ci::gl::Texture2dRef mTextureHalo;
+	ci::gl::GlslProgRef  mShaderStars;
+	ci::gl::GlslProgRef  mShaderHalos;
 	ci::gl::VboMeshRef   mVboMesh;
-	ci::gl::BatchRef     mBatch;
+	ci::gl::BatchRef     mBatchStars;
+	ci::gl::BatchRef     mBatchHalos;
 
 	std::vector<ci::vec3>  mVertices;
 	std::vector<ci::vec2>  mTexcoords;
@@ -117,4 +126,7 @@ class Stars {
 
 	float mAspectRatio;
 	float mScale;
+
+	bool mEnableStars;
+	bool mEnableHalos;
 };

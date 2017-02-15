@@ -29,13 +29,15 @@ void main() {
 	float apparent = apparentMagnitude( magnitude, dist );
 
 	// determine color
-	const float kMagnitudeLowerBound = 13.0;	// if a star's apparent magnitude is higher than this, it will be rendered at 0% brightness (black) - a value of 11 is more or less realistic
+	const float kMagnitudeLowerBound = 5.0;	// if a star's apparent magnitude is higher than this, it will be rendered at 0% brightness (black) - a value of 11 is more or less realistic
 	const float kMagnitudeUpperBound = 0.0;	// if a star's apparent magnitude is lower than this, it will be rendered at 100% brightness
-	vColor = ciColor * starBrightness( apparent, kMagnitudeLowerBound, kMagnitudeUpperBound );
+
+	const float kColorStrength = 2.0;
+	vColor = pow( ciColor, vec4( kColorStrength ) ) * starBrightness( apparent, kMagnitudeLowerBound, kMagnitudeUpperBound );
 
 	// calculate point size based on apparent magnitude
-	const float kSize = 90.0;         // the higher the value, the bigger the stars will be
-	const float kSizeModifier = 1.4;  // the lower the value, the more stars are visible
+	const float kSize = 9000.0;         // the higher the value, the bigger the stars will be
+	const float kSizeModifier = 2.0;  // the lower the value, the more stars are visible
     gl_PointSize = scale * starSize( apparent, kSize, kSizeModifier );
 	
 	// set position

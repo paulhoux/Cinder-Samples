@@ -30,5 +30,5 @@ void main()
 
 	// mix with star sample
 	vec4 star = texture(tex0, gl_PointCoord) * vColor;
-	oColor = clamp(star + corona, 0.0, 1.0);
+	oColor = star + corona;
 }

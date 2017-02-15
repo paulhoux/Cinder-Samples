@@ -13,22 +13,15 @@ float apparentMagnitude( in float m, in float d )
 }
 
 // Returns an appropriate size based on apparent magnitude. Not scientifically correct.
-float starSize( in float m )
+float starSize( in float m, in float size, in float modifier )
 {
-	const float kSize = 90.0;         // the higher the value, the bigger the stars will be
-	const float kSizeModifier = 1.4;  // the lower the value, the more stars are visible
-
-	return kSize * pow( kSizeModifier, 1.0 - m ); 
+	return size * pow( modifier, 1.0 - m ); 
 }
 
 // Returns an appropriate brightness based on apparent magnitude. Not scientifically correct.
-float starBrightness( in float m )
+float starBrightness( in float m, in float lower, in float upper )
 {
-	const float kMagnitudeLowerBound = 13.0;	// if a star's apparent magnitude is higher than this, it will be rendered at 0% brightness (black) - a value of 11 is more or less realistic
-	const float kMagnitudeUpperBound = 0.0;	// if a star's apparent magnitude is lower than this, it will be rendered at 100% brightness
-	const float kMagnitudeRange = kMagnitudeLowerBound + kMagnitudeUpperBound;
-
-	return pow( saturate( ( kMagnitudeLowerBound + ( 1.0 - m ) ) / kMagnitudeRange ), 1.5 );
+	return pow( saturate( ( lower + ( 1.0 - m ) ) / ( upper + lower ) ), 1.5 );
 }
 
 vec3 toNDC( in vec4 v )

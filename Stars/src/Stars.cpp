@@ -36,6 +36,8 @@ using namespace std;
 
 Stars::Stars( void )
     : mAspectRatio( 1.0f )
+    , mEnableStars( true )
+    , mEnableHalos( true )
 {
 }
 
@@ -47,7 +49,8 @@ void Stars::setup()
 {
 	// load shader and point sprite texture
 	try {
-		mShader = gl::GlslProg::create( loadAsset( "shaders/stars.vert" ), loadAsset( "shaders/stars.frag" ) );
+		mShaderStars = gl::GlslProg::create( loadAsset( "shaders/stars.vert" ), loadAsset( "shaders/stars.frag" ) );
+		mShaderHalos = gl::GlslProg::create( loadAsset( "shaders/halos.vert" ), loadAsset( "shaders/halos.frag" ) );
 	}
 	catch( const std::exception &e ) {
 		console() << "Could not load & compile shader: " << e.what() << std::endl;
@@ -56,6 +59,7 @@ void Stars::setup()
 	try {
 		mTextureStar = gl::Texture2d::create( loadImage( loadAsset( "textures/particle.png" ) ) );
 		mTextureCorona = gl::Texture2d::create( loadImage( loadAsset( "textures/nova.png" ) ) );
+		mTextureHalo = gl::Texture2d::create( loadImage( loadAsset( "textures/corona.png" ) ) );
 	}
 	catch( const std::exception &e ) {
 		console() << "Could not load texture: " << e.what() << std::endl;
@@ -64,17 +68,20 @@ void Stars::setup()
 
 void Stars::draw()
 {
-	if( !( mTextureStar && mTextureCorona && mBatch ) )
-		return;
-
 	enablePointSprites();
 
 	gl::ScopedBlendAdditive blend;
-	gl::ScopedTextureBind   tex0( mTextureStar, (uint8_t)0 );
-	gl::ScopedTextureBind   tex1( mTextureCorona, (uint8_t)1 );
 	gl::ScopedColor         color( Color::white() );
 
-	mBatch->draw();
+	if( mEnableStars && mTextureStar && mTextureCorona && mBatchStars ) {
+		gl::ScopedTextureBind tex0( mTextureStar, (uint8_t)0 );
+		gl::ScopedTextureBind tex1( mTextureCorona, (uint8_t)1 );
+		mBatchStars->draw();
+	}
+	if( mEnableHalos && mTextureHalo && mBatchHalos ) {
+		gl::ScopedTextureBind tex0( mTextureHalo, (uint8_t)0 );
+		mBatchHalos->draw();
+	}
 
 	disablePointSprites();
 }
@@ -105,18 +112,24 @@ void Stars::enablePointSprites()
 	gl::enable( GL_POINT_SPRITE_ARB );
 	glPointParameterfARB( GL_POINT_FADE_THRESHOLD_SIZE_ARB, 1.0f );
 	glPointParameterfARB( GL_POINT_SIZE_MIN_ARB, 0.1f );
-	glPointParameterfARB( GL_POINT_SIZE_MAX_ARB, 200.0f );
+	glPointParameterfARB( GL_POINT_SIZE_MAX_ARB, 2000.0f );
 
 	// allow vertex shader to change point size
 	gl::enable( GL_VERTEX_PROGRAM_POINT_SIZE );
 
-	// bind shader
-	mShader->bind();
-	mShader->uniform( "tex0", 0 );
-	mShader->uniform( "tex1", 1 );
-	mShader->uniform( "time", (float)getElapsedSeconds() );
-	mShader->uniform( "aspect", mAspectRatio );
-	mShader->uniform( "scale", mScale );
+	// set shader uniforms
+	mShaderStars->bind();
+	mShaderStars->uniform( "tex0", 0 );
+	mShaderStars->uniform( "tex1", 1 );
+	mShaderStars->uniform( "time", (float)getElapsedSeconds() );
+	mShaderStars->uniform( "aspect", mAspectRatio );
+	mShaderStars->uniform( "scale", mScale );
+
+	mShaderHalos->bind();
+	mShaderHalos->uniform( "tex0", 0 );
+	mShaderHalos->uniform( "time", (float)getElapsedSeconds() );
+	mShaderHalos->uniform( "aspect", mAspectRatio );
+	mShaderHalos->uniform( "scale", mScale );
 }
 
 void Stars::disablePointSprites()
@@ -324,5 +337,6 @@ void Stars::createMesh()
 	vboMesh->bufferAttrib( geom::TEX_COORD_0, mTexcoords );
 	vboMesh->bufferAttrib( geom::COLOR, mColors );
 
-	mBatch = gl::Batch::create( vboMesh, mShader );
+	mBatchStars = gl::Batch::create( vboMesh, mShaderStars );
+	mBatchHalos = gl::Batch::create( vboMesh, mShaderHalos );
 }

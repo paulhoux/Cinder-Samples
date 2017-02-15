@@ -45,6 +45,11 @@
 #if defined( CINDER_MSW )
 #include <windows.h>
 #include <winuser.h>
+
+// Make our application NVIDIA Optimus aware.
+extern "C" {
+_declspec( dllexport ) DWORD NvOptimusEnablement = 0x0000001;
+}
 #endif
 
 using namespace ci;
@@ -162,13 +167,13 @@ void StarsApp::setup()
 {
 	// Initialize member variables.
 	mIsGridVisible = false;
-	mIsLabelsVisible = true;
+	mIsLabelsVisible = false;
 	mIsConstellationsVisible = true;
 	mIsConstellationArtVisible = true;
 	mIsOculus = true;
 	mIsStereoscopic = false;
 	mIsCylindrical = false;
-	mDrawUserInterface = true;
+	mDrawUserInterface = false;
 
 	// cylindrical projection settings
 	mSectionCount = 3;
@@ -528,6 +533,16 @@ void StarsApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_g:
 		// toggle grid
 		mIsGridVisible = !mIsGridVisible;
+		break;
+	case KeyEvent::KEY_h:
+		if( event.isShiftDown() ) {
+			// toggle stars
+			mStars.enableStars( !mStars.isStarsEnabled() );
+		}
+		else {
+			// toggle halos
+			mStars.enableHalos( !mStars.isHalosEnabled() );
+		}
 		break;
 	case KeyEvent::KEY_l:
 		// toggle labels
