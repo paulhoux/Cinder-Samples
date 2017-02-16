@@ -29,7 +29,7 @@ void main() {
 	float apparent = apparentMagnitude( magnitude, dist );
 
 	// determine color
-	const float kMagnitudeLowerBound = 8.0;	// if a star's apparent magnitude is higher than this, it will be rendered at 0% brightness (black) - a value of 11 is more or less realistic
+	const float kMagnitudeLowerBound = 5.0;	// if a star's apparent magnitude is higher than this, it will be rendered at 0% brightness (black) - a value of 11 is more or less realistic
 	const float kMagnitudeUpperBound = 0.0;	// if a star's apparent magnitude is lower than this, it will be rendered at 100% brightness
 
 	const float kColorStrength = 3.0;
