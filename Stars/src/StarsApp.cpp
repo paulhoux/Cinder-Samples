@@ -574,6 +574,8 @@ void StarsApp::keyDown( KeyEvent event )
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
+		mLabels.setScale( mIsStereoscopic ? vec2( 0.5f, 1 ) : vec2( 1 ) );
+		mConstellationLabels.setScale( mIsStereoscopic ? vec2( 0.5f, 1 ) : vec2( 1 ) );
 		break;
 	case KeyEvent::KEY_d:
 		// cylindrical panorama
@@ -583,6 +585,8 @@ void StarsApp::keyDown( KeyEvent event )
 		mStars.setAspectRatio( mIsStereoscopic ? 0.5f : 1.0f );
 		mGrid.setLineWidth( mIsCylindrical ? 3.0f : 1.5f );
 		mConstellations.setLineWidth( mIsCylindrical ? 2.0f : 1.0f );
+		mLabels.setScale( mIsStereoscopic ? vec2( 0.5f, 1 ) : vec2( 1 ) );
+		mConstellationLabels.setScale( mIsStereoscopic ? vec2( 0.5f, 1 ) : vec2( 1 ) );
 		break;
 	case KeyEvent::KEY_RETURN:
 		createShader();

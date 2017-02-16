@@ -14,7 +14,8 @@ out vec4 vColor;
 out vec2 vTexCoord0;
 
 // viewport parameters (x, y, width, height)
-uniform vec4 viewport;
+uniform vec4 uViewport;
+uniform vec2 uScale;
 
 void main()
 {
@@ -29,7 +30,7 @@ void main()
 	float apparent = apparentMagnitude( magnitude, dist );
 
 	float size = starSize( apparent );
-	offset.x += 0.25 * size / viewport.z;
+	offset.x += 0.25 * size / uViewport.z;
 
 	// pass font texture coordinate to fragment shader
 	vTexCoord0 = ciTexCoord0;
@@ -38,7 +39,7 @@ void main()
 	vColor.rgb = ciColor.rgb;
 
 	// convert vertex from screen space to normalized device coordinates
-	vec3 vertex = vec3( ciPosition.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );
+	vec3 vertex = vec3( ciPosition.xy * vec2( uScale.x, -uScale.y ) / uViewport.zw * 2.0, 0.0 );
 	vertex.xy *= min( 1.0, max( size * 0.05, 2.0 * saturate( exp2( 1.0 - dist * 0.1 ) ) ) );
 
 	// calculate final vertex position by offsetting it

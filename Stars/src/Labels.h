@@ -39,6 +39,13 @@ class Labels {
 
 	virtual void setCameraDistance( float distance );
 
+	//!
+	const ci::vec2 &getScale() const { return mLabels.getScale(); }
+	//!
+	void setScale( float x, float y ) { mLabels.setScale( x, y ); }
+	//!
+	void setScale( const ci::vec2 &scale ) { mLabels.setScale( scale ); }
+
 	//! load a comma separated file containing the database
 	virtual void load( ci::DataSourceRef source );
 
