@@ -34,7 +34,7 @@ using namespace std;
 // initialize static members
 const double Cam::LATITUDE_LIMIT = 89.0;
 const double Cam::LATITUDE_THRESHOLD = 89.0;
-const double Cam::DISTANCE_MIN = 0.015;
+const double Cam::DISTANCE_MIN = 0.001;
 const double Cam::DISTANCE_MAX = 1000.0;
 
 Cam::Cam( void )
@@ -51,7 +51,7 @@ Cam::Cam( void )
 
 	mLatitude = 0.0;
 	mLongitude = 0.0;
-	mDistance = 0.015;
+	mDistance = DISTANCE_MIN;
 	mFov = 60.0;
 
 	mTimeDistance = 0.0;
@@ -80,7 +80,7 @@ void Cam::update( double elapsed )
 		double fraction = (mTimeDistance)-math<double>::floor( mTimeDistance );
 		double period = 2.0 * M_PI * math<double>::clamp( fraction * 1.20 - 0.10, 0.0, 1.0 );
 		double f = cos( period );
-		double distance = 100.0 - 99.6 * f;
+		double distance = 100.0 - 99.99 * f;
 
 		// determine where to look
 		double longitude = t * 360.0 / 300.0;                              // go around once every 300 seconds
