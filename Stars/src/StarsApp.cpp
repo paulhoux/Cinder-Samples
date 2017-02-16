@@ -128,7 +128,6 @@ class StarsApp : public App {
 	bool mIsConstellationsVisible;
 	bool mIsConstellationArtVisible;
 	bool mIsCursorVisible;
-	bool mIsOculus;
 	bool mIsStereoscopic;
 	bool mIsCylindrical;
 	bool mDrawUserInterface;
@@ -168,9 +167,8 @@ void StarsApp::setup()
 	// Initialize member variables.
 	mIsGridVisible = false;
 	mIsLabelsVisible = false;
-	mIsConstellationsVisible = true;
-	mIsConstellationArtVisible = true;
-	mIsOculus = true;
+	mIsConstellationsVisible = false;
+	mIsConstellationArtVisible = false;
 	mIsStereoscopic = false;
 	mIsCylindrical = false;
 	mDrawUserInterface = false;
