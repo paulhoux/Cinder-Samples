@@ -20,9 +20,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cinder/app/App.h"
 #include "cinder/Camera.h"
 #include "cinder/ImageIo.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/Texture.h"
@@ -107,13 +107,13 @@ void SMAAApp::update()
 	mTime = mTimer.getSeconds() + mTimeOffset;
 
 	// Animate our camera
-	double t = mTime / 10.0;
+	const auto t = mTime / 10.0;
 
-	float phi = (float)t;
-	float theta = 3.14159265f * ( 0.25f + 0.2f * math<float>::sin( phi * 0.9f ) );
-	float x = 150.0f * math<float>::cos( phi ) * math<float>::cos( theta );
-	float y = 150.0f * math<float>::sin( theta );
-	float z = 150.0f * math<float>::sin( phi ) * math<float>::cos( theta );
+	const auto phi = float( t );
+	const auto theta = 3.14159265f * ( 0.25f + 0.2f * math<float>::sin( phi * 0.9f ) );
+	const auto x = 150.0f * math<float>::cos( phi ) * math<float>::cos( theta );
+	const auto y = 150.0f * math<float>::sin( theta );
+	const auto z = 150.0f * math<float>::sin( phi ) * math<float>::cos( theta );
 
 	mCamera.lookAt( vec3( x, y, z ), vec3( 1, 50, 0 ) );
 	mCamera.setAspectRatio( getWindowAspectRatio() );
@@ -133,8 +133,8 @@ void SMAAApp::draw()
 	// Perform SMAA
 	mSMAA.apply( mFboResult, mFboOriginal );
 
-	int w = getWindowWidth();
-	int h = getWindowHeight();
+	const float w = getWindowWidth();
+	const float h = getWindowHeight();
 
 	// Draw the scene...
 	{
@@ -144,18 +144,18 @@ void SMAAApp::draw()
 		// ...with SMAA for the left side
 		switch( mMode ) {
 		case EDGE_DETECTION:
-			gl::draw( mSMAA.getEdgePass(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+			gl::draw( mSMAA.getEdgePass(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, float( mDividerX ), h ) );
 			break;
 		case BLEND_WEIGHTS:
-			gl::draw( mSMAA.getBlendPass(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+			gl::draw( mSMAA.getBlendPass(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, float( mDividerX ), h ) );
 			break;
 		case BLEND_NEIGHBORS:
-			gl::draw( mFboResult->getColorTexture(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, (float)mDividerX, (float)h ) );
+			gl::draw( mFboResult->getColorTexture(), Area( 0, 0, mDividerX, h ), Rectf( 0, 0, float( mDividerX ), h ) );
 			break;
 		}
 
 		// ...and without SMAA for the right side
-		gl::draw( mFboOriginal->getColorTexture(), Area( mDividerX, 0, w, h ), Rectf( (float)mDividerX, 0, (float)w, (float)h ) );
+		gl::draw( mFboOriginal->getColorTexture(), Area( mDividerX, 0, w, h ), Rectf( float( mDividerX ), 0, w, h ) );
 	}
 
 	// Draw divider
@@ -163,7 +163,7 @@ void SMAAApp::draw()
 		gl::ScopedColor      color( Color::white() );
 		gl::ScopedBlendAlpha blend;
 
-		gl::drawLine( vec2( (float)mDividerX, 0.0f ), vec2( (float)mDividerX, (float)h ) );
+		gl::drawLine( vec2( float( mDividerX ), 0.0f ), vec2( float( mDividerX ), h ) );
 
 		Rectf rct = mArrow->getBounds();
 		rct.offset( vec2( mDividerX - rct.getWidth() / 2, h - rct.getHeight() ) );

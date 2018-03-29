@@ -184,8 +184,8 @@ void SmoothDisplacementMappingApp::draw()
 
 	if( mDispMapFbo && mNormalMapFbo && mMeshShader ) {
 		// bind the displacement and normal maps, each to their own texture unit
-		gl::ScopedTextureBind tex0( mDispMapFbo->getColorTexture(), (uint8_t)0 );
-		gl::ScopedTextureBind tex1( mNormalMapFbo->getColorTexture(), (uint8_t)1 );
+		gl::ScopedTextureBind tex0( mDispMapFbo->getColorTexture(), uint8_t( 0 ) );
+		gl::ScopedTextureBind tex1( mNormalMapFbo->getColorTexture(), uint8_t( 1 ) );
 
 		// render our mesh using vertex displacement
 		gl::ScopedGlslProg shader( mMeshShader );
@@ -259,7 +259,7 @@ void SmoothDisplacementMappingApp::renderNormalMap()
 		mNormalMapShader->uniform( "uTex0", 0 );
 		mNormalMapShader->uniform( "uAmplitude", 4.0f );
 
-		Area bounds = mNormalMapFbo->getBounds();
+		const Area bounds = mNormalMapFbo->getBounds();
 		gl::drawSolidRect( bounds );
 
 		// clean up after ourselves
@@ -293,9 +293,7 @@ void SmoothDisplacementMappingApp::resize()
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
-void SmoothDisplacementMappingApp::mouseMove( MouseEvent event )
-{
-}
+void SmoothDisplacementMappingApp::mouseMove( MouseEvent event ) {}
 
 void SmoothDisplacementMappingApp::mouseDown( MouseEvent event )
 {
@@ -309,9 +307,7 @@ void SmoothDisplacementMappingApp::mouseDrag( MouseEvent event )
 	mCameraUi.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
-void SmoothDisplacementMappingApp::mouseUp( MouseEvent event )
-{
-}
+void SmoothDisplacementMappingApp::mouseUp( MouseEvent event ) {}
 
 void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 {
@@ -360,9 +356,7 @@ void SmoothDisplacementMappingApp::keyDown( KeyEvent event )
 	}
 }
 
-void SmoothDisplacementMappingApp::keyUp( KeyEvent event )
-{
-}
+void SmoothDisplacementMappingApp::keyUp( KeyEvent event ) {}
 
 void SmoothDisplacementMappingApp::createMesh()
 {
@@ -378,8 +372,8 @@ void SmoothDisplacementMappingApp::createMesh()
 	int i = 0;
 	for( int x = 0; x < RES_X; ++x ) {
 		for( int z = 0; z < RES_Z; ++z ) {
-			float u = float( x ) / RES_X;
-			float v = float( z ) / RES_Z;
+			const float u = float( x ) / RES_X;
+			const float v = float( z ) / RES_Z;
 			positions[i] = size * vec3( u - 0.5f, 0.0f, v - 0.5f );
 			normals[i] = vec3( 0, 1, 0 );
 			texcoords[i] = vec2( u, v );

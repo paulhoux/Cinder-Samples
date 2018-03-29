@@ -59,9 +59,7 @@ void TextLabels::clearMesh()
 
 void TextLabels::renderMesh()
 {
-	// parse all labels
-	TextLabelListIter labelItr;
-	for( labelItr = mLabels.begin(); labelItr != mLabels.end(); ++labelItr ) {
+	for( TextLabelListIter labelItr = mLabels.begin(); labelItr != mLabels.end(); ++labelItr ) {
 		// render label
 		mOffset = labelItr->first;
 		setText( labelItr->second );
@@ -72,18 +70,17 @@ void TextLabels::renderMesh()
 
 void TextLabels::renderString( const std::u16string &str, vec2 *cursor, float stretch )
 {
-	std::u16string::const_iterator itr;
-	for( itr = str.begin(); itr != str.end(); ++itr ) {
+	for( std::u16string::const_iterator itr = str.begin(); itr != str.end(); ++itr ) {
 		// retrieve character code
-		uint16_t id = (uint16_t)*itr;
+		const uint16_t id = uint16_t( *itr );
 
 		if( mFont->contains( id ) ) {
 			// get metrics for this character to speed up measurements
-			Font::Metrics m = mFont->getMetrics( id );
+			const Font::Metrics m = mFont->getMetrics( id );
 
 			// skip whitespace characters
 			if( !isWhitespaceUtf16( id ) ) {
-				size_t index = mVertices.size();
+				const auto index = uint16_t( mVertices.size() );
 
 				Rectf bounds = mFont->getBounds( m, mFontSize );
 				mVertices.push_back( vec3( *cursor + bounds.getUpperLeft(), 0 ) );
@@ -156,7 +153,8 @@ std::string TextLabels::getVertexShader() const
 	      "out vec2 vTexCoord0;\n"
 	      ""
 	      "// viewport parameters (x, y, width, height)\n"
-	      "uniform vec4 viewport;\n"
+	      "uniform vec4 uViewport;\n"
+	      "uniform vec2 uScale = vec2( 1 );\n"
 	      ""
 	      "vec3 toNDC(vec4 vertex)\n"
 	      "{\n"
@@ -165,7 +163,7 @@ std::string TextLabels::getVertexShader() const
 	      ""
 	      "vec2 toScreenSpace(vec4 vertex)\n"
 	      "{\n"
-	      "	return vec2( vertex.xy / vertex.w ) * viewport.zw;\n"
+	      "	return vec2( vertex.xy / vertex.w ) * uViewport.zw;\n"
 	      "}\n"
 	      ""
 	      "void main()\n"
@@ -180,7 +178,7 @@ std::string TextLabels::getVertexShader() const
 	      "	vec3 offset = toNDC( ciModelViewProjection * vec4( ciTexCoord1.xyz , 1 ) );\n"
 	      ""
 	      "	// convert vertex from screen space to normalized device coordinates\n"
-	      "	vec3 vertex = vec3( ciPosition.xy * vec2(1.0, -1.0) / viewport.zw * 2.0, 0.0 );\n"
+	      "	vec3 vertex = vec3( ciPosition.xy * vec2( uScale.x, -uScale.y ) / uViewport.zw * 2.0, 0.0 );\n"
 	      ""
 	      "	// calculate final vertex position by offsetting it\n"
 	      "	gl_Position = vec4( vertex + offset, 1.0 );\n"
@@ -192,12 +190,13 @@ std::string TextLabels::getVertexShader() const
 bool TextLabels::bindShader()
 {
 	if( Text::bindShader() ) {
-		auto viewport = gl::getViewport();
-		mShader->uniform( "viewport", vec4( viewport.first.x, viewport.first.y, viewport.second.x, viewport.second.y ) );
+		const auto viewport = gl::getViewport();
+		mShader->uniform( "uViewport", vec4( viewport.first.x, viewport.first.y, viewport.second.x, viewport.second.y ) );
+		mShader->uniform( "uScale", mScale );
 		return true;
 	}
 
 	return false;
 }
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

@@ -35,10 +35,10 @@ unsigned int Node::uuidCount = 1;
 NodeMap      Node::uuidLookup;
 
 Node::Node( void )
-    : mUuid( uuidCount )
-    , mIsVisible( true )
+    : mIsVisible( true )
     , mIsClickable( true )
     , mIsSelected( false )
+    , mUuid( uuidCount )
     , mIsSetup( false )
     , mIsTransformInvalidated( true )
 {
@@ -88,7 +88,7 @@ void Node::addChild( NodeRef node )
 
 void Node::removeChild( NodeRef node )
 {
-	NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
+	const NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
 	if( itr != mChildren.end() ) {
 		// reset parent
 		( *itr )->setParent( NodeRef() );
@@ -100,8 +100,7 @@ void Node::removeChild( NodeRef node )
 
 void Node::removeChildren()
 {
-	NodeList::iterator itr;
-	for( itr = mChildren.begin(); itr != mChildren.end(); ) {
+	for( NodeList::iterator itr = mChildren.begin(); itr != mChildren.end(); ) {
 		// reset parent
 		( *itr )->setParent( NodeRef() );
 
@@ -112,7 +111,7 @@ void Node::removeChildren()
 
 bool Node::hasChild( NodeRef node ) const
 {
-	NodeList::const_iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
+	const NodeList::const_iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
 	return ( itr != mChildren.end() );
 }
 
@@ -126,7 +125,7 @@ void Node::putOnTop()
 void Node::putOnTop( NodeRef node )
 {
 	// remove from list
-	NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
+	const NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
 	if( itr == mChildren.end() )
 		return;
 
@@ -138,7 +137,7 @@ void Node::putOnTop( NodeRef node )
 
 bool Node::isOnTop() const
 {
-	NodeRef parent = getParent();
+	const NodeRef parent = getParent();
 	if( parent )
 		return parent->isOnTop( shared_from_this() );
 	else
@@ -167,7 +166,7 @@ void Node::setTransform( const ci::mat4 &transform ) const
 {
 	mTransform = transform;
 
-	auto parent = getParent<Node2D>();
+	const auto parent = getParent<Node2D>();
 	if( parent )
 		mWorldTransform = parent->getWorldTransform() * mTransform;
 	else
@@ -182,7 +181,7 @@ void Node::setTransform( const ci::mat4 &transform ) const
 void Node::moveToBottom( NodeRef node )
 {
 	// remove from list
-	NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
+	const NodeList::iterator itr = std::find( mChildren.begin(), mChildren.end(), node );
 	if( itr == mChildren.end() )
 		return;
 
@@ -197,9 +196,8 @@ NodeRef Node::findChild( unsigned int uuid )
 	if( mUuid == uuid )
 		return shared_from_this();
 
-	NodeRef            node;
-	NodeList::iterator itr;
-	for( itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
+	NodeRef node;
+	for( NodeList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
 		node = ( *itr )->findChild( uuid );
 		if( node )
 			return node;
@@ -212,17 +210,15 @@ void Node::treeSetup()
 {
 	setup();
 
-	NodeList           nodes( mChildren );
-	NodeList::iterator itr;
-	for( itr = nodes.begin(); itr != nodes.end(); ++itr )
+	NodeList nodes( mChildren );
+	for( NodeList::iterator itr = nodes.begin(); itr != nodes.end(); ++itr )
 		( *itr )->treeSetup();
 }
 
 void Node::treeShutdown()
 {
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	for( itr = nodes.rbegin(); itr != nodes.rend(); ++itr )
+	NodeList nodes( mChildren );
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend(); ++itr )
 		( *itr )->treeShutdown();
 
 	shutdown();
@@ -234,9 +230,8 @@ void Node::treeUpdate( double elapsed )
 	update( elapsed );
 
 	// update this node's children
-	NodeList           nodes( mChildren );
-	NodeList::iterator itr;
-	for( itr = nodes.begin(); itr != nodes.end(); ++itr )
+	NodeList nodes( mChildren );
+	for( NodeList::iterator itr = nodes.begin(); itr != nodes.end(); ++itr )
 		( *itr )->treeUpdate( elapsed );
 }
 
@@ -266,9 +261,7 @@ void Node::treeDraw()
 	// draw this node by calling derived class
 	draw();
 
-	// draw this node's children
-	NodeList::iterator itr;
-	for( itr = mChildren.begin(); itr != mChildren.end(); ++itr )
+	for( NodeList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr )
 		( *itr )->treeDraw();
 
 	// restore transform
@@ -286,10 +279,9 @@ bool Node::treeMouseMove( MouseEvent event )
 		return false;
 
 	// test children first, from top to bottom
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	bool                       handled = false;
-	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
+	NodeList nodes( mChildren );
+	bool     handled = false;
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeMouseMove( event );
 
 	// if not handled, test this node
@@ -305,10 +297,9 @@ bool Node::treeMouseDown( MouseEvent event )
 		return false;
 
 	// test children first, from top to bottom
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	bool                       handled = false;
-	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
+	NodeList nodes( mChildren );
+	bool     handled = false;
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeMouseDown( event );
 
 	// if not handled, test this node
@@ -324,10 +315,9 @@ bool Node::treeMouseDrag( MouseEvent event )
 		return false;
 
 	// test children first, from top to bottom
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	bool                       handled = false;
-	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
+	NodeList nodes( mChildren );
+	bool     handled = false;
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeMouseDrag( event );
 
 	// if not handled, test this node
@@ -343,10 +333,9 @@ bool Node::treeMouseUp( MouseEvent event )
 		return false;
 
 	// test children first, from top to bottom
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	bool                       handled = false;
-	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
+	NodeList nodes( mChildren );
+	bool     handled = false;
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		( *itr )->treeMouseUp( event ); // don't care about 'handled' for now
 
 	// if not handled, test this node
@@ -387,10 +376,9 @@ bool Node::treeKeyDown( KeyEvent event )
 		return false;
 
 	// test children first, from top to bottom
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	bool                       handled = false;
-	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
+	NodeList nodes( mChildren );
+	bool     handled = false;
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeKeyDown( event );
 
 	// if not handled, test this node
@@ -406,10 +394,9 @@ bool Node::treeKeyUp( KeyEvent event )
 		return false;
 
 	// test children first, from top to bottom
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	bool                       handled = false;
-	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
+	NodeList nodes( mChildren );
+	bool     handled = false;
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeKeyUp( event );
 
 	// if not handled, test this node
@@ -432,10 +419,9 @@ bool Node::keyUp( KeyEvent event )
 bool Node::treeResize()
 {
 	// test children first, from top to bottom
-	NodeList                   nodes( mChildren );
-	NodeList::reverse_iterator itr;
-	bool                       handled = false;
-	for( itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
+	NodeList nodes( mChildren );
+	bool     handled = false;
+	for( NodeList::reverse_iterator itr = nodes.rbegin(); itr != nodes.rend() && !handled; ++itr )
 		handled = ( *itr )->treeResize();
 
 	// if not handled, test this node
@@ -458,18 +444,18 @@ Node2D::Node2D( void )
     , mScale( 1 )
     , mAnchor( 0 )
     , mAnchorIsPercentage( false )
+    , mWidth( 1 )
+    , mHeight( 1 )
 {
 }
 
-Node2D::~Node2D( void )
-{
-}
+Node2D::~Node2D( void ) {}
 
 vec2 Node2D::screenToParent( const vec2 &pt ) const
 {
 	vec2 p = pt;
 
-	Node2DRef node = getParent<Node2D>();
+	const Node2DRef node = getParent<Node2D>();
 	if( node )
 		p = node->screenToObject( p );
 
@@ -479,17 +465,17 @@ vec2 Node2D::screenToParent( const vec2 &pt ) const
 vec2 Node2D::screenToObject( const vec2 &pt, float z ) const
 {
 	// Build the viewport (x, y, width, height).
-	vec2 offset = gl::getViewport().first;
-	vec2 size = gl::getViewport().second;
-	vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
+	const vec2 offset = gl::getViewport().first;
+	const vec2 size = gl::getViewport().second;
+	const vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
 
 	// Calculate the view-projection matrix.
-	mat4 model = getWorldTransform();
-	mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
+	const mat4 model = getWorldTransform();
+	const mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
 
 	// Calculate the intersection of the mouse ray with the near (z=0) and far (z=1) planes.
-	vec3 near = glm::unProject( vec3( pt.x, size.y - pt.y - 1, 0 ), model, viewProjection, viewport );
-	vec3 far = glm::unProject( vec3( pt.x, size.y - pt.y - 1, 1 ), model, viewProjection, viewport );
+	const vec3 near = glm::unProject( vec3( pt.x, size.y - pt.y - 1, 0 ), model, viewProjection, viewport );
+	const vec3 far = glm::unProject( vec3( pt.x, size.y - pt.y - 1, 1 ), model, viewProjection, viewport );
 
 	// Calculate world position.
 	return vec2( ci::lerp( near, far, ( z - near.z ) / ( far.z - near.z ) ) );
@@ -499,7 +485,7 @@ vec2 Node2D::parentToScreen( const vec2 &pt ) const
 {
 	vec2 p = pt;
 
-	Node2DRef node = getParent<Node2D>();
+	const Node2DRef node = getParent<Node2D>();
 	if( node )
 		p = node->objectToScreen( p );
 
@@ -508,28 +494,28 @@ vec2 Node2D::parentToScreen( const vec2 &pt ) const
 
 vec2 Node2D::parentToObject( const vec2 &pt ) const
 {
-	mat4 invTransform = glm::inverse( getTransform() );
-	vec4 p = invTransform * vec4( pt, 0, 1 );
+	const mat4 invTransform = glm::inverse( getTransform() );
+	vec4       p = invTransform * vec4( pt, 0, 1 );
 
 	return vec2( p.x, p.y );
 }
 
 vec2 Node2D::objectToParent( const vec2 &pt ) const
 {
-	vec4 p = getTransform() * vec4( pt, 0, 1 );
+	const vec4 p = getTransform() * vec4( pt, 0, 1 );
 	return vec2( p.x, p.y );
 }
 
 vec2 Node2D::objectToScreen( const vec2 &pt ) const
 {
 	// Build the viewport (x, y, width, height).
-	vec2 offset = gl::getViewport().first;
-	vec2 size = gl::getViewport().second;
-	vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
+	const vec2 offset = gl::getViewport().first;
+	const vec2 size = gl::getViewport().second;
+	const vec4 viewport = vec4( offset.x, offset.y, size.x, size.y );
 
 	// Calculate the view-projection matrix.
-	mat4 model = getWorldTransform();
-	mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
+	const mat4 model = getWorldTransform();
+	const mat4 viewProjection = gl::getProjectionMatrix() * gl::getViewMatrix();
 
 	vec2 p = vec2( glm::project( vec3( pt, 0 ), model, viewProjection, viewport ) );
 	p.y = size.y - 1 - p.y;
@@ -544,9 +530,7 @@ Node3D::Node3D( void )
 {
 }
 
-Node3D::~Node3D( void )
-{
-}
+Node3D::~Node3D( void ) {}
 
 void Node3D::treeDrawWireframe()
 {
@@ -562,9 +546,7 @@ void Node3D::treeDrawWireframe()
 	// draw this node by calling derived class
 	drawWireframe();
 
-	// draw this node's children
-	NodeList::iterator itr;
-	for( itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
+	for( NodeList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
 		// only call other Node3D's
 		Node3DRef node = std::dynamic_pointer_cast<Node3D>( *itr );
 		if( node )
@@ -574,5 +556,5 @@ void Node3D::treeDrawWireframe()
 	// restore transform
 	gl::popModelView();
 }
-}
-} // namespace ph::nodes
+} // namespace nodes
+} // namespace ph

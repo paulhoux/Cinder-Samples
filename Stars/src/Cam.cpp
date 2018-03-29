@@ -38,6 +38,8 @@ const double Cam::DISTANCE_MIN = 0.001;
 const double Cam::DISTANCE_MAX = 1000.0;
 
 Cam::Cam( void )
+    : mTimeMouse( 0 )
+    , mTimeOut( 0 )
 {
 	mInitialCam = mCurrentCam = CameraStereo();
 	mCurrentCam.setNearClip( 0.02f );
@@ -52,7 +54,7 @@ Cam::Cam( void )
 	mLatitude = 0.0;
 	mLongitude = 0.0;
 	mDistance = DISTANCE_MIN;
-	mFov = 30.0;
+	mFov = 40.0;
 
 	mTimeDistance = 0.0;
 	mTimeDistanceTarget = 0.0;

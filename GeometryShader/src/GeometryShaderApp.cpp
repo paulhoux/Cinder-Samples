@@ -36,21 +36,21 @@ class GeometryShaderApp : public App {
   public:
 	static void prepare( Settings *settings );
 
-	void setup();
-	void update();
-	void draw();
+	void setup() override;
+	void update() override;
+	void draw() override;
 
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void mouseUp( MouseEvent event );
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
 
-	void keyDown( KeyEvent event );
+	void keyDown( KeyEvent event ) override;
 
-	void resize();
+	void resize() override;
 
   protected:
 	gl::TextureRef loadTexture( const std::string &path );
-	void loadShader( const std::string &path );
+	void           loadShader( const std::string &path );
 
   protected:
 	float mRadius;
@@ -115,9 +115,7 @@ void GeometryShaderApp::update()
 			// first, add an adjacency vertex at the beginning
 			vertices.push_back( 2.0f * vec3( mPoints[0], 0 ) - vec3( mPoints[1], 0 ) );
 
-			// next, add all 2D points as 3D vertices
-			std::vector<vec2>::iterator itr;
-			for( itr = mPoints.begin(); itr != mPoints.end(); ++itr )
+			for( std::vector<vec2>::iterator itr = mPoints.begin(); itr != mPoints.end(); ++itr )
 				vertices.push_back( vec3( *itr, 0 ) );
 
 			// next, add an adjacency vertex at the end
@@ -129,7 +127,7 @@ void GeometryShaderApp::update()
 			std::vector<uint16_t> indices;
 			indices.reserve( n * 4 );
 
-			for( size_t i = 1; i < vertices.size() - 2; ++i ) {
+			for( auto i = 1; i < vertices.size() - 2; ++i ) {
 				indices.push_back( i - 1 );
 				indices.push_back( i );
 				indices.push_back( i + 1 );
@@ -188,8 +186,7 @@ void GeometryShaderApp::draw()
 	// draw all points as red circles
 	gl::color( Color( 1, 0, 0 ) );
 
-	std::vector<vec2>::const_iterator itr;
-	for( itr = mPoints.begin(); itr != mPoints.end(); ++itr )
+	for( std::vector<vec2>::const_iterator itr = mPoints.begin(); itr != mPoints.end(); ++itr )
 		gl::drawSolidCircle( *itr, mRadius );
 
 	if( !mPoints.empty() )
@@ -206,10 +203,8 @@ void GeometryShaderApp::draw()
 
 void GeometryShaderApp::mouseDown( MouseEvent event )
 {
-	// check if any of the points is clicked (distance < radius)
-	std::vector<vec2>::reverse_iterator itr;
-	for( itr = mPoints.rbegin(); itr != mPoints.rend(); ++itr ) {
-		float d = glm::distance( vec2( event.getPos() ), *itr );
+	for( std::vector<vec2>::reverse_iterator itr = mPoints.rbegin(); itr != mPoints.rend(); ++itr ) {
+		const float d = glm::distance( vec2( event.getPos() ), *itr );
 		if( d < mRadius ) {
 			// start dragging
 			mDragPos = event.getPos();
@@ -309,16 +304,17 @@ void GeometryShaderApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_F8:
 		loadShader( "shaders/lines2.geom" );
 		break;
+	default:
+		break;
 	}
 }
 
 void GeometryShaderApp::resize()
 {
 	// keep points centered
-	vec2 offset = 0.5f * vec2( getWindowSize() - mWindowSize );
+	const vec2 offset = 0.5f * vec2( getWindowSize() - mWindowSize );
 
-	std::vector<vec2>::iterator itr;
-	for( itr = mPoints.begin(); itr != mPoints.end(); ++itr )
+	for( std::vector<vec2>::iterator itr = mPoints.begin(); itr != mPoints.end(); ++itr )
 		*itr += offset;
 
 	mWindowSize = getWindowSize();
@@ -344,13 +340,13 @@ gl::TextureRef GeometryShaderApp::loadTexture( const std::string &path )
 void GeometryShaderApp::loadShader( const std::string &path )
 {
 	// Load the geometry shader as a text file into memory and prepend the header
-	DataSourceRef geomFile = loadAsset( path );
+	const DataSourceRef geomFile = loadAsset( path );
 
 	// Load vertex and fragments shaders as text files and compile the shader
 	try {
-		DataSourceRef vertFile = loadAsset( "shaders/lines.vert" );
+		const DataSourceRef vertFile = loadAsset( "shaders/lines.vert" );
 
-		DataSourceRef fragFile = loadAsset( "shaders/lines.frag" );
+		const DataSourceRef fragFile = loadAsset( "shaders/lines.frag" );
 
 		mShader = gl::GlslProg::create( vertFile, fragFile, geomFile );
 	}

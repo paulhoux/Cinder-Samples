@@ -11,6 +11,8 @@
 /*/vc2013/Debug
 /*/vc2013/ipch
 /*/vc2013/Release
+/*/vc2015/Debug
+/*/vc2015/Release
 *.opensdf
 *.sdf
 *.opendb
@@ -33,3 +35,7 @@
 *.xcscheme
 *.xcbkptlist
 /build.log
+*.log
+*.idb
+*.iobj
+*.ipdb

@@ -34,7 +34,7 @@ void main() {
 	vColor = ciColor * starBrightness( apparent, kMagnitudeLowerBound, kMagnitudeUpperBound );
 
 	// calculate point size based on apparent magnitude
-	const float kSize = 90.0;         // the higher the value, the bigger the stars will be
+	const float kSize = 180.0;         // the higher the value, the bigger the stars will be
 	const float kSizeModifier = 1.4;  // the lower the value, the more stars are visible
     gl_PointSize = scale * starSize( apparent, kSize, kSizeModifier );
 	

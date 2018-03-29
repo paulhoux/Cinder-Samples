@@ -41,9 +41,7 @@ Font::Font( void )
 {
 }
 
-Font::~Font( void )
-{
-}
+Font::~Font( void ) {}
 
 void Font::create( const ci::DataSourceRef png, const ci::DataSourceRef txt )
 {
@@ -96,7 +94,7 @@ void Font::create( const ci::DataSourceRef png, const ci::DataSourceRef txt )
 		if( tokens.size() < 2 && tokens[0] != "chars count" )
 			throw;
 
-		int count = boost::lexical_cast<int>( tokens[1] );
+		const int count = std::atoi( tokens[1].c_str() );
 		if( count < 1 )
 			throw;
 
@@ -104,28 +102,30 @@ void Font::create( const ci::DataSourceRef png, const ci::DataSourceRef txt )
 		uint32_t charcode = 0;
 		for( int i = 2; i < count + 2; ++i ) {
 			tokens = ci::split( lines[i], " " );
-			Metrics m;
+			Metrics m = {};
 			for( size_t j = 0; j < tokens.size(); ++j ) {
 				std::vector<std::string> kvp = ci::split( tokens[j], "=" );
 				if( kvp.size() < 2 )
 					continue;
 
+				char *endPtr = nullptr;
+
 				if( kvp[0] == "id" )
-					charcode = boost::lexical_cast<uint32_t>( kvp[1] );
+					charcode = uint32_t( std::strtoul( kvp[1].c_str(), &endPtr, 0 ) );
 				else if( kvp[0] == "x" )
-					m.x1 = boost::lexical_cast<float>( kvp[1] );
+					m.x1 = std::strtof( kvp[1].c_str(), &endPtr );
 				else if( kvp[0] == "y" )
-					m.y1 = boost::lexical_cast<float>( kvp[1] );
+					m.y1 = std::strtof( kvp[1].c_str(), &endPtr );
 				else if( kvp[0] == "width" )
-					m.w = boost::lexical_cast<float>( kvp[1] );
+					m.w = std::strtof( kvp[1].c_str(), &endPtr );
 				else if( kvp[0] == "height" )
-					m.h = boost::lexical_cast<float>( kvp[1] );
+					m.h = std::strtof( kvp[1].c_str(), &endPtr );
 				else if( kvp[0] == "xoffset" )
-					m.dx = boost::lexical_cast<float>( kvp[1] );
+					m.dx = std::strtof( kvp[1].c_str(), &endPtr );
 				else if( kvp[0] == "yoffset" )
-					m.dy = boost::lexical_cast<float>( kvp[1] );
+					m.dy = std::strtof( kvp[1].c_str(), &endPtr );
 				else if( kvp[0] == "xadvance" )
-					m.d = boost::lexical_cast<float>( kvp[1] );
+					m.d = std::strtof( kvp[1].c_str(), &endPtr );
 			}
 
 			m.x2 = m.x1 + m.w;
@@ -139,7 +139,7 @@ void Font::create( const ci::DataSourceRef png, const ci::DataSourceRef txt )
 
 	// measure font (standard ASCII range only to prevent weird characters influencing the measurements)
 	for( uint16_t i = 33; i < 127; ++i ) {
-		MetricsData::const_iterator itr = mMetrics.find( i );
+		const MetricsData::const_iterator itr = mMetrics.find( i );
 		if( itr != mMetrics.end() ) {
 			mAscent = std::max( mAscent, itr->second.dy );
 			mDescent = std::max( mDescent, itr->second.h - itr->second.dy );
@@ -157,8 +157,8 @@ void Font::read( const ci::DataSourceRef source )
 {
 	mInvalid = true;
 
-	IStreamRef in = source->createStream();
-	size_t     filesize = in->size();
+	IStreamRef   in = source->createStream();
+	const size_t filesize = in->size();
 
 	// read header
 	uint8_t header;
@@ -183,10 +183,10 @@ void Font::read( const ci::DataSourceRef source )
 		in->read( &mFamily );
 
 	// read font data
-	in->readData( (void *)&mLeading, sizeof( mLeading ) );
-	in->readData( (void *)&mAscent, sizeof( mAscent ) );
-	in->readData( (void *)&mDescent, sizeof( mDescent ) );
-	in->readData( (void *)&mSpaceWidth, sizeof( mSpaceWidth ) );
+	in->readData( static_cast<void *>( &mLeading ), sizeof( mLeading ) );
+	in->readData( static_cast<void *>( &mAscent ), sizeof( mAscent ) );
+	in->readData( static_cast<void *>( &mDescent ), sizeof( mDescent ) );
+	in->readData( static_cast<void *>( &mSpaceWidth ), sizeof( mSpaceWidth ) );
 	mFontSize = mAscent + mDescent;
 
 	// read metrics data
@@ -201,14 +201,14 @@ void Font::read( const ci::DataSourceRef source )
 			in->readLittle( &charcode );
 
 			Metrics m;
-			in->readData( (void *)&( m.x1 ), sizeof( m.x1 ) );
-			in->readData( (void *)&( m.y1 ), sizeof( m.y1 ) );
-			in->readData( (void *)&( m.w ), sizeof( m.w ) );
-			in->readData( (void *)&( m.h ), sizeof( m.h ) );
+			in->readData( static_cast<void *>( &( m.x1 ) ), sizeof( m.x1 ) );
+			in->readData( static_cast<void *>( &( m.y1 ) ), sizeof( m.y1 ) );
+			in->readData( static_cast<void *>( &( m.w ) ), sizeof( m.w ) );
+			in->readData( static_cast<void *>( &( m.h ) ), sizeof( m.h ) );
 
-			in->readData( (void *)&( m.dx ), sizeof( m.dx ) );
-			in->readData( (void *)&( m.dy ), sizeof( m.dy ) );
-			in->readData( (void *)&( m.d ), sizeof( m.d ) );
+			in->readData( static_cast<void *>( &( m.dx ) ), sizeof( m.dx ) );
+			in->readData( static_cast<void *>( &( m.dy ) ), sizeof( m.dy ) );
+			in->readData( static_cast<void *>( &( m.d ) ), sizeof( m.d ) );
 
 			m.x2 = m.x1 + m.w;
 			m.y2 = m.y1 + m.h;
@@ -252,41 +252,40 @@ void Font::write( const ci::DataTargetRef target )
 	OStreamRef out = target->getStream();
 
 	// write header
-	out->write( (uint8_t)'S' );
-	out->write( (uint8_t)'D' );
-	out->write( (uint8_t)'F' );
-	out->write( (uint8_t)'F' );
+	out->write( uint8_t( 'S' ) );
+	out->write( uint8_t( 'D' ) );
+	out->write( uint8_t( 'F' ) );
+	out->write( uint8_t( 'F' ) );
 
-	uint16_t version = 0x0002;
+	const uint16_t version = 0x0002;
 	out->writeLittle( version );
 
 	// write font name
 	out->write( mFamily );
 
 	// write font data
-	out->writeData( (void *)&mLeading, sizeof( mLeading ) );
-	out->writeData( (void *)&mAscent, sizeof( mAscent ) );
-	out->writeData( (void *)&mDescent, sizeof( mDescent ) );
-	out->writeData( (void *)&mSpaceWidth, sizeof( mSpaceWidth ) );
+	out->writeData( static_cast<void *>( &mLeading ), sizeof( mLeading ) );
+	out->writeData( static_cast<void *>( &mAscent ), sizeof( mAscent ) );
+	out->writeData( static_cast<void *>( &mDescent ), sizeof( mDescent ) );
+	out->writeData( static_cast<void *>( &mSpaceWidth ), sizeof( mSpaceWidth ) );
 
 	// write metrics data
 	{
-		uint16_t count = (uint16_t)mMetrics.size();
+		const uint16_t count = uint16_t( mMetrics.size() );
 		out->writeLittle( count );
 
-		MetricsData::const_iterator itr;
-		for( itr = mMetrics.begin(); itr != mMetrics.end(); ++itr ) {
+		for( MetricsData::const_iterator itr = mMetrics.begin(); itr != mMetrics.end(); ++itr ) {
 			// write char code
 			out->writeLittle( itr->first );
 			// write metrics
-			out->writeData( (void *)&( itr->second.x1 ), sizeof( itr->second.x1 ) );
-			out->writeData( (void *)&( itr->second.y1 ), sizeof( itr->second.y1 ) );
-			out->writeData( (void *)&( itr->second.w ), sizeof( itr->second.w ) );
-			out->writeData( (void *)&( itr->second.h ), sizeof( itr->second.h ) );
+			out->writeData( &( itr->second.x1 ), sizeof( itr->second.x1 ) );
+			out->writeData( &( itr->second.y1 ), sizeof( itr->second.y1 ) );
+			out->writeData( &( itr->second.w ), sizeof( itr->second.w ) );
+			out->writeData( &( itr->second.h ), sizeof( itr->second.h ) );
 
-			out->writeData( (void *)&( itr->second.dx ), sizeof( itr->second.dx ) );
-			out->writeData( (void *)&( itr->second.dy ), sizeof( itr->second.dy ) );
-			out->writeData( (void *)&( itr->second.d ), sizeof( itr->second.d ) );
+			out->writeData( &( itr->second.dx ), sizeof( itr->second.dx ) );
+			out->writeData( &( itr->second.dy ), sizeof( itr->second.dy ) );
+			out->writeData( &( itr->second.d ), sizeof( itr->second.d ) );
 		}
 	}
 
@@ -296,7 +295,7 @@ void Font::write( const ci::DataTargetRef target )
 
 Font::Metrics Font::getMetrics( uint16_t charcode ) const
 {
-	MetricsData::const_iterator itr = mMetrics.find( charcode );
+	const MetricsData::const_iterator itr = mMetrics.find( charcode );
 	if( itr == mMetrics.end() )
 		return Metrics();
 
@@ -305,7 +304,7 @@ Font::Metrics Font::getMetrics( uint16_t charcode ) const
 
 Rectf Font::getBounds( uint16_t charcode, float fontSize ) const
 {
-	MetricsData::const_iterator itr = mMetrics.find( charcode );
+	const MetricsData::const_iterator itr = mMetrics.find( charcode );
 	if( itr != mMetrics.end() )
 		return getBounds( itr->second, fontSize );
 	else
@@ -314,14 +313,14 @@ Rectf Font::getBounds( uint16_t charcode, float fontSize ) const
 
 Rectf Font::getBounds( const Metrics &metrics, float fontSize ) const
 {
-	float scale = ( fontSize / mFontSize );
+	const float scale = ( fontSize / mFontSize );
 
 	return Rectf( vec2( metrics.dx, -metrics.dy ) * scale, vec2( metrics.dx + metrics.w, metrics.h - metrics.dy ) * scale );
 }
 
 Rectf Font::getTexCoords( uint16_t charcode ) const
 {
-	MetricsData::const_iterator itr = mMetrics.find( charcode );
+	const MetricsData::const_iterator itr = mMetrics.find( charcode );
 	if( itr != mMetrics.end() )
 		return getTexCoords( itr->second );
 	else
@@ -335,7 +334,7 @@ Rectf Font::getTexCoords( const Metrics &metrics ) const
 
 float Font::getAdvance( uint16_t charcode, float fontSize ) const
 {
-	MetricsData::const_iterator itr = mMetrics.find( charcode );
+	const MetricsData::const_iterator itr = mMetrics.find( charcode );
 	if( itr != mMetrics.end() )
 		return getAdvance( itr->second, fontSize );
 
@@ -352,13 +351,12 @@ Rectf Font::measure( const std::u16string &text, float fontSize ) const
 	float offset = 0.0f;
 	Rectf result( 0.0f, 0.0f, 0.0f, 0.0f );
 
-	std::u16string::const_iterator citr;
-	for( citr = text.begin(); citr != text.end(); ++citr ) {
-		uint16_t charcode = (uint16_t)*citr;
+	for( std::u16string::const_iterator citr = text.begin(); citr != text.end(); ++citr ) {
+		uint16_t charcode = uint16_t( *citr );
 
 		// TODO: handle special chars like /t
 
-		MetricsData::const_iterator itr = mMetrics.find( charcode );
+		const MetricsData::const_iterator itr = mMetrics.find( charcode );
 		if( itr != mMetrics.end() ) {
 			result.include( Rectf( offset + itr->second.dx, -itr->second.dy, offset + itr->second.dx + itr->second.w, itr->second.h - itr->second.dy ) );
 			offset += itr->second.d;
@@ -374,13 +372,12 @@ float Font::measureWidth( const std::u16string &text, float fontSize, bool preci
 	float offset = 0.0f;
 	float adjust = 0.0f;
 
-	std::u16string::const_iterator citr;
-	for( citr = text.begin(); citr != text.end(); ++citr ) {
-		uint16_t charcode = (uint16_t)*citr;
+	for( std::u16string::const_iterator citr = text.begin(); citr != text.end(); ++citr ) {
+		uint16_t charcode = uint16_t( *citr );
 
 		// TODO: handle special chars like /t
 
-		MetricsData::const_iterator itr = mMetrics.find( charcode );
+		const MetricsData::const_iterator itr = mMetrics.find( charcode );
 		if( itr != mMetrics.end() ) {
 			offset += itr->second.d;
 
@@ -393,5 +390,5 @@ float Font::measureWidth( const std::u16string &text, float fontSize, bool preci
 
 	return ( offset + adjust ) * ( fontSize / mFontSize );
 }
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

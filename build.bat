@@ -20,7 +20,7 @@ setlocal enableextensions
 cd /d "%~dp0"
 
 rem enable Visual Studio environment
-call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x86
+call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 
 :submodules
 echo Updating Git submodules...
@@ -32,7 +32,7 @@ goto cinder
 :cinder
 echo.
 echo Compiling cinder...
-msbuild "..\cinder_master\vc2013\cinder.sln" /m /p:Configuration=%config%
+msbuild "..\cinder_master\proj\vc2015\cinder.sln" /m /p:Configuration=%config%
 if errorlevel 1 goto error
 echo Done.
 goto samples

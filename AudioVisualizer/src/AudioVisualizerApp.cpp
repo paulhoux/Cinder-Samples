@@ -20,23 +20,18 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cinder/app/App.h"
 #include "cinder/Camera.h"
 #include "cinder/CameraUI.h"
 #include "cinder/Channel.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Rand.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
+#include "cinder/audio/audio.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/Vbo.h"
 #include "cinder/gl/gl.h"
-
-#include "FMOD.hpp"
-
-// Channel callback function used by FMOD to notify us of channel events
-FMOD_RESULT F_CALLBACK channelCallback( FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2 );
-
 
 using namespace ci;
 using namespace ci::app;
@@ -46,16 +41,17 @@ class AudioVisualizerApp : public App {
   public:
 	static void prepare( Settings *settings );
 
-	void setup();
-	void shutdown();
-	void update();
-	void draw();
+	void setup() override;
+	void cleanup() override;
+	void update() override;
+	void draw() override;
 
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void mouseUp( MouseEvent event );
-	void keyDown( KeyEvent event );
-	void resize();
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
+	void keyDown( KeyEvent event ) override;
+	void resize() override;
+	void fileDrop( FileDropEvent event ) override;
 
 	// lists all audio files in the given directory
 	void listAudio( const fs::path &directory, vector<fs::path> &list );
@@ -92,14 +88,13 @@ class AudioVisualizerApp : public App {
 	gl::VboMeshRef        mMesh;
 	uint32_t              mOffset;
 
-	FMOD::System * mFMODSystem;
-	FMOD::Sound *  mFMODSound;
-	FMOD::Channel *mFMODChannel;
+	audio::VoiceRef               mAudioFile;
+	audio::MonitorSpectralNodeRef mMonitorSpectralNode;
 
-	bool   mIsMouseDown;
-	bool   mIsAudioPlaying;
-	double mMouseUpTime;
-	double mMouseUpDelay;
+	bool   mIsMouseDown = false;
+	bool   mIsAudioPlaying = false;
+	double mMouseUpTime = 0.0;
+	double mMouseUpDelay = 0.0;
 
 	vector<string> mAudioExtensions;
 	fs::path       mAudioPath;
@@ -181,8 +176,8 @@ void AudioVisualizerApp::setup()
 			// note: we only want to draw the lower part of the frequency bands,
 			//  so we scale the coordinates a bit
 			const float part = 0.5f;
-			float       s = w / float( kWidth - 1 );
-			float       t = h / float( kHeight - 1 );
+			const float s = w / float( kWidth - 1 );
+			const float t = h / float( kHeight - 1 );
 			coords.emplace_back( vec2( part - part * s, t ) );
 
 			// add vertex colors
@@ -202,11 +197,11 @@ void AudioVisualizerApp::setup()
 	mMesh->bufferAttrib( geom::TEX_COORD_0, coords.size() * sizeof( vec2 ), coords.data() );
 	mMesh->bufferIndices( indices.size() * sizeof( uint32_t ), indices.data() );
 
-	// play audio using the Cinder FMOD block
-	FMOD::System_Create( &mFMODSystem );
-	mFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_ENABLE_PROFILE, NULL );
-	mFMODSound = nullptr;
-	mFMODChannel = nullptr;
+	// setup audio
+	// FMOD::System_Create( &mFMODSystem );
+	// mFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_ENABLE_PROFILE, NULL );
+	// mFMODSound = nullptr;
+	// mFMODChannel = nullptr;
 
 	playAudio( findAudio( mAudioPath ) );
 
@@ -220,22 +215,22 @@ void AudioVisualizerApp::setup()
 	mOffset = 0;
 }
 
-void AudioVisualizerApp::shutdown()
+void AudioVisualizerApp::cleanup()
 {
 	// properly shut down FMOD
 	stopAudio();
 
-	if( mFMODSystem )
-		mFMODSystem->release();
+	// if( mFMODSystem )
+	//	mFMODSystem->release();
 }
 
 void AudioVisualizerApp::update()
 {
 	// update FMOD so it can notify us of events
-	mFMODSystem->update();
+	// mFMODSystem->update();
 
 	// handle signal: if audio has ended, play next file
-	if( mIsAudioPlaying && signalChannelEnd )
+	if( mIsAudioPlaying && mAudioFile && !mAudioFile->isPlaying() )
 		playAudio( nextAudio( mAudioPath ) );
 
 	// reset FMOD signals
@@ -245,8 +240,14 @@ void AudioVisualizerApp::update()
 	float *pDataLeft = mChannelLeft.getData() + kBands * mOffset;
 	float *pDataRight = mChannelRight.getData() + kBands * mOffset;
 
-	mFMODSystem->getSpectrum( pDataLeft, kBands, 0, FMOD_DSP_FFT_WINDOW_HANNING );
-	mFMODSystem->getSpectrum( pDataRight, kBands, 1, FMOD_DSP_FFT_WINDOW_HANNING );
+	// mFMODSystem->getSpectrum( pDataLeft, kBands, 0, FMOD_DSP_FFT_WINDOW_HANNING );
+	// mFMODSystem->getSpectrum( pDataRight, kBands, 1, FMOD_DSP_FFT_WINDOW_HANNING );
+
+	if( mMonitorSpectralNode ) {
+		const auto spectrum = mMonitorSpectralNode->getMagSpectrum();
+		if( spectrum.size() >= kBands )
+			memcpy( pDataLeft, spectrum.data(), kBands * sizeof( float ) );
+	}
 
 	// increment texture offset
 	mOffset = ( mOffset + 1 ) % kHistory;
@@ -259,16 +260,16 @@ void AudioVisualizerApp::update()
 
 	// animate camera if mouse has not been down for more than 30 seconds
 	if( !mIsMouseDown && ( getElapsedSeconds() - mMouseUpTime ) > mMouseUpDelay ) {
-		float t = float( getElapsedSeconds() );
-		float x = 0.5f + 0.5f * math<float>::cos( t * 0.07f );
-		float y = 0.1f - 0.2f * math<float>::sin( t * 0.09f );
-		float z = 0.25f * math<float>::sin( t * 0.05f ) - 0.25f;
-		vec3  eye = vec3( kWidth * x, kHeight * y, kHeight * z );
+		const float t = float( getElapsedSeconds() );
+		float       x = 0.5f + 0.5f * math<float>::cos( t * 0.07f );
+		float       y = 0.1f - 0.2f * math<float>::sin( t * 0.09f );
+		float       z = 0.25f * math<float>::sin( t * 0.05f ) - 0.25f;
+		const vec3  eye = vec3( kWidth * x, kHeight * y, kHeight * z );
 
 		x = 1.0f - x;
 		y = -0.3f;
 		z = 0.6f + 0.2f * math<float>::sin( t * 0.12f );
-		vec3 interest = vec3( kWidth * x, kHeight * y, kHeight * z );
+		const vec3 interest = vec3( kWidth * x, kHeight * y, kHeight * z );
 
 		// gradually move to eye position and center of interest
 		mCamera.lookAt( glm::mix( eye, mCamera.getEyePoint(), 0.995f ), glm::mix( interest, mCamera.getPivotPoint(), 0.990f ) );
@@ -354,6 +355,8 @@ void AudioVisualizerApp::keyDown( KeyEvent event )
 	case KeyEvent::KEY_s:
 		stopAudio();
 		break;
+	default:
+		break;
 	}
 }
 
@@ -361,6 +364,17 @@ void AudioVisualizerApp::resize()
 {
 	// handle resize
 	mCamera.setAspectRatio( getWindowAspectRatio() );
+}
+
+void AudioVisualizerApp::fileDrop( FileDropEvent event )
+{
+	// play the first audio file encountered
+	auto &files = event.getFiles();
+	for( auto &file : files ) {
+		if( file.extension() == ".mp3" || file.extension() == ".ogg" || file.extension() == ".wav" ) {
+			return playAudio( file );
+		}
+	}
 }
 
 void AudioVisualizerApp::listAudio( const fs::path &directory, vector<fs::path> &list )
@@ -372,8 +386,8 @@ void AudioVisualizerApp::listAudio( const fs::path &directory, vector<fs::path> 
 		return;
 
 	// make a list of all audio files in the directory
-	fs::directory_iterator end_itr;
-	for( fs::directory_iterator i( directory ); i != end_itr; ++i ) {
+	const fs::directory_iterator endItr;
+	for( fs::directory_iterator i( directory ); i != endItr; ++i ) {
 		// skip if not a file
 		if( !fs::is_regular_file( i->status() ) )
 			continue;
@@ -392,7 +406,7 @@ void AudioVisualizerApp::listAudio( const fs::path &directory, vector<fs::path> 
 fs::path AudioVisualizerApp::openAudio( const fs::path &directory )
 {
 	// only works if not full screen
-	bool wasFullScreen = isFullScreen();
+	const bool wasFullScreen = isFullScreen();
 	setFullScreen( false );
 
 	fs::path file = getOpenFilePath( directory, mAudioExtensions );
@@ -420,7 +434,7 @@ fs::path AudioVisualizerApp::prevAudio( const fs::path &file )
 	if( file.empty() || !fs::is_regular_file( file ) )
 		return fs::path();
 
-	fs::path &directory = file.parent_path();
+	const fs::path directory = file.parent_path();
 
 	// make a list of all audio files in the directory
 	vector<fs::path> files;
@@ -446,7 +460,7 @@ fs::path AudioVisualizerApp::nextAudio( const fs::path &file )
 	if( file.empty() || !fs::is_regular_file( file ) )
 		return fs::path();
 
-	fs::path &directory = file.parent_path();
+	const fs::path directory = file.parent_path();
 
 	// make a list of all audio files in the directory
 	vector<fs::path> files;
@@ -469,7 +483,7 @@ fs::path AudioVisualizerApp::nextAudio( const fs::path &file )
 
 void AudioVisualizerApp::playAudio( const fs::path &file )
 {
-	FMOD_RESULT err;
+	// FMOD_RESULT err;
 
 	// ignore if this is not a file
 	if( file.empty() || !fs::is_regular_file( file ) )
@@ -479,11 +493,19 @@ void AudioVisualizerApp::playAudio( const fs::path &file )
 	stopAudio();
 
 	// stream the audio
-	err = mFMODSystem->createStream( file.string().c_str(), FMOD_SOFTWARE, NULL, &mFMODSound );
-	err = mFMODSystem->playSound( FMOD_CHANNEL_FREE, mFMODSound, false, &mFMODChannel );
+	// err = mFMODSystem->createStream( file.string().c_str(), FMOD_SOFTWARE, NULL, &mFMODSound );
+	// err = mFMODSystem->playSound( FMOD_CHANNEL_FREE, mFMODSound, false, &mFMODChannel );
 
 	// we want to be notified of channel events
-	err = mFMODChannel->setCallback( channelCallback );
+	// err = mFMODChannel->setCallback( channelCallback );
+
+	auto ctx = audio::Context::master();
+
+	mMonitorSpectralNode = ctx->makeNode( new audio::MonitorSpectralNode( audio::MonitorSpectralNode::Format().channels( 1 ).windowSize( kBands * 8 ).fftSize( kBands * 8 ) ) );
+
+	mAudioFile = audio::Voice::create( audio::load( loadFile( file ) ), audio::Voice::Options().connectToMaster( false ) );
+	mAudioFile->getOutputNode() >> mMonitorSpectralNode >> ctx->getOutput();
+	mAudioFile->start();
 
 	// keep track of the audio file
 	mAudioPath = file;
@@ -495,43 +517,49 @@ void AudioVisualizerApp::playAudio( const fs::path &file )
 
 void AudioVisualizerApp::stopAudio()
 {
-	FMOD_RESULT err;
+	// FMOD_RESULT err;
 
 	mIsAudioPlaying = false;
 
-	if( !mFMODChannel || !mFMODSound )
+	// if( !mFMODChannel || !mFMODSound )
+	if( !mAudioFile || !mAudioFile->isPlaying() )
 		return;
 
+	mAudioFile->stop();
+
+	mMonitorSpectralNode.reset();
+	mAudioFile.reset();
+
 	// we don't want to be notified of channel events any longer
-	mFMODChannel->setCallback( 0 );
+	// mFMODChannel->setCallback( 0 );
 
-	bool isPlaying;
-	err = mFMODChannel->isPlaying( &isPlaying );
-	if( isPlaying )
-		err = mFMODChannel->stop();
+	// bool isPlaying;
+	// err = mFMODChannel->isPlaying( &isPlaying );
+	// if( isPlaying )
+	//	err = mFMODChannel->stop();
 
-	err = mFMODSound->release();
+	// err = mFMODSound->release();
 
-	mFMODSound = nullptr;
-	mFMODChannel = nullptr;
+	// mFMODSound = nullptr;
+	// mFMODChannel = nullptr;
 }
 
-// Channel callback function used by FMOD to notify us of channel events
-FMOD_RESULT F_CALLBACK channelCallback( FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2 )
-{
-	// we first need access to the application instance
-	AudioVisualizerApp *pApp = static_cast<AudioVisualizerApp *>( App::get() );
+//// Channel callback function used by FMOD to notify us of channel events
+// FMOD_RESULT F_CALLBACK channelCallback( FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2 )
+//{
+//	// we first need access to the application instance
+//	AudioVisualizerApp *pApp = static_cast<AudioVisualizerApp *>( App::get() );
+//
+//	// now handle the callback
+//	switch( type ) {
+//	case FMOD_CHANNEL_CALLBACKTYPE_END:
+//		// we can't call a function directly, because we are inside the FMOD thread,
+//		// so let's notify the application instead by setting a boolean (which is thread safe).
+//		pApp->signalChannelEnd = true;
+//		break;
+//	}
+//
+//	return FMOD_OK;
+//}
 
-	// now handle the callback
-	switch( type ) {
-	case FMOD_CHANNEL_CALLBACKTYPE_END:
-		// we can't call a function directly, because we are inside the FMOD thread,
-		// so let's notify the application instead by setting a boolean (which is thread safe).
-		pApp->signalChannelEnd = true;
-		break;
-	}
-
-	return FMOD_OK;
-}
-
-CINDER_APP( AudioVisualizerApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &AudioVisualizerApp::prepare )
+CINDER_APP( AudioVisualizerApp, RendererGl( RendererGl::Options().msaa( 0 ) ), &AudioVisualizerApp::prepare )

@@ -10,7 +10,7 @@ void main(void)
 	// calculate glowing line strips based on texture coordinate
 	const float kResolution = 256.0;
 	const float kCenter = 0.5;
-	const float kWidth = 0.02;
+	const float kWidth = 0.2;
 
 	float f = fract( kResolution * vertTexCoord0.x );
 	float d = abs(kCenter - f);

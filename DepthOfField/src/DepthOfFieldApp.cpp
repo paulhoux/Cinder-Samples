@@ -23,12 +23,12 @@ class DepthOfFieldApp : public App {
 	    , mFarRadiusRescale( 1.0f )
 	    , mDebugOption( 0 )
 	    , mTime( 0 )
-        , mTimeDemo( 0 )
+	    , mTimeDemo( 0 )
 	    , mPaused( false )
 	    , mResized( true )
 	    , mShiftDown( false )
 	    , mShowBounds( false )
-        , mEnableDemo( false )
+	    , mEnableDemo( false )
 	{
 	}
 
@@ -74,15 +74,15 @@ class DepthOfFieldApp : public App {
 	int   mDebugOption;        // Debug render modes.
 
 	double mTime;
-    double mTimeDemo;
+	double mTimeDemo;
 	float  mFPS;
 	float  mFocus;
 
-    bool mPaused;
+	bool mPaused;
 	bool mResized;
 	bool mShiftDown;
 	bool mShowBounds;
-    bool mEnableDemo;
+	bool mEnableDemo;
 
 	vec2 mMousePos;
 };
@@ -144,7 +144,7 @@ void DepthOfFieldApp::setup()
 	mSpheres = gl::Batch::create( mesh, glsl, { { geom::Attrib::CUSTOM_0, "vInstanceMatrix" } } );
 
 	// Create background.
-    mesh = gl::VboMesh::create( geom::Sphere().subdivisions( 60 ).radius( 50.0f ) >> geom::Invert( geom::NORMAL ) );
+	mesh = gl::VboMesh::create( geom::Sphere().subdivisions( 60 ).radius( 50.0f ) >> geom::Invert( geom::NORMAL ) );
 	mBackground = gl::Batch::create( mesh, glsl );
 
 	// Setup the camera.
@@ -171,8 +171,8 @@ void DepthOfFieldApp::setup()
 	mParams->addParam( "Far Radius Rescale", &mFarRadiusRescale ).min( 0.1f ).max( 20.0f ).step( 0.1f );
 	mParams->addParam( "Debug Option", { "Off", "Show CoC", "Show Region", "Show Near", "Show Blurry", "Show Input", "Show Mid & Far", "Show Signed CoC" }, &mDebugOption );
 	mParams->addSeparator();
-    mParams->addButton( "Pause", [&]() { mPaused = !mPaused; } );
-    mParams->addButton( "Demo", [&]() { mEnableDemo = !mEnableDemo; } );
+	mParams->addButton( "Pause", [&]() { mPaused = !mPaused; } );
+	mParams->addButton( "Demo", [&]() { mEnableDemo = !mEnableDemo; } );
 	mParams->addText( "Hold SHIFT to auto-focus." );
 
 	// Note: the Fbo's will be created in the update() function after the window has been resized.
@@ -247,44 +247,44 @@ void DepthOfFieldApp::update( double timestep )
 
 	// Adjust cameras.
 	{
-        // User camera.
-        auto target = mCameraUser.getPivotPoint();
-        auto distance = glm::clamp( mCameraUser.getPivotDistance(), 5.0f, 45.0f );
-        
-        vec3 eye;
-        if( mEnableDemo ) {
-            // In demo mode, we slowly move the camera, change the focus distance and field of view.
-            mTimeDemo += timestep;
-            
-            eye.x = float( 25.0 * sin( 0.05 * mTimeDemo ) );
-            eye.y = float( 15.0 * cos( 0.01 * mTimeDemo ) );
-            eye.z = float( 10.0 * cos( 0.05 * mTimeDemo ) );
-            
-            mFocus = mShiftDown ? mFocus : glm::mix( distance, 45.0f, float( 0.5 - 0.5 * cos( 0.05 * mTimeDemo ) ) );
-            mFoV = glm::mix( 10.0f, 20.0f, float( 0.5 - 0.5 * cos( 0.02 * mTimeDemo ) ) );
-        }
-        else {
-            // Otherwise, just constrain the camera to a distance range.
-            eye = target - distance * mCameraUser.getViewDirection();
-        }
-        
+		// User camera.
+		auto target = mCameraUser.getPivotPoint();
+		auto distance = glm::clamp( mCameraUser.getPivotDistance(), 5.0f, 45.0f );
+
+		vec3 eye;
+		if( mEnableDemo ) {
+			// In demo mode, we slowly move the camera, change the focus distance and field of view.
+			mTimeDemo += timestep;
+
+			eye.x = float( 25.0 * sin( 0.05 * mTimeDemo ) );
+			eye.y = float( 15.0 * cos( 0.01 * mTimeDemo ) );
+			eye.z = float( 10.0 * cos( 0.05 * mTimeDemo ) );
+
+			mFocus = mShiftDown ? mFocus : glm::mix( distance, 45.0f, float( 0.5 - 0.5 * cos( 0.05 * mTimeDemo ) ) );
+			mFoV = glm::mix( 10.0f, 20.0f, float( 0.5 - 0.5 * cos( 0.02 * mTimeDemo ) ) );
+		}
+		else {
+			// Otherwise, just constrain the camera to a distance range.
+			eye = target - distance * mCameraUser.getViewDirection();
+		}
+
 		mCameraUser.lookAt( eye, target );
 		mCameraUser.setFov( mFoV );
 	}
 
 	{
-        // Main camera.
-        const float kSmoothing = 0.1f;
-        
+		// Main camera.
+		const float kSmoothing = 0.1f;
+
 		auto  eye = glm::mix( mCamera.getEyePoint(), mCameraUser.getEyePoint(), kSmoothing );
 		auto  target = glm::mix( mCamera.getPivotPoint(), mCameraUser.getPivotPoint(), kSmoothing );
 		float fov = glm::mix( mCamera.getFov(), mCameraUser.getFov(), kSmoothing );
-        
+
 		mCamera.setFov( fov );
 		mCamera.lookAt( eye, target );
 	}
 
-    // Update values.
+	// Update values.
 	mFocalPlane = exp( glm::mix( log( mFocalPlane ), log( mFocus ), 0.2f ) );
 	mFocalLength = mCamera.getFocalLength();
 
@@ -492,10 +492,10 @@ void DepthOfFieldApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_b:
 		mShowBounds = !mShowBounds;
-        break;
-    case KeyEvent::KEY_d:
-        mEnableDemo = !mEnableDemo;
-        break;
+		break;
+	case KeyEvent::KEY_d:
+		mEnableDemo = !mEnableDemo;
+		break;
 	case KeyEvent::KEY_f:
 		setFullScreen( !isFullScreen() );
 		break;

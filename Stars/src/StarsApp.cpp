@@ -20,9 +20,10 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/app/App.h"
+#include "cinder/Filesystem.h"
 #include "cinder/Timer.h"
 #include "cinder/Utilities.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/GlslProg.h"
@@ -79,6 +80,7 @@ class StarsApp : public App {
 
 	bool isStereoscopic() const { return mIsStereoscopic; }
 	bool isCylindrical() const { return mIsCylindrical; }
+
   protected:
 	void playMusic( const fs::path &path, bool loop = false );
 	void stopMusic();
@@ -100,7 +102,7 @@ class StarsApp : public App {
 	fs::path getPrevFile( const fs::path &current );
 
   protected:
-	double mTime;
+	double mTime = 0.0;
 
 	// cursor position
 	ivec2 mCursorPos;
@@ -119,18 +121,21 @@ class StarsApp : public App {
 	Grid                mGrid;
 	UserInterface       mUserInterface;
 
+	gl::BatchRef mSun;
+
 	// animation timer
 	Timer mTimer;
 
 	// toggles
-	bool mIsGridVisible;
-	bool mIsLabelsVisible;
-	bool mIsConstellationsVisible;
-	bool mIsConstellationArtVisible;
-	bool mIsCursorVisible;
-	bool mIsStereoscopic;
-	bool mIsCylindrical;
-	bool mDrawUserInterface;
+	bool mIsGridVisible = false;
+	bool mIsLabelsVisible = false;
+	bool mIsConstellationsVisible = false;
+	bool mIsConstellationArtVisible = false;
+	bool mIsCursorVisible = false;
+	bool mIsStereoscopic = false;
+	bool mIsCylindrical = false;
+	bool mIsDemo = true;
+	bool mDrawUserInterface = false;
 
 	// frame buffer and shader used for cylindrical projection
 	gl::FboRef      mFbo;
@@ -155,7 +160,9 @@ void StarsApp::prepare( Settings *settings )
 	auto displays = Display::getDisplays();
 
 	settings->disableFrameRate();
-	settings->setWindowSize( 1280, 720 );
+	settings->setBorderless( true );
+	settings->setWindowPos( 0, 0 );
+	settings->setWindowSize( 1352, 2080 );
 
 #if !_DEBUG
 	settings->setFullScreen( true );
@@ -164,15 +171,6 @@ void StarsApp::prepare( Settings *settings )
 
 void StarsApp::setup()
 {
-	// Initialize member variables.
-	mIsGridVisible = false;
-	mIsLabelsVisible = false;
-	mIsConstellationsVisible = false;
-	mIsConstellationArtVisible = false;
-	mIsStereoscopic = false;
-	mIsCylindrical = false;
-	mDrawUserInterface = false;
-
 	// cylindrical projection settings
 	mSectionCount = 3;
 	mSectionFovDegrees = 72.0f;
@@ -227,7 +225,7 @@ void StarsApp::setup()
 	mPlayMusic = false;
 
 	// initialize the IrrKlang Sound Engine in a very safe way
-	mSoundEngine = shared_ptr<ISoundEngine>( createIrrKlangDevice(), std::mem_fun( &ISoundEngine::drop ) );
+	mSoundEngine = shared_ptr<ISoundEngine>( createIrrKlangDevice(), std::mem_fn( &ISoundEngine::drop ) );
 
 	if( mSoundEngine ) {
 		// play 3D Sun rumble
@@ -240,12 +238,17 @@ void StarsApp::setup()
 		}
 
 		// play background music (the first .mp3 file found in ./assets/music)
-		fs::path path = getFirstFile( getAssetPath( "" ) / "music" );
+		const fs::path path = getFirstFile( getAssetPath( "" ) / "music" );
 		playMusic( path );
 	}
 
 	//
 	createShader();
+
+	//
+	// auto mesh = gl::VboMesh::create( geom::Sphere().radius( 1 ).subdivisions( 60 ) );
+	// auto glsl = gl::GlslProg::create( loadAsset( "shaders/sun.vert" ), loadAsset( "shaders/sun.frag" ) );
+	// mSun = gl::Batch::create( mesh, glsl );
 
 	//
 	mTimer.start();
@@ -267,19 +270,26 @@ void StarsApp::cleanup()
 
 void StarsApp::update()
 {
-	double elapsed = getElapsedSeconds() - mTime;
+	const double elapsed = getElapsedSeconds() - mTime;
 	mTime += elapsed;
 
 	double time = getElapsedSeconds() / 200.0;
 	if( mSoundEngine && mMusic && mPlayMusic )
-		time = mMusic->getPlayPosition() / (double)mMusic->getPlayLength();
+		time = mMusic->getPlayPosition() / double( mMusic->getPlayLength() );
+
+	// toggle constellations in demo mode
+	if( mIsDemo && time > 0.5 ) {
+		mIsDemo = false;
+		mIsConstellationsVisible = true;
+		mIsConstellationArtVisible = true;
+	}
 
 	// animate camera
 	mCamera.setDistanceTime( time );
 	mCamera.update( elapsed );
 
 	// adjust content based on camera distance
-	float distance = length( mCamera.getCamera().getEyePoint() );
+	const float distance = length( mCamera.getCamera().getEyePoint() );
 	mBackground.setCameraDistance( distance );
 	// mLabels.setCameraDistance( distance );
 	mConstellations.setCameraDistance( distance );
@@ -298,6 +308,10 @@ void StarsApp::update()
 			playMusic( getNextFile( mMusicPath ) );
 		}
 	}
+
+	//
+	if( mSun )
+		mSun->getGlslProg()->uniform( "uTime", float( getElapsedSeconds() ) );
 }
 
 void StarsApp::draw()
@@ -306,7 +320,7 @@ void StarsApp::draw()
 	int h = getWindowHeight();
 
 	gl::clear( Color::black() );
-
+#if 1
 	if( mIsStereoscopic ) {
 		gl::ScopedViewport viewport( 0, 0, w / 2, h );
 		gl::pushMatrices();
@@ -345,7 +359,7 @@ void StarsApp::draw()
 		const float aspect = float( w ) / float( h );
 		// const float hFoV = mSectionFovDegrees;
 		// const float vFoV = toDegrees( 2.0f * math<float>::atan( math<float>::tan( toRadians(hFoV) * 0.5f ) / aspect ) );
-		const float vFoVDegrees = (float)mCamera.getFov();
+		const float vFoVDegrees = float( mCamera.getFov() );
 		const float vFovRadians = glm::radians( vFoVDegrees );
 		const float hFoVRadians = 2.0f * math<float>::atan( math<float>::tan( vFovRadians * 0.5f ) * aspect );
 		const float hFovDegrees = glm::degrees( hFoVRadians );
@@ -368,12 +382,12 @@ void StarsApp::draw()
 
 			vec3 right, up;
 			cam.getBillboardVectors( &right, &up );
-			vec3 forward = cross( up, right );
+			const vec3 forward = cross( up, right );
 
 			// render sections
-			float offset = 0.5f * ( mSectionCount - 1 );
+			const float offset = 0.5f * ( mSectionCount - 1 );
 			for( unsigned i = 0; i < mSectionCount; ++i ) {
-				gl::ScopedViewport viewport( i * w, 0, w, h );
+				gl::ScopedViewport scpViewport( i * w, 0, w, h );
 
 				cam.setViewDirection( glm::angleAxis( -mSectionOverlap * hFoVRadians * ( i - offset ), up ) * forward );
 				cam.setWorldUp( up );
@@ -397,11 +411,11 @@ void StarsApp::draw()
 
 			gl::ScopedGlslProg shader( mShader );
 			mShader->uniform( "tex", 0 );
-			mShader->uniform( "sides", (float)mSectionCount );
+			mShader->uniform( "sides", float( mSectionCount ) );
 			mShader->uniform( "radians", mSectionCount * hFoVRadians );
 			mShader->uniform( "reciprocal", 0.5f / mSectionCount );
 
-			Rectf centered = Rectf( mFbo->getBounds() ).getCenteredFit( getWindowBounds(), false );
+			const Rectf centered = Rectf( mFbo->getBounds() ).getCenteredFit( getWindowBounds(), false );
 			gl::drawSolidRect( centered );
 			// gl::draw( mFbo->getColorTexture(), centered );
 		}
@@ -428,6 +442,16 @@ void StarsApp::draw()
 	gl::color( ColorA( 0, 0, 0, a ) );
 	gl::drawSolidRect( getWindowBounds() );
 	}//*/
+#endif
+
+	if( mSun ) {
+		gl::ScopedDepth       scpDepth( true );
+		gl::ScopedFaceCulling scpCull( true );
+		gl::ScopedMatrices    scpMatrices;
+
+		gl::setMatrices( mCamera.getCamera() );
+		mSun->draw();
+	}
 }
 
 void StarsApp::render()
@@ -511,6 +535,18 @@ void StarsApp::keyDown( KeyEvent event )
 #endif
 
 	switch( event.getCode() ) {
+	case KeyEvent::KEY_RETURN:
+		if( mSun ) {
+			try {
+				const auto glsl = gl::GlslProg::create( loadAsset( "shaders/sun.vert" ), loadAsset( "shaders/sun.frag" ) );
+				mSun->replaceGlslProg( glsl );
+				console() << "Shader reloaded." << std::endl;
+			}
+			catch( const std::exception &exc ) {
+				console() << exc.what() << std::endl;
+			}
+		}
+		break;
 	case KeyEvent::KEY_f:
 		// toggle full screen
 		setFullScreen( !isFullScreen() );
@@ -586,9 +622,9 @@ void StarsApp::keyDown( KeyEvent event )
 		mLabels.setScale( mIsStereoscopic ? vec2( 0.5f, 1 ) : vec2( 1 ) );
 		mConstellationLabels.setScale( mIsStereoscopic ? vec2( 0.5f, 1 ) : vec2( 1 ) );
 		break;
-	case KeyEvent::KEY_RETURN:
-		createShader();
-		break;
+	// case KeyEvent::KEY_RETURN:
+	//	createShader();
+	//	break;
 	case KeyEvent::KEY_PLUS:
 	case KeyEvent::KEY_EQUALS:
 	case KeyEvent::KEY_KP_PLUS:
@@ -630,7 +666,7 @@ void StarsApp::playMusic( const fs::path &path, bool loop )
 			mMusic->stop();
 
 		// play music in a very safe way
-		mMusic = shared_ptr<ISound>( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun( &ISound::drop ) );
+		mMusic = shared_ptr<ISound>( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fn( &ISound::drop ) );
 		if( mMusic )
 			mMusic->setIsPaused( false );
 
@@ -650,7 +686,7 @@ void StarsApp::stopMusic()
 void StarsApp::playSound( const fs::path &path, bool loop )
 {
 	// play sound in a very safe way
-	shared_ptr<ISound> sound( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fun( &ISound::drop ) );
+	shared_ptr<ISound> sound( mSoundEngine->play2D( path.string().c_str(), loop, true ), std::mem_fn( &ISound::drop ) );
 	if( sound )
 		sound->setIsPaused( false );
 }
@@ -661,7 +697,7 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 
 	if( mSoundEngine && !path.empty() ) {
 		// create sound in a very safe way
-		sound = shared_ptr<ISound>( mSoundEngine->play3D( path.string().c_str(), vec3df( 0, 0, 0 ), false, true ), std::mem_fun( &ISound::drop ) );
+		sound = shared_ptr<ISound>( mSoundEngine->play3D( path.string().c_str(), vec3df( 0, 0, 0 ), false, true ), std::mem_fn( &ISound::drop ) );
 	}
 
 	return sound;
@@ -669,8 +705,8 @@ shared_ptr<ISound> StarsApp::createSound( const fs::path &path )
 
 void StarsApp::createShader()
 {
-	fs::path vs = getAssetPath( "" ) / "shaders/cylindrical.vert";
-	fs::path fs = getAssetPath( "" ) / "shaders/cylindrical.frag";
+	const fs::path vs = getAssetPath( "" ) / "shaders/cylindrical.vert";
+	const fs::path fs = getAssetPath( "" ) / "shaders/cylindrical.frag";
 
 	//
 	try {
@@ -685,8 +721,8 @@ void StarsApp::createShader()
 void StarsApp::createFbo()
 {
 	// determine the size of the frame buffer
-	int w = getWindowWidth() * 2;
-	int h = getWindowHeight() * 2;
+	const int w = getWindowWidth() * 2;
+	const int h = getWindowHeight() * 2;
 
 	if( mFbo && mFbo->getSize() == ivec2( w, h ) )
 		return;
@@ -737,7 +773,7 @@ void StarsApp::constrainCursor( const ivec2 &pos )
 		mCursorPrevious.x = pt.x = getWindowWidth() / 2;
 		mCursorPrevious.y = pt.y = getWindowHeight() / 2;
 
-		HWND hWnd = getRenderer()->getHwnd();
+		const HWND hWnd = getRenderer()->getHwnd();
 		::ClientToScreen( hWnd, &pt );
 		::SetCursorPos( pt.x, pt.y );
 #else
@@ -763,7 +799,7 @@ CGWarpMouseCursorPosition(target);
 
 fs::path StarsApp::getFirstFile( const fs::path &path )
 {
-	fs::directory_iterator end_itr;
+	const fs::directory_iterator end_itr;
 	for( fs::directory_iterator i( path ); i != end_itr; ++i ) {
 		// skip if not a file
 		if( !fs::is_regular_file( i->status() ) )
@@ -786,7 +822,7 @@ fs::path StarsApp::getNextFile( const fs::path &current )
 	if( !current.empty() ) {
 		bool useNext = false;
 
-		fs::directory_iterator end_itr;
+		const fs::directory_iterator end_itr;
 		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i ) {
 			// skip if not a file
 			if( !fs::is_regular_file( i->status() ) )
@@ -815,7 +851,7 @@ fs::path StarsApp::getPrevFile( const fs::path &current )
 	if( !current.empty() ) {
 		fs::path previous;
 
-		fs::directory_iterator end_itr;
+		const fs::directory_iterator end_itr;
 		for( fs::directory_iterator i( current.parent_path() ); i != end_itr; ++i ) {
 			// skip if not a file
 			if( !fs::is_regular_file( i->status() ) )
@@ -844,7 +880,7 @@ fs::path StarsApp::getPrevFile( const fs::path &current )
 }
 
 // allow easy access to the application from outside
-static StarsApp *StarsAppPtr()
+static StarsApp *starsAppPtr()
 {
 	return static_cast<StarsApp *>( App::get() );
 }

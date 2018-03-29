@@ -34,8 +34,8 @@ class MouseEvent;
 class KeyEvent;
 class ResizeEvent;
 class FileDropEvent;
-}
-}
+} // namespace app
+} // namespace cinder
 
 #include "cinder/Color.h"
 #include "cinder/Matrix.h"
@@ -54,10 +54,10 @@ class FileDropEvent;
 namespace ph {
 namespace nodes {
 
-typedef std::shared_ptr<class Node>       NodeRef;
-typedef std::shared_ptr<const class Node> NodeConstRef;
-typedef std::weak_ptr<class Node>         NodeWeakRef;
-typedef std::vector<NodeRef>              NodeList;
+typedef std::shared_ptr<class Node>         NodeRef;
+typedef std::shared_ptr<const class Node>   NodeConstRef;
+typedef std::weak_ptr<class Node>           NodeWeakRef;
+typedef std::vector<NodeRef>                NodeList;
 typedef std::map<unsigned int, NodeWeakRef> NodeMap;
 
 class Node : public std::enable_shared_from_this<Node> {
@@ -92,8 +92,8 @@ class Node : public std::enable_shared_from_this<Node> {
 	unsigned int getUuid() const { return mUuid; }
 	ci::Color    getUuidColor() const { return uuidToColor( mUuid ); }
 
-	static ci::Color uuidToColor( unsigned int uuid ) { return ci::Color( ( uuid & 0xFF ) / 255.0f, ( ( uuid >> 8 ) & 0xFF ) / 255.0f, ( ( uuid >> 16 ) & 0xFF ) / 255.0f ); }
-	static unsigned int colorToUuid( ci::Color color ) { return colorToUuid( (unsigned char)( color.r * 255 ), (unsigned char)( color.g * 255 ), (unsigned char)( color.b * 255 ) ); }
+	static ci::Color    uuidToColor( unsigned int uuid ) { return ci::Color( ( uuid & 0xFF ) / 255.0f, ( ( uuid >> 8 ) & 0xFF ) / 255.0f, ( ( uuid >> 16 ) & 0xFF ) / 255.0f ); }
+	static unsigned int colorToUuid( ci::Color color ) { return colorToUuid( static_cast<unsigned char>( color.r * 255 ), static_cast<unsigned char>( color.g * 255 ), static_cast<unsigned char>( color.b * 255 ) ); }
 	static unsigned int colorToUuid( unsigned char r, unsigned char g, unsigned char b ) { return r + ( g << 8 ) + ( b << 16 ); }
 
 	static NodeRef findNode( unsigned int uuid ) { return uuidLookup[uuid].lock(); }
@@ -119,8 +119,7 @@ class Node : public std::enable_shared_from_this<Node> {
 	std::deque<std::shared_ptr<T>> getChildren()
 	{
 		std::deque<std::shared_ptr<T>> result;
-		NodeList::iterator             itr;
-		for( itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
+		for( auto itr = mChildren.begin(); itr != mChildren.end(); ++itr ) {
 			std::shared_ptr<T> node = std::dynamic_pointer_cast<T>( *itr );
 			if( node )
 				result.push_back( node );
@@ -190,15 +189,13 @@ class Node : public std::enable_shared_from_this<Node> {
 	//! signal parent that this node has been clicked or activated
 	virtual void selectChild( NodeRef node )
 	{
-		NodeList::iterator itr;
-		for( itr = mChildren.begin(); itr != mChildren.end(); ++itr )
+		for( auto itr = mChildren.begin(); itr != mChildren.end(); ++itr )
 			( *itr )->setSelected( *itr == node );
 	}
 	//! signal parent that this node has been released or deactivated
 	virtual void deselectChild( NodeRef node )
 	{
-		NodeList::iterator itr;
-		for( itr = mChildren.begin(); itr != mChildren.end(); ++itr )
+		for( auto itr = mChildren.begin(); itr != mChildren.end(); ++itr )
 			( *itr )->setSelected( false );
 	}
 
@@ -215,7 +212,7 @@ class Node : public std::enable_shared_from_this<Node> {
 	virtual void setup() {}
 	virtual void shutdown() {}
 	virtual void update( double elapsed = 0.0 ) {}
-	virtual void                draw() {}
+	virtual void draw() {}
 
 	// supported events
 	//! calls the mouseMove() function of this node and all its decendants until a TRUE is passed back
@@ -250,7 +247,8 @@ class Node : public std::enable_shared_from_this<Node> {
 
 	// stream support
 	virtual inline std::string toString() const { return "Node"; }
-	friend std::ostream &operator<<( std::ostream &s, const Node &o ) { return s << "[" << o.toString() << "]"; }
+	friend std::ostream &      operator<<( std::ostream &s, const Node &o ) { return s << "[" << o.toString() << "]"; }
+
   protected:
 	bool mIsVisible;
 	bool mIsClickable;
@@ -288,12 +286,12 @@ class Node : public std::enable_shared_from_this<Node> {
 };
 
 // Basic support for OpenGL nodes
-typedef std::shared_ptr<class NodeGL> NodeGLRef;
+typedef std::shared_ptr<class NodeGl> NodeGlRef;
 
-class NodeGL : public Node {
+class NodeGl : public Node {
   public:
-	NodeGL( void ) {}
-	virtual ~NodeGL( void ) {}
+	NodeGl( void ) {}
+	virtual ~NodeGl( void ) {}
 
 	// shader support
 	template <typename T>
@@ -309,25 +307,26 @@ class NodeGL : public Node {
 			mShader->uniform( name, data, count );
 	}
 
-	void setShaderUniform( const std::string &name, int data )
+	void setShaderUniform( const std::string &name, int data ) const
 	{
 		if( mShader )
 			mShader->uniform( name, data );
 	}
-	void setShaderUniform( const std::string &name, float data )
+	void setShaderUniform( const std::string &name, float data ) const
 	{
 		if( mShader )
 			mShader->uniform( name, data );
 	}
 
-	void bindShader()
+	void bindShader() const
 	{
 		if( mShader )
 			mShader->bind();
 	}
 
 	// stream support
-	virtual inline std::string toString() const { return "NodeGL"; }
+	std::string toString() const override { return "NodeGL"; }
+
   protected:
 	ci::gl::GlslProgRef mShader;
 };
@@ -335,14 +334,14 @@ class NodeGL : public Node {
 // Basic support for 2D nodes
 typedef std::shared_ptr<class Node2D> Node2DRef;
 
-class Node2D : public NodeGL {
+class Node2D : public NodeGl {
   public:
 	Node2D( void );
 	virtual ~Node2D( void );
 
 	// getters and setters
 	virtual ci::vec2 getPosition() const { return mPosition; }
-	virtual void setPosition( float x, float y )
+	virtual void     setPosition( float x, float y )
 	{
 		mPosition = ci::vec2( x, y );
 		invalidateTransform();
@@ -354,7 +353,7 @@ class Node2D : public NodeGL {
 	}
 
 	virtual ci::quat getRotation() const { return mRotation; }
-	virtual void setRotation( float radians )
+	virtual void     setRotation( float radians )
 	{
 		mRotation = glm::angleAxis( radians, ci::vec3( 0, 0, 1 ) );
 		invalidateTransform();
@@ -366,7 +365,7 @@ class Node2D : public NodeGL {
 	}
 
 	virtual ci::vec2 getScale() const { return mScale; }
-	virtual void setScale( float scale )
+	virtual void     setScale( float scale )
 	{
 		mScale = ci::vec2( scale, scale );
 		invalidateTransform();
@@ -383,7 +382,7 @@ class Node2D : public NodeGL {
 	}
 
 	virtual ci::vec2 getAnchor() const { return mAnchorIsPercentage ? mAnchor * getSize() : mAnchor; }
-	virtual void setAnchor( float x, float y )
+	virtual void     setAnchor( float x, float y )
 	{
 		mAnchor = ci::vec2( x, y );
 		mAnchorIsPercentage = false;
@@ -397,7 +396,7 @@ class Node2D : public NodeGL {
 	}
 
 	virtual ci::vec2 getAnchorPercentage() const { return mAnchorIsPercentage ? mAnchor : mAnchor / getSize(); }
-	virtual void setAnchorPercentage( float px, float py )
+	virtual void     setAnchorPercentage( float px, float py )
 	{
 		mAnchor = ci::vec2( px, py );
 		mAnchorIsPercentage = true;
@@ -429,8 +428,8 @@ class Node2D : public NodeGL {
 	}
 	virtual void setSize( const ci::ivec2 &size )
 	{
-		mWidth = (float)size.x;
-		mHeight = (float)size.y;
+		mWidth = float( size.x );
+		mHeight = float( size.y );
 	}
 	virtual void setBounds( const ci::Rectf &bounds )
 	{
@@ -447,7 +446,8 @@ class Node2D : public NodeGL {
 	virtual ci::vec2 objectToScreen( const ci::vec2 &pt ) const;
 
 	// stream support
-	virtual inline std::string toString() const { return "Node2D"; }
+	std::string toString() const override { return "Node2D"; }
+
   protected:
 	ci::vec2 mPosition;
 	ci::quat mRotation;
@@ -460,7 +460,7 @@ class Node2D : public NodeGL {
 	float mHeight;
 
 	// required function (see: class Node)
-	virtual void transform() const
+	void transform() const override
 	{
 		// construct transformation matrix
 		ci::mat4 transform = glm::translate( ci::vec3( mPosition, 0 ) );
@@ -479,7 +479,7 @@ class Node2D : public NodeGL {
 // Basic support for 3D nodes
 typedef std::shared_ptr<class Node3D> Node3DRef;
 
-class Node3D : public NodeGL {
+class Node3D : public NodeGl {
   public:
 	Node3D( void );
 	virtual ~Node3D( void );
@@ -490,7 +490,7 @@ class Node3D : public NodeGL {
 
 	// getters and setters
 	virtual ci::vec3 getPosition() const { return mPosition; }
-	virtual void setPosition( float x, float y, float z )
+	virtual void     setPosition( float x, float y, float z )
 	{
 		mPosition = ci::vec3( x, y, z );
 		invalidateTransform();
@@ -502,7 +502,7 @@ class Node3D : public NodeGL {
 	}
 
 	virtual ci::quat getRotation() const { return mRotation; }
-	virtual void setRotation( float radians )
+	virtual void     setRotation( float radians )
 	{
 		mRotation = glm::angleAxis( radians, ci::vec3( 0, 1, 0 ) );
 		invalidateTransform();
@@ -524,7 +524,7 @@ class Node3D : public NodeGL {
 	}
 
 	virtual ci::vec3 getScale() const { return mScale; }
-	virtual void setScale( float scale )
+	virtual void     setScale( float scale )
 	{
 		mScale = ci::vec3( scale, scale, scale );
 		invalidateTransform();
@@ -541,7 +541,7 @@ class Node3D : public NodeGL {
 	}
 
 	virtual ci::vec3 getAnchor() const { return mAnchor; }
-	virtual void setAnchor( float x, float y, float z )
+	virtual void     setAnchor( float x, float y, float z )
 	{
 		mAnchor = ci::vec3( x, y, z );
 		invalidateTransform();
@@ -553,7 +553,8 @@ class Node3D : public NodeGL {
 	}
 
 	// stream support
-	virtual inline std::string toString() const { return "Node3D"; }
+	std::string toString() const override { return "Node3D"; }
+
   protected:
 	ci::vec3 mPosition;
 	ci::quat mRotation;
@@ -561,7 +562,7 @@ class Node3D : public NodeGL {
 	ci::vec3 mAnchor;
 
 	// required function (see: class Node)
-	virtual void transform() const
+	void transform() const override
 	{
 		// construct transformation matrix
 		ci::mat4 transform = glm::translate( mPosition );
@@ -572,5 +573,5 @@ class Node3D : public NodeGL {
 		setTransform( transform );
 	}
 };
-}
-} // namespace ph::nodes
+} // namespace nodes
+} // namespace ph

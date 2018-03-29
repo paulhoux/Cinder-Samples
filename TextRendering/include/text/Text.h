@@ -141,10 +141,10 @@ class Text {
 
   public:
 	// special Unicode functions (requires Cinder v0.8.5)
-	void findBreaksUtf8( const std::string &line, std::vector<size_t> *must, std::vector<size_t> *allow );
-	void findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow );
-	bool isWhitespaceUtf8( const char ch );
-	bool isWhitespaceUtf16( const wchar_t ch );
+	void findBreaksUtf8( const std::string &line, std::vector<size_t> *must, std::vector<size_t> *allow ) const;
+	void findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow ) const;
+	bool isWhitespaceUtf8( const char ch ) const;
+	bool isWhitespaceUtf16( const wchar_t ch ) const;
 
   protected:
 	bool mInvalid;

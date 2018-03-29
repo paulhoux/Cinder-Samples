@@ -19,11 +19,11 @@ void main(void)
 	vec2 coord = ciTexCoord0 + vec2(0.0, uTexOffset);
 
 	// retrieve the FFT from left and right texture and average it
-	float fft = max(0.0001, mix( texture( uLeftTex, coord ).r, texture( uRightTex, coord ).r, 0.5));
+	float fft = max(0.0001, mix( texture( uLeftTex, coord ).r, texture( uRightTex, coord ).r, 0.0));
 
 	// convert to decibels
-	const float kLogBase10 = 1.0 / log(10.0);
-	float decibels = 10.0 * log( fft ) * kLogBase10;
+	const float kLogBase2 = 1.0 / log(2.0);
+	float decibels = 10.0 * log( fft ) * kLogBase2;
 
 	// offset the vertex based on the decibels
 	vec4 vertex = ciPosition;

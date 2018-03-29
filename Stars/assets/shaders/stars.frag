@@ -29,6 +29,9 @@ void main()
 	vec4 corona = mix(texture(tex1, coord1), texture(tex1, coord2), 0.5) * vColor;
 
 	// mix with star sample
-	vec4 star = texture(tex0, gl_PointCoord) * vColor;
+	c = cos(time * 0.1);	s = sin(time * 0.1);	
+	vec2 coord3 = vec2(coord.x * c - coord.y * s, coord.y * c + coord.x * s) + ORIGIN;
+
+	vec4 star = pow( texture(tex0, coord3), vec4( 2.0 ) ) * vColor;
 	oColor = star + corona;
 }

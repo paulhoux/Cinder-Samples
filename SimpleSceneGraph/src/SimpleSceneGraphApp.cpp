@@ -67,10 +67,10 @@ void SimpleSceneGraphApp::prepare( Settings *settings )
 void SimpleSceneGraphApp::setup()
 {
 	// create the root node
-	mRoot = Node2DRef( new Node2D() );
+	mRoot = std::make_shared<Node2D>();
 
 	// create a large rectangle first
-	mParent = NodeRectangleRef( new NodeRectangle() );
+	mParent = std::make_shared<NodeRectangle>();
 	// specify the position of the anchor point on our canvas
 	mParent->setPosition( 400, 300 ); // relative to parent node
 	// we can easily set the anchor point to its center
@@ -81,20 +81,20 @@ void SimpleSceneGraphApp::setup()
 	mRoot->addChild( mParent );
 
 	// add smaller rectangles to the root node
-	NodeRectangleRef child1( new NodeRectangle() );
+	auto child1 = std::make_shared<NodeRectangle>();
 	child1->setPosition( 200, 225 ); // relative to parent node
 	child1->setAnchorPercentage( 0.5f, 0.5f );
 	child1->setSize( 240, 200 );
 	mParent->addChild( child1 );
 
-	NodeRectangleRef child2( new NodeRectangle() );
+	auto child2 = std::make_shared<NodeRectangle>();
 	child2->setPosition( 400, 225 ); // relative to parent node
 	child2->setAnchorPercentage( 0.5f, 0.5f );
 	child2->setSize( 240, 200 );
 	mParent->addChild( child2 );
 
 	// add even smaller rectangles to the child rectangles
-	NodeRectangleRef child( new NodeRectangle() );
+	auto child = std::make_shared<NodeRectangle>();
 	child->setPosition( 60, 100 ); // relative to parent node
 	child->setAnchorPercentage( 0.5f, 0.5f );
 	child->setSize( 100, 100 );
@@ -124,9 +124,7 @@ void SimpleSceneGraphApp::setup()
 	// they are removed from their parent.
 }
 
-void SimpleSceneGraphApp::cleanup()
-{
-}
+void SimpleSceneGraphApp::cleanup() {}
 
 void SimpleSceneGraphApp::update()
 {
@@ -189,6 +187,8 @@ void SimpleSceneGraphApp::keyDown( KeyEvent event )
 			if( event.isAltDown() ) {
 				setFullScreen( !isFullScreen() );
 			}
+			break;
+		default:
 			break;
 		}
 	}

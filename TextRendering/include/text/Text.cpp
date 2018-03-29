@@ -20,7 +20,6 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/Rand.h"
 #include "cinder/Unicode.h"
 #include "cinder/gl/VboMesh.h"
 #include "cinder/gl/draw.h"
@@ -28,7 +27,6 @@
 #include "text/Text.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
 
 namespace ph {
 namespace text {
@@ -94,9 +92,9 @@ void Text::renderMesh()
 	// initialize variables
 	const float    space = mFont->getAdvance( 32, mFontSize );
 	const float    height = getHeight() > 0.0f ? ( getHeight() - mFont->getDescent( mFontSize ) ) : 0.0f;
-	float          width, linewidth;
+	float          width = 0;
 	size_t         index = 0;
-	std::u16string trimmed, chunk;
+	std::u16string trimmed;
 
 	// initialize cursor position
 	vec2 cursor( 0.0f, std::floorf( mFont->getAscent( mFontSize ) + 0.5f ) );
@@ -109,7 +107,7 @@ void Text::renderMesh()
 
 	// reserve some room in the buffers, to prevent excessive resizing. Do not use the full string length,
 	// because the text may contain white space characters that don't need to be rendered.
-	size_t sz = mText.length() / 2;
+	const size_t sz = mText.length() / 2;
 	mVertices.reserve( 4 * sz );
 	mTexcoords.reserve( 4 * sz );
 	mIndices.reserve( 6 * sz );
@@ -119,7 +117,7 @@ void Text::renderMesh()
 	std::vector<size_t>::iterator aitr = mAllow.begin();
 	while( aitr != mAllow.end() && mitr != mMust.end() && ( height == 0.0f || cursor.y <= height ) ) {
 		// calculate the maximum allowed width for this line
-		linewidth = getWidthAt( cursor.y );
+		const float linewidth = getWidthAt( cursor.y );
 
 		switch( mBoundary ) {
 		case LINE:
@@ -134,7 +132,7 @@ void Text::renderMesh()
 			break;
 		case WORD:
 			// measure the first chunk on this line
-			chunk = ( mText.substr( index, *aitr - index + 1 ) );
+			std::u16string chunk = ( mText.substr( index, *aitr - index + 1 ) );
 			width = mFont->measureWidth( chunk, mFontSize, false );
 
 			// if it fits, add the next chunk until no more chunks fit or are available
@@ -192,6 +190,7 @@ void Text::renderMesh()
 		case RIGHT:
 			cursor.x = ( linewidth - width );
 			break;
+		default:
 			break;
 		}
 
@@ -208,18 +207,17 @@ void Text::renderMesh()
 
 void Text::renderString( const std::u16string &str, vec2 *cursor, float stretch )
 {
-	std::u16string::const_iterator itr;
-	for( itr = str.begin(); itr != str.end(); ++itr ) {
+	for( auto itr = str.begin(); itr != str.end(); ++itr ) {
 		// retrieve character code
-		uint16_t id = (uint16_t)*itr;
+		const auto id = uint16_t( *itr );
 
 		if( mFont->contains( id ) ) {
 			// get metrics for this character to speed up measurements
-			Font::Metrics m = mFont->getMetrics( id );
+			const Font::Metrics m = mFont->getMetrics( id );
 
 			// skip whitespace characters
 			if( !isWhitespaceUtf16( id ) ) {
-				size_t index = mVertices.size();
+				const auto index = uint16_t( mVertices.size() );
 
 				Rectf bounds = mFont->getBounds( m, mFontSize );
 				mVertices.push_back( vec3( *cursor + bounds.getUpperLeft(), 0 ) );
@@ -323,8 +321,7 @@ std::string Text::getFragmentShader() const
 	const char *fs
 	    = "#version 150\n"
 	      ""
-	      "uniform sampler2D	font_map;\n"
-	      "uniform float      smoothness;\n"
+	      "uniform sampler2D uTex0;\n"
 	      ""
 	      "const float kGamma = 2.2;\n"
 	      ""
@@ -333,22 +330,36 @@ std::string Text::getFragmentShader() const
 	      ""
 	      "out vec4 oColor;\n"
 	      ""
-	      "void main()\n"
+	      "vec2 safeNormalize( in vec2 v )\n"
 	      "{\n"
-	      "	// retrieve signed distance\n"
-	      "	float sdf = texture( font_map, vTexCoord0.xy ).r;\n"
-	      "\n"
-	      "	// perform adaptive anti-aliasing of the edges\n"
-	      "	float w = clamp( smoothness * (abs(dFdx(vTexCoord0.x)) + abs(dFdy(vTexCoord0.y))), 0.0, 0.5);\n"
-	      "	float a = smoothstep(0.5-w, 0.5+w, sdf);\n"
-	      "\n"
-	      "	// gamma correction for linear attenuation\n"
-	      "	a = pow(a, 1.0/kGamma);\n"
-	      "\n"
-	      "	// final color\n"
-	      "	oColor.rgb = vColor.rgb;\n"
-	      "	oColor.a = vColor.a * a;\n"
-	      "}\n";
+	      "	float len = length( v ); \n"
+	      "	len = ( len > 0.0 ) ? 1.0 / len : 0.0; \n"
+	      "	return v * len; \n"
+	      "}\n"
+	      ""
+	      "void main( void )\n"
+	      "{\n"
+	      "	// Convert normalized texcoords to absolute texcoords.\n"
+	      "	vec2 uv = vTexCoord0 * textureSize( uTex0, 0 ); \n"
+	      "	// Calculate derivates\n"
+	      "	vec2 Jdx = dFdx( uv ); \n"
+	      "	vec2 Jdy = dFdy( uv ); \n"
+	      "	// Sample SDF texture (3 channels).\n"
+	      "	vec3 sample = texture( uTex0, vTexCoord0 ).rgb; \n"
+	      "	// calculate signed distance (in texels).\n"
+	      "	float sigDist = sample.r - 0.5; \n"
+	      "	// For proper anti-aliasing, we need to calculate signed distance in pixels. We do this using derivatives.\n"
+	      "	vec2 gradDist = safeNormalize( vec2( dFdx( sigDist ), dFdy( sigDist ) ) ); \n"
+	      "	vec2 grad = vec2( gradDist.x * Jdx.x + gradDist.y * Jdy.x, gradDist.x * Jdx.y + gradDist.y * Jdy.y ); \n"
+	      "	// Apply anti-aliasing.\n"
+	      "	const float kThickness = 0.125; \n"
+	      "	const float kNormalization = kThickness * 0.5 * sqrt( 2.0 ); \n"
+	      "	float afwidth = min( kNormalization * length( grad ), 0.5 ); \n"
+	      "	float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist ); \n"
+	      "	// Apply pre-multiplied alpha with gamma correction.\n"
+	      "	oColor.a = pow( vColor.a * opacity, 1.0 / 2.2 ); \n"
+	      "	oColor.rgb = vColor.rgb * oColor.a; \n"
+	      "	}\n";
 
 	return std::string( fs );
 }
@@ -367,8 +378,7 @@ bool Text::bindShader()
 	}
 
 	mShader->bind();
-	mShader->uniform( "font_map", 0 );
-	mShader->uniform( "smoothness", 64.0f );
+	mShader->uniform( "uTex0", 0 );
 
 	return true;
 }
@@ -381,7 +391,7 @@ bool Text::unbindShader()
 	return true;
 }
 
-void Text::findBreaksUtf8( const std::string &line, std::vector<size_t> *must, std::vector<size_t> *allow )
+void Text::findBreaksUtf8( const std::string &line, std::vector<size_t> *must, std::vector<size_t> *allow ) const
 {
 	std::vector<uint8_t> resultBreaks;
 	calcLinebreaksUtf8( line.c_str(), &resultBreaks );
@@ -401,7 +411,7 @@ void Text::findBreaksUtf8( const std::string &line, std::vector<size_t> *must, s
 	}
 }
 
-void Text::findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow )
+void Text::findBreaksUtf16( const std::u16string &line, std::vector<size_t> *must, std::vector<size_t> *allow ) const
 {
 	std::vector<uint8_t> resultBreaks;
 	calcLinebreaksUtf16( (uint16_t *)line.c_str(), &resultBreaks );
@@ -421,12 +431,12 @@ void Text::findBreaksUtf16( const std::u16string &line, std::vector<size_t> *mus
 	}
 }
 
-bool Text::isWhitespaceUtf8( const char ch )
+bool Text::isWhitespaceUtf8( const char ch ) const
 {
-	return isWhitespaceUtf16( (short)ch );
+	return isWhitespaceUtf16( short( ch ) );
 }
 
-bool Text::isWhitespaceUtf16( const wchar_t ch )
+bool Text::isWhitespaceUtf16( const wchar_t ch ) const
 {
 	// see: http://en.wikipedia.org/wiki/Whitespace_character,
 	// make sure the values are in ascending order,
@@ -437,5 +447,5 @@ bool Text::isWhitespaceUtf16( const wchar_t ch )
 
 	return std::binary_search( whitespace.begin(), whitespace.end(), ch );
 }
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

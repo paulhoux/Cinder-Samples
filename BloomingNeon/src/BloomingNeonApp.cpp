@@ -82,8 +82,7 @@ void BloomingNeonApp::setup()
 	mFont = Font( "Arial", 24.0f );
 
 	gl::Fbo::Format fmt;
-	fmt.setSamples( 8 );
-	fmt.setCoverageSamples( 8 );
+	fmt.setSamples( 16 );
 
 	// setup our scene Fbo
 	mFboScene = gl::Fbo::create( SCENE_SIZE, SCENE_SIZE, fmt );

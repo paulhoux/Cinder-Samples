@@ -123,7 +123,7 @@ class ConcurrentMap {
 	}
 
   private:
-	std::map<Key, Data>     mQueue;
+	std::map<Key, Data> mQueue;
 	mutable std::mutex      mMutex;
 	std::condition_variable mCondition;
 	std::atomic<bool>       mInvalidated;

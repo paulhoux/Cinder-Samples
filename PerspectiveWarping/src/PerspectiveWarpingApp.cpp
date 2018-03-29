@@ -26,23 +26,6 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/gl/gl.h"
 
-// this sample needs the Cinder-OpenCV block, which comes with the release
-// version of Cinder, but should be installed separately if you use the GitHub version.
-// See the README.md file for more information.
-#include "CinderOpenCV.h"
-
-// On Windows, an easy way to add all required openCV libraries is to add them
-// using the #pragma directive
-#ifdef CINDER_MSW
-#ifndef _DEBUG
-#pragma comment( lib, "opencv_core249.lib" )
-#pragma comment( lib, "opencv_imgproc249.lib" )
-#else
-#pragma comment( lib, "opencv_core249d.lib" )
-#pragma comment( lib, "opencv_imgproc249d.lib" )
-#endif
-#endif
-
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -51,39 +34,45 @@ class PerspectiveWarpingApp : public App {
   public:
 	static void prepare( Settings *settings );
 
-	void setup();
-	void update();
-	void draw();
+	void setup() override;
+	void update() override;
+	void draw() override;
 
-	void resize();
+	void resize() override;
 
-	void mouseMove( MouseEvent event );
-	void mouseDown( MouseEvent event );
-	void mouseDrag( MouseEvent event );
-	void mouseUp( MouseEvent event );
+	void mouseMove( MouseEvent event ) override;
+	void mouseDown( MouseEvent event ) override;
+	void mouseDrag( MouseEvent event ) override;
+	void mouseUp( MouseEvent event ) override;
 
-	void keyDown( KeyEvent event );
-	void keyUp( KeyEvent event );
+	void keyDown( KeyEvent event ) override;
+	void keyUp( KeyEvent event ) override;
 
   public:
 	//! set the size in pixels of the actual content
 	void setContentSize( float width, float height );
 
 	//! find the index of the nearest corner
-	size_t getNearestIndex( const ivec2 &pt );
+	size_t getNearestIndex( const ivec2 &pt ) const;
+
+	//! calculates a perspective transform matrix. Similar to OpenCV's getPerspectiveTransform() function
+	mat4 getPerspectiveTransform( const vec2 src[4], const vec2 dst[4] ) const;
+
+	//! helper function
+	void gaussianElimination( float *a, int n ) const;
 
   private:
 	//! TRUE if the transform matrix needs to be recalculated
-	bool mIsInvalid;
+	bool mIsInvalid = true;
 
 	//! size in pixels of the actual content
 	float mWidth;
 	float mHeight;
 
 	//! corners expressed in content coordinates
-	cv::Point2f mSource[4];
+	vec2 mSource[4];
 	//! corners expressed in window coordinates
-	cv::Point2f mDestination[4];
+	vec2 mDestination[4];
 	//! corners expressed in normalized window coordinates
 	vec2 mDestinationNormalized[4];
 
@@ -94,14 +83,14 @@ class PerspectiveWarpingApp : public App {
 	gl::Texture2dRef mImage;
 
 	//! edit variables
-	bool mIsMouseDown;
+	bool mIsMouseDown = false;
 
-	size_t mSelected;
+	size_t mSelected = 0;
 
 	ivec2 mInitialMouse;
 	ivec2 mCurrentMouse;
 
-	cv::Point2f mInitialPosition;
+	vec2 mInitialPosition;
 };
 
 void PerspectiveWarpingApp::prepare( Settings *settings )
@@ -145,8 +134,8 @@ void PerspectiveWarpingApp::update()
 	if( mIsInvalid ) {
 		// calculate the actual four corners of the warp,
 		// expressed as window coordinates
-		int w = getWindowWidth();
-		int h = getWindowHeight();
+		const int w = getWindowWidth();
+		const int h = getWindowHeight();
 
 		mDestination[0].x = w * mDestinationNormalized[0].x;
 		mDestination[0].y = h * mDestinationNormalized[0].y;
@@ -158,20 +147,7 @@ void PerspectiveWarpingApp::update()
 		mDestination[3].y = h * mDestinationNormalized[3].y;
 
 		// calculate warp matrix
-		cv::Mat warp = cv::getPerspectiveTransform( mSource, mDestination );
-
-		// convert to OpenGL matrix
-		mTransform[0][0] = warp.ptr<double>( 0 )[0];
-		mTransform[0][1] = warp.ptr<double>( 1 )[0];
-		mTransform[0][3] = warp.ptr<double>( 2 )[0];
-
-		mTransform[1][0] = warp.ptr<double>( 0 )[1];
-		mTransform[1][1] = warp.ptr<double>( 1 )[1];
-		mTransform[1][3] = warp.ptr<double>( 2 )[1];
-
-		mTransform[3][0] = warp.ptr<double>( 0 )[2];
-		mTransform[3][1] = warp.ptr<double>( 1 )[2];
-		mTransform[3][3] = warp.ptr<double>( 2 )[2];
+		mTransform = getPerspectiveTransform( mSource, mDestination );
 
 		mIsInvalid = false;
 	}
@@ -208,9 +184,7 @@ void PerspectiveWarpingApp::resize()
 	mIsInvalid = true;
 }
 
-void PerspectiveWarpingApp::mouseMove( MouseEvent event )
-{
-}
+void PerspectiveWarpingApp::mouseMove( MouseEvent event ) {}
 
 void PerspectiveWarpingApp::mouseDown( MouseEvent event )
 {
@@ -227,7 +201,7 @@ void PerspectiveWarpingApp::mouseDrag( MouseEvent event )
 	// drag the nearest corner
 	mCurrentMouse = event.getPos();
 
-	ivec2 d = mCurrentMouse - mInitialMouse;
+	const ivec2 d = mCurrentMouse - mInitialMouse;
 	mDestination[mSelected].x = mInitialPosition.x + d.x;
 	mDestination[mSelected].y = mInitialPosition.y + d.y;
 
@@ -245,13 +219,9 @@ void PerspectiveWarpingApp::mouseUp( MouseEvent event )
 	mIsMouseDown = false;
 }
 
-void PerspectiveWarpingApp::keyDown( KeyEvent event )
-{
-}
+void PerspectiveWarpingApp::keyDown( KeyEvent event ) {}
 
-void PerspectiveWarpingApp::keyUp( KeyEvent event )
-{
-}
+void PerspectiveWarpingApp::keyUp( KeyEvent event ) {}
 
 void PerspectiveWarpingApp::setContentSize( float width, float height )
 {
@@ -273,13 +243,13 @@ void PerspectiveWarpingApp::setContentSize( float width, float height )
 	mIsInvalid = true;
 }
 
-size_t PerspectiveWarpingApp::getNearestIndex( const ivec2 &pt )
+size_t PerspectiveWarpingApp::getNearestIndex( const ivec2 &pt ) const
 {
 	uint8_t index = 0;
 	float   distance = 10.0e6f;
 
-	for( size_t i = 0; i < 4; ++i ) {
-		float d = glm::distance( vec2( mDestination[i].x, mDestination[i].y ), vec2( pt ) );
+	for( uint8_t i = 0; i < 4; ++i ) {
+		const float d = glm::distance( vec2( mDestination[i].x, mDestination[i].y ), vec2( pt ) );
 		if( d < distance ) {
 			distance = d;
 			index = i;
@@ -287,6 +257,75 @@ size_t PerspectiveWarpingApp::getNearestIndex( const ivec2 &pt )
 	}
 
 	return index;
+}
+
+// Implementation of OpenCV's `getPerspectiveTransform()`. This way, we don't have to link against the OpenCV library.
+// Adapted from code found here: http://forum.openframeworks.cc/t/quad-warping-homography-without-opencv/3121/19
+mat4 PerspectiveWarpingApp::getPerspectiveTransform( const vec2 src[4], const vec2 dst[4] ) const
+{
+	float p[8][9] = {
+		{ -src[0][0], -src[0][1], -1, 0, 0, 0, src[0][0] * dst[0][0], src[0][1] * dst[0][0], -dst[0][0] }, // h11
+		{ 0, 0, 0, -src[0][0], -src[0][1], -1, src[0][0] * dst[0][1], src[0][1] * dst[0][1], -dst[0][1] }, // h12
+		{ -src[1][0], -src[1][1], -1, 0, 0, 0, src[1][0] * dst[1][0], src[1][1] * dst[1][0], -dst[1][0] }, // h13
+		{ 0, 0, 0, -src[1][0], -src[1][1], -1, src[1][0] * dst[1][1], src[1][1] * dst[1][1], -dst[1][1] }, // h21
+		{ -src[2][0], -src[2][1], -1, 0, 0, 0, src[2][0] * dst[2][0], src[2][1] * dst[2][0], -dst[2][0] }, // h22
+		{ 0, 0, 0, -src[2][0], -src[2][1], -1, src[2][0] * dst[2][1], src[2][1] * dst[2][1], -dst[2][1] }, // h23
+		{ -src[3][0], -src[3][1], -1, 0, 0, 0, src[3][0] * dst[3][0], src[3][1] * dst[3][0], -dst[3][0] }, // h31
+		{ 0, 0, 0, -src[3][0], -src[3][1], -1, src[3][0] * dst[3][1], src[3][1] * dst[3][1], -dst[3][1] }, // h32
+	};
+
+	gaussianElimination( &p[0][0], 9 );
+
+	mat4 result = mat4( p[0][8], p[3][8], 0, p[6][8], p[1][8], p[4][8], 0, p[7][8], 0, 0, 1, 0, p[2][8], p[5][8], 0, 1 );
+
+	return result;
+}
+
+// Adapted from code found here: http://forum.openframeworks.cc/t/quad-warping-homography-without-opencv/3121/19
+void PerspectiveWarpingApp::gaussianElimination( float *a, int n ) const
+{
+	int       i = 0;
+	int       j = 0;
+	const int m = n - 1;
+
+	while( i < m && j < n ) {
+		int maxi = i;
+		for( int k = i + 1; k < m; ++k ) {
+			if( fabs( a[k * n + j] ) > fabs( a[maxi * n + j] ) ) {
+				maxi = k;
+			}
+		}
+
+		if( a[maxi * n + j] != 0 ) {
+			if( i != maxi )
+				for( int k = 0; k < n; k++ ) {
+					const float aux = a[i * n + k];
+					a[i * n + k] = a[maxi * n + k];
+					a[maxi * n + k] = aux;
+				}
+
+			const float aIj = a[i * n + j];
+			for( int k = 0; k < n; k++ ) {
+				a[i * n + k] /= aIj;
+			}
+
+			for( int u = i + 1; u < m; u++ ) {
+				const float aUj = a[u * n + j];
+				for( int k = 0; k < n; k++ ) {
+					a[u * n + k] -= aUj * a[i * n + k];
+				}
+			}
+
+			++i;
+		}
+		++j;
+	}
+
+	for( i = m - 2; i >= 0; --i ) {
+		for( j = i + 1; j < n - 1; j++ ) {
+			a[i * n + m] -= a[i * n + j] * a[j * n + m];
+		}
+	}
 }
 
 CINDER_APP( PerspectiveWarpingApp, RendererGl, &PerspectiveWarpingApp::prepare )

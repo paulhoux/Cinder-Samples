@@ -57,7 +57,7 @@ void Stars::setup()
 	}
 
 	try {
-		mTextureStar = gl::Texture2d::create( loadImage( loadAsset( "textures/particle.png" ) ) );
+		mTextureStar = gl::Texture2d::create( loadImage( loadAsset( "textures/star_glow.png" ) ) );
 		mTextureCorona = gl::Texture2d::create( loadImage( loadAsset( "textures/nova.png" ) ) );
 		mTextureHalo = gl::Texture2d::create( loadImage( loadAsset( "textures/corona.png" ) ) );
 	}

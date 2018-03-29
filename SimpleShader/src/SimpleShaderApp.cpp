@@ -20,8 +20,8 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/app/App.h"
 #include "cinder/ImageIo.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
@@ -60,9 +60,7 @@ void SimpleShaderApp::setup()
 	}
 }
 
-void SimpleShaderApp::update()
-{
-}
+void SimpleShaderApp::update() {}
 
 void SimpleShaderApp::draw()
 {
@@ -75,8 +73,8 @@ void SimpleShaderApp::draw()
 	mShader->uniform( "tex1", 1 );
 
 	// bind the textures
-	gl::ScopedTextureBind tex0( mTexture0, (uint8_t)0 );
-	gl::ScopedTextureBind tex1( mTexture1, (uint8_t)1 );
+	gl::ScopedTextureBind tex0( mTexture0, uint8_t( 0 ) );
+	gl::ScopedTextureBind tex1( mTexture1, uint8_t( 1 ) );
 
 	// now run the shader for every pixel in the window
 	// by drawing a full screen rectangle

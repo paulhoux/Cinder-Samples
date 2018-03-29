@@ -46,7 +46,8 @@ typedef TextLabelList::const_iterator TextLabelListConstIter;
 class TextLabels : public ph::text::Text {
   public:
 	TextLabels( void )
-	    : mOffset( 0 ){};
+	    : mScale( 1 )
+	    , mOffset( 0 ){};
 	virtual ~TextLabels( void ){};
 
 	//! clears all labels
@@ -57,6 +58,17 @@ class TextLabels : public ph::text::Text {
 	TextLabelListConstIter begin() const { return mLabels.begin(); }
 	//! returns a const iterator to the labels
 	TextLabelListConstIter end() const { return mLabels.end(); }
+
+	//!
+	const ci::vec2 &getScale() const { return mScale; }
+	//!
+	void setScale( float x, float y )
+	{
+		mScale.x = x;
+		mScale.y = y;
+	}
+	//!
+	void setScale( const ci::vec2 &scale ) { mScale = scale; }
 
 	//!
 	// ci::vec2	getOffset() const { return mOffset; }
@@ -89,6 +101,7 @@ class TextLabels : public ph::text::Text {
   private:
 	TextLabelList mLabels;
 
+	ci::vec2              mScale;
 	ci::vec4              mOffset;
 	std::vector<ci::vec4> mOffsets;
 };

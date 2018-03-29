@@ -1,3 +1,4 @@
+#include "cinder/Filesystem.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
@@ -32,7 +33,7 @@ class TextRenderingApp : public App {
 
   protected:
 	vec3 constrainAnchor( const vec3 &pt ) const;
-	void updateWindowTitle();
+	void updateWindowTitle() const;
 
   protected:
 	bool mShowBounds;
@@ -196,7 +197,7 @@ void TextRenderingApp::mouseDrag( MouseEvent event )
 
 	if( event.isLeftDown() ) {
 		// drag text up and down, limited by the window dimensions
-		vec2 d( ( mCurrentMouse.x - mInitialMouse.x ) / mScale, ( mCurrentMouse.y - mInitialMouse.y ) / mScale );
+		const vec2 d( ( mCurrentMouse.x - mInitialMouse.x ) / mScale, ( mCurrentMouse.y - mInitialMouse.y ) / mScale );
 		mAnchor.x = mInitialAnchor.x - d.x;
 		mAnchor.y = mInitialAnchor.y - d.y;
 		mAnchorTarget = mAnchor = constrainAnchor( mAnchor );
@@ -210,8 +211,8 @@ void TextRenderingApp::mouseDrag( MouseEvent event )
 	}
 	else if( event.isRightDown() ) {
 		// scale text
-		float d0 = glm::length( mInitialMouse );
-		float d1 = glm::length( mCurrentMouse );
+		const float d0 = glm::length( mInitialMouse );
+		const float d1 = glm::length( mCurrentMouse );
 		mScale = mInitialScale * ( d1 / d0 );
 
 		// make sure auto-scrolling is disabled
@@ -229,8 +230,8 @@ void TextRenderingApp::mouseUp( MouseEvent event )
 		mCurrentMouse = event.getPos();
 
 		// calculate average drag distance per frame
-		vec2 d( ( mCurrentMouse.x - mInitialMouse.x ) / mScale, ( mCurrentMouse.y - mInitialMouse.y ) / mScale );
-		vec2 avg = d / float( mMouseDragFrame - mMouseDownFrame );
+		const vec2 d( ( mCurrentMouse.x - mInitialMouse.x ) / mScale, ( mCurrentMouse.y - mInitialMouse.y ) / mScale );
+		const vec2 avg = d / float( mMouseDragFrame - mMouseDownFrame );
 
 		mAnchorSpeed = vec3( avg, 0.0f );
 	}
@@ -266,7 +267,7 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		mScale = 1.0f;
 		break;
 	case KeyEvent::KEY_SPACE: {
-		Color temp = mFrontColor;
+		const Color temp = mFrontColor;
 		mFrontColor = mBackColor;
 		mBackColor = temp;
 	} break;
@@ -279,8 +280,9 @@ void TextRenderingApp::keyDown( KeyEvent event )
 		break;
 	case KeyEvent::KEY_LEFT:
 		/*if( mTextBox.getAlignment() == TextBox::JUSTIFIED )
-			mTextBox.setAlignment( TextBox::RIGHT );
-			else*/ if( mTextBox.getAlignment() == ph::text::TextBox::RIGHT )
+		    mTextBox.setAlignment( TextBox::RIGHT );
+		    else*/
+		if( mTextBox.getAlignment() == ph::text::TextBox::RIGHT )
 			mTextBox.setAlignment( ph::text::TextBox::CENTER );
 		else if( mTextBox.getAlignment() == ph::text::TextBox::CENTER )
 			mTextBox.setAlignment( ph::text::TextBox::LEFT );
@@ -339,6 +341,8 @@ void TextRenderingApp::keyUp( KeyEvent event )
 	case KeyEvent::KEY_KP_MINUS:
 	case KeyEvent::KEY_KP_PLUS:
 		mScaleSpeed = 1.0f;
+		break;
+	default:
 		break;
 	}
 }
@@ -418,17 +422,17 @@ void TextRenderingApp::fileDrop( FileDropEvent event )
 
 vec3 TextRenderingApp::constrainAnchor( const vec3 &pt ) const
 {
-	vec2 margin = vec2( 20, 20 ) / mScale;
-	vec2 size = mTextBox.getBounds().getSize();
-	vec2 center = 0.5f / mScale * vec2( getWindowSize() );
+	const vec2 margin = vec2( 20, 20 ) / mScale;
+	const vec2 size = mTextBox.getBounds().getSize();
+	const vec2 center = 0.5f / mScale * vec2( getWindowSize() );
 
-	float x = math<float>::min( center.x - margin.x, 0.5f * size.x );
-	float y = math<float>::min( center.y - margin.y, 0.5f * size.y );
+	const float x = math<float>::min( center.x - margin.x, 0.5f * size.x );
+	const float y = math<float>::min( center.y - margin.y, 0.5f * size.y );
 
-	float minx = math<float>::min( size.x - x, x );
-	float maxx = math<float>::max( size.x - x, x );
-	float miny = math<float>::min( size.y - y, y );
-	float maxy = math<float>::max( size.y - y, y );
+	const float minx = math<float>::min( size.x - x, x );
+	const float maxx = math<float>::max( size.x - x, x );
+	const float miny = math<float>::min( size.y - y, y );
+	const float maxy = math<float>::max( size.y - y, y );
 
 	vec3 result;
 	result.x = math<float>::clamp( pt.x, minx, maxx );
@@ -438,7 +442,7 @@ vec3 TextRenderingApp::constrainAnchor( const vec3 &pt ) const
 	return result;
 }
 
-void TextRenderingApp::updateWindowTitle()
+void TextRenderingApp::updateWindowTitle() const
 {
 	std::stringstream str;
 	str << "TextRenderingApp -";
