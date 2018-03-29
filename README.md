@@ -3,12 +3,12 @@ Cinder-Samples
 
 Sample applications for the Cinder framework. These samples are meant to be used with the latest official release of Cinder. Git users should build against the 'master' branch.
 
-These code samples are compatible with the Microsoft Visual Studio 2013 compiler, which is the compiler of choice for the Windows platform. The code should also work with Visual Studio 2015. XCode support for MacOS X is currently not supported, but the C++ and GLSL source code should run on all platforms without modifications. If you find an inconsistency or platform related bug, please notify me or create a pull request, so that I can fix the issues and make these samples as cross-platform as possible. 
+These code samples are compatible with the Microsoft Visual Studio 2015 compiler, which is the compiler of choice for the Windows platform. XCode support for MacOS X is currently not officially supported, but the C++ and GLSL source code should run on all platforms without modifications. If you find an inconsistency or platform related bug, please notify me or create a pull request, so that I can fix the issues and make these samples as cross-platform as possible. 
 
 Find specific, sample related information in the sample's README.md files.
 
 
-#####Downloading and using the samples with Cinder
+##### Downloading and using the samples with Cinder
 * Make sure you have downloaded the Cinder Framework. It is recommended to use Git, because this will make it easier for you to keep up to date with the latest versions of both Cinder and these samples. To learn more about how to create a copy of the Cinder Github repository, visit: http://libcinder.org/docs/welcome/GitSetup.html
 * Make sure the Cinder master folder is called ```cinder_master```, so that the samples can find it automatically. 
 * Make sure you can successfully compile Cinder yourself. 
@@ -23,10 +23,10 @@ Find specific, sample related information in the sample's README.md files.
  ![Folders](https://raw.github.com/paulhoux/Cinder-Samples/master/FOLDERS.jpg)
  * Alternatively, you can download the repository as a [ZIP-file](https://github.com/paulhoux/Cinder-Samples/zipball/master) and manually add the files to a "cinder_samples" folder.
 * To run a sample, browse to the sample's folder and double-click the pre-compiled executable (.exe)
-* To compile the sample yourself, browse to the sample's project folder (e.g. ```vc2013```) and double-click the project file (.vcxproj) or solution (.sln) to open it in Visual Studio. Then, press F7 to compile the sample. It should compile without errors, provided you also compiled the Cinder Framework itself.
+* To compile the sample yourself, browse to the sample's project folder (e.g. ```vc2015```) and double-click the project file (.vcxproj) or solution (.sln) to open it in Visual Studio. Then, press F7 to compile the sample. It should compile without errors, provided you also compiled the Cinder Framework itself.
 * To make sure that both Cinder and the sample code are always up to date, you can add the Cinder Framework project to your solution:
  * From the ```File``` menu, select ```Add...``` and then ```Existing Project...```
- * Browse to ```cinder_master\vc2013\cinder.vcxproj``` for Visual Studio 2013
+ * Browse to ```cinder_master\proj\vc2015\cinder.vcxproj```
  * Click the ```Open``` button
  * In the Solution Explorer, right-click on the sample project (e.g. ```AnalogClockApp```)
  * Select (```Build Dependencies``` and then) ```Project Dependencies...```
@@ -40,7 +40,7 @@ Thanks to all contributors and to the people behind the Cinder framework for doi
 -Paul
 
 
-Copyright (c) 2012-2015, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
+Copyright (c) 2012-2018, Paul Houx - All rights reserved. This code is intended for use with the Cinder C++ library: http://libcinder.org
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
