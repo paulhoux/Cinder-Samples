@@ -20,9 +20,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "text/FontStore.h"
 #include "cinder/Utilities.h"
 #include "cinder/app/App.h"
-#include "text/FontStore.h"
 
 namespace ph {
 namespace text {
@@ -87,5 +87,5 @@ FontRef FontStore::loadFont( DataSourceRef source )
 	// return empty font on error
 	return FontRef();
 }
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

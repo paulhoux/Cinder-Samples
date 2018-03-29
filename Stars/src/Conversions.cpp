@@ -89,7 +89,7 @@ void Conversions::mergeNames( ci::DataSourceRef hyg, ci::DataSourceRef ciel )
 	// read star names
 	std::string stars = loadString( ciel );
 
-	std::vector<std::string> tokens;
+	std::vector<std::string>        tokens;
 	std::map<uint32_t, std::string> names;
 
 	std::vector<std::string> lines;

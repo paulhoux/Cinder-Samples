@@ -34,9 +34,7 @@ NodeRectangle::NodeRectangle( void )
 {
 }
 
-NodeRectangle::~NodeRectangle( void )
-{
-}
+NodeRectangle::~NodeRectangle( void ) {}
 
 void NodeRectangle::setup()
 {
@@ -44,9 +42,7 @@ void NodeRectangle::setup()
 	setRotation( toRadians( Rand::randFloat( -15.0f, 15.0f ) ) );
 }
 
-void NodeRectangle::update( double elapsed )
-{
-}
+void NodeRectangle::update( double elapsed ) {}
 
 void NodeRectangle::draw()
 {

@@ -34,13 +34,9 @@ using namespace ci;
 using namespace ci::app;
 using namespace ph;
 
-ConstellationLabels::ConstellationLabels( void )
-{
-}
+ConstellationLabels::ConstellationLabels( void ) {}
 
-ConstellationLabels::~ConstellationLabels( void )
-{
-}
+ConstellationLabels::~ConstellationLabels( void ) {}
 
 void ConstellationLabels::setup()
 {

@@ -78,5 +78,5 @@ class TextBox : public ph::text::Text {
   protected:
 	ci::vec2 mSize;
 };
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

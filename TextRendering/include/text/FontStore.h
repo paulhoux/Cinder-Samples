@@ -44,7 +44,7 @@ class FontStore {
 		return fm;
 	};
 
-	bool hasFont( const std::string &family );
+	bool    hasFont( const std::string &family );
 	FontRef getFont( const std::string &family );
 
 	//!
@@ -65,5 +65,5 @@ inline FontStore &fonts()
 {
 	return FontStore::getInstance();
 };
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

@@ -39,9 +39,7 @@ Labels::Labels( void )
 {
 }
 
-Labels::~Labels( void )
-{
-}
+Labels::~Labels( void ) {}
 
 void Labels::setup()
 {

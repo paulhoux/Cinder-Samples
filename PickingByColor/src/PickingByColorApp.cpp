@@ -163,13 +163,9 @@ void PickingByColorApp::setup()
 	mColorBackground = Color( 0.1f, 0.1f, 0.1f );
 }
 
-void PickingByColorApp::shutdown()
-{
-}
+void PickingByColorApp::shutdown() {}
 
-void PickingByColorApp::update()
-{
-}
+void PickingByColorApp::update() {}
 
 void PickingByColorApp::draw()
 {
@@ -218,9 +214,7 @@ void PickingByColorApp::mouseDrag( MouseEvent event )
 	mCameraUi.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
-void PickingByColorApp::mouseUp( MouseEvent event )
-{
-}
+void PickingByColorApp::mouseUp( MouseEvent event ) {}
 
 void PickingByColorApp::keyDown( KeyEvent event )
 {
@@ -234,9 +228,7 @@ void PickingByColorApp::keyDown( KeyEvent event )
 	}
 }
 
-void PickingByColorApp::keyUp( KeyEvent event )
-{
-}
+void PickingByColorApp::keyUp( KeyEvent event ) {}
 
 void PickingByColorApp::resize()
 {

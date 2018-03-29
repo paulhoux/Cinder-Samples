@@ -68,6 +68,7 @@ class TextureStore {
 
 	//! returns an empty texture. Override it to supply something else in case a texture was not available.
 	virtual ci::gl::Texture2dRef empty() { return ci::gl::Texture2dRef(); };
+
   protected:
 	volatile bool isInterrupted;
 

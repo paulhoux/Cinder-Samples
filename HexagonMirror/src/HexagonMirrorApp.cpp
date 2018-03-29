@@ -20,9 +20,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/Capture.h"
 #include "cinder/Camera.h"
 #include "cinder/CameraUi.h"
+#include "cinder/Capture.h"
 #include "cinder/ImageIo.h"
 #include "cinder/ObjLoader.h"
 #include "cinder/Rand.h"
@@ -237,9 +237,7 @@ void HexagonMirrorApp::resize()
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
-void HexagonMirrorApp::mouseMove( MouseEvent event )
-{
-}
+void HexagonMirrorApp::mouseMove( MouseEvent event ) {}
 
 void HexagonMirrorApp::mouseDown( MouseEvent event )
 {
@@ -251,9 +249,7 @@ void HexagonMirrorApp::mouseDrag( MouseEvent event )
 	mCameraUi.mouseDrag( event );
 }
 
-void HexagonMirrorApp::mouseUp( MouseEvent event )
-{
-}
+void HexagonMirrorApp::mouseUp( MouseEvent event ) {}
 
 void HexagonMirrorApp::keyDown( KeyEvent event )
 {
@@ -272,8 +268,6 @@ void HexagonMirrorApp::keyDown( KeyEvent event )
 	}
 }
 
-void HexagonMirrorApp::keyUp( KeyEvent event )
-{
-}
+void HexagonMirrorApp::keyUp( KeyEvent event ) {}
 
 CINDER_APP( HexagonMirrorApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &HexagonMirrorApp::prepare )

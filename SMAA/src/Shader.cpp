@@ -50,9 +50,7 @@ Shader::Shader( const std::string &name )
 	load();
 }
 
-Shader::~Shader( void )
-{
-}
+Shader::~Shader( void ) {}
 
 ShaderRef Shader::create()
 {

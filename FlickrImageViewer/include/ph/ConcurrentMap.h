@@ -102,7 +102,7 @@ class ConcurrentMap {
 
 	bool wait_and_pop( Key const &key, Data &popped_value )
 	{
-		std::lock_guard<std::mutex> lock( mMutex );
+		std::lock_guard<std::mutex>            lock( mMutex );
 		typename std::map<Key, Data>::iterator itr;
 		while( mQueue.find( key ) == mQueue.end() && !mInvalidated ) {
 			mCondition.wait( lock );
@@ -123,7 +123,7 @@ class ConcurrentMap {
 	}
 
   private:
-	std::map<Key, Data> mQueue;
+	std::map<Key, Data>     mQueue;
 	mutable std::mutex      mMutex;
 	std::condition_variable mCondition;
 	std::atomic<bool>       mInvalidated;

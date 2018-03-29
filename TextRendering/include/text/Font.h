@@ -158,5 +158,5 @@ class FontInvalidTargetExc : public FontExc {
   public:
 	virtual const char *what() const throw() { return "Font exception: could not write to the specified target"; }
 };
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

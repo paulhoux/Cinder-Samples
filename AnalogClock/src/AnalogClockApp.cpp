@@ -32,7 +32,7 @@ class AnalogClockApp : public App {
   public:
 	// setting up and shutting down
 	static void prepare( Settings *settings );
-	void setup();
+	void        setup();
 
 	// game loop
 	void update();

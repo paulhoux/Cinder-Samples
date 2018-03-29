@@ -38,5 +38,5 @@ void TextBox::drawBounds( const ci::vec2 &offset )
 	gl::ScopedColor color( 1, 0, 0, 1 );
 	gl::drawStrokedRect( Rectf( offset, offset + mSize ), 5.0f );
 }
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

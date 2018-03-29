@@ -37,6 +37,7 @@ class UserInterface {
 
 	//! set distance of camera to Sun in parsecs, then convert to lightyears
 	void setCameraDistance( float distance ) { mDistance = distance * 3.261631f; }
+
   private:
 	float mDistance;
 

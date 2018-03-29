@@ -23,12 +23,12 @@
 #pragma warning( push )
 #pragma warning( disable : 4996 ) // _CRT_SECURE_NO_WARNINGS
 
-#include "cinder/app/App.h"
 #include "cinder/ConcurrentCircularBuffer.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Log.h"
 #include "cinder/Unicode.h"
 #include "cinder/Utilities.h"
+#include "cinder/app/App.h"
 #include "cinder/app/Platform.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/Environment.h"

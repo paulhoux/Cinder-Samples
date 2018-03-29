@@ -24,8 +24,8 @@
 #pragma warning( push )
 #pragma warning( disable : 4244 )
 
-#include "cinder/app/App.h"
 #include "cinder/Log.h"
+#include "cinder/app/App.h"
 #include "cinder/ip/Resize.h"
 //#include "cinder/DataSource.h"
 //#include "cinder/ImageIo.h"

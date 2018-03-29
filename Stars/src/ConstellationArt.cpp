@@ -37,9 +37,7 @@ ConstellationArt::ConstellationArt( void )
 {
 }
 
-ConstellationArt::~ConstellationArt( void )
-{
-}
+ConstellationArt::~ConstellationArt( void ) {}
 
 void ConstellationArt::setup()
 {

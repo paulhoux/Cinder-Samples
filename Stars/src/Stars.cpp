@@ -41,9 +41,7 @@ Stars::Stars( void )
 {
 }
 
-Stars::~Stars( void )
-{
-}
+Stars::~Stars( void ) {}
 
 void Stars::setup()
 {

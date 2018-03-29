@@ -40,9 +40,7 @@ Constellations::Constellations( void )
 {
 }
 
-Constellations::~Constellations( void )
-{
-}
+Constellations::~Constellations( void ) {}
 
 void Constellations::draw()
 {

@@ -53,7 +53,7 @@ class Constellations {
   private:
 	void createMesh();
 
-	ci::dvec3 getStarCoordinate( double ra, double dec, double distance );
+	ci::dvec3              getStarCoordinate( double ra, double dec, double distance );
 	std::vector<ci::dvec3> getStarCoordinates( ci::DataSourceRef source );
 
   private:

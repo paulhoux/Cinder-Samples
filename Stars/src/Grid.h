@@ -33,6 +33,7 @@ class Grid {
 	void draw();
 
 	void setLineWidth( float width ) { mLineWidth = width; }
+
   private:
 	ci::gl::VertBatchRef mBatch;
 	float                mLineWidth;

@@ -52,7 +52,7 @@ class Stars {
 		}
 
 		ci::vec3 getPosition() { return mDistance * mPosition; }
-		void setPosition( float ra, float dec )
+		void     setPosition( float ra, float dec )
 		{
 			// convert to world (universe) coordinates
 			float alpha = ci::toRadians( ra * 15.0f );
@@ -61,13 +61,14 @@ class Stars {
 		}
 
 		float getDistance() { return mDistance; }
-		void setDistance( float parsecs ) { mDistance = parsecs; }
+		void  setDistance( float parsecs ) { mDistance = parsecs; }
 
 		ci::Color getColor() { return mColor; }
-		void setColor( const ci::Color &color ) { mColor = color; }
+		void      setColor( const ci::Color &color ) { mColor = color; }
 
 		float getMagnitude() { return mMagnitude; }
-		void setMagnitude( float magnitude ) { mMagnitude = magnitude; }
+		void  setMagnitude( float magnitude ) { mMagnitude = magnitude; }
+
 	  private:
 		ci::vec3  mPosition;
 		float     mDistance;
@@ -94,7 +95,7 @@ class Stars {
 
 	//
 	float getAspectRatio() const { return mAspectRatio; }
-	void setAspectRatio( float aspect ) { mAspectRatio = aspect; }
+	void  setAspectRatio( float aspect ) { mAspectRatio = aspect; }
 
 	//! load a comma separated file containing the HYG star database
 	void load( ci::DataSourceRef source );

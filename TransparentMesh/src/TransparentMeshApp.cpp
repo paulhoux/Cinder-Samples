@@ -20,9 +20,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cinder/app/App.h"
 #include "cinder/CameraUi.h"
 #include "cinder/ImageIo.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/Context.h"
 #include "cinder/gl/GlslProg.h"
@@ -157,9 +157,7 @@ void TransparentMeshApp::resize()
 	mCamera.setAspectRatio( getWindowAspectRatio() );
 }
 
-void TransparentMeshApp::mouseMove( MouseEvent event )
-{
-}
+void TransparentMeshApp::mouseMove( MouseEvent event ) {}
 
 void TransparentMeshApp::mouseDown( MouseEvent event )
 {
@@ -173,16 +171,10 @@ void TransparentMeshApp::mouseDrag( MouseEvent event )
 	mCameraUi.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
 }
 
-void TransparentMeshApp::mouseUp( MouseEvent event )
-{
-}
+void TransparentMeshApp::mouseUp( MouseEvent event ) {}
 
-void TransparentMeshApp::keyDown( KeyEvent event )
-{
-}
+void TransparentMeshApp::keyDown( KeyEvent event ) {}
 
-void TransparentMeshApp::keyUp( KeyEvent event )
-{
-}
+void TransparentMeshApp::keyUp( KeyEvent event ) {}
 
 CINDER_APP( TransparentMeshApp, RendererGl( RendererGl::Options().msaa( 16 ) ), &TransparentMeshApp::prepare )

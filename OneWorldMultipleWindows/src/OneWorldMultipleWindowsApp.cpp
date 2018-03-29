@@ -20,10 +20,10 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cinder/app/App.h"
 #include "cinder/Camera.h"
 #include "cinder/Log.h"
 #include "cinder/Rand.h"
+#include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/gl.h"

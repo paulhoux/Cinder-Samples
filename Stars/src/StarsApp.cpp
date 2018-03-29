@@ -433,15 +433,15 @@ void StarsApp::draw()
 			mUserInterface.draw( "Perspective Projection" );
 	}
 
-	/*// fade in at start of application
-	gl::ScopedAlphaBlend blend(false);
-	double t = math<double>::clamp( mTimer.getSeconds() / 3.0, 0.0, 1.0 );
-	float a = ci::lerp<float>( 1.0f, 0.0f, (float) t );
+		/*// fade in at start of application
+		gl::ScopedAlphaBlend blend(false);
+		double t = math<double>::clamp( mTimer.getSeconds() / 3.0, 0.0, 1.0 );
+		float a = ci::lerp<float>( 1.0f, 0.0f, (float) t );
 
-	if( a > 0.0f ) {
-	gl::color( ColorA( 0, 0, 0, a ) );
-	gl::drawSolidRect( getWindowBounds() );
-	}//*/
+		if( a > 0.0f ) {
+		gl::color( ColorA( 0, 0, 0, a ) );
+		gl::drawSolidRect( getWindowBounds() );
+		}//*/
 #endif
 
 	if( mSun ) {

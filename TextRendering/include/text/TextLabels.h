@@ -40,8 +40,8 @@ class TextLabelCompare {
 };
 
 typedef std::multimap<ci::vec4, std::u16string, TextLabelCompare> TextLabelList;
-typedef TextLabelList::iterator       TextLabelListIter;
-typedef TextLabelList::const_iterator TextLabelListConstIter;
+typedef TextLabelList::iterator                                   TextLabelListIter;
+typedef TextLabelList::const_iterator                             TextLabelListConstIter;
 
 class TextLabels : public ph::text::Text {
   public:
@@ -105,5 +105,5 @@ class TextLabels : public ph::text::Text {
 	ci::vec4              mOffset;
 	std::vector<ci::vec4> mOffsets;
 };
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph

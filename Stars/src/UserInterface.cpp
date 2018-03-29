@@ -37,9 +37,7 @@ UserInterface::UserInterface( void )
 {
 }
 
-UserInterface::~UserInterface( void )
-{
-}
+UserInterface::~UserInterface( void ) {}
 
 void UserInterface::setup()
 {

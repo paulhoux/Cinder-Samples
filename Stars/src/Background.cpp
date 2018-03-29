@@ -45,9 +45,7 @@ Background::Background( void )
 	mTransform = mat4( +0.444829594298f, -0.746982248696f, -0.494109453633f, 0.0f, -0.198076389622f, +0.455983794523f, -0.867666135681f, 0.0f, +0.873437104725f, +0.483834991775f, +0.054875539390f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f );
 }
 
-Background::~Background( void )
-{
-}
+Background::~Background( void ) {}
 
 void Background::setup()
 {

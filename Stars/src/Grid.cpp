@@ -32,9 +32,7 @@ Grid::Grid( void )
 {
 }
 
-Grid::~Grid( void )
-{
-}
+Grid::~Grid( void ) {}
 
 void Grid::setup()
 {

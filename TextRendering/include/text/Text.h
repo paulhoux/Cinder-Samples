@@ -66,14 +66,14 @@ class Text {
 	}
 
 	float getFontSize() const { return mFontSize; }
-	void setFontSize( float size )
+	void  setFontSize( float size )
 	{
 		mFontSize = size;
 		mInvalid = true;
 	}
 
 	float getLineSpace() const { return mLineSpace; }
-	void setLineSpace( float value )
+	void  setLineSpace( float value )
 	{
 		mLineSpace = value;
 		mInvalid = true;
@@ -82,14 +82,14 @@ class Text {
 	float getLeading() const { return ( mFont ? std::floorf( mFont->getLeading( mFontSize ) * mLineSpace + 0.5f ) : 0.0f ); }
 
 	Alignment getAlignment() const { return mAlignment; }
-	void setAlignment( Alignment alignment )
+	void      setAlignment( Alignment alignment )
 	{
 		mAlignment = alignment;
 		mInvalid = true;
 	}
 
 	Boundary getBoundary() const { return mBoundary; }
-	void setBoundary( Boundary boundary )
+	void     setBoundary( Boundary boundary )
 	{
 		mBoundary = boundary;
 		mInvalid = true;
@@ -112,6 +112,7 @@ class Text {
 	virtual std::string getFragmentShader() const;
 	//! Allows you to override the default text shader.
 	void setShader( const ci::gl::GlslProgRef &shader ) { mShader = shader; }
+
   protected:
 	//! get the maximum width of the text at the specified vertical position
 	virtual float getWidthAt( float y ) { return 0.0f; }
@@ -170,5 +171,5 @@ class Text {
 	std::vector<uint16_t> mIndices;
 	std::vector<ci::vec2> mTexcoords;
 };
-}
-} // namespace ph::text
+} // namespace text
+} // namespace ph
