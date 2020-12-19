@@ -1251,7 +1251,7 @@ Instead of using this on PC, I'd suggest just using FXAA Quality with
     #define FXAA_QUALITY__PRESET 10
 Or 
     #define FXAA_QUALITY__PRESET 20
-Either are higher qualilty and almost as fast as this on modern PC GPUs.
+Either are higher quality and almost as fast as this on modern PC GPUs.
 ============================================================================*/
 #if (FXAA_PC_CONSOLE == 1)
 /*--------------------------------------------------------------------------*/
